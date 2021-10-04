@@ -4,7 +4,7 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
     Framework::Launcher::ProjectConfiguration config;
-    config.destinationDllName = L"client.dll";
+    config.destinationDllName = L"MafiaMPClient.dll";
     config.executableName     = L"mafiadefinitiveedition.exe";
     config.name               = "MafiaMP";
     config.platform           = Framework::Launcher::ProjectPlatform::STEAM;
