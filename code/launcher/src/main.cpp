@@ -2,7 +2,6 @@
 
 #include <launcher/project.h>
 
-#pragma comment(linker, "/merge:.text=.zdata")
 #pragma bss_seg(".maf")
 char maf_seg[0x10000000];
 
