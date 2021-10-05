@@ -3,7 +3,7 @@
 #include <launcher/project.h>
 
 #pragma bss_seg(".maf")
-char maf_seg[0x10000000];
+char maf_seg[0x130000000];
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
     Framework::Launcher::ProjectConfiguration config;

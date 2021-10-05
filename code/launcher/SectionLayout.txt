@@ -4,7 +4,6 @@
 .rdata
 .data
 .pdata
-.msvcjmc
 .tls
 .rsrc
 _RDATA
