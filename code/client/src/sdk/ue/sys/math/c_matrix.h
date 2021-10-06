@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stdio.h>
+#include <cstdio>
+#include <cstring>
 #include "c_vector.h"
 
 namespace SDK {
