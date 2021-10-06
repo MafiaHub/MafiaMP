@@ -8,6 +8,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/sys/math/c_matrix.cpp
     src/sdk/ue/sys/math/c_quat.cpp
     src/sdk/ue/sys/math/c_vector.cpp
+    src/sdk/ue/c_string.cpp
     src/sdk/c_game_input_module.cpp
     src/sdk/c_game.cpp
     src/sdk/c_ie.cpp
