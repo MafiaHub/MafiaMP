@@ -22,7 +22,7 @@ namespace SDK {
         gPatterns.C_ActorsSlotWrapper__C_ActorsSlotWrapperAddr =
             reinterpret_cast<uint64_t>(hook::pattern("48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC ? 48 8B 74 24 ? 48 8D 05 ? ? ? ? 33 ED").get_first());
         gPatterns.C_ActorsSlotWrapper__UpdateToCreateActorsAddr = hook::get_opcode_address("E8 ? ? ? ? EB 25 83 FF 0A");
-        gPatterns.C_ActorsSlotWrapper__GetFreeActorAddr         = reinterpret_cast<uint64_t>(hook::pattern("41 56 48 83 EC ? 33 C0 48 8B F9").first(-0xA));
+        gPatterns.C_ActorsSlotWrapper__GetFreeActorAddr         = reinterpret_cast<uint64_t>(hook::pattern("41 56 48 83 EC ? 33 C0 48 8B F9").get_first(-0xA));
         gPatterns.C_ActorsSlotWrapper__ReturnActorAddr = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 ? 48 89 6C 24 ? 56 48 83 EC ? 48 8B 41 ? 40 32 ED").get_first());
         gPatterns.C_ActorsSlotWrapper__CloseAddr       = reinterpret_cast<uint64_t>(hook::pattern("40 53 55 48 83 EC ? C7 41 ? ? ? ? ?").get_first());
 
