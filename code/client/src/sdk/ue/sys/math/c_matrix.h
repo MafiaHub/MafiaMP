@@ -1,10 +1,10 @@
 #pragma once
 
 #include <stdio.h>
+#include "c_vector.h"
 
 namespace SDK {
     namespace ue::sys::math {
-        class C_Vector;
         class C_Quat;
         class C_Matrix {
           public:

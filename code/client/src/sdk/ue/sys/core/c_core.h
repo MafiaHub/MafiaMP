@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../render/c_render_core.h"
+#include "c_frame.h"
 
 namespace SDK {
     namespace ue::sys::core {

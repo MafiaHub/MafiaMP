@@ -2,7 +2,7 @@
 
 #include <utils/hooking/hooking.h>
 
-#include "../../patterns.h"
+#include "../../../patterns.h"
 
 namespace SDK {
     namespace ue::sys::core {

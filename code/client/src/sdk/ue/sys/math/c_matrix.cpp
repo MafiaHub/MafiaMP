@@ -1,6 +1,6 @@
 #include "c_matrix.h"
 #include <utils/hooking/hooking.h>
-#include "../../patterns.h"
+#include "../../../patterns.h"
 
 namespace SDK {
     namespace ue::sys::math {

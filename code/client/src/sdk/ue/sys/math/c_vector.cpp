@@ -1,4 +1,8 @@
 #include "c_vector.h"
+#include "c_quat.h"
+
+#include <cstdio>
+#include <cmath>
 
 namespace SDK {
     namespace ue::sys::math {

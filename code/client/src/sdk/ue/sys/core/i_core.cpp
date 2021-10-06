@@ -1,6 +1,6 @@
 #include "i_core.h"
 
-#include "../../patterns.h"
+#include "../../../patterns.h"
 
 #include <utils/hooking/hooking.h>
 
