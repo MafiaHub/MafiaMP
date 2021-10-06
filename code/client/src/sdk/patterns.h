@@ -2,6 +2,9 @@
 
 #include <stdint.h>
 
+#include <utils/hooking/hooking.h>
+#include <utils/hooking/hooking_patterns.h>
+
 namespace SDK {
     class Patterns {
       public:

@@ -1,8 +1,5 @@
 #include "patterns.h"
 
-#include <utils/hooking/hooking.h>
-#include <utils/hooking/hooking_patterns.h>
-
 namespace SDK {
     Patterns gPatterns;
 
