@@ -4,7 +4,7 @@
 #include <utils/hooking/hooking.h>
 
 namespace MafiaMP::Game {
-    std::unique_ptr<Module> gModule;
+    Module* gModule = nullptr;
     
     Module::Module() {
         StaticRegister(this);

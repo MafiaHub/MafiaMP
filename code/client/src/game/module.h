@@ -25,5 +25,5 @@ namespace MafiaMP::Game {
         static void StaticHandleShutdown(Module *);
     };
 
-    extern std::unique_ptr<Module> gModule;
+    extern Module* gModule;
 } // namespace MafiaMP::Game
