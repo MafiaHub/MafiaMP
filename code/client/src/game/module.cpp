@@ -11,29 +11,29 @@ namespace MafiaMP::Game {
     }
 
     void Module::OnSysInit(SDK::I_TickedModuleCallEventContext &) {
-        Framework::Logging::GetLogger("Module")->trace("OnSysInit called");
+        Framework::Logging::GetLogger("Module")->debug("OnSysInit called");
     }
 
     void Module::OnSysShutdown(SDK::I_TickedModuleCallEventContext &) {
-        Framework::Logging::GetLogger("Module")->trace("OnSysShutdown called");
+        Framework::Logging::GetLogger("Module")->debug("OnSysShutdown called");
 
         delete this;
     }
 
     void Module::OnAppActivate(SDK::I_TickedModuleCallEventContext &) {
-        Framework::Logging::GetLogger("Module")->trace("OnAppActivate called");
+        Framework::Logging::GetLogger("Module")->debug("OnAppActivate called");
     }
 
     void Module::OnAppDeactivate(SDK::I_TickedModuleCallEventContext &) {
-        Framework::Logging::GetLogger("Module")->trace("OnAppDeactivate called");
+        Framework::Logging::GetLogger("Module")->debug("OnAppDeactivate called");
     }
 
     void Module::OnGameInit(SDK::I_TickedModuleCallEventContext &) {
-        Framework::Logging::GetLogger("Module")->trace("OnGameInit called");
+        Framework::Logging::GetLogger("Module")->debug("OnGameInit called");
     }
 
     void Module::OnGameShutdown(SDK::I_TickedModuleCallEventContext &) {
-        Framework::Logging::GetLogger("Module")->trace("OnGameShutdown called");
+        Framework::Logging::GetLogger("Module")->debug("OnGameShutdown called");
     }
 
     void Module::OnGameTick(SDK::I_TickedModuleCallEventContext &) {}
