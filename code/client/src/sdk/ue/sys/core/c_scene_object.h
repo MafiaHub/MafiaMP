@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../math/c_matrix.h"
+#include "../c_string.h"
 
 namespace SDK {
     namespace ue::sys::core {
