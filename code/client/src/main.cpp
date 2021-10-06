@@ -19,7 +19,7 @@ extern "C" void __declspec(dllexport) InitClient() {
 
     MH_Initialize();
 	hook::set_base();
-    hook::load_hints();
+    // hook::load_hints();
 
     // Load the patterns
     SDK::Patterns::InitPatterns();
