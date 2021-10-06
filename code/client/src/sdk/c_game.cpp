@@ -1,5 +1,5 @@
 #include "c_game.h"
-
+#include <utils/hooking/hooking.h>
 #include "patterns.h"
 
 namespace SDK {

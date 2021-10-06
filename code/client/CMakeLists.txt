@@ -7,11 +7,18 @@ set(MAFIAMP_CLIENT_FILES
 set(MAFIAMP_SDK_FILES
     src/sdk/entities/human/c_human_inventory.cpp
     src/sdk/entities/human/c_human_script.cpp
+    src/sdk/entities/player/c_player_model_manager.cpp
     src/sdk/entities/c_car.cpp
+    src/sdk/entities/c_door.cpp
     src/sdk/entities/c_entity.cpp
+    src/sdk/entities/c_entity_list.cpp
     src/sdk/entities/c_player_2.cpp
     src/sdk/entities/c_vehicle.cpp
     src/sdk/inventory/c_inventory_wrapper.cpp
+    src/sdk/mafia/framework/c_mafia_framework.cpp
+    src/sdk/mafia/streaming/c_actors_slot_wrapper.cpp
+    src/sdk/mafia/streaming/c_slot_wrapper.cpp
+    src/sdk/mafia/streaming/c_streaming_module.cpp
     src/sdk/ue/game/anim/c_wanim_playback_manager.cpp
     src/sdk/ue/game/camera/c_camera.cpp
     src/sdk/ue/game/camera/c_game_camera.cpp
@@ -26,8 +33,9 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/sys/math/c_quat.cpp
     src/sdk/ue/sys/math/c_vector.cpp
     src/sdk/ue/c_string.cpp
-    src/sdk/c_game_input_module.cpp
+    src/sdk/wrappers/c_human_2_car_wrapper.cpp
     src/sdk/c_game.cpp
+    src/sdk/c_game_input_module.cpp
     src/sdk/c_ie.cpp
     src/sdk/c_ticked_module_manager.cpp
     src/sdk/c_time_budget_info.cpp

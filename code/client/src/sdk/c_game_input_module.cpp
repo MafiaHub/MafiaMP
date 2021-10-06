@@ -1,5 +1,6 @@
 #include "c_game_input_module.h"
 
+#include <utils/hooking/hooking.h>
 #include "patterns.h"
 
 namespace SDK {

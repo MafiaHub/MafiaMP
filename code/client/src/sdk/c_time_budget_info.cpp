@@ -1,4 +1,5 @@
 #include "c_time_budget_info.h"
+#include <utils/hooking/hooking.h>
 
 #include "patterns.h"
 
