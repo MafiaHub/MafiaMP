@@ -1,4 +1,5 @@
 #include "c_quat.h"
+#include "utils.hpp"
 
 #include <cmath>
 #include <utils/hooking/hooking.h>
