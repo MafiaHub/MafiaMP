@@ -5,6 +5,7 @@ set(MAFIAMP_CLIENT_FILES
 )
 
 set(MAFIAMP_SDK_FILES
+    src/sdk/ue/game/c_wanim_playback_manager.cpp
     src/sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.cpp
     src/sdk/ue/gfx/environmenteffects/c_weather_manager_2.cpp
     src/sdk/ue/sys/core/c_scene_object.cpp
