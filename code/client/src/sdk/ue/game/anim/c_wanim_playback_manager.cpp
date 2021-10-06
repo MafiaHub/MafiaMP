@@ -1,6 +1,6 @@
 #include "c_wanim_playback_manager.h"
 
-#include "../../patterns.h"
+#include "../../../patterns.h"
 
 namespace SDK {
     namespace ue::game::anim {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../patterns.h"
+#include "../../../patterns.h"
 
 #include <stdint.h>
 #include <utils/hooking/hooking.h>
