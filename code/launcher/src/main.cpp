@@ -8,6 +8,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     config.executableName     = L"mafiadefinitiveedition.exe";
     config.name               = "MafiaMP";
     config.platform           = Framework::Launcher::ProjectPlatform::STEAM;
+    config.arch               = Framework::Launcher::ProjectArchitecture::CPU_X64;
     config.steamAppId         = 1030840;
 
     Framework::Launcher::Project project(config);
