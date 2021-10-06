@@ -5,9 +5,18 @@ set(MAFIAMP_CLIENT_FILES
 )
 
 set(MAFIAMP_SDK_FILES
+    src/sdk/entities/human/c_human_inventory.cpp
+    src/sdk/entities/human/c_human_script.cpp
+    src/sdk/entities/c_car.cpp
+    src/sdk/entities/c_entity.cpp
+    src/sdk/entities/c_player_2.cpp
+    src/sdk/entities/c_vehicle.cpp
+    src/sdk/inventory/c_inventory_wrapper.cpp
     src/sdk/ue/game/anim/c_wanim_playback_manager.cpp
     src/sdk/ue/game/camera/c_camera.cpp
     src/sdk/ue/game/camera/c_game_camera.cpp
+    src/sdk/ue/game/humainai/c_character_controller.cpp
+    src/sdk/ue/game/humainai/c_character_state_handler.cpp
     src/sdk/ue/game/human/c_behavior_character.cpp
     src/sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.cpp
     src/sdk/ue/gfx/environmenteffects/c_weather_manager_2.cpp
