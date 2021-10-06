@@ -1,5 +1,9 @@
 #include "c_quat.h"
 
+#include <cmath>
+#include <utils/hooking/hooking.h>
+#include "../../patterns.h"
+
 namespace SDK {
     namespace ue::sys::math {
         C_Quat::C_Quat(float x, float y, float z, float w) {
