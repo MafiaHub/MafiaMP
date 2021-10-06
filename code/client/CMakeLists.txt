@@ -1,5 +1,7 @@
 set(MAFIAMP_CLIENT_FILES
     src/main.cpp
+    src/game/module.cpp
+    src/game/hooks/mod_init.cpp
 )
 
 set(MAFIAMP_SDK_FILES
