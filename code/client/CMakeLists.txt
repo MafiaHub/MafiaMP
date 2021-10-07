@@ -1,11 +1,12 @@
 set(MAFIAMP_CLIENT_FILES
     src/main.cpp
     src/core/application.cpp
+    src/core/hooks/application.cpp
+    src/core/hooks/fast_load.cpp
+    src/core/hooks/loading_screen.cpp
+    src/core/hooks/mod_init.cpp
+    src/core/hooks/render_device.cpp
     src/game/module.cpp
-    src/game/hooks/application.cpp
-    src/game/hooks/fast_load.cpp
-    src/game/hooks/loading_screen.cpp
-    src/game/hooks/mod_init.cpp
 )
 
 set(MAFIAMP_SDK_FILES
