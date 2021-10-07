@@ -3,6 +3,8 @@
 #include <logging/logger.h>
 #include <utils/hooking/hooking.h>
 
+#include "../core/application.h"
+
 namespace MafiaMP::Game {
     Module* gModule = nullptr;
     
@@ -12,6 +14,11 @@ namespace MafiaMP::Game {
 
     void Module::OnSysInit(SDK::I_TickedModuleCallEventContext &) {
         Framework::Logging::GetLogger("Module")->debug("OnSysInit called");
+
+        // Init our main application
+        if (MafiaMP::Core::gApplication && !MafiaMP::Core::gApplication->IsInitialized()) {
+            MafiaMP::Core::gApplication->Init();
+        }
     }
 
     void Module::OnSysShutdown(SDK::I_TickedModuleCallEventContext &) {
@@ -22,6 +29,9 @@ namespace MafiaMP::Game {
 
     void Module::OnAppActivate(SDK::I_TickedModuleCallEventContext &) {
         Framework::Logging::GetLogger("Module")->debug("OnAppActivate called");
+
+        // Create our core module application
+        MafiaMP::Core::gApplication.reset(new MafiaMP::Core::Application);
     }
 
     void Module::OnAppDeactivate(SDK::I_TickedModuleCallEventContext &) {
@@ -36,7 +46,12 @@ namespace MafiaMP::Game {
         Framework::Logging::GetLogger("Module")->debug("OnGameShutdown called");
     }
 
-    void Module::OnGameTick(SDK::I_TickedModuleCallEventContext &) {}
+    void Module::OnGameTick(SDK::I_TickedModuleCallEventContext &) {
+        // Tick our main application
+        if (MafiaMP::Core::gApplication && MafiaMP::Core::gApplication->IsInitialized()) {
+            MafiaMP::Core::gApplication->Update();
+        }
+    }
 
     void Module::OnGameRender(SDK::I_TickedModuleCallEventContext &) {}
 

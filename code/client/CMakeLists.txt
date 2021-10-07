@@ -1,5 +1,6 @@
 set(MAFIAMP_CLIENT_FILES
     src/main.cpp
+    src/core/application.cpp
     src/game/module.cpp
     src/game/hooks/application.cpp
     src/game/hooks/fast_load.cpp
