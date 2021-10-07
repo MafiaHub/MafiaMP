@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-
 #include <utils/hooking/hooking.h>
 #include <utils/hooking/hooking_patterns.h>
 
@@ -205,8 +204,15 @@ namespace SDK {
         uint64_t C_Navigation__RegisterVehicleEntity = 0x0;
         uint64_t C_Navigation__UnregisterVehicle     = 0x0;
 
+        // init
+        uint64_t C_InitDone_MafiaFrameworkAddr = 0x0;
+        uint64_t LoadIntroAddr                 = 0x0;
+
+        // C_CommandLine
+        uint64_t C_CommandLine__FindCommandAddr = 0x0;
+
         static void InitPatterns();
     };
 
     extern Patterns gPatterns;
-} // namespace MafiaMP
+} // namespace SDK
