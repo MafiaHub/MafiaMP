@@ -6,7 +6,6 @@
 
 namespace SDK {
     namespace ue::sys::render::device {
-        // TODO: alignment invalid
         class C_Direct3D11RenderDevice: public I_RenderDevice {
           public:
             char pad_0[0xC8];                       // 0000 - 00C8
