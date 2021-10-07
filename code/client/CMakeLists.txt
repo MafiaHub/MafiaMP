@@ -1,6 +1,8 @@
 set(MAFIAMP_CLIENT_FILES
     src/main.cpp
     src/game/module.cpp
+    src/game/hooks/fast_load.cpp
+    src/game/hooks/loading_screen.cpp
     src/game/hooks/mod_init.cpp
 )
 
@@ -47,5 +49,5 @@ set(MAFIAMP_SDK_FILES
 
 add_library(MafiaMPClient SHARED ${MAFIAMP_CLIENT_FILES} ${MAFIAMP_SDK_FILES})
 target_include_directories(MafiaMPClient PRIVATE .)
-target_link_libraries(MafiaMPClient Framework FrameworkClient)
+target_link_libraries(MafiaMPClient Framework FrameworkClient shlwapi)
 target_link_options(MafiaMPClient PRIVATE /SAFESEH:NO /MANIFEST:NO)
