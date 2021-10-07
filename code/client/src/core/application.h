@@ -14,7 +14,9 @@ namespace MafiaMP::Core {
 
         bool Init();
         bool Shutdown();
+
         void Update();
+        void Render();
 
         Framework::External::Discord::Wrapper* GetPresence() const {
             return _presence;

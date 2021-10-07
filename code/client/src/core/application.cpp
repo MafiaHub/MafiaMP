@@ -19,9 +19,17 @@ namespace MafiaMP::Core {
         return true;
     }
 
+    bool Application::Shutdown() {
+        return true;
+    }
+
     void Application::Update() {
         if (_presence) {
             _presence->Update();
         }
+    }
+
+    void Application::Render() {
+
     }
 } // namespace MafiaMP::Core

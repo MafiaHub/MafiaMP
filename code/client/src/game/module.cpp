@@ -24,6 +24,10 @@ namespace MafiaMP::Game {
     void Module::OnSysShutdown(SDK::I_TickedModuleCallEventContext &) {
         Framework::Logging::GetLogger("Module")->debug("OnSysShutdown called");
 
+        // Properly shutdown our main application
+        if (MafiaMP::Core::gApplication && MafiaMP::Core::gApplication->IsInitialized()) {
+            MafiaMP::Core::gApplication->Shutdown();
+        }
         delete this;
     }
 
@@ -53,7 +57,12 @@ namespace MafiaMP::Game {
         }
     }
 
-    void Module::OnGameRender(SDK::I_TickedModuleCallEventContext &) {}
+    void Module::OnGameRender(SDK::I_TickedModuleCallEventContext &) {
+        // Tick our rendering thread
+        if (MafiaMP::Core::gApplication && MafiaMP::Core::gApplication->IsInitialized()) {
+            MafiaMP::Core::gApplication->Render();
+        }
+    }
 
     void Module::StaticRegister(Module *instance) {
         auto *mgr = SDK::GetTickedModuleManager();
