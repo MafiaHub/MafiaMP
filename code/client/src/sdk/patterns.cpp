@@ -271,5 +271,8 @@ namespace SDK {
 
         // C_CommandLine
         gPatterns.C_CommandLine__FindCommandAddr = hook::get_opcode_address("E8 ? ? ? ? 40 88 7D BB");
+
+        // C_GameFramework
+        gPatterns.C_GameFramework__IsSuspendedAddr = reinterpret_cast<uint64_t>(hook::pattern("80 39 ? 74 ? 80 79 ? ?").get_first());
     }
 }; // namespace SDK
