@@ -211,6 +211,9 @@ namespace SDK {
         // C_CommandLine
         uint64_t C_CommandLine__FindCommandAddr = 0x0;
 
+        // C_GameFramework
+        uint64_t C_GameFramework__IsSuspendedAddr = 0x0;
+
         static void InitPatterns();
     };
 
