@@ -15,6 +15,9 @@ namespace MafiaMP::Game {
     void Module::OnSysInit(SDK::I_TickedModuleCallEventContext &) {
         Framework::Logging::GetLogger("Module")->debug("OnSysInit called");
 
+        // Create our core module application
+        MafiaMP::Core::gApplication.reset(new MafiaMP::Core::Application);
+
         // Init our main application
         if (MafiaMP::Core::gApplication && !MafiaMP::Core::gApplication->IsInitialized()) {
             MafiaMP::Core::gApplication->Init();
@@ -33,9 +36,6 @@ namespace MafiaMP::Game {
 
     void Module::OnAppActivate(SDK::I_TickedModuleCallEventContext &) {
         Framework::Logging::GetLogger("Module")->debug("OnAppActivate called");
-
-        // Create our core module application
-        MafiaMP::Core::gApplication.reset(new MafiaMP::Core::Application);
     }
 
     void Module::OnAppDeactivate(SDK::I_TickedModuleCallEventContext &) {
