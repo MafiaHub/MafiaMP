@@ -197,6 +197,11 @@ namespace SDK {
         uint64_t C_HumanInventory__TellMedkit                    = 0x0;
         uint64_t C_HumanInventory__UseMedkit                     = 0x0;
 
+        // C_HumanWeaponController
+        uint64_t C_HumanWeaponController__GetRightHandWeaponID = 0x0;
+        uint64_t C_HumanWeaponController__GetShotPosDir        = 0x0;
+        uint64_t C_HumanWeaponController__IsThrownWeapon       = 0x0;
+
         // C_Navigation
         uint64_t C_Navigation__GetInstance           = 0x0;
         uint64_t C_Navigation__SetUserMark           = 0x0;

@@ -9,6 +9,7 @@
 #include "../inventory/c_inventory_wrapper.h"
 #include "c_actor.h"
 #include "human/c_human_head_controller.h"
+#include "human/c_human_weapon_controller.h"
 
 #include <cstdint>
 
@@ -18,24 +19,26 @@ namespace SDK {
         friend class C_HumanScript;
 
       public:
-        char pad0[0x120];                              // 0008 - 0128
-        C_InventoryWrapper *m_pHumanInventory;         // 0128 - 0130
-        C_HumanScript *m_pHumanScript;                 // 0130 - 0138
-        char pad1[0x20];                               // 0138 - 0158
-        C_HumanHeadController *m_pHumanHeadController; // 0158 - 0160
-        char pad2[0x78];                               // 0160 - 01D8
-        void *m_pBehaviorCharacter;                    // 01D8 - 01E0
-        float m_fHealth;                               // 01E0 - 01E4
-        float m_fHealthMax;                            // 01E4 - 01E8
-        char pad3[0x10];                               // 01E8 - 01F8
-        bool m_bInvulnerable;                          // 01F8 - 01F9
-        char pad4[2];                                  // 01F9 - 01FB
-        bool m_bDemigod;                               // 01FB - 01FC
-        char pad5[0xBC];                               // 01FC - 02B8
-        float field_02B8;                              // 02B8 - 02BC
-        float field_02BC;                              // 02BC - 02C0
-        char pad6[0x88];                               // 02C0 - 0348
-        uintptr_t field_0348;                          // 0348 - 0350
+        char pad0[0x120];                                   // 0008 - 0128
+        C_InventoryWrapper *m_pHumanInventory;              // 0128 - 0130
+        C_HumanScript *m_pHumanScript;                      // 0130 - 0138
+        char pad1[0x10];                                    // 0148 - 0148
+        C_HumanWeaponController *m_pHumanWeaponController;  // 0148 - 0150
+        void* m_pInjuryAnalyser;                            // 0150 - 0158
+        C_HumanHeadController *m_pHumanHeadController;      // 0158 - 0160
+        char pad2[0x78];                                    // 0160 - 01D8
+        void *m_pBehaviorCharacter;                         // 01D8 - 01E0
+        float m_fHealth;                                    // 01E0 - 01E4
+        float m_fHealthMax;                                 // 01E4 - 01E8
+        char pad3[0x10];                                    // 01E8 - 01F8
+        bool m_bInvulnerable;                               // 01F8 - 01F9
+        char pad4[2];                                       // 01F9 - 01FB
+        bool m_bDemigod;                                    // 01FB - 01FC
+        char pad5[0xBC];                                    // 01FC - 02B8
+        float field_02B8;                                   // 02B8 - 02BC
+        float field_02BC;                                   // 02BC - 02C0
+        char pad6[0x88];                                    // 02C0 - 0348
+        uintptr_t field_0348;                               // 0348 - 0350
 
       public:
         virtual void TickPrePhysics(float, /*ue::sys::math::C_Frustum const**/ void *, /*ue::sys::math::C_Frustum const**/ void *)           = 0;
@@ -126,6 +129,10 @@ namespace SDK {
       public:
         C_InventoryWrapper *GetInventoryWrapper() {
             return m_pHumanInventory;
+        }
+
+        C_HumanWeaponController* GetHumanWeaponController() {
+            return m_pHumanWeaponController;
         }
 
         C_HumanScript *GetHumanScript() {
