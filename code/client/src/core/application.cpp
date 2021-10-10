@@ -7,11 +7,19 @@ namespace MafiaMP::Core {
 
     Application::Application() {
         _presence = new Framework::External::Discord::Wrapper;
+        _renderer = new Framework::GUI::Renderer;
     }
 
     bool Application::Init() {
         if (_presence) {
             _presence->Init(763114144454672444);
+        }
+
+        if (_renderer) {
+            Framework::GUI::RendererConfiguration config;
+            config.backend = Framework::GUI::RendererBackend::BACKEND_D3D_11;
+            config.imgui   = true;
+            _renderer->Init(config);
         }
 
         Framework::Logging::GetLogger("Application")->debug("Initialize success");
@@ -20,6 +28,9 @@ namespace MafiaMP::Core {
     }
 
     bool Application::Shutdown() {
+        if (_renderer) {
+            _renderer->Shutdown();
+        }
         return true;
     }
 

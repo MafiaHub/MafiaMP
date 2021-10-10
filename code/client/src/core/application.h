@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gui/renderer.h>
 #include <external/discord/wrapper.h>
 
 namespace MafiaMP::Core {
@@ -7,6 +8,7 @@ namespace MafiaMP::Core {
       private:
         bool _initialized = false;
         Framework::External::Discord::Wrapper *_presence;
+        Framework::GUI::Renderer *_renderer;
 
       public:
         Application();
@@ -20,6 +22,10 @@ namespace MafiaMP::Core {
 
         Framework::External::Discord::Wrapper* GetPresence() const {
             return _presence;
+        }
+
+        Framework::GUI::Renderer* GetRenderer() const {
+            return _renderer;
         }
 
         bool IsInitialized() const {

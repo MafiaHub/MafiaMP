@@ -6,6 +6,8 @@
 
 #include <d3d11.h>
 
+#include "../application.h"
+
 #include "../../sdk/ue/sys/render/device/c_direct_3d11_render_device.h"
 #include "../../sdk/ue/sys/render/device/s_render_device_desc.h"
 #include "../../sdk/ue/sys/render/device/c_dynamic_vi_buffer_pool.h"
@@ -16,6 +18,10 @@ C_RenderDevice_Unknown_t C_RenderDevice_Unknown_original = nullptr;
 
 bool C_RenderDevice_Unknown(SDK::ue::sys::render::device::C_Direct3D11RenderDevice *device, SDK::ue::sys::render::device::S_RenderDeviceDesc const &a2,
     SDK::ue::sys::render::device::C_DynamicVIBufferPool &a3, void *idk) {
+
+    if (MafiaMP::Core::gApplication && MafiaMP::Core::gApplication->IsInitialized()) {
+        MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(device->_device);
+    }
 
     //TODO: initialize rendering backend + gui library
     return C_RenderDevice_Unknown_original(device, a2, a3, idk);
