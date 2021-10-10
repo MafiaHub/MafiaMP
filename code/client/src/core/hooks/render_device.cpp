@@ -22,8 +22,6 @@ bool C_RenderDevice_Unknown(SDK::ue::sys::render::device::C_Direct3D11RenderDevi
     if (MafiaMP::Core::gApplication && MafiaMP::Core::gApplication->IsInitialized()) {
         MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(device->_device, device->_context);
     }
-
-    //TODO: initialize rendering backend + gui library
     return C_RenderDevice_Unknown_original(device, a2, a3, idk);
 }
 

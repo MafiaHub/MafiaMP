@@ -41,6 +41,8 @@ namespace MafiaMP::Core {
     }
 
     void Application::Render() {
-
+        if (_renderer) {
+            _renderer->Update();
+        }
     }
 } // namespace MafiaMP::Core
