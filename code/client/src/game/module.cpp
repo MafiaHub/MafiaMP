@@ -5,6 +5,10 @@
 #include <logging/logger.h>
 #include <utils/hooking/hooking.h>
 
+#include "../sdk/c_game.h"
+#include "../sdk/entities/c_player_2.h"
+#include "../sdk/entities/human/c_human_weapon_controller.h"
+
 namespace MafiaMP::Game {
     Module *gModule = nullptr;
 
@@ -16,10 +20,10 @@ namespace MafiaMP::Game {
         Framework::Logging::GetLogger("Module")->debug("OnSysInit called");
 
         // Create our core module application
-        MafiaMP::Core::gApplication.reset(new MafiaMP::Core::Application);
+        Core::gApplication.reset(new Core::Application);
 
         // Init our main application
-        if (MafiaMP::Core::gApplication && !MafiaMP::Core::gApplication->IsInitialized()) {
+        if (Core::gApplication && !Core::gApplication->IsInitialized()) {
             Framework::Graphics::RendererConfiguration rendererOptions;
             rendererOptions.backend = Framework::Graphics::RendererBackend::BACKEND_D3D_11;
 
@@ -29,7 +33,7 @@ namespace MafiaMP::Game {
             opts.usePresence     = true;
             opts.rendererOptions = rendererOptions;
 
-            MafiaMP::Core::gApplication->Init(opts);
+            Core::gApplication->Init(opts);
         }
     }
 
@@ -37,8 +41,8 @@ namespace MafiaMP::Game {
         Framework::Logging::GetLogger("Module")->debug("OnSysShutdown called");
 
         // Properly shutdown our main application
-        if (MafiaMP::Core::gApplication && MafiaMP::Core::gApplication->IsInitialized()) {
-            MafiaMP::Core::gApplication->Shutdown();
+        if (Core::gApplication && Core::gApplication->IsInitialized()) {
+            Core::gApplication->Shutdown();
         }
         delete this;
     }
@@ -61,15 +65,15 @@ namespace MafiaMP::Game {
 
     void Module::OnGameTick(SDK::I_TickedModuleCallEventContext &) {
         // Tick our main application
-        if (MafiaMP::Core::gApplication && MafiaMP::Core::gApplication->IsInitialized()) {
-            MafiaMP::Core::gApplication->Update();
+        if (Core::gApplication && Core::gApplication->IsInitialized()) {
+            Core::gApplication->Update();
         }
     }
 
     void Module::OnGameRender(SDK::I_TickedModuleCallEventContext &) {
         // Tick our rendering thread
-        if (MafiaMP::Core::gApplication && MafiaMP::Core::gApplication->IsInitialized()) {
-            MafiaMP::Core::gApplication->Render();
+        if (Core::gApplication && Core::gApplication->IsInitialized()) {
+            Core::gApplication->Render();
         }
     }
 
@@ -111,4 +115,4 @@ namespace MafiaMP::Game {
         Framework::Logging::GetLogger("Module")->info("Shutdown success");
         // TODO: find a way to properly shutdown the game
     }
-} // namespace MafiaMP::Game
+} // namespace Game
