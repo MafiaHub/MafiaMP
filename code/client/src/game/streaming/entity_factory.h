@@ -19,9 +19,13 @@ namespace MafiaMP::Game::Streaming {
       public:
         EntityFactory();
 
+        EntityTrackingInfo* RequestHuman(SDK::ue::sys::utils::C_HashName);
+        EntityTrackingInfo* RequestVehicle(SDK::E_EntityType, const std::string &);
+
+
         void Update();
 
-        void ReturnEntity();
+        void ReturnEntity(EntityTrackingInfo*);
         void ReturnAll();
     };
 } // namespace MafiaMP::Game::Streaming
