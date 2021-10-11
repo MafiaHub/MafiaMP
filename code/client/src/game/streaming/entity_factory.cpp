@@ -26,12 +26,29 @@ namespace MafiaMP::Game::Streaming {
         delete spawner;
     }
 
-    static SDK::mafia::streaming::C_ActorsSlotWrapper *CreateVehicleSpawner(const std::pair<SDK::E_EntityType, std::string> &vehicleKind) {
-        auto slotWrapper = new SDK::mafia::streaming::C_ActorsSlotWrapper(vehicleKind.first, 1, 0, vehicleKind.second.c_str(), true);
+    static SDK::mafia::streaming::C_ActorsSlotWrapper *CreateTreeSpawner(const std::string &modelName){
+        auto slotWrapper = new SDK::mafia::streaming::C_ActorsSlotWrapper(SDK::E_EntityType::E_ENTITY_TREE, 1, 0, modelName.c_str(), true);
+        if(slotWrapper){
+            bool unk = true;
+            //TODO: implement
+            /*slotWrapper->ConnectToQuota("Misc", SDK::streammap::flags::E_TREES, _I32_MAX);
+            if (slotWrapper->LoadData(std::string("/sds/cars/" + modelName + ".sds").c_str(), nullptr, 2, "MafiaMP_Tree", &unk, true)) {
+                return slotWrapper;
+            }
+            else {
+                slotWrapper->DisconnectFromQuota();
+                delete slotWrapper;
+            }*/
+        }
+        return nullptr;
+    }
+
+    static SDK::mafia::streaming::C_ActorsSlotWrapper *CreateVehicleSpawner(const std::string &modelName) {
+        auto slotWrapper = new SDK::mafia::streaming::C_ActorsSlotWrapper(SDK::E_EntityType::E_ENTITY_CAR, 1, 0, modelName.c_str(), true);
         if (slotWrapper) {
             bool unk = true;
             slotWrapper->ConnectToQuota("Misc", SDK::streammap::flags::E_CAR_SMALL, _I32_MAX);
-            if (slotWrapper->LoadData(std::string("/sds/cars/" + vehicleKind.second + ".sds").c_str(), nullptr, 2, "MafiaMP_Vehicle", &unk, true)) {
+            if (slotWrapper->LoadData(std::string("/sds/cars/" + modelName + ".sds").c_str(), nullptr, 2, "MafiaMP_Vehicle", &unk, true)) {
                 return slotWrapper;
             }
             else {
@@ -42,7 +59,7 @@ namespace MafiaMP::Game::Streaming {
         return nullptr;
     }
 
-    static EntitySpawnerState VehicleSpawnerProcessLoad(SDK::mafia::streaming::C_ActorsSlotWrapper *slotWrapper) {
+    static EntitySpawnerState EntitySpawnerProcessLoad(SDK::mafia::streaming::C_ActorsSlotWrapper *slotWrapper) {
         switch (slotWrapper->GetActorsState()) {
         case SDK::mafia::streaming::C_ActorsSlotWrapper::E_ASS_CREATING: {
             SDK::C_TimeBudgetInfo::C_Ctx TimeBudgetInfoCtx;
@@ -59,7 +76,7 @@ namespace MafiaMP::Game::Streaming {
         }
     }
 
-    static std::pair<EntitySpawnResult, SDK::C_Entity *> SpawnVehicle(SDK::mafia::streaming::C_ActorsSlotWrapper *slotWrapper) {
+    static std::pair<EntitySpawnResult, SDK::C_Entity *> SpawnEntity(SDK::mafia::streaming::C_ActorsSlotWrapper *slotWrapper) {
         if (slotWrapper->GetNumFree() <= 0) {
             if (slotWrapper->GetActorsState() == SDK::mafia::streaming::C_ActorsSlotWrapper::E_ASS_READY) {
                 slotWrapper->UpdateToCreateActors(slotWrapper->GetToCreateActorsWithoutCrewCnt() + 1, 1);
@@ -68,26 +85,28 @@ namespace MafiaMP::Game::Streaming {
             return std::pair(EntitySpawnResult::KeepLoading, nullptr);
         }
 
-        SDK::C_Actor *vehicle = nullptr;
+        SDK::C_Actor *actor = nullptr;
         SDK::ue::C_WeakPtr<SDK::ue::sys::core::C_SceneObject> sceneObject;
-        slotWrapper->GetFreeActor(sceneObject, false, &vehicle);
-        return vehicle ? std::pair(EntitySpawnResult::OK, vehicle) : std::pair(EntitySpawnResult::Failed, nullptr);
+        slotWrapper->GetFreeActor(sceneObject, false, &actor);
+        return actor ? std::pair(EntitySpawnResult::OK, actor) : std::pair(EntitySpawnResult::Failed, nullptr);
     }
 
-    static void ReturnVehicleToSpawner(SDK::mafia::streaming::C_ActorsSlotWrapper *slotWrapper, SDK::C_Entity *vehicle) {
+    static void ReturnEntityToSpawner(SDK::mafia::streaming::C_ActorsSlotWrapper *slotWrapper, SDK::C_Entity *vehicle) {
         slotWrapper->ReturnActor((SDK::C_Actor *)vehicle);
     }
 
-    static void DestroyVehicleSpawner(SDK::mafia::streaming::C_ActorsSlotWrapper *slotWrapper) {
+    static void DestroyEntitySpawner(SDK::mafia::streaming::C_ActorsSlotWrapper *slotWrapper) {
         slotWrapper->Close(true);
         delete slotWrapper;
     }
 
     EntityFactory::EntityFactory()
         : _humanFactory(&CreateHumanSpawner, &HumanSpawnerProcessLoad, &SpawnHuman, &ReturnHumanToSpawner, &DestroyHumanSpawner)
-        , _vehicleFactory(&CreateVehicleSpawner, &VehicleSpawnerProcessLoad, &SpawnVehicle, &ReturnVehicleToSpawner, &DestroyVehicleSpawner) {}
+        , _treeFactory(&CreateTreeSpawner, &EntitySpawnerProcessLoad, &SpawnEntity, &ReturnEntityToSpawner, &DestroyEntitySpawner)
+        , _vehicleFactory(&CreateVehicleSpawner, &EntitySpawnerProcessLoad, &SpawnEntity, &ReturnEntityToSpawner, &DestroyEntitySpawner) {}
 
     void EntityFactory::Update() {
+        _treeFactory.Update();
         _humanFactory.Update();
         _vehicleFactory.Update();
     }
@@ -96,8 +115,12 @@ namespace MafiaMP::Game::Streaming {
         return _humanFactory.Request(SDK::E_EntityType::E_ENTITY_HUMAN, spawnProfile);
     }
 
-    EntityTrackingInfo *EntityFactory::RequestVehicle(SDK::E_EntityType type, const std::string &modelName) {
-        return _vehicleFactory.Request(type, std::make_pair(type, modelName));
+    EntityTrackingInfo *EntityFactory::RequestTree(const std::string &modelName) {
+        return _treeFactory.Request(E_EntityType::E_ENTITY_TREE, modelName);
+    }
+
+    EntityTrackingInfo *EntityFactory::RequestVehicle(const std::string &modelName) {
+        return _vehicleFactory.Request(E_EntityType::E_ENTITY_CAR, modelName);
     }
 
     void EntityFactory::ReturnEntity(EntityTrackingInfo *infos) {
@@ -111,10 +134,15 @@ namespace MafiaMP::Game::Streaming {
             _vehicleFactory.Return(infos);
             break;
         }
+        case SDK::E_EntityType::E_TREE: {
+            _treeFactory.Return(infos);
+            break;
+        }
         }
     }
 
     void EntityFactory::ReturnAll() {
+        _treeFactory.ReturnAll();
         _vehicleFactory.ReturnAll();
         _humanFactory.ReturnAll();
     }
