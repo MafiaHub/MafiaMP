@@ -24,6 +24,7 @@ namespace MafiaMP::Game {
             rendererOptions.backend = Framework::Graphics::RendererBackend::BACKEND_D3D_11;
 
             Framework::Integrations::Client::InstanceOptions opts;
+            opts.discordAppId    = 763114144454672444;
             opts.useRenderer     = true;
             opts.usePresence     = true;
             opts.rendererOptions = rendererOptions;
