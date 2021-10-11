@@ -116,11 +116,11 @@ namespace MafiaMP::Game::Streaming {
     }
 
     EntityTrackingInfo *EntityFactory::RequestTree(const std::string &modelName) {
-        return _treeFactory.Request(E_EntityType::E_ENTITY_TREE, modelName);
+        return _treeFactory.Request(SDK::E_EntityType::E_ENTITY_TREE, modelName);
     }
 
     EntityTrackingInfo *EntityFactory::RequestVehicle(const std::string &modelName) {
-        return _vehicleFactory.Request(E_EntityType::E_ENTITY_CAR, modelName);
+        return _vehicleFactory.Request(SDK::E_EntityType::E_ENTITY_CAR, modelName);
     }
 
     void EntityFactory::ReturnEntity(EntityTrackingInfo *infos) {
@@ -134,7 +134,7 @@ namespace MafiaMP::Game::Streaming {
             _vehicleFactory.Return(infos);
             break;
         }
-        case SDK::E_EntityType::E_TREE: {
+        case SDK::E_EntityType::E_ENTITY_TREE: {
             _treeFactory.Return(infos);
             break;
         }
