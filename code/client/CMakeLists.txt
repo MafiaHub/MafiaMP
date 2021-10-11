@@ -7,6 +7,8 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/mod_init.cpp
     src/core/hooks/render_device.cpp
     src/game/module.cpp
+    src/game/streaming/entity_factory.cpp
+    src/game/streaming/entity_type_factory.cpp
 )
 
 set(MAFIAMP_SDK_FILES
@@ -33,6 +35,8 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/game/humainai/c_character_controller.cpp
     src/sdk/ue/game/humainai/c_character_state_handler.cpp
     src/sdk/ue/game/human/c_behavior_character.cpp
+    src/sdk/ue/game/traffic/c_human_spawner.cpp
+    src/sdk/ue/game/traffic/c_profile_spawner.cpp
     src/sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.cpp
     src/sdk/ue/gfx/environmenteffects/c_weather_manager_2.cpp
     src/sdk/ue/sys/core/c_scene_object.cpp
