@@ -1,13 +1,13 @@
 #include "module.h"
 
+#include "../core/application.h"
+
 #include <logging/logger.h>
 #include <utils/hooking/hooking.h>
 
-#include "../core/application.h"
-
 namespace MafiaMP::Game {
-    Module* gModule = nullptr;
-    
+    Module *gModule = nullptr;
+
     Module::Module() {
         StaticRegister(this);
     }
@@ -20,7 +20,16 @@ namespace MafiaMP::Game {
 
         // Init our main application
         if (MafiaMP::Core::gApplication && !MafiaMP::Core::gApplication->IsInitialized()) {
-            MafiaMP::Core::gApplication->Init();
+            Framework::Graphics::RendererConfiguration rendererOptions;
+            rendererOptions.backend = Framework::Graphics::RendererBackend::BACKEND_D3D_11;
+
+            Framework::Integrations::Client::InstanceOptions opts;
+            opts.discordAppId    = 763114144454672444;
+            opts.useRenderer     = true;
+            opts.usePresence     = true;
+            opts.rendererOptions = rendererOptions;
+
+            MafiaMP::Core::gApplication->Init(opts);
         }
     }
 
