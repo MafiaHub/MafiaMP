@@ -2,6 +2,7 @@
 
 #include <utils/hooking/hooking.h>
 #include "../../../patterns.h"
+#include "../../../c_ie.h"
 
 namespace SDK {
     namespace ue::game::traffic {

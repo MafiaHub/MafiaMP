@@ -19,7 +19,7 @@ namespace MafiaMP::Game::Streaming {
         ReturnCallback _return;
 
       public:
-        EntityTrackingInfo(SDK::E_EntityType type) _type(type) {};
+        EntityTrackingInfo(SDK::E_EntityType type) noexcept: _type(type) {};
         EntityTrackingInfo(EntityTrackingInfo &&other) noexcept: _type(other._type), _entity(std::exchange(_entity, nullptr)) {}
         EntityTrackingInfo(EntityTrackingInfo &) = delete;
         ~EntityTrackingInfo() {}

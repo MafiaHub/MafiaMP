@@ -23,7 +23,7 @@ namespace MafiaMP::Game::Streaming {
             Kind _kind;
             std::unique_ptr<EntityTrackingInfo> _info;
 
-            ExtendedTrackingInfo(E_EntityType entityType, Kind entityKind): _kind(entityKind), _info(std::make_unique<EntityTrackingInfo>(entityType)) {}
+            ExtendedTrackingInfo(SDK::E_EntityType entityType, Kind entityKind): _kind(entityKind), _info(std::make_unique<EntityTrackingInfo>(entityType)) {}
             ExtendedTrackingInfo(ExtendedTrackingInfo &&other): Kind(other.kind), pInfo(std::exchange(other.info, nullptr)) {}
             ExtendedTrackingInfo(ExtendedTrackingInfo &) = delete;
             ExtendedTrackingInfo &operator=(ExtendedTrackingInfo &) = delete;
