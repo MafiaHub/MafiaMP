@@ -24,16 +24,12 @@ namespace MafiaMP::Game::Streaming {
             std::unique_ptr<EntityTrackingInfo> _info;
 
             ExtendedTrackingInfo(SDK::E_EntityType entityType, Kind entityKind): _kind(entityKind), _info(std::make_unique<EntityTrackingInfo>(entityType)) {}
-            ExtendedTrackingInfo(ExtendedTrackingInfo &&other): Kind(other.kind), pInfo(std::exchange(other.info, nullptr)) {}
+            ExtendedTrackingInfo(ExtendedTrackingInfo &&other): _kind(other._kind), _info(std::exchange(other._info, nullptr)) {}
             ExtendedTrackingInfo(ExtendedTrackingInfo &) = delete;
             ExtendedTrackingInfo &operator=(ExtendedTrackingInfo &) = delete;
 
             Kind GetKind() const {
                 return _kind;
-            }
-
-            std::unique_ptr<EntityTrackingInfo> GetInfo() const {
-                return _info;
             }
         };
 
@@ -95,7 +91,7 @@ namespace MafiaMP::Game::Streaming {
 
             // Acquire the informations
             ExtendedTrackingInfo extendedTrackingInfo(entityType, entityKind);
-            EntityTrackingInfo *infos = extendedTrackingInfo.GetInfo().get();
+            EntityTrackingInfo *infos = extendedTrackingInfo._info.get();
 
             // Create an ongoing request to be processed at next tick
             spawner->_ongoingRequests.emplace_back(std::move(extendedTrackingInfo));
@@ -114,7 +110,7 @@ namespace MafiaMP::Game::Streaming {
             EntityTypeFactory::SpawnerWrap *spawnerWrap = iter->second;
 
             // Only process if spawner instance is still valid
-            if (spawner) {
+            if (spawnerWrap) {
                 // If the entity hasn't been processed yet, remove it
                 auto &ongoingRequests = spawnerWrap->_ongoingRequests;
                 auto requestIter      = ongoingRequests.begin();
@@ -133,11 +129,11 @@ namespace MafiaMP::Game::Streaming {
                 auto &createdEntities = spawnerWrap->_createdEntities;
                 auto entityIter       = createdEntities.begin();
                 while (entityIter != createdEntities.end()) {
-                    if (entityIter->GetInfo().get() == infos) {
+                    if (entityIter->_info.get() == infos) {
                         if (infos->_return)
                             infos->_return(true);
 
-                        _spawnerReturnEntity(spawnerWrap->GetInnerSpawner(), entityIter->GetInfo()->GetEntity());
+                        _spawnerReturnEntity(spawnerWrap->GetInnerSpawner(), entityIter->_info->GetEntity());
                         entityIter = createdEntities.erase(entityIter);
                     }
                     else
@@ -174,7 +170,7 @@ namespace MafiaMP::Game::Streaming {
                             bool requestFinished = false;
 
                             // If we have before spawn callback defined, call it
-                            EntityTrackingInfo *infos = (*request).pInfo.get();
+                            EntityTrackingInfo *infos = (*request)._info.get();
                             if (infos->_beforeSpawn) {
                                 infos->_beforeSpawn();
                             }
@@ -190,7 +186,7 @@ namespace MafiaMP::Game::Streaming {
                                 createdEntities.emplace_back(std::move(*request));
                                 requestFinished = true;
 
-                                EntityTrackingInfo *infos = _createdEntities.back().GetInfo().get();
+                                EntityTrackingInfo *infos = createdEntities.back()._info.get();
                                 infos->_entity            = entity;
                                 if (infos->_requestFinish)
                                     infos->_requestFinish(true);
@@ -198,35 +194,35 @@ namespace MafiaMP::Game::Streaming {
                             else if (spawnResult == EntitySpawnResult::Failed) {
                                 requestFinished = true;
 
-                                EntityTypeFactory::ExtendedTrackingInfo &request = *request;
-                                request.GetInfo()->_entity                       = nullptr;
-                                if (request.GetInfo()->_requestFinish)
-                                    request.GetInfo()->_requestFinish(false);
+                                EntityTypeFactory::ExtendedTrackingInfo &req = *request;
+                                req._info->_entity                       = nullptr;
+                                if (req._info->_requestFinish)
+                                    req._info->_requestFinish(false);
                             }
                             else if (spawnResult == EntitySpawnResult::KeepLoading) {
                                 spawner._state = EntitySpawnerState::Loading;
                             }
 
                             if (requestFinished)
-                                request = ongoingRequests.erase(requestIter);
+                                request = ongoingRequests.erase(request);
                             else
                                 ++request;
                         }
                     }
                 }
             }
+        }
 
-            SpawnerWrap *GetSpawner(const Kind &) {
-                auto iter = _spawners.find(kind);
-                if (iter != _spawners.end())
-                    return &iter->second;
+        SpawnerWrap *GetSpawner(const Kind &kd) {
+            auto iter = _spawners.find(kd);
+            if (iter != _spawners.end())
+                return &iter->second;
 
-                auto spawner = _spawnerCreate(kind);
-                if (!spawner)
-                    return nullptr;
+            auto spawner = _spawnerCreate(kd);
+            if (!spawner)
+                return nullptr;
 
-                return &(*_spawners.emplace(kind, std::move(EntityTypeFactory::SpawnerWrap(spawner))).first).second;
-            }
+            return &(*_spawners.emplace(kd, std::move(EntityTypeFactory::SpawnerWrap(spawner))).first).second;
         }
     };
 } // namespace MafiaMP::Game::Streaming

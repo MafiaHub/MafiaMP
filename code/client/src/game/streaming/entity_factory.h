@@ -7,25 +7,47 @@
 #include "entity_type_factory.h"
 
 #include <string>
+#include <functional>
+
+using VehicleKind = std::pair<SDK::E_EntityType, std::string>;
+
+namespace entity_factory_detail {
+    inline void hash_combine(size_t &seed) {}
+
+    template <typename T, typename... Rest>
+    inline void hash_combine(size_t &seed, const T &v, Rest... rest) {
+        std::hash<T> hasher;
+        seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        hash_combine(seed, rest...);
+    }
+} // namespace entity_factory_detail
+
+namespace std {
+    template <>
+    struct hash<VehicleKind> {
+        size_t operator()(const VehicleKind &vehicle_kind) const {
+            size_t hash = 0;
+            entity_factory_detail::hash_combine(hash, static_cast<size_t>(vehicle_kind.first), vehicle_kind.second);
+            return hash;
+        }
+    };
+} // namespace std
 
 namespace MafiaMP::Game::Streaming {
-    using TVehicleKind = std::pair<SDK::E_EntityType, std::string>;
-
     class EntityFactory {
       private:
         EntityTypeFactory<SDK::ue::sys::utils::C_HashName, SDK::ue::game::traffic::C_HumanSpawner> _humanFactory;
-        EntityTypeFactory<TVehicleKind, SDK::mafia::streaming::C_ActorsSlotWrapper> _vehicleFactory;
+        EntityTypeFactory<VehicleKind, SDK::mafia::streaming::C_ActorsSlotWrapper> _vehicleFactory;
 
       public:
         EntityFactory();
 
-        EntityTrackingInfo* RequestHuman(SDK::ue::sys::utils::C_HashName);
-        EntityTrackingInfo* RequestVehicle(SDK::E_EntityType, const std::string &);
-
+        EntityTrackingInfo *RequestHuman(SDK::ue::sys::utils::C_HashName);
+        EntityTrackingInfo *RequestVehicle(SDK::E_EntityType, const std::string &);
 
         void Update();
 
-        void ReturnEntity(EntityTrackingInfo*);
+        void ReturnEntity(EntityTrackingInfo *);
         void ReturnAll();
     };
 } // namespace MafiaMP::Game::Streaming

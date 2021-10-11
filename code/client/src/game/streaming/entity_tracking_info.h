@@ -10,6 +10,9 @@ namespace MafiaMP::Game::Streaming {
     using ReturnCallback        = std::function<void(bool)>;
 
     class EntityTrackingInfo {
+        template <typename, typename>
+        friend class EntityTypeFactory;
+
       private:
         SDK::E_EntityType _type;
         SDK::C_Entity *_entity;
