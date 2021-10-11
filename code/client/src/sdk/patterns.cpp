@@ -257,6 +257,17 @@ namespace SDK {
         gPatterns.C_HumanInventory__TellMedkit              = hook::get_opcode_address("E8 ? ? ? ? 3B C7 7D 0C");
         gPatterns.C_HumanInventory__UseMedkit               = hook::get_opcode_address("E8 ? ? ? ? 0F B6 D8 84 C0 74 28");
 
+        // C_HumanWeaponController
+        gPatterns.C_HumanWeaponController__GetRightHandWeaponID = hook::get_opcode_address("E8 ? ? ? ? 3B 46 78 ");
+        gPatterns.C_HumanWeaponController__IsThrownWeapon       = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 81 ? ? ? ? 8B 40 48"));
+        gPatterns.C_HumanWeaponController__GetShotPosDir        = hook::get_opcode_address("E8 ? ? ? ? F2 0F 10 44 24 ? 48 8B CF");
+        gPatterns.C_HumanWeaponController__ResetScatterCoef     = reinterpret_cast<uint64_t>(hook::get_pattern("40 57 48 83 EC 30 48 8B F9 0F 29 74 24 ?"));
+        gPatterns.C_HumanWeaponController__SetAiming            = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 10 48 8B 88 ? ? ? ? C6 41 14 00");
+        gPatterns.C_HumanWeaponController__SetCoverFlag         = hook::get_opcode_address("E8 ? ? ? ? 48 8D 97 ? ? ? ? 49 8B CE");
+        gPatterns.C_HumanWeaponController__SetFirePressedFlag   = reinterpret_cast<uint64_t>(hook::get_pattern("84 D2 75 11 33 C0"));
+        gPatterns.C_HumanWeaponController__SetStickMove         = reinterpret_cast<uint64_t>(hook::get_pattern("F2 0F 10 02 F2 0F 11 81 ? ? ? ? C3"));
+        gPatterns.C_HumanWeaponController__SetZoomFlag          = hook::get_opcode_address("E8 ? ? ? ? F6 87 ? ? ? ? ? 49 8B CE");
+
         // C_Navigation
         gPatterns.C_Navigation__GetInstance           = hook::get_opcode_address("E8 ? ? ? ? 49 8B 5E 60");
         gPatterns.C_Navigation__SetUserMark           = hook::get_opcode_address("E8 ? ? ? ? 48 83 C4 ? C3 ? ? ? ? ? ? ? 48 89 5C 24 ? 57 48 83 EC ? 41 8B D8");
