@@ -11,8 +11,14 @@ int main(int argc, char **argv) {
     opts.modVersion    = "0.1.0";
     opts.bindPassword  = "";
     opts.enableSignals = true;
+
     opts.argc = argc;
     opts.argv = argv;
+
+    opts.firebaseEnabled   = true;
+    opts.firebaseProjectId = "mafiahub-3ebed";
+    opts.firebaseAppId     = "1:546323083920:web:6716980a4d6412e87e1e15";
+    opts.firebaseApiKey    = "AIzaSyBABaiNX2LvI4RjcYaj8noJgwU6_vQue9k";
 
     MafiaMP::Server server;
     if (server.Init(opts) != Framework::Integrations::Server::ServerError::SERVER_NONE) {
