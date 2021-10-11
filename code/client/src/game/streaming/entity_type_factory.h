@@ -152,63 +152,61 @@ namespace MafiaMP::Game::Streaming {
         }
 
         void Update() {
-            auto iter = _spawners.begin();
-            while (iter != _spawners.end()) {
-                // Do we have work to do in the backlog?
-                if (iter->second._ongoingRequests.empty() || iter->second._createdEntities.empty()) {
-                    EntityTypeFactory::SpawnerWrap &spawner = iter->second;
+            auto spawnerIter = _spawners.begin();
+            while (spawnerIter != _spawners.end()) {
+                if (!spawnerIter->second._ongoingRequests.empty() || !spawnerIter->second._createdEntities.empty()) {
+                    SpawnerWrap &spawner = spawnerIter->second;
 
-                    // If the spawner is still loading, don't do anything and wait
-                    if (spawner.GetState() == EntitySpawnerState::Loading) {
-                        spawner._state = _spawnerProcessLoad(spawner.GetInnerSpawner());
-                    }
-                    else {
+                    if (spawner.GetState() == EntitySpawnerState::Ready) {
                         auto &ongoingRequests = spawner._ongoingRequests;
-                        auto request          = ongoingRequests.begin();
-
-                        while (request != ongoingRequests.end()) {
+                        auto requestIter      = ongoingRequests.begin();
+                        while (requestIter != ongoingRequests.end()) {
                             bool requestFinished = false;
-
-                            // If we have before spawn callback defined, call it
-                            EntityTrackingInfo *infos = (*request)._info.get();
-                            if (infos->_beforeSpawn) {
-                                infos->_beforeSpawn();
+                            {
+                                EntityTrackingInfo *trackingInfo = (*requestIter)._info.get();
+                                if (trackingInfo->_beforeSpawn)
+                                    trackingInfo->_beforeSpawn();
                             }
-
-                            // Call the entity spawn method
                             EntitySpawnResult spawnResult;
                             SDK::C_Entity *entity;
                             std::tie(spawnResult, entity) = _spawnerSpawnEntity(spawner.GetInnerSpawner());
-
-                            // Depending on the result, push on list or not
                             if (spawnResult == EntitySpawnResult::OK) {
                                 auto &createdEntities = spawner._createdEntities;
-                                createdEntities.emplace_back(std::move(*request));
+                                createdEntities.emplace_back(std::move(*requestIter));
                                 requestFinished = true;
 
-                                EntityTrackingInfo *infos = createdEntities.back()._info.get();
-                                infos->_entity            = entity;
-                                if (infos->_requestFinish)
-                                    infos->_requestFinish(true);
+                                EntityTrackingInfo *trackingInfo = createdEntities.back()._info.get();
+                                trackingInfo->_entity          = entity;
+                                if (trackingInfo->_requestFinish)
+                                    trackingInfo->_requestFinish(true);
                             }
                             else if (spawnResult == EntitySpawnResult::Failed) {
                                 requestFinished = true;
 
-                                EntityTypeFactory::ExtendedTrackingInfo &req = *request;
-                                req._info->_entity                       = nullptr;
-                                if (req._info->_requestFinish)
-                                    req._info->_requestFinish(false);
+                                ExtendedTrackingInfo &request = *requestIter;
+                                request._info->_entity     = nullptr;
+                                if (request._info->_requestFinish)
+                                    request._info->_requestFinish(false);
                             }
                             else if (spawnResult == EntitySpawnResult::KeepLoading) {
                                 spawner._state = EntitySpawnerState::Loading;
                             }
 
                             if (requestFinished)
-                                request = ongoingRequests.erase(request);
+                                requestIter = ongoingRequests.erase(requestIter);
                             else
-                                ++request;
+                                ++requestIter;
                         }
                     }
+                    else if (spawner.GetState() == EntitySpawnerState::Loading) {
+                        spawner._state = _spawnerProcessLoad(spawner.GetInnerSpawner());
+                    }
+
+                    ++spawnerIter;
+                }
+                else {
+                    _spawnerDestroy(spawnerIter->second.GetInnerSpawner());
+                    spawnerIter = _spawners.erase(spawnerIter);
                 }
             }
         }
