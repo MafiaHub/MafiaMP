@@ -11,6 +11,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     config.arch               = Framework::Launcher::ProjectArchitecture::CPU_X64;
     config.steamAppId         = 1030840;
 
+#ifdef FW_DEBUG
+    config.allocateDeveloperConsole = true;
+    config.developerConsoleTitle = L"mafiamp: dev-console";
+#endif
+
     Framework::Launcher::Project project(config);
     if (!project.Launch()) {
         return 1;
