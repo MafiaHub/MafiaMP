@@ -1,21 +1,16 @@
 #include <MinHook.h>
 #include <Windows.h>
 #include <logging/logger.h>
+#include <utils/string_utils.h>
 
 #include <utils/hooking/hooking_patterns.h>
 #include <utils/hooking/hook_function.h>
 
 #include "sdk/patterns.h"
 
-extern "C" void __declspec(dllexport) InitClient() {
-    // Initialize and allocate the console
-    AllocConsole();
-	AttachConsole(GetCurrentProcessId());
-	SetConsoleTitleW(L"MafiaMP - Dev Console");
-
-	freopen("CONIN$", "r", stdin);
-	freopen("CONOUT$", "w", stdout);
-	freopen("CONOUT$", "w", stderr);
+extern "C" void __declspec(dllexport) InitClient(const wchar_t *projectPath) {
+    Framework::Logging::GetInstance()->SetLogName("MafiaMP");
+    Framework::Logging::GetInstance()->SetLogFolder(Framework::Utils::StringUtils::WideToNormal(projectPath) + "\\logs");
 
     MH_Initialize();
 	hook::set_base();

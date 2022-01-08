@@ -83,22 +83,16 @@ namespace MafiaMP::Game::Streaming {
         }
 
         EntityTrackingInfo *Request(SDK::E_EntityType entityType, const Kind &entityKind) {
-            // Acquire the spawner that must already exists
-            SpawnerWrap *spawner = GetSpawner(entityKind);
-            if (!spawner) {
-                return nullptr;
+            SpawnerWrap *spawnerWrap = GetSpawner(entityKind);
+            if (spawnerWrap) {
+                ExtendedTrackingInfo extendedTrackingInfo(entityType, entityKind);
+                EntityTrackingInfo *infos = extendedTrackingInfo._info.get();
+                spawnerWrap->_ongoingRequests.emplace_back(std::move(extendedTrackingInfo));
+                _trackingInfos[infos] = spawnerWrap;
+                return infos;
             }
 
-            // Acquire the informations
-            ExtendedTrackingInfo extendedTrackingInfo(entityType, entityKind);
-            EntityTrackingInfo *infos = extendedTrackingInfo._info.get();
-
-            // Create an ongoing request to be processed at next tick
-            spawner->_ongoingRequests.emplace_back(std::move(extendedTrackingInfo));
-
-            // Store the actual used spawner
-            _trackingInfos[infos] = spawner;
-            return infos;
+            return nullptr;
         }
 
         void Return(EntityTrackingInfo *infos) {
@@ -146,9 +140,9 @@ namespace MafiaMP::Game::Streaming {
         void ReturnAll() {
             std::vector<EntityTrackingInfo *> trackedEntities;
             trackedEntities.reserve(_trackingInfos.size());
-            for (const auto &entry : _trackingInfos) trackedEntities.push_back(entry.first);
+            for (const auto &trackingInfoMapEntry : _trackingInfos) trackedEntities.push_back(trackingInfoMapEntry.first);
 
-            for (EntityTrackingInfo *info : trackedEntities) Return(info);
+            for (EntityTrackingInfo *infos : trackedEntities) Return(infos);
         }
 
         void Update() {
@@ -220,7 +214,7 @@ namespace MafiaMP::Game::Streaming {
             if (!spawner)
                 return nullptr;
 
-            return &(*_spawners.emplace(kd, std::move(EntityTypeFactory::SpawnerWrap(spawner))).first).second;
+            return &(*_spawners.emplace(kd, std::move(SpawnerWrap(spawner))).first).second;
         }
     };
 } // namespace MafiaMP::Game::Streaming
