@@ -13,6 +13,7 @@
 
 namespace MafiaMP::Game {
     Module *gModule = nullptr;
+    HWND gWindow                                                          = nullptr;
     SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice = nullptr;
 
     Module::Module() {
@@ -40,7 +41,9 @@ namespace MafiaMP::Game {
 
             // Init the render device
             if (Core::gApplication->IsInitialized()) {
+                MafiaMP::Core::gApplication->GetRenderer()->SetWindow(gWindow);
                 MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gRenderDevice->_device, gRenderDevice->_context);
+                SetWindowTextA(gWindow, "Mafia: Advanced Multiplayer Edition");
                 Framework::Logging::GetInstance()
                     ->Get(FRAMEWORK_INNER_GRAPHICS)
                     ->info("RenderDevice initialized (device {:p} and context {:p})", fmt::ptr(gRenderDevice->_device), fmt::ptr(gRenderDevice->_context));

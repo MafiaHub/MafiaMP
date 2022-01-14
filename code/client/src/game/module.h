@@ -6,6 +6,7 @@
 #include "../sdk/ue/sys/render/device/c_direct_3d11_render_device.h"
 
 #include <functional>
+#include <Windows.h>
 
 namespace MafiaMP::Game {
     class Module: public SDK::C_TickedModule {
@@ -29,4 +30,5 @@ namespace MafiaMP::Game {
 
     extern Module* gModule;
     extern SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice;
+    extern HWND gWindow;
 } // namespace MafiaMP::Game
