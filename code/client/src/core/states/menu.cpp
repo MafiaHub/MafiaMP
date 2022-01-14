@@ -1,6 +1,8 @@
 #include "menu.h"
 #include "states.h"
 
+#include <utils/states/machine.h>
+
 namespace MafiaMP::Core::States {
     InMenuState::InMenuState() {}
 
@@ -14,15 +16,15 @@ namespace MafiaMP::Core::States {
         return "InMenu";
     }
 
-    bool InMenuState::OnEnter() {
+    bool InMenuState::OnEnter(Framework::Utils::States::Machine *) {
         return true;
     }
 
-    bool InMenuState::OnExit() {
+    bool InMenuState::OnExit(Framework::Utils::States::Machine *) {
         return true;
     }
 
-    bool InMenuState::OnUpdate() {
+    bool InMenuState::OnUpdate(Framework::Utils::States::Machine *) {
         return true;
     }
 } // namespace MafiaMP::Core::States

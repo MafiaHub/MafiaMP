@@ -9,6 +9,8 @@ namespace SDK {
         C_PlayerSpawner *GetPlayerSpawner() {
             return *(C_PlayerSpawner **)(((uintptr_t)this) + 40);
         }
+        bool IsPlayerLoaded();
+
         void *SwitchSpawnProfile(ue::sys::utils::C_HashName);
     };
 }

@@ -20,6 +20,7 @@ namespace SDK {
 
         uint64_t C_EntityList__GetEntityList = 0x0;
 
+        uint64_t C_PlayerModelManager__IsPlayerLoaded          = 0x0;
         uint64_t C_PlayerModelManager__SwitchPlayerProfileAddr = 0x0;
 
         uint64_t C_ActorsSlotWrapper__C_ActorsSlotWrapperAddr  = 0x0;

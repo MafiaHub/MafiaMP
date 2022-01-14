@@ -1,6 +1,8 @@
 #include "shutdown.h"
 #include "states.h"
 
+#include <utils/states/machine.h>
+
 namespace MafiaMP::Core::States {
     ShutdownState::ShutdownState() {}
 
@@ -14,15 +16,15 @@ namespace MafiaMP::Core::States {
         return "Shutdown";
     }
 
-    bool ShutdownState::OnEnter() {
+    bool ShutdownState::OnEnter(Framework::Utils::States::Machine *) {
         return true;
     }
 
-    bool ShutdownState::OnExit() {
+    bool ShutdownState::OnExit(Framework::Utils::States::Machine *) {
         return true;
     }
 
-    bool ShutdownState::OnUpdate() {
+    bool ShutdownState::OnUpdate(Framework::Utils::States::Machine *) {
         return true;
     }
 } // namespace MafiaMP::Core::States

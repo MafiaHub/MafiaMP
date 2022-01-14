@@ -1,6 +1,8 @@
 #include "session_connection.h"
 #include "states.h"
 
+#include <utils/states/machine.h>
+
 namespace MafiaMP::Core::States {
     SessionConnectionState::SessionConnectionState() {}
 
@@ -14,15 +16,15 @@ namespace MafiaMP::Core::States {
         return "SessionConnection";
     }
 
-    bool SessionConnectionState::OnEnter() {
+    bool SessionConnectionState::OnEnter(Framework::Utils::States::Machine *) {
         return true;
     }
 
-    bool SessionConnectionState::OnExit() {
+    bool SessionConnectionState::OnExit(Framework::Utils::States::Machine *) {
         return true;
     }
 
-    bool SessionConnectionState::OnUpdate() {
+    bool SessionConnectionState::OnUpdate(Framework::Utils::States::Machine *) {
         return true;
     }
 } // namespace MafiaMP::Core::States

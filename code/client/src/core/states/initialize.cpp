@@ -2,6 +2,10 @@
 
 #include "states.h"
 
+#include "../../sdk/c_game.h"
+
+#include <utils/states/machine.h>
+
 namespace MafiaMP::Core::States {
     InitializeState::InitializeState() {
 
@@ -19,15 +23,21 @@ namespace MafiaMP::Core::States {
         return "Initialize";
     }
 
-    bool InitializeState::OnEnter() {
+    bool InitializeState::OnEnter(Framework::Utils::States::Machine *) {
         return true;
     }
 
-    bool InitializeState::OnExit() {
+    bool InitializeState::OnExit(Framework::Utils::States::Machine *machine) {
+        machine->RequestNextState(StateIds::Menu);
         return true;
     }
 
-    bool InitializeState::OnUpdate() {
-        return false;
+    bool InitializeState::OnUpdate(Framework::Utils::States::Machine *) {
+        auto game = SDK::GetGame();
+        if (!game) {
+            return false;
+        }
+
+        return game->IsGameUp();
     }
 }
