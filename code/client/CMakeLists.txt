@@ -1,6 +1,12 @@
 set(MAFIAMP_CLIENT_FILES
     src/main.cpp
     src/core/application.cpp
+    src/core/states/initialize.cpp
+    src/core/states/menu.cpp
+    src/core/states/session_connected.cpp
+    src/core/states/session_connection.cpp
+    src/core/states/session_disconnection.cpp
+    src/core/states/shutdown.cpp
     src/core/hooks/application.cpp
     src/core/hooks/fast_load.cpp
     src/core/hooks/loading_screen.cpp

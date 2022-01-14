@@ -8,9 +8,12 @@
 #include "../sdk/c_game.h"
 #include "../sdk/entities/c_player_2.h"
 #include "../sdk/entities/human/c_human_weapon_controller.h"
+#include "../sdk/entities/c_car.h"
+#include "../sdk/entities/c_vehicle.h"
 
 namespace MafiaMP::Game {
     Module *gModule = nullptr;
+    SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice = nullptr;
 
     Module::Module() {
         StaticRegister(this);
@@ -34,6 +37,14 @@ namespace MafiaMP::Game {
             opts.rendererOptions = rendererOptions;
 
             Core::gApplication->Init(opts);
+
+            // Init the render device
+            if (Core::gApplication->IsInitialized()) {
+                MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gRenderDevice->_device, gRenderDevice->_context);
+                Framework::Logging::GetInstance()
+                    ->Get(FRAMEWORK_INNER_GRAPHICS)
+                    ->info("RenderDevice initialized (device {:p} and context {:p})", fmt::ptr(gRenderDevice->_device), fmt::ptr(gRenderDevice->_context));
+            }
         }
     }
 
@@ -63,10 +74,60 @@ namespace MafiaMP::Game {
         Framework::Logging::GetLogger("Module")->debug("OnGameShutdown called");
     }
 
+    static Game::Streaming::EntityTrackingInfo *info = nullptr;
+    static SDK::C_Car *m_pCar                        = nullptr;
     void Module::OnGameTick(SDK::I_TickedModuleCallEventContext &) {
         // Tick our main application
         if (Core::gApplication && Core::gApplication->IsInitialized()) {
             Core::gApplication->Update();
+
+            /* if (GetAsyncKeyState(VK_F2) & 0x1) {
+                Core::gApplication->GetEntityFactory()->ReturnAll();
+            }
+
+            if (GetAsyncKeyState(VK_F1) & 0x1) {
+                printf("asking car\n");
+                info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");
+                
+                const auto OnCarRequestFinish = [&](bool success) {
+                    if (success) {
+                        m_pCar = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
+                        if (!m_pCar) {
+                            return;
+                        }
+                        m_pCar->GameInit();
+                        m_pCar->Activate();
+                        m_pCar->Unlock();
+
+                        auto localPlayer = SDK::GetGame()->GetActivePlayer();
+
+                        SDK::ue::sys::math::C_Vector newPos = localPlayer->GetPos();
+                        SDK::ue::sys::math::C_Quat newRot   = localPlayer->GetRot();
+                        SDK::ue::sys::math::C_Matrix transform;
+                        transform.Identity();
+                        transform.SetRot(newRot);
+                        transform.SetPos(newPos);
+                        m_pCar->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
+                    }
+                    else {
+                        info = nullptr;
+                    }
+                };
+
+                const auto OnCarReturned = [&](bool wasCreated) {
+                    if (wasCreated && m_pCar) {
+                        m_pCar->Deactivate();
+                        m_pCar->GameDone();
+                        m_pCar->Release();
+                    }
+
+                    m_pCar       = nullptr;
+                    info   = nullptr;
+                };
+
+                info->SetRequestFinishCallback(OnCarRequestFinish);
+                info->SetReturnCallback(OnCarReturned);
+            }*/
         }
     }
 
