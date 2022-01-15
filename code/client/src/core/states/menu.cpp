@@ -3,6 +3,12 @@
 
 #include <utils/states/machine.h>
 
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_win32.h>
+#include <imgui/backends/imgui_impl_dx11.h>
+
+#include "../application.h"
+
 namespace MafiaMP::Core::States {
     InMenuState::InMenuState() {}
 
@@ -24,7 +30,37 @@ namespace MafiaMP::Core::States {
         return true;
     }
 
+    static bool open = true;
     bool InMenuState::OnUpdate(Framework::Utils::States::Machine *) {
-        return true;
+        gApplication->GetRenderIO()->AddRenderTask([]() {
+            ImGui_ImplDX11_NewFrame();
+            ImGui_ImplWin32_NewFrame();
+            ImGui::NewFrame();
+
+            if (!ImGui::Begin("Debug", &open)) {
+                ImGui::End();
+                return true;
+            }
+
+            ImGui::Text("Press F1 to turn this window on/off.");
+            if (ImGui::CollapsingHeader("Multiplayer")) {
+                static char serverIp[32] = "127.0.0.1";
+                static char nickname[32] = "Player";
+                ImGui::Text("Server IP: ");
+                ImGui::SameLine();
+                ImGui::InputText("##server_ip", serverIp, 32);
+                ImGui::Text("Nickname: ");
+                ImGui::SameLine();
+                ImGui::InputText("##nickname", nickname, 32);
+                if (ImGui::Button("Connect lol")) {}
+            }
+
+            ImGui::End();
+
+            ImGui::EndFrame();
+            ImGui::Render();
+            //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+        });
+        return false;
     }
 } // namespace MafiaMP::Core::States
