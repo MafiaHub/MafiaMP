@@ -89,7 +89,8 @@ namespace MafiaMP::Game {
 
             Core::gApplication->Update();
 
-            /* if (GetAsyncKeyState(VK_F2) & 0x1) {
+#if 1
+            if (GetAsyncKeyState(VK_F2) & 0x1) {
                 Core::gApplication->GetEntityFactory()->ReturnAll();
             }
 
@@ -129,13 +130,14 @@ namespace MafiaMP::Game {
                         m_pCar->Release();
                     }
 
-                    m_pCar       = nullptr;
+                    m_pCar = nullptr;
                     info   = nullptr;
                 };
 
                 info->SetRequestFinishCallback(OnCarRequestFinish);
                 info->SetReturnCallback(OnCarReturned);
-            }*/
+            }
+#endif
         }
     }
 
