@@ -172,10 +172,8 @@ namespace MafiaMP::Game {
             return;
 
         // draw GUI stuff
-        app->GetRenderIO()->AddRenderTask([&]() {
-            // TODO figure out the crash
-            //app->GetImGUI()->Render();
-        });
+        // TODO crash
+        // app->GetImGUI()->Render();
 
         // Tick our rendering thread
         app->Render();
