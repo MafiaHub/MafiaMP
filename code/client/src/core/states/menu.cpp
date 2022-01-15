@@ -89,20 +89,20 @@ namespace MafiaMP::Core::States {
             static bool open = true;
             if (!ImGui::Begin("Debug", &open)) {
                 ImGui::End();
-                shouldExit = true;
+                return;
             }
 
-            ImGui::Text("Press F1 to turn this window on/off.");
-            if (ImGui::CollapsingHeader("Multiplayer")) {
-                static char serverIp[32] = "127.0.0.1";
-                static char nickname[32] = "Player";
-                ImGui::Text("Server IP: ");
-                ImGui::SameLine();
-                ImGui::InputText("##server_ip", serverIp, 32);
-                ImGui::Text("Nickname: ");
-                ImGui::SameLine();
-                ImGui::InputText("##nickname", nickname, 32);
-                if (ImGui::Button("Connect lol")) {}
+            ImGui::Text("Have you heard about our lord and savior");
+            static char serverIp[32] = "127.0.0.1";
+            static char nickname[32] = "Player";
+            ImGui::Text("Server IP: ");
+            ImGui::SameLine();
+            ImGui::InputText("##server_ip", serverIp, 32);
+            ImGui::Text("Nickname: ");
+            ImGui::SameLine();
+            ImGui::InputText("##nickname", nickname, 32);
+            if (ImGui::Button("Connect lol")) {
+                shouldExit = true;
             }
 
             ImGui::End();
