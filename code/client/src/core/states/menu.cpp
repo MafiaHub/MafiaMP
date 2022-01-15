@@ -32,11 +32,7 @@ namespace MafiaMP::Core::States {
 
     static bool open = true;
     bool InMenuState::OnUpdate(Framework::Utils::States::Machine *) {
-        gApplication->GetRenderIO()->AddRenderTask([]() {
-            ImGui_ImplDX11_NewFrame();
-            ImGui_ImplWin32_NewFrame();
-            ImGui::NewFrame();
-
+        gApplication->GetImGUI()->PushWidget([]() {
             if (!ImGui::Begin("Debug", &open)) {
                 ImGui::End();
                 return true;
@@ -56,10 +52,6 @@ namespace MafiaMP::Core::States {
             }
 
             ImGui::End();
-
-            ImGui::EndFrame();
-            ImGui::Render();
-            //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
         });
         return false;
     }
