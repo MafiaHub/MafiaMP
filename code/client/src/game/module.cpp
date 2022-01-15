@@ -83,7 +83,7 @@ namespace MafiaMP::Game {
         if (Core::gApplication && Core::gApplication->IsInitialized()) {
             const auto discordApi = Core::gApplication->GetPresence();
 
-            if (discordApi) {
+            if (discordApi && discordApi->IsInitialized()) {
                 discordApi->SetPresence("Freeroam", "Screwing around", discord::ActivityType::Playing);
             }
 
