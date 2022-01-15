@@ -19,7 +19,6 @@ namespace MafiaMP::Game {
     Module *gModule                                                       = nullptr;
     HWND gWindow                                                          = nullptr;
     IDXGISwapChain* gSwapChain                                            = nullptr;
-    ID3D11RenderTargetView *gTargetView                                   = nullptr;
     SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice = nullptr;
 
     Module::Module() {
@@ -52,14 +51,6 @@ namespace MafiaMP::Game {
             MafiaMP::Core::gApplication->GetRenderer()->SetWindow(gWindow);
             MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gRenderDevice->_device, gRenderDevice->_context);
             Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("[RenderDevice] Initialized (device {:p}, context {:p} and swapchain {:p})", fmt::ptr(gRenderDevice->_device), fmt::ptr(gRenderDevice->_context), fmt::ptr(gSwapChain));
-
-            // Init the swap chain back buffer
-            ID3D11Texture2D *pBackBuffer = nullptr;
-            gSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-            if (pBackBuffer != nullptr) {
-                gRenderDevice->_device->CreateRenderTargetView(pBackBuffer, nullptr, &gTargetView);
-                pBackBuffer->Release();
-            }
 
             // Init the ImGui internal instance
             Framework::External::ImGUI::Config imguiConfig;

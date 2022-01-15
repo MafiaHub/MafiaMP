@@ -31,8 +31,7 @@ WNDPROC g_pOriginalWndProcHandler                                     = nullptr;
 HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT flags) {
     if (!(flags & DXGI_PRESENT_TEST)) {
         const auto app = MafiaMP::Core::gApplication.get();
-        if (app && app->IsInitialized() && MafiaMP::Game::gTargetView) {
-            MafiaMP::Game::gRenderDevice->_context->OMSetRenderTargets(1, &MafiaMP::Game::gTargetView, NULL);
+        if (app && app->IsInitialized()) {
             app->GetImGUI()->Render();
         }
     }
