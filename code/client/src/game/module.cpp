@@ -11,13 +11,16 @@
 #include <logging/logger.h>
 #include <utils/hooking/hooking.h>
 
+#include <MinHook.h>
+
+
+
 namespace MafiaMP::Game {
     Module *gModule                                                       = nullptr;
     HWND gWindow                                                          = nullptr;
     IDXGISwapChain* gSwapChain                                            = nullptr;
+    ID3D11RenderTargetView *gTargetView                                   = nullptr;
     SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice = nullptr;
-
-    static ID3D11RenderTargetView *pTargetView = nullptr;
 
     Module::Module() {
         StaticRegister(this);
@@ -55,7 +58,7 @@ namespace MafiaMP::Game {
             ID3D11Texture2D *pBackBuffer = nullptr;
             gSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
             if (pBackBuffer != nullptr) {
-                gRenderDevice->_device->CreateRenderTargetView(pBackBuffer, nullptr, &pTargetView);
+                gRenderDevice->_device->CreateRenderTargetView(pBackBuffer, nullptr, &gTargetView);
                 pBackBuffer->Release();
             }
 
@@ -72,14 +75,10 @@ namespace MafiaMP::Game {
     }
 
     void Module::OnGameRender(SDK::I_TickedModuleCallEventContext &) {
-        const auto app = Core::gApplication.get();
+        const auto app = MafiaMP::Core::gApplication.get();
 
         if (!app || (app && !app->IsInitialized()))
             return;
-
-        // gRenderDevice->_context->OMSetRenderTargets(1, &pTargetView, NULL);
-        // draw GUI stuff
-        // app->GetImGUI()->Render();
 
         // Tick our rendering thread
         app->Render();

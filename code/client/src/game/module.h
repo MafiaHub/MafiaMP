@@ -30,4 +30,5 @@ namespace MafiaMP::Game {
     extern SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice;
     extern HWND gWindow;
     extern IDXGISwapChain *gSwapChain;
+    extern ID3D11RenderTargetView *gTargetView;
 } // namespace MafiaMP::Game
