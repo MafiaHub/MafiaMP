@@ -26,6 +26,7 @@ typedef bool(__fastcall *C_D3D11WindowContextCache__InitSwapChainInternal_t)(voi
 C_D3D11WindowContextCache__InitSwapChainInternal_t C_D3D11WindowContextCache__InitSwapChainInternal_original = nullptr;
 
 static HRESULT (*D3D11Present_original)(IDXGISwapChain *, UINT, UINT) = nullptr;
+WNDPROC g_pOriginalWndProcHandler                                     = nullptr;
 
 HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT flags) {
     if (!(flags & DXGI_PRESENT_TEST)) {
@@ -39,6 +40,34 @@ HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT fla
     return D3D11Present_original(swapChain, syncInterval, flags);
 }
 
+LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    const auto app = MafiaMP::Core::gApplication.get();
+    if (app && app->IsInitialized()) {
+        if (app->GetImGUI()->ProcessEvent(hWnd, msg, wParam, lParam) == Framework::External::ImGUI::InputState::BLOCK) {
+            return 0;
+        }
+    }
+
+    switch (msg) {
+    /*case WM_SIZE:
+        auto gfx    = gCore->GetGfx();
+        auto device = gfx->GetDevice();
+        if (device != NULL && wParam != SIZE_MINIMIZED) {
+            auto swapchain = gfx->GetSwapChain();
+            gfx->CleanupRenderTarget();
+            swapchain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
+            gfx->CreateRenderTarget();
+        }
+        return 0;*/
+    case WM_SYSCOMMAND:
+        if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
+            return 0;
+        break;
+    case WM_DESTROY: ::PostQuitMessage(0); return 0;
+    }
+
+    return g_pOriginalWndProcHandler(hWnd, msg, wParam, lParam);
+}
 
 bool C_Direct3D11RenderDevice__Init(SDK::ue::sys::render::device::C_Direct3D11RenderDevice *device, SDK::ue::sys::render::device::S_RenderDeviceDesc const &a2,
     SDK::ue::sys::render::device::C_DynamicVIBufferPool &a3, void *idk) {
@@ -54,6 +83,12 @@ int64_t C_WindowProcHandler__CreateMainWindow(void* _this, SDK::ue::C_Applicatio
 
     // Store the window pointer for later init
     MafiaMP::Game::gWindow = appWin32->m_pWindow;
+
+    // Update the main window title asap
+    SetWindowTextA(MafiaMP::Game::gWindow, "Mafia: Advanced Multiplayer Edition");
+
+    // Patch the wind proc handler
+    g_pOriginalWndProcHandler = (WNDPROC)SetWindowLongPtrW(MafiaMP::Game::gWindow, GWLP_WNDPROC, (LONG_PTR)WndProc);
     return result;
 }
 

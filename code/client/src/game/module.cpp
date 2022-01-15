@@ -51,7 +51,6 @@ namespace MafiaMP::Game {
             // Init the render device
             MafiaMP::Core::gApplication->GetRenderer()->SetWindow(gWindow);
             MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gRenderDevice->_device, gRenderDevice->_context);
-            SetWindowTextA(gWindow, "Mafia: Advanced Multiplayer Edition");
             Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("[RenderDevice] Initialized (device {:p}, context {:p} and swapchain {:p})", fmt::ptr(gRenderDevice->_device), fmt::ptr(gRenderDevice->_context), fmt::ptr(gSwapChain));
 
             // Init the swap chain back buffer

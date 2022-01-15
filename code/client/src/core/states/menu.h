@@ -15,5 +15,8 @@ namespace MafiaMP::Core::States {
         virtual bool OnExit(Framework::Utils::States::Machine *) override;
 
         virtual bool OnUpdate(Framework::Utils::States::Machine *) override;
+
+        private:
+        void LockPlayerControls(bool);
     };
 } // namespace MafiaMP::Core::States
