@@ -30,12 +30,13 @@ namespace MafiaMP::Core::States {
         return true;
     }
 
-    static bool open = true;
     bool InMenuState::OnUpdate(Framework::Utils::States::Machine *) {
-        gApplication->GetImGUI()->PushWidget([]() {
+        static bool shouldExit = false;
+        gApplication->GetImGUI()->PushWidget([&]() {
+            static bool open = true;
             if (!ImGui::Begin("Debug", &open)) {
                 ImGui::End();
-                return true;
+                shouldExit = true;
             }
 
             ImGui::Text("Press F1 to turn this window on/off.");
@@ -53,6 +54,6 @@ namespace MafiaMP::Core::States {
 
             ImGui::End();
         });
-        return false;
+        return shouldExit;
     }
 } // namespace MafiaMP::Core::States
