@@ -90,7 +90,7 @@ namespace MafiaMP::Game {
             Core::gApplication->Update();
 
 #if 1
-            if (GetAsyncKeyState(VK_F2) & 0x1) {
+            if (GetAsyncKeyState(VK_F3) & 0x1) {
                 Core::gApplication->GetEntityFactory()->ReturnAll();
             }
 
