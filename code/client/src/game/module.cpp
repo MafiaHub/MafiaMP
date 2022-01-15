@@ -1,20 +1,18 @@
 #include "module.h"
 
 #include "../core/application.h"
+#include "../sdk/c_game.h"
+#include "../sdk/entities/c_car.h"
+#include "../sdk/entities/c_player_2.h"
+#include "../sdk/entities/c_vehicle.h"
+#include "../sdk/entities/human/c_human_weapon_controller.h"
 
+#include <SDL.h>
 #include <logging/logger.h>
 #include <utils/hooking/hooking.h>
 
-#include "../sdk/c_game.h"
-#include "../sdk/entities/c_player_2.h"
-#include "../sdk/entities/human/c_human_weapon_controller.h"
-#include "../sdk/entities/c_car.h"
-#include "../sdk/entities/c_vehicle.h"
-
-#include <SDL.h>
-
 namespace MafiaMP::Game {
-    Module *gModule = nullptr;
+    Module *gModule                                                       = nullptr;
     HWND gWindow                                                          = nullptr;
     SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice = nullptr;
 
@@ -46,8 +44,7 @@ namespace MafiaMP::Game {
                 MafiaMP::Core::gApplication->GetRenderer()->SetWindow(gWindow);
                 MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gRenderDevice->_device, gRenderDevice->_context);
                 SetWindowTextA(gWindow, "Mafia: Advanced Multiplayer Edition");
-                Framework::Logging::GetInstance()
-                    ->Get(FRAMEWORK_INNER_GRAPHICS)
+                Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)
                     ->info("RenderDevice initialized (device {:p} and context {:p})", fmt::ptr(gRenderDevice->_device), fmt::ptr(gRenderDevice->_context));
             }
         }
@@ -84,7 +81,6 @@ namespace MafiaMP::Game {
     void Module::OnGameTick(SDK::I_TickedModuleCallEventContext &) {
         // Tick our main application
         if (Core::gApplication && Core::gApplication->IsInitialized()) {
-
             const auto discordApi = Core::gApplication->GetPresence();
 
             if (discordApi) {
@@ -100,7 +96,7 @@ namespace MafiaMP::Game {
             if (GetAsyncKeyState(VK_F1) & 0x1) {
                 printf("asking car\n");
                 info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");
-                
+
                 const auto OnCarRequestFinish = [&](bool success) {
                     if (success) {
                         m_pCar = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
@@ -188,4 +184,4 @@ namespace MafiaMP::Game {
         Framework::Logging::GetLogger("Module")->info("Shutdown success");
         // TODO: find a way to properly shutdown the game
     }
-} // namespace Game
+} // namespace MafiaMP::Game
