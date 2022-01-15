@@ -83,19 +83,6 @@ namespace MafiaMP::Game {
             discordApi->SetPresence("Freeroam", "Screwing around", discord::ActivityType::Playing);
         }
 
-        // TODO move to a better place
-        {
-            const auto im = Core::gApplication->GetImGUI();
-
-            // TODO figure out imgui input (hook wndproc handler and pass data into im->ProcessEvent
-
-            im->NewFrame();
-            {
-                // TODO imgui code
-            }
-            im->EndFrame();
-        }
-
 #if 1
         if (GetAsyncKeyState(VK_F3) & 0x1) {
             Core::gApplication->GetEntityFactory()->ReturnAll();
