@@ -12,6 +12,7 @@
 #include "../../sdk/ue/sys/render/device/c_direct_3d11_render_device.h"
 #include "../../sdk/ue/sys/render/device/s_render_device_desc.h"
 #include "../../sdk/ue/sys/render/device/c_dynamic_vi_buffer_pool.h"
+#include "../../sdk/ue/sys/render/device/c_d3d11_window_context_cache.h"
 #include "../../sdk/ue/c_application_win32.h"
 
 
@@ -20,6 +21,9 @@ C_RenderDevice_Unknown_t C_RenderDevice_Unknown_original = nullptr;
 
 typedef int64_t(__fastcall *C_WindowProcHandler__CreateMainWindow_t)(void *_this, SDK::ue::C_Application_Win32 *appWin32);
 C_WindowProcHandler__CreateMainWindow_t C_WindowProcHandler__CreateMainWindow_original = nullptr;
+
+typedef bool(__fastcall *C_D3D11WindowContextCache__InitSwapChainInternal_t)(void *_this, SDK::ue::sys::render::device::C_D3D11WindowContextCache::S_WndContextDesc &);
+C_D3D11WindowContextCache__InitSwapChainInternal_t C_D3D11WindowContextCache__InitSwapChainInternal_original = nullptr;
 
 bool C_RenderDevice_Unknown(SDK::ue::sys::render::device::C_Direct3D11RenderDevice *device, SDK::ue::sys::render::device::S_RenderDeviceDesc const &a2,
     SDK::ue::sys::render::device::C_DynamicVIBufferPool &a3, void *idk) {
@@ -37,11 +41,21 @@ int64_t C_WindowProcHandler__CreateMainWindow(void* _this, SDK::ue::C_Applicatio
     return result;
 }
 
+bool C_D3D11WindowContextCache__InitSwapChainInternal(void *_this, SDK::ue::sys::render::device::C_D3D11WindowContextCache::S_WndContextDesc &desc) {
+    auto result = C_D3D11WindowContextCache__InitSwapChainInternal_original(_this, desc);
+
+    // Store the swapchain pointer for later init
+    MafiaMP::Game::gSwapChain = desc.m_pSwapChain;
+    return result;
+}
+
 static InitFunction init([]() {
     const auto C_Unknown_Addr = hook::get_opcode_address("E8 ? ? ? ? 0F 10 03 33 ED");
     MH_CreateHook((LPVOID)C_Unknown_Addr, (PBYTE)C_RenderDevice_Unknown, reinterpret_cast<void **>(&C_RenderDevice_Unknown_original));
 
     const auto C_WindowProcHandler__CreateMainWindow__Addr = hook::get_opcode_address("E8 ? ? ? ? 48 8B C7 48 8B B4 24 ? ? ? ? 48 83 C4 60");
-    MH_CreateHook((LPVOID)C_WindowProcHandler__CreateMainWindow__Addr, (PBYTE)C_WindowProcHandler__CreateMainWindow,
-        reinterpret_cast<void **>(&C_WindowProcHandler__CreateMainWindow_original));
+    MH_CreateHook((LPVOID)C_WindowProcHandler__CreateMainWindow__Addr, (PBYTE)C_WindowProcHandler__CreateMainWindow, reinterpret_cast<void **>(&C_WindowProcHandler__CreateMainWindow_original));
+
+    const auto initSwapChainPattern = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 ? 48 89 74 24 ? 55 48 8B EC 48 83 EC 70 48 8B F1").get_first());
+    MH_CreateHook((LPVOID)initSwapChainPattern, (PBYTE)C_D3D11WindowContextCache__InitSwapChainInternal, reinterpret_cast<void **>(&C_D3D11WindowContextCache__InitSwapChainInternal_original));
 });

@@ -8,6 +8,8 @@
 #include <functional>
 #include <Windows.h>
 
+#include <dxgi.h>
+
 namespace MafiaMP::Game {
     class Module: public SDK::C_TickedModule {
       public:
@@ -24,6 +26,8 @@ namespace MafiaMP::Game {
     };
 
     extern Module* gModule;
+
     extern SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice;
     extern HWND gWindow;
+    extern IDXGISwapChain *gSwapChain;
 } // namespace MafiaMP::Game

@@ -14,7 +14,10 @@
 namespace MafiaMP::Game {
     Module *gModule                                                       = nullptr;
     HWND gWindow                                                          = nullptr;
+    IDXGISwapChain* gSwapChain                                            = nullptr;
     SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice = nullptr;
+
+    static ID3D11RenderTargetView *pTargetView = nullptr;
 
     Module::Module() {
         StaticRegister(this);
@@ -46,7 +49,15 @@ namespace MafiaMP::Game {
             MafiaMP::Core::gApplication->GetRenderer()->SetWindow(gWindow);
             MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gRenderDevice->_device, gRenderDevice->_context);
             SetWindowTextA(gWindow, "Mafia: Advanced Multiplayer Edition");
-            Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("[RenderDevice] Initialized (device {:p} and context {:p})", fmt::ptr(gRenderDevice->_device), fmt::ptr(gRenderDevice->_context));
+            Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("[RenderDevice] Initialized (device {:p}, context {:p} and swapchain {:p})", fmt::ptr(gRenderDevice->_device), fmt::ptr(gRenderDevice->_context), fmt::ptr(gSwapChain));
+
+            // Init the swap chain back buffer
+            ID3D11Texture2D *pBackBuffer = nullptr;
+            gSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+            if (pBackBuffer != nullptr) {
+                gRenderDevice->_device->CreateRenderTargetView(pBackBuffer, nullptr, &pTargetView);
+                pBackBuffer->Release();
+            }
 
             // Init the ImGui internal instance
             Framework::External::ImGUI::Config imguiConfig;
@@ -58,6 +69,20 @@ namespace MafiaMP::Game {
                 Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("ImGUI has failed to init");
             }
         }
+    }
+
+    void Module::OnGameRender(SDK::I_TickedModuleCallEventContext &) {
+        const auto app = Core::gApplication.get();
+
+        if (!app || (app && !app->IsInitialized()))
+            return;
+
+        // gRenderDevice->_context->OMSetRenderTargets(1, &pTargetView, NULL);
+        // draw GUI stuff
+        // app->GetImGUI()->Render();
+
+        // Tick our rendering thread
+        app->Render();
     }
 
     void Module::OnSysShutdown(SDK::I_TickedModuleCallEventContext &) {
@@ -132,20 +157,6 @@ namespace MafiaMP::Game {
             info->SetReturnCallback(OnCarReturned);
         }
 #endif
-    }
-
-    void Module::OnGameRender(SDK::I_TickedModuleCallEventContext &) {
-        const auto app = Core::gApplication.get();
-
-        if (!app || (app && !app->IsInitialized()))
-            return;
-
-        // draw GUI stuff
-        // TODO crash
-        //app->GetImGUI()->Render();
-
-        // Tick our rendering thread
-        app->Render();
     }
 
     void Module::StaticRegister(Module *instance) {
