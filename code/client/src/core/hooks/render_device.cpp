@@ -29,16 +29,11 @@ static HRESULT (*D3D11Present_original)(IDXGISwapChain *, UINT, UINT) = nullptr;
 
 HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT flags) {
     if (!(flags & DXGI_PRESENT_TEST)) {
-        const auto res = D3D11Present_original(swapChain, syncInterval, flags);
-
         const auto app = MafiaMP::Core::gApplication.get();
-
         if (app && app->IsInitialized() && MafiaMP::Game::gTargetView) {
             MafiaMP::Game::gRenderDevice->_context->OMSetRenderTargets(1, &MafiaMP::Game::gTargetView, NULL);
             app->GetImGUI()->Render();
         }
-
-        return res;
     }
 
     return D3D11Present_original(swapChain, syncInterval, flags);
