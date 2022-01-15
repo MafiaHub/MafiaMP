@@ -142,7 +142,7 @@ namespace MafiaMP::Game {
 
         // draw GUI stuff
         // TODO crash
-        // app->GetImGUI()->Render();
+        //app->GetImGUI()->Render();
 
         // Tick our rendering thread
         app->Render();
