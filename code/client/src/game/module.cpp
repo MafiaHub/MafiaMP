@@ -46,6 +46,17 @@ namespace MafiaMP::Game {
                 SetWindowTextA(gWindow, "Mafia: Advanced Multiplayer Edition");
                 Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)
                     ->info("RenderDevice initialized (device {:p} and context {:p})", fmt::ptr(gRenderDevice->_device), fmt::ptr(gRenderDevice->_context));
+
+                Framework::External::ImGUI::Config imguiConfig;
+                imguiConfig.renderBackend = Framework::External::ImGUI::RenderBackend::D3D11;
+                imguiConfig.windowBackend = Framework::External::ImGUI::WindowBackend::WIN_32;
+                imguiConfig.renderer      = MafiaMP::Core::gApplication->GetRenderer();
+                imguiConfig.windowHandle  = gWindow;
+
+                if (MafiaMP::Core::gApplication->GetImGUI()->Init(imguiConfig) != Framework::External::ImGUI::Error::IMGUI_NONE) {
+                    Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)
+                        ->info("ImGUI has failed to init");
+                }
             }
         }
     }
