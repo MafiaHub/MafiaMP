@@ -49,15 +49,6 @@ namespace MafiaMP::Game {
                 Framework::Logging::GetInstance()
                     ->Get(FRAMEWORK_INNER_GRAPHICS)
                     ->info("RenderDevice initialized (device {:p} and context {:p})", fmt::ptr(gRenderDevice->_device), fmt::ptr(gRenderDevice->_context));
-
-                SDL_Init(SDL_INIT_EVERYTHING);
-                auto window = SDL_CreateWindowFrom(gWindow);
-
-                if (!window) {
-                    Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->debug("no sdl2 window for us {}", SDL_GetError());
-                }
-
-                SDL_SetWindowTitle(window, "LOL works!");
             }
         }
     }
