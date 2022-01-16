@@ -7,13 +7,9 @@
 #include <imgui/backends/imgui_impl_win32.h>
 #include <imgui/backends/imgui_impl_dx11.h>
 
+#include "../../game/helpers/controls.h"
+
 #include "../application.h"
-
-#include "../../sdk/mafia/framework/c_mafia_framework_interfaces.h"
-#include "../../sdk/mafia/framework/c_mafia_framework.h"
-
-#include "../../sdk/c_game_input_module.h"
-#include "../../sdk/entities/c_player_2.h"
 
 namespace MafiaMP::Core::States {
     InMenuState::InMenuState() {}
@@ -28,41 +24,12 @@ namespace MafiaMP::Core::States {
         return "InMenu";
     }
 
-    void InMenuState::LockPlayerControls(bool lock) {
-        SDK::mafia::framework::C_MafiaFramework *pMafiaFramework                     = SDK::mafia::framework::C_MafiaFramework::GetInstance();
-        if (!pMafiaFramework) {
-            return;
-        }
-
-        SDK::mafia::framework::C_MafiaFrameworkInterfaces *pMafiaFrameworkInterfaces = pMafiaFramework->GetInterfaces();
-        if (!pMafiaFrameworkInterfaces) {
-            return;
-        }
-        SDK::C_Game *pGame                                                  = pMafiaFrameworkInterfaces->GetGame();
-        if (!pGame) {
-            return;
-        }
-
-        SDK::C_Player2 *pActivePlayer = (SDK::C_Player2 *)(pGame->IsGameUp() ? pGame->GetActivePlayer() : nullptr);
-        if (!pActivePlayer) {
-            return;
-        }
-
-        if (lock) {
-            pActivePlayer->GetCharacterController()->LockControls();
-        }
-        else {
-            pActivePlayer->GetCharacterController()->UnlockControls();
-        }
-        SDK::GetGameInputModule()->PauseInput(lock);
-    }
-
     bool InMenuState::OnEnter(Framework::Utils::States::Machine *) {
         // Set camera
         //TODO
 
         // Lock game controls
-        LockPlayerControls(true);
+        Game::Helpers::Controls::Lock(true);
 
         // Enable cursor
         ImGuiIO &io = ImGui::GetIO();
@@ -74,16 +41,10 @@ namespace MafiaMP::Core::States {
         // Hide cursor
         ImGuiIO &io        = ImGui::GetIO();
         io.MouseDrawCursor = false;
-
-        // Unlock game controls
-        LockPlayerControls(false);
-
-        // Reset camera by player
-        //TODO
         return true;
     }
 
-    bool InMenuState::OnUpdate(Framework::Utils::States::Machine *) {
+    bool InMenuState::OnUpdate(Framework::Utils::States::Machine *machine) {
         static bool shouldExit = false;
         gApplication->GetImGUI()->PushWidget([&]() {
             static bool open = true;
@@ -102,7 +63,16 @@ namespace MafiaMP::Core::States {
             ImGui::SameLine();
             ImGui::InputText("##nickname", nickname, 32);
             if (ImGui::Button("Connect lol")) {
+                // Update the application state for further usage
+                MafiaMP::Core::CurrentState newApplicationState;
+                newApplicationState._host = serverIp;
+                newApplicationState._port = 1234;
+                newApplicationState._nickname = nickname;
+                MafiaMP::Core::gApplication->SetCurrentState(newApplicationState);
+
+                // Request transition to next state (session connection)
                 shouldExit = true;
+                machine->RequestNextState(StateIds::SessionConnection);
             }
 
             ImGui::End();

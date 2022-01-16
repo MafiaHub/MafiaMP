@@ -1,6 +1,8 @@
 #include "session_connected.h"
 #include "states.h"
 
+#include "../../game/helpers/controls.h"
+
 #include <utils/states/machine.h>
 
 namespace MafiaMP::Core::States {
@@ -17,6 +19,11 @@ namespace MafiaMP::Core::States {
     }
 
     bool SessionConnectedState::OnEnter(Framework::Utils::States::Machine *) {
+        // Reset camera by player
+        //TODO
+
+        // Give back controls
+        MafiaMP::Game::Helpers::Controls::Lock(false);
         return true;
     }
 

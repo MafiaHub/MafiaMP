@@ -1,6 +1,8 @@
 #include "session_connection.h"
 #include "states.h"
 
+#include "../application.h"
+
 #include <utils/states/machine.h>
 
 namespace MafiaMP::Core::States {
@@ -17,6 +19,7 @@ namespace MafiaMP::Core::States {
     }
 
     bool SessionConnectionState::OnEnter(Framework::Utils::States::Machine *) {
+        const auto appState = MafiaMP::Core::gApplication->GetCurrentState();
         return true;
     }
 

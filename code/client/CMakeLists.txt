@@ -14,6 +14,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/render_device.cpp
     src/game/module.cpp
     src/game/streaming/entity_factory.cpp
+    src/game/helpers/controls.cpp
 )
 
 set(MAFIAMP_SDK_FILES
