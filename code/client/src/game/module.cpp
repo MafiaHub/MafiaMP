@@ -1,6 +1,5 @@
 #include "module.h"
 
-#include "../core/application.h"
 #include "../sdk/c_game.h"
 #include "../sdk/entities/c_car.h"
 #include "../sdk/entities/c_player_2.h"

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <utils/safe_win32.h>
+
+#include "../core/application.h"
+
 #include "../sdk/c_ticked_module.h"
 #include "../sdk/c_ticked_module_manager.h"
 

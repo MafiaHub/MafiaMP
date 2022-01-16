@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utils/safe_win32.h>
+
 #include "../game/streaming/entity_factory.h"
 
 #include <integrations/client/instance.h>

@@ -15,7 +15,7 @@ namespace MafiaMP::Game::Streaming {
         using ReturnCallback        = std::function<void(EntityTrackingInfo*, bool)>;
       private:
         SDK::E_EntityType _type;
-        SDK::C_Entity *_entity;
+        SDK::C_Entity *_entity = nullptr;
 
         BeforeSpawnCallback _beforeSpawn;
         RequestFinishCallback _requestFinish;

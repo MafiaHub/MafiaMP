@@ -1,3 +1,5 @@
+#include "../application.h"
+
 #include "menu.h"
 #include "states.h"
 
@@ -8,6 +10,8 @@
 #include <imgui/backends/imgui_impl_dx11.h>
 
 #include "../../game/helpers/controls.h"
+#include "../../sdk/mafia/framework/c_mafia_framework_interfaces.h"
+#include "../../sdk/mafia/framework/c_mafia_framework.h"
 
 #include "../application.h"
 
