@@ -10,6 +10,8 @@
 #include "states/shutdown.h"
 #include "states/states.h"
 
+#include "../game/helpers/controls.h"
+
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication = nullptr;
 
@@ -52,8 +54,13 @@ namespace MafiaMP::Core {
     }
 
     void Application::InitNetworkingMessages() {
-        SetOnConnectionFinalizedCallback([this]() {
+        SetOnConnectionFinalizedCallback([this](flecs::entity_t entityID) {
             _stateMachine->RequestNextState(States::StateIds::SessionConnected);
+
+            auto guid = GetNetworkingEngine()->GetNetworkClient()->GetPeer()->GetMyGUID();
+            auto localPlayer = Game::Helpers::Controls::GetLocalPlayer();
+
+            GetPlayerFactory()->CreateClient(guid.g, localPlayer, entityID);
         });
 
         SetOnConnectionClosedCallback([this]() {
