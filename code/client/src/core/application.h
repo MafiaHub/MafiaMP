@@ -9,12 +9,11 @@
 #include <utils/states/machine.h>
 
 namespace MafiaMP::Core {
-    
-
     class Application: public Framework::Integrations::Client::Instance {
       private:
         Framework::Utils::States::Machine *_stateMachine;
         Game::Streaming::EntityFactory *_entityFactory;
+        flecs::entity _localPlayer;
 
       public:
         virtual bool PostInit() override;

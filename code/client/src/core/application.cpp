@@ -60,11 +60,12 @@ namespace MafiaMP::Core {
             auto guid = GetNetworkingEngine()->GetNetworkClient()->GetPeer()->GetMyGUID();
             auto localPlayer = Game::Helpers::Controls::GetLocalPlayer();
 
-            GetPlayerFactory()->CreateClient(guid.g, localPlayer, entityID);
+            _localPlayer = GetPlayerFactory()->CreateClient(guid.g, localPlayer, entityID);
         });
 
         SetOnConnectionClosedCallback([this]() {
             _stateMachine->RequestNextState(States::StateIds::SessionDisconnection);
+            _localPlayer.destruct();
         });
     }
 } // namespace MafiaMP::Core
