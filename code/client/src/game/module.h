@@ -25,9 +25,12 @@ namespace MafiaMP::Game {
         static void StaticHandleShutdown(Module *);
     };
 
-    extern Module* gModule;
+    typedef struct {
+        Module *gModule                                                       = nullptr;
+        HWND gWindow                                                          = nullptr;
+        IDXGISwapChain *gSwapChain                                            = nullptr;
+        SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice = nullptr;
+    } Globals;
 
-    extern SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice;
-    extern HWND gWindow;
-    extern IDXGISwapChain *gSwapChain;
+    extern Globals gGlobals;
 } // namespace MafiaMP::Game

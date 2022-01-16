@@ -10,7 +10,7 @@ typedef void(__fastcall *C_InitDone__Init_MafiaFramework_t)(void *_this);
 C_InitDone__Init_MafiaFramework_t C_InitDone__Init_MafiaFramework_original = nullptr;
 void __fastcall C_InitDone__MafiaFramework(void *_this) {
     C_InitDone__Init_MafiaFramework_original(_this);
-    MafiaMP::Game::gModule = new MafiaMP::Game::Module();
+    MafiaMP::Game::gGlobals.gModule = new MafiaMP::Game::Module();
 }
 
 // Intro vide hooking

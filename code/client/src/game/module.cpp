@@ -16,10 +16,7 @@
 
 
 namespace MafiaMP::Game {
-    Module *gModule                                                       = nullptr;
-    HWND gWindow                                                          = nullptr;
-    IDXGISwapChain* gSwapChain                                            = nullptr;
-    SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice = nullptr;
+    Globals gGlobals;
 
     Module::Module() {
         StaticRegister(this);
@@ -31,7 +28,7 @@ namespace MafiaMP::Game {
 
         // Init our main application
         if (Core::gApplication && !Core::gApplication->IsInitialized()) {
-            Framework::Graphics::RendererConfiguration rendererOptions;
+            Framework::Graphics::RendererConfiguration rendererOptions = {};
             rendererOptions.backend = Framework::Graphics::RendererBackend::BACKEND_D3D_11;
 
             Framework::Integrations::Client::InstanceOptions opts;
@@ -48,16 +45,16 @@ namespace MafiaMP::Game {
             }
 
             // Init the render device
-            MafiaMP::Core::gApplication->GetRenderer()->SetWindow(gWindow);
-            MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gRenderDevice->_device, gRenderDevice->_context);
-            Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("[RenderDevice] Initialized (device {:p}, context {:p} and swapchain {:p})", fmt::ptr(gRenderDevice->_device), fmt::ptr(gRenderDevice->_context), fmt::ptr(gSwapChain));
+            MafiaMP::Core::gApplication->GetRenderer()->SetWindow(gGlobals.gWindow);
+            MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gGlobals.gRenderDevice->_device, gGlobals.gRenderDevice->_context);
+            Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("[RenderDevice] Initialized (device {:p}, context {:p} and swapchain {:p})", fmt::ptr(gGlobals.gRenderDevice->_device), fmt::ptr(gGlobals.gRenderDevice->_context), fmt::ptr(gGlobals.gSwapChain));
 
             // Init the ImGui internal instance
             Framework::External::ImGUI::Config imguiConfig;
             imguiConfig.renderBackend = Framework::External::ImGUI::RenderBackend::D3D11;
             imguiConfig.windowBackend = Framework::External::ImGUI::WindowBackend::WIN_32;
             imguiConfig.renderer      = MafiaMP::Core::gApplication->GetRenderer();
-            imguiConfig.windowHandle  = gWindow;
+            imguiConfig.windowHandle  = gGlobals.gWindow;
             if (MafiaMP::Core::gApplication->GetImGUI()->Init(imguiConfig) != Framework::External::ImGUI::Error::IMGUI_NONE) {
                 Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("ImGUI has failed to init");
             }
@@ -120,7 +117,7 @@ namespace MafiaMP::Game {
 
                     SDK::ue::sys::math::C_Vector newPos = localPlayer->GetPos();
                     SDK::ue::sys::math::C_Quat newRot   = localPlayer->GetRot();
-                    SDK::ue::sys::math::C_Matrix transform;
+                    SDK::ue::sys::math::C_Matrix transform = {};
                     transform.Identity();
                     transform.SetRot(newRot);
                     transform.SetPos(newPos);

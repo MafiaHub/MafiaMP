@@ -25,7 +25,8 @@ C_WindowProcHandler__CreateMainWindow_t C_WindowProcHandler__CreateMainWindow_or
 typedef bool(__fastcall *C_D3D11WindowContextCache__InitSwapChainInternal_t)(void *_this, SDK::ue::sys::render::device::C_D3D11WindowContextCache::S_WndContextDesc &);
 C_D3D11WindowContextCache__InitSwapChainInternal_t C_D3D11WindowContextCache__InitSwapChainInternal_original = nullptr;
 
-static HRESULT (*D3D11Present_original)(IDXGISwapChain *, UINT, UINT) = nullptr;
+typedef HRESULT(__fastcall *D3D11Present_original)(IDXGISwapChain *, UINT, UINT);
+D3D11Present_original g_pOriginalD3D11Present = nullptr;
 WNDPROC g_pOriginalWndProcHandler                                     = nullptr;
 
 HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT flags) {
@@ -36,7 +37,7 @@ HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT fla
         }
     }
 
-    return D3D11Present_original(swapChain, syncInterval, flags);
+    return g_pOriginalD3D11Present(swapChain, syncInterval, flags);
 }
 
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -73,7 +74,7 @@ bool C_Direct3D11RenderDevice__Init(SDK::ue::sys::render::device::C_Direct3D11Re
     auto result = C_Direct3D11RenderDevice__Init_original(device, a2, a3, idk);
 
     // Store the device for later init, since it's the first thing to initialize in the game
-    MafiaMP::Game::gRenderDevice = device;
+    MafiaMP::Game::gGlobals.gRenderDevice = device;
     return result;
 }
 
@@ -81,13 +82,13 @@ int64_t C_WindowProcHandler__CreateMainWindow(void* _this, SDK::ue::C_Applicatio
     auto result = C_WindowProcHandler__CreateMainWindow_original(_this, appWin32);
 
     // Store the window pointer for later init
-    MafiaMP::Game::gWindow = appWin32->m_pWindow;
+    MafiaMP::Game::gGlobals.gWindow = appWin32->m_pWindow;
 
     // Update the main window title asap
-    SetWindowTextA(MafiaMP::Game::gWindow, "Mafia: Advanced Multiplayer Edition");
+    SetWindowTextA(MafiaMP::Game::gGlobals.gWindow, "Mafia: Advanced Multiplayer Edition");
 
     // Patch the wind proc handler
-    g_pOriginalWndProcHandler = (WNDPROC)SetWindowLongPtrW(MafiaMP::Game::gWindow, GWLP_WNDPROC, (LONG_PTR)WndProc);
+    g_pOriginalWndProcHandler = (WNDPROC)SetWindowLongPtrW(MafiaMP::Game::gGlobals.gWindow, GWLP_WNDPROC, (LONG_PTR)WndProc);
     return result;
 }
 
@@ -95,14 +96,15 @@ bool C_D3D11WindowContextCache__InitSwapChainInternal(void *_this, SDK::ue::sys:
     auto result = C_D3D11WindowContextCache__InitSwapChainInternal_original(_this, desc);
 
     // Store the swapchain pointer for later init
-    MafiaMP::Game::gSwapChain = desc.m_pSwapChain;
+    MafiaMP::Game::gGlobals.gSwapChain = desc.m_pSwapChain;
 
     // Patch the swap chain present method to render our draw data (Enable hook is mandatory since it's happening dynamically, after static hooks initialize)
-    auto pSwapChainVtable     = (DWORD_PTR *)MafiaMP::Game::gSwapChain;
+    auto pSwapChainVtable     = (DWORD_PTR *)MafiaMP::Game::gGlobals.gSwapChain;
     pSwapChainVtable          = (DWORD_PTR *)pSwapChainVtable[0];
-    auto pDeviceContextVTable = (DWORD_PTR *)MafiaMP::Game::gRenderDevice->_context;
-    pDeviceContextVTable      = (DWORD_PTR *)pDeviceContextVTable[0];
-    MH_CreateHook((LPVOID)pSwapChainVtable[8], (PBYTE)D3D11Present_Hook, reinterpret_cast<void **>(&D3D11Present_original));
+    
+    // TODO get rid of hook
+    //g_pOriginalD3D11Present   = reinterpret_cast<D3D11Present_original>(pSwapChainVtable[8]);
+    MH_CreateHook((LPVOID)pSwapChainVtable[8], (PBYTE)D3D11Present_Hook, reinterpret_cast<void **>(&g_pOriginalD3D11Present));
     MH_EnableHook(MH_ALL_HOOKS);
     return result;
 }
