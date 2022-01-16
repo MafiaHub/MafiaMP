@@ -26,10 +26,10 @@ namespace MafiaMP::Game {
     };
 
     struct Globals {
-        ModModule *Module                                                    = nullptr;
-        HWND Window                                                          = nullptr;
-        IDXGISwapChain *SwapChain                                            = nullptr;
-        SDK::ue::sys::render::device::C_Direct3D11RenderDevice *RenderDevice = nullptr;
+        ModModule *module                                                    = nullptr;
+        HWND window                                                          = nullptr;
+        IDXGISwapChain *swapChain                                            = nullptr;
+        SDK::ue::sys::render::device::C_Direct3D11RenderDevice *renderDevice = nullptr;
     };
 
     extern Globals gGlobals;

@@ -45,16 +45,16 @@ namespace MafiaMP::Game {
             }
 
             // Init the render device
-            MafiaMP::Core::gApplication->GetRenderer()->SetWindow(gGlobals.Window);
-            MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gGlobals.RenderDevice->_device, gGlobals.RenderDevice->_context);
-            Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("[RenderDevice] Initialized (device {:p}, context {:p} and swapchain {:p})", fmt::ptr(gGlobals.RenderDevice->_device), fmt::ptr(gGlobals.RenderDevice->_context), fmt::ptr(gGlobals.SwapChain));
+            MafiaMP::Core::gApplication->GetRenderer()->SetWindow(gGlobals.window);
+            MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gGlobals.renderDevice->_device, gGlobals.renderDevice->_context);
+            Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("[renderDevice] Initialized (device {:p}, context {:p} and swapchain {:p})", fmt::ptr(gGlobals.renderDevice->_device), fmt::ptr(gGlobals.renderDevice->_context), fmt::ptr(gGlobals.swapChain));
 
             // Init the ImGui internal instance
             Framework::External::ImGUI::Config imguiConfig;
             imguiConfig.renderBackend = Framework::External::ImGUI::RenderBackend::D3D11;
             imguiConfig.windowBackend = Framework::External::ImGUI::WindowBackend::WIN_32;
             imguiConfig.renderer      = MafiaMP::Core::gApplication->GetRenderer();
-            imguiConfig.windowHandle  = gGlobals.Window;
+            imguiConfig.windowHandle  = gGlobals.window;
             if (MafiaMP::Core::gApplication->GetImGUI()->Init(imguiConfig) != Framework::External::ImGUI::Error::IMGUI_NONE) {
                 Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("ImGUI has failed to init");
             }
