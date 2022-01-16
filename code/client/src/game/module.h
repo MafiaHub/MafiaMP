@@ -11,9 +11,9 @@
 #include <dxgi.h>
 
 namespace MafiaMP::Game {
-    class Module: public SDK::C_TickedModule {
+    class ModModule: public SDK::C_TickedModule {
       public:
-        Module();
+        ModModule();
 
         void OnGameRender(SDK::I_TickedModuleCallEventContext &);
         void OnGameTick(SDK::I_TickedModuleCallEventContext &);
@@ -21,16 +21,16 @@ namespace MafiaMP::Game {
         void OnSysInit(SDK::I_TickedModuleCallEventContext &);
         void OnSysShutdown(SDK::I_TickedModuleCallEventContext &);
 
-        static void StaticRegister(Module *);
-        static void StaticHandleShutdown(Module *);
+        static void StaticRegister(ModModule *);
+        static void StaticHandleShutdown(ModModule *);
     };
 
-    typedef struct {
-        Module *gModule                                                       = nullptr;
-        HWND gWindow                                                          = nullptr;
-        IDXGISwapChain *gSwapChain                                            = nullptr;
-        SDK::ue::sys::render::device::C_Direct3D11RenderDevice *gRenderDevice = nullptr;
-    } Globals;
+    struct Globals {
+        ModModule *Module                                                    = nullptr;
+        HWND Window                                                          = nullptr;
+        IDXGISwapChain *SwapChain                                            = nullptr;
+        SDK::ue::sys::render::device::C_Direct3D11RenderDevice *RenderDevice = nullptr;
+    };
 
     extern Globals gGlobals;
 } // namespace MafiaMP::Game

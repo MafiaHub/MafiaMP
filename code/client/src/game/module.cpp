@@ -18,11 +18,11 @@
 namespace MafiaMP::Game {
     Globals gGlobals;
 
-    Module::Module() {
+    ModModule::ModModule() {
         StaticRegister(this);
     }
 
-    void Module::OnSysInit(SDK::I_TickedModuleCallEventContext &) {
+    void ModModule::OnSysInit(SDK::I_TickedModuleCallEventContext &) {
         // Create our core module application
         Core::gApplication.reset(new Core::Application);
 
@@ -45,23 +45,23 @@ namespace MafiaMP::Game {
             }
 
             // Init the render device
-            MafiaMP::Core::gApplication->GetRenderer()->SetWindow(gGlobals.gWindow);
-            MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gGlobals.gRenderDevice->_device, gGlobals.gRenderDevice->_context);
-            Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("[RenderDevice] Initialized (device {:p}, context {:p} and swapchain {:p})", fmt::ptr(gGlobals.gRenderDevice->_device), fmt::ptr(gGlobals.gRenderDevice->_context), fmt::ptr(gGlobals.gSwapChain));
+            MafiaMP::Core::gApplication->GetRenderer()->SetWindow(gGlobals.Window);
+            MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gGlobals.RenderDevice->_device, gGlobals.RenderDevice->_context);
+            Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("[RenderDevice] Initialized (device {:p}, context {:p} and swapchain {:p})", fmt::ptr(gGlobals.RenderDevice->_device), fmt::ptr(gGlobals.RenderDevice->_context), fmt::ptr(gGlobals.SwapChain));
 
             // Init the ImGui internal instance
             Framework::External::ImGUI::Config imguiConfig;
             imguiConfig.renderBackend = Framework::External::ImGUI::RenderBackend::D3D11;
             imguiConfig.windowBackend = Framework::External::ImGUI::WindowBackend::WIN_32;
             imguiConfig.renderer      = MafiaMP::Core::gApplication->GetRenderer();
-            imguiConfig.windowHandle  = gGlobals.gWindow;
+            imguiConfig.windowHandle  = gGlobals.Window;
             if (MafiaMP::Core::gApplication->GetImGUI()->Init(imguiConfig) != Framework::External::ImGUI::Error::IMGUI_NONE) {
                 Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("ImGUI has failed to init");
             }
         }
     }
 
-    void Module::OnGameRender(SDK::I_TickedModuleCallEventContext &) {
+    void ModModule::OnGameRender(SDK::I_TickedModuleCallEventContext &) {
         const auto app = MafiaMP::Core::gApplication.get();
 
         if (!app || (app && !app->IsInitialized()))
@@ -71,7 +71,7 @@ namespace MafiaMP::Game {
         app->Render();
     }
 
-    void Module::OnSysShutdown(SDK::I_TickedModuleCallEventContext &) {
+    void ModModule::OnSysShutdown(SDK::I_TickedModuleCallEventContext &) {
         // Properly shutdown our main application
         if (Core::gApplication && Core::gApplication->IsInitialized()) {
             Core::gApplication->Shutdown();
@@ -81,7 +81,7 @@ namespace MafiaMP::Game {
 
     static Game::Streaming::EntityTrackingInfo *info = nullptr;
     static SDK::C_Car *m_pCar                        = nullptr;
-    void Module::OnGameTick(SDK::I_TickedModuleCallEventContext &) {
+    void ModModule::OnGameTick(SDK::I_TickedModuleCallEventContext &) {
         if (!Core::gApplication || !Core::gApplication->IsInitialized()) {
             return;
         }
@@ -145,30 +145,30 @@ namespace MafiaMP::Game {
 #endif
     }
 
-    void Module::StaticRegister(Module *instance) {
+    void ModModule::StaticRegister(ModModule *instance) {
         auto *mgr = SDK::GetTickedModuleManager();
         if (!mgr) {
-            Framework::Logging::GetLogger("Module")->error("Failed to acquire C_TickedModuleManager instance");
+            Framework::Logging::GetLogger("ModModule")->error("Failed to acquire C_TickedModuleManager instance");
             return;
         }
 
-        mgr->AddAction(SDK::E_TmEvent::E_TMEVENT_SYSTEM_INIT, 9999, instance, (SDK::TickedModuleCallback)(&Module::OnSysInit), -1.0f, 0, 0, "[TM]Module::OnSysInit");
-        mgr->EnableAction(SDK::E_TmEvent::E_TMEVENT_GAME_PAUSED, instance, (SDK::TickedModuleCallback)(&Module::OnSysInit), true);
+        mgr->AddAction(SDK::E_TmEvent::E_TMEVENT_SYSTEM_INIT, 9999, instance, (SDK::TickedModuleCallback)(&ModModule::OnSysInit), -1.0f, 0, 0, "[TM]ModModule::OnSysInit");
+        mgr->EnableAction(SDK::E_TmEvent::E_TMEVENT_GAME_PAUSED, instance, (SDK::TickedModuleCallback)(&ModModule::OnSysInit), true);
 
-        mgr->AddAction(SDK::E_TmEvent::E_TMEVENT_SYSTEM_DONE, 500, instance, (SDK::TickedModuleCallback)(&Module::OnSysShutdown), -1.0f, 0, 0, "[TM]Module::OnSysShutdown");
-        mgr->EnableAction(SDK::E_TmEvent::E_TMEVENT_SYSTEM_DONE, instance, (SDK::TickedModuleCallback)(&Module::OnSysShutdown), true);
+        mgr->AddAction(SDK::E_TmEvent::E_TMEVENT_SYSTEM_DONE, 500, instance, (SDK::TickedModuleCallback)(&ModModule::OnSysShutdown), -1.0f, 0, 0, "[TM]ModModule::OnSysShutdown");
+        mgr->EnableAction(SDK::E_TmEvent::E_TMEVENT_SYSTEM_DONE, instance, (SDK::TickedModuleCallback)(&ModModule::OnSysShutdown), true);
 
-        mgr->AddAction(SDK::E_TmEvent::E_TMEVENT_RENDER, 99999, instance, (SDK::TickedModuleCallback)(&Module::OnGameRender), -1.0f, 0, 0, "[TM]Module::OnGameRender");
-        mgr->EnableAction(SDK::E_TmEvent::E_TMEVENT_RENDER, instance, (SDK::TickedModuleCallback)(&Module::OnGameRender), true);
+        mgr->AddAction(SDK::E_TmEvent::E_TMEVENT_RENDER, 99999, instance, (SDK::TickedModuleCallback)(&ModModule::OnGameRender), -1.0f, 0, 0, "[TM]ModModule::OnGameRender");
+        mgr->EnableAction(SDK::E_TmEvent::E_TMEVENT_RENDER, instance, (SDK::TickedModuleCallback)(&ModModule::OnGameRender), true);
 
-        mgr->AddAction(SDK::E_TmEvent::E_TMEVENT_TICK, 400, instance, (SDK::TickedModuleCallback)(&Module::OnGameTick), -1.0f, 0, 0, "[TM]Module::OnGameTick");
-        mgr->EnableAction(SDK::E_TmEvent::E_TMEVENT_TICK, instance, (SDK::TickedModuleCallback)(&Module::OnGameTick), true);
+        mgr->AddAction(SDK::E_TmEvent::E_TMEVENT_TICK, 400, instance, (SDK::TickedModuleCallback)(&ModModule::OnGameTick), -1.0f, 0, 0, "[TM]ModModule::OnGameTick");
+        mgr->EnableAction(SDK::E_TmEvent::E_TMEVENT_TICK, instance, (SDK::TickedModuleCallback)(&ModModule::OnGameTick), true);
 
-        Framework::Logging::GetLogger("Module")->info("Registration success");
+        Framework::Logging::GetLogger("ModModule")->info("Registration success");
     }
 
-    void Module::StaticHandleShutdown(Module *) {
-        Framework::Logging::GetLogger("Module")->info("Shutdown success");
+    void ModModule::StaticHandleShutdown(ModModule *) {
+        Framework::Logging::GetLogger("ModModule")->info("Shutdown success");
         // TODO: find a way to properly shutdown the game
     }
 } // namespace MafiaMP::Game

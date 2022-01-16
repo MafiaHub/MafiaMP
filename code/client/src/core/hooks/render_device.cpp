@@ -74,7 +74,7 @@ bool C_Direct3D11RenderDevice__Init(SDK::ue::sys::render::device::C_Direct3D11Re
     auto result = C_Direct3D11RenderDevice__Init_original(device, a2, a3, idk);
 
     // Store the device for later init, since it's the first thing to initialize in the game
-    MafiaMP::Game::gGlobals.gRenderDevice = device;
+    MafiaMP::Game::gGlobals.RenderDevice = device;
     return result;
 }
 
@@ -82,13 +82,13 @@ int64_t C_WindowProcHandler__CreateMainWindow(void* _this, SDK::ue::C_Applicatio
     auto result = C_WindowProcHandler__CreateMainWindow_original(_this, appWin32);
 
     // Store the window pointer for later init
-    MafiaMP::Game::gGlobals.gWindow = appWin32->m_pWindow;
+    MafiaMP::Game::gGlobals.Window = appWin32->m_pWindow;
 
     // Update the main window title asap
-    SetWindowTextA(MafiaMP::Game::gGlobals.gWindow, "Mafia: Advanced Multiplayer Edition");
+    SetWindowTextA(MafiaMP::Game::gGlobals.Window, "Mafia: Advanced Multiplayer Edition");
 
     // Patch the wind proc handler
-    g_pOriginalWndProcHandler = (WNDPROC)SetWindowLongPtrW(MafiaMP::Game::gGlobals.gWindow, GWLP_WNDPROC, (LONG_PTR)WndProc);
+    g_pOriginalWndProcHandler = (WNDPROC)SetWindowLongPtrW(MafiaMP::Game::gGlobals.Window, GWLP_WNDPROC, (LONG_PTR)WndProc);
     return result;
 }
 
@@ -96,10 +96,10 @@ bool C_D3D11WindowContextCache__InitSwapChainInternal(void *_this, SDK::ue::sys:
     auto result = C_D3D11WindowContextCache__InitSwapChainInternal_original(_this, desc);
 
     // Store the swapchain pointer for later init
-    MafiaMP::Game::gGlobals.gSwapChain = desc.m_pSwapChain;
+    MafiaMP::Game::gGlobals.SwapChain = desc.m_pSwapChain;
 
     // Patch the swap chain present method to render our draw data (Enable hook is mandatory since it's happening dynamically, after static hooks initialize)
-    auto pSwapChainVtable     = (DWORD_PTR *)MafiaMP::Game::gGlobals.gSwapChain;
+    auto pSwapChainVtable     = (DWORD_PTR *)MafiaMP::Game::gGlobals.SwapChain;
     pSwapChainVtable          = (DWORD_PTR *)pSwapChainVtable[0];
     
     // TODO get rid of hook
