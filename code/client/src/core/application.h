@@ -21,6 +21,8 @@ namespace MafiaMP::Core {
         virtual bool PreShutdown() override;
         virtual void PostUpdate() override;
 
+        void InitNetworkingMessages();
+
         Framework::Utils::States::Machine* GetStateMachine() const {
             return _stateMachine;
         }
@@ -28,8 +30,6 @@ namespace MafiaMP::Core {
         Game::Streaming::EntityFactory *GetEntityFactory() const {
             return _entityFactory;
         }
-
-        
     };
 
     extern std::unique_ptr<Application> gApplication;

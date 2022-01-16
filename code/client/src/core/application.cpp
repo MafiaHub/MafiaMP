@@ -26,6 +26,9 @@ namespace MafiaMP::Core {
         // Create the entity factory
         _entityFactory = new Game::Streaming::EntityFactory;
 
+        // Register other things
+        InitNetworkingMessages();
+
         // This must always be the last call
         _stateMachine->RequestNextState(States::StateIds::Initialize);
         return true;
@@ -46,5 +49,15 @@ namespace MafiaMP::Core {
         if (_entityFactory) {
             _entityFactory->Update();
         }
+    }
+
+    void Application::InitNetworkingMessages() {
+        SetOnConnectionFinalizedCallback([this]() {
+            _stateMachine->RequestNextState(States::StateIds::SessionConnected);
+        });
+
+        SetOnConnectionClosedCallback([this]() {
+            _stateMachine->RequestNextState(States::StateIds::SessionDisconnection);
+        });
     }
 } // namespace MafiaMP::Core

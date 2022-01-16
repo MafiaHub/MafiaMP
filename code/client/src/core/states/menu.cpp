@@ -29,6 +29,8 @@ namespace MafiaMP::Core::States {
     }
 
     bool InMenuState::OnEnter(Framework::Utils::States::Machine *) {
+        _shouldDisplayWidget = true;
+        _shouldProceedConnection = false;
         // Set camera
         //TODO
 
@@ -49,10 +51,8 @@ namespace MafiaMP::Core::States {
     }
 
     bool InMenuState::OnUpdate(Framework::Utils::States::Machine *machine) {
-        static bool shouldExit = false;
         gApplication->GetImGUI()->PushWidget([&]() {
-            static bool open = true;
-            if (!ImGui::Begin("Debug", &open)) {
+            if (!ImGui::Begin("Debug", &_shouldDisplayWidget)) {
                 ImGui::End();
                 return;
             }
@@ -75,14 +75,14 @@ namespace MafiaMP::Core::States {
                 MafiaMP::Core::gApplication->SetCurrentState(newApplicationState);
 
                 // Request transition to next state (session connection)
-                shouldExit = true;
+                _shouldProceedConnection = true;
             }
 
             ImGui::End();
         });
-        if (shouldExit) {
+        if (_shouldProceedConnection) {
             machine->RequestNextState(StateIds::SessionConnection);
         }
-        return shouldExit;
+        return _shouldProceedConnection;
     }
 } // namespace MafiaMP::Core::States

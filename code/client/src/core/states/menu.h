@@ -4,6 +4,9 @@
 
 namespace MafiaMP::Core::States {
     class InMenuState: public Framework::Utils::States::IState {
+      private:
+        bool _shouldDisplayWidget;
+        bool _shouldProceedConnection;
       public:
         InMenuState();
         ~InMenuState();

@@ -28,8 +28,6 @@ namespace MafiaMP::Core::States {
             machine->RequestNextState(StateIds::Menu);
             return true;
         }
-
-        machine->RequestNextState(StateIds::SessionConnected);
         return true;
     }
 
