@@ -111,7 +111,7 @@ namespace MafiaMP::Game::Streaming {
                 while (requestIter != ongoingRequests.end()) {
                     if (requestIter->_info.get() == infos) {
                         if (infos->_return)
-                            infos->_return(false);
+                            infos->_return(infos, false);
 
                         requestIter = ongoingRequests.erase(requestIter);
                     }
@@ -125,7 +125,7 @@ namespace MafiaMP::Game::Streaming {
                 while (entityIter != createdEntities.end()) {
                     if (entityIter->_info.get() == infos) {
                         if (infos->_return)
-                            infos->_return(true);
+                            infos->_return(infos, true);
 
                         _spawnerReturnEntity(spawnerWrap->GetInnerSpawner(), entityIter->_info->GetEntity());
                         entityIter = createdEntities.erase(entityIter);
@@ -159,7 +159,7 @@ namespace MafiaMP::Game::Streaming {
                             {
                                 EntityTrackingInfo *trackingInfo = (*requestIter)._info.get();
                                 if (trackingInfo->_beforeSpawn)
-                                    trackingInfo->_beforeSpawn();
+                                    trackingInfo->_beforeSpawn(trackingInfo);
                             }
                             EntitySpawnResult spawnResult;
                             SDK::C_Entity *entity;
@@ -172,7 +172,7 @@ namespace MafiaMP::Game::Streaming {
                                 EntityTrackingInfo *trackingInfo = createdEntities.back()._info.get();
                                 trackingInfo->_entity          = entity;
                                 if (trackingInfo->_requestFinish)
-                                    trackingInfo->_requestFinish(true);
+                                    trackingInfo->_requestFinish(trackingInfo, true);
                             }
                             else if (spawnResult == EntitySpawnResult::Failed) {
                                 requestFinished = true;
@@ -180,7 +180,7 @@ namespace MafiaMP::Game::Streaming {
                                 ExtendedTrackingInfo &request = *requestIter;
                                 request._info->_entity     = nullptr;
                                 if (request._info->_requestFinish)
-                                    request._info->_requestFinish(false);
+                                    request._info->_requestFinish(nullptr, false);
                             }
                             else if (spawnResult == EntitySpawnResult::KeepLoading) {
                                 spawner._state = EntitySpawnerState::Loading;

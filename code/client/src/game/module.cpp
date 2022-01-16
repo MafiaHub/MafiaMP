@@ -79,8 +79,6 @@ namespace MafiaMP::Game {
         delete this;
     }
 
-    static Game::Streaming::EntityTrackingInfo *info = nullptr;
-    static SDK::C_Car *m_pCar                        = nullptr;
     void ModModule::OnGameTick(SDK::I_TickedModuleCallEventContext &) {
         if (!Core::gApplication || !Core::gApplication->IsInitialized()) {
             return;
@@ -101,17 +99,17 @@ namespace MafiaMP::Game {
 
         if (GetAsyncKeyState(VK_F1) & 0x1) {
             printf("asking car\n");
-            info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");
+            auto info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");
 
-            const auto OnCarRequestFinish = [&](bool success) {
+            const auto OnCarRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
                 if (success) {
-                    m_pCar = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
-                    if (!m_pCar) {
+                    auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
+                    if (!car) {
                         return;
                     }
-                    m_pCar->GameInit();
-                    m_pCar->Activate();
-                    m_pCar->Unlock();
+                    car->GameInit();
+                    car->Activate();
+                    car->Unlock();
 
                     auto localPlayer = SDK::GetGame()->GetActivePlayer();
 
@@ -121,22 +119,20 @@ namespace MafiaMP::Game {
                     transform.Identity();
                     transform.SetRot(newRot);
                     transform.SetPos(newPos);
-                    m_pCar->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
-                }
-                else {
-                    info = nullptr;
+                    car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
                 }
             };
 
-            const auto OnCarReturned = [&](bool wasCreated) {
-                if (wasCreated && m_pCar) {
-                    m_pCar->Deactivate();
-                    m_pCar->GameDone();
-                    m_pCar->Release();
+            const auto OnCarReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
+                if (!info) {
+                    return;
                 }
-
-                m_pCar = nullptr;
-                info   = nullptr;
+                auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
+                if (wasCreated && car) {
+                    car->Deactivate();
+                    car->GameDone();
+                    car->Release();
+                }
             };
 
             info->SetRequestFinishCallback(OnCarRequestFinish);

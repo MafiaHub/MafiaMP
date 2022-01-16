@@ -5,14 +5,14 @@
 #include <functional>
 
 namespace MafiaMP::Game::Streaming {
-    using BeforeSpawnCallback   = std::function<void()>;
-    using RequestFinishCallback = std::function<void(bool)>;
-    using ReturnCallback        = std::function<void(bool)>;
-
     class EntityTrackingInfo {
         template <typename, typename>
         friend class EntityTypeFactory;
 
+      public:
+        using BeforeSpawnCallback   = std::function<void(EntityTrackingInfo*)>;
+        using RequestFinishCallback = std::function<void(EntityTrackingInfo*, bool)>;
+        using ReturnCallback        = std::function<void(EntityTrackingInfo*, bool)>;
       private:
         SDK::E_EntityType _type;
         SDK::C_Entity *_entity;
