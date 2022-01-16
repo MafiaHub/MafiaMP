@@ -68,19 +68,21 @@ namespace MafiaMP::Core::States {
             ImGui::InputText("##nickname", nickname, 32);
             if (ImGui::Button("Connect lol")) {
                 // Update the application state for further usage
-                MafiaMP::Core::CurrentState newApplicationState;
+                Framework::Integrations::Client::CurrentState newApplicationState;
                 newApplicationState._host = serverIp;
-                newApplicationState._port = 1234;
+                newApplicationState._port     = 27015; //TODO: fix this
                 newApplicationState._nickname = nickname;
                 MafiaMP::Core::gApplication->SetCurrentState(newApplicationState);
 
                 // Request transition to next state (session connection)
                 shouldExit = true;
-                machine->RequestNextState(StateIds::SessionConnection);
             }
 
             ImGui::End();
         });
+        if (shouldExit) {
+            machine->RequestNextState(StateIds::SessionConnection);
+        }
         return shouldExit;
     }
 } // namespace MafiaMP::Core::States

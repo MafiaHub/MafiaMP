@@ -3,6 +3,8 @@
 
 #include "../application.h"
 
+#include <logging/logger.h>
+
 #include <utils/states/machine.h>
 
 namespace MafiaMP::Core::States {
@@ -18,8 +20,16 @@ namespace MafiaMP::Core::States {
         return "SessionConnection";
     }
 
-    bool SessionConnectionState::OnEnter(Framework::Utils::States::Machine *) {
+    bool SessionConnectionState::OnEnter(Framework::Utils::States::Machine *machine) {
         const auto appState = MafiaMP::Core::gApplication->GetCurrentState();
+
+        if (!MafiaMP::Core::gApplication->GetNetworkingEngine()->Connect(appState._host, appState._port, "")) {
+            Framework::Logging::GetInstance()->Get("SessionConnectionState")->error("Connection to server failed");
+            machine->RequestNextState(StateIds::Menu);
+            return true;
+        }
+
+        machine->RequestNextState(StateIds::SessionConnected);
         return true;
     }
 
