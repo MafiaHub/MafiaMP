@@ -12,6 +12,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/loading_screen.cpp
     src/core/hooks/mod_init.cpp
     src/core/hooks/render_device.cpp
+    src/core/hooks/traffic.cpp
     src/game/module.cpp
     src/game/streaming/entity_factory.cpp
     src/game/helpers/controls.cpp
