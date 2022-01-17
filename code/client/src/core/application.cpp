@@ -91,7 +91,9 @@ namespace MafiaMP::Core {
 
         SetOnConnectionClosedCallback([this]() {
             _stateMachine->RequestNextState(States::StateIds::SessionDisconnection);
-            _localPlayer.destruct();
+            
+            if (_localPlayer.is_alive()) 
+                _localPlayer.destruct();
         });
     }
 } // namespace MafiaMP::Core
