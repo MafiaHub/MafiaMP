@@ -71,8 +71,8 @@ namespace MafiaMP::Core {
 
             // versioning
             DrawCornerText(CORNER_RIGHT_BOTTOM, "Mafia: Multiplayer");
-            DrawCornerText(CORNER_RIGHT_BOTTOM, fmt::format("Framework Git: {}", Framework::Utils::Version::git));
-            DrawCornerText(CORNER_RIGHT_BOTTOM, fmt::format("MafiaMP Git: {}", MafiaMP::Version::git));
+            DrawCornerText(CORNER_RIGHT_BOTTOM, fmt::format("Framework version: {} ({})", FW_VERSION, Framework::Utils::Version::git));
+            DrawCornerText(CORNER_RIGHT_BOTTOM, fmt::format("MafiaMP version: {} ({})", MAFIAMP_VERSION, MafiaMP::Version::git));
             
             // connection details
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[connState]));
