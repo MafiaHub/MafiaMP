@@ -94,6 +94,10 @@ namespace MafiaMP::Game {
             Core::gApplication->GetEntityFactory()->ReturnAll();
         }
 
+        if (GetAsyncKeyState(VK_F5) & 0x1) {
+            Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect();
+        }
+
         if (GetAsyncKeyState(VK_F1) & 0x1) {
             printf("asking car\n");
             auto info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");

@@ -56,7 +56,9 @@ namespace MafiaMP::Core {
 #if 1
         Core::gApplication->GetImGUI()->PushWidget([&]() {
             using namespace Framework::External::ImGUI::Widgets;
-            const auto connState = Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->GetConnectionState();
+            const auto networkClient = Core::gApplication->GetNetworkingEngine()->GetNetworkClient();
+            const auto connState = networkClient->GetConnectionState();
+            const auto ping      = networkClient->GetPing();
 
             constexpr char *connStateNames[3] = {
                 "Connecting",
@@ -66,6 +68,13 @@ namespace MafiaMP::Core {
 
             DrawCornerText(CORNER_RIGHT_BOTTOM, "Mafia: Multiplayer");
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[connState]));
+            DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Ping: {}", ping));
+
+            // controls
+            DrawCornerText(CORNER_LEFT_TOP, "Controls:");
+            DrawCornerText(CORNER_LEFT_TOP, "F1 - spawn car");
+            DrawCornerText(CORNER_LEFT_TOP, "F3 - despawn all");
+            DrawCornerText(CORNER_LEFT_TOP, "F5 - disconnect from server");
         });
 #endif
     }
