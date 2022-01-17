@@ -8,6 +8,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/states/session_disconnection.cpp
     src/core/states/shutdown.cpp
     src/core/hooks/application.cpp
+    src/core/hooks/camera.cpp
     src/core/hooks/fast_load.cpp
     src/core/hooks/loading_screen.cpp
     src/core/hooks/mod_init.cpp
@@ -16,6 +17,7 @@ set(MAFIAMP_CLIENT_FILES
     src/game/module.cpp
     src/game/streaming/entity_factory.cpp
     src/game/helpers/controls.cpp
+    src/game/helpers/camera.cpp
 )
 
 set(MAFIAMP_SDK_FILES
@@ -40,6 +42,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/game/anim/c_wanim_playback_manager.cpp
     src/sdk/ue/game/camera/c_camera.cpp
     src/sdk/ue/game/camera/c_game_camera.cpp
+    src/sdk/ue/game/camera/c_cm_player_alternate.cpp
     src/sdk/ue/game/humainai/c_character_controller.cpp
     src/sdk/ue/game/humainai/c_character_state_handler.cpp
     src/sdk/ue/game/human/c_behavior_character.cpp

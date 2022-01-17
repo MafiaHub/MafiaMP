@@ -10,6 +10,7 @@
 #include <imgui/backends/imgui_impl_dx11.h>
 
 #include "../../game/helpers/controls.h"
+#include "../../game/helpers/camera.h"
 #include "../../sdk/mafia/framework/c_mafia_framework_interfaces.h"
 #include "../../sdk/mafia/framework/c_mafia_framework.h"
 
@@ -31,8 +32,9 @@ namespace MafiaMP::Core::States {
     bool InMenuState::OnEnter(Framework::Utils::States::Machine *) {
         _shouldDisplayWidget = true;
         _shouldProceedConnection = false;
+
         // Set camera
-        //TODO
+        Game::Helpers::Camera::SetPos({450.43698, -646.01941, 58.132675}, {-399.2962, -594.75391, 37.324718}, true);
 
         // Lock game controls
         Game::Helpers::Controls::Lock(true);
@@ -44,6 +46,9 @@ namespace MafiaMP::Core::States {
     }
 
     bool InMenuState::OnExit(Framework::Utils::States::Machine *) {
+        // Temp
+        Game::Helpers::Camera::ResetBehindPlayer();
+
         // Hide cursor
         ImGuiIO &io        = ImGui::GetIO();
         io.MouseDrawCursor = false;
