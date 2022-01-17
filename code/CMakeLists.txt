@@ -1,4 +1,8 @@
-include_directories(${CMAKE_SOURCE_DIR}/code/framework)
+include(UpdateGitHashMafiaMP)
+
+update_git_version_mafiamp()
+
+include_directories(${CMAKE_SOURCE_DIR}/code/framework ${CMAKE_CURRENT_SOURCE_DIR}/shared)
 
 if(WIN32)
     add_subdirectory(client)

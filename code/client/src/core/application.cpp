@@ -13,6 +13,9 @@
 #include "../game/helpers/controls.h"
 #include "external/imgui/widgets/corner_text.h"
 
+#include <utils/version.h>
+#include "version.h"
+
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication = nullptr;
 
@@ -66,7 +69,12 @@ namespace MafiaMP::Core {
                 "Offline"
             };
 
+            // versioning
             DrawCornerText(CORNER_RIGHT_BOTTOM, "Mafia: Multiplayer");
+            DrawCornerText(CORNER_RIGHT_BOTTOM, fmt::format("Framework Git: {}", Framework::Utils::Version::git));
+            DrawCornerText(CORNER_RIGHT_BOTTOM, fmt::format("MafiaMP Git: {}", MafiaMP::Version::git));
+            
+            // connection details
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[connState]));
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Ping: {}", ping));
 
