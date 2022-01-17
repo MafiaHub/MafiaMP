@@ -9,6 +9,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/states/shutdown.cpp
     src/core/hooks/application.cpp
     src/core/hooks/camera.cpp
+    src/core/hooks/character_controller.cpp
     src/core/hooks/fast_load.cpp
     src/core/hooks/loading_screen.cpp
     src/core/hooks/mod_init.cpp
@@ -19,6 +20,7 @@ set(MAFIAMP_CLIENT_FILES
     src/game/streaming/entity_factory.cpp
     src/game/helpers/controls.cpp
     src/game/helpers/camera.cpp
+    src/game/overrides/character_controller.cpp
     ${CMAKE_BINARY_DIR}/mafiamp_version.cpp
 )
 
