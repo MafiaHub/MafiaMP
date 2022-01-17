@@ -14,7 +14,7 @@
 #include "external/imgui/widgets/corner_text.h"
 
 #include <utils/version.h>
-#include "version.h"
+#include "../shared/version.h"
 
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication = nullptr;
