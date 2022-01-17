@@ -18,6 +18,7 @@ set(MAFIAMP_CLIENT_FILES
     src/game/streaming/entity_factory.cpp
     src/game/helpers/controls.cpp
     src/game/helpers/camera.cpp
+    ${CMAKE_BINARY_DIR}/mafiamp_version.cpp
 )
 
 set(MAFIAMP_SDK_FILES

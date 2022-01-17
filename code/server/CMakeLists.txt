@@ -1,5 +1,6 @@
 set(MAFIAMP_SERVER_FILES
     src/main.cpp
+    ${CMAKE_BINARY_DIR}/mafiamp_version.cpp
 )
 
 add_executable(MafiaMPServer ${MAFIAMP_SERVER_FILES})
