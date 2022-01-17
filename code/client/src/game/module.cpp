@@ -12,8 +12,6 @@
 
 #include <MinHook.h>
 
-
-
 namespace MafiaMP::Game {
     Globals gGlobals;
 

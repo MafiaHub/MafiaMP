@@ -11,6 +11,7 @@
 #include "states/states.h"
 
 #include "../game/helpers/controls.h"
+#include "external/imgui/widgets/corner_text.h"
 
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication = nullptr;
@@ -51,6 +52,22 @@ namespace MafiaMP::Core {
         if (_entityFactory) {
             _entityFactory->Update();
         }
+
+#if 1
+        Core::gApplication->GetImGUI()->PushWidget([&]() {
+            using namespace Framework::External::ImGUI::Widgets;
+            const auto connState = Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->GetConnectionState();
+
+            constexpr char *connStateNames[3] = {
+                "Connecting",
+                "Online",
+                "Offline"
+            };
+
+            DrawCornerText(CORNER_RIGHT_BOTTOM, "Mafia: Multiplayer");
+            DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[connState]));
+        });
+#endif
     }
 
     void Application::InitNetworkingMessages() {
