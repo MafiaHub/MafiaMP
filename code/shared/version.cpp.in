@@ -1,7 +1,10 @@
 #define MAFIAMP_GIT_VERSION_LONG "@MAFIAMP_GIT_VERSION_LONG@"
 #define MAFIAMP_GIT_VERSION "@MAFIAMP_GIT_VERSION@"
+#define MAFIAMP_VERSION      "@MAFIAMP_VERSION@"
+
 
 namespace MafiaMP::Version {
     const char *git = MAFIAMP_GIT_VERSION;
     const char *gitLong = MAFIAMP_GIT_VERSION_LONG;
+    const char *rel = MAFIAMP_VERSION;
 };
