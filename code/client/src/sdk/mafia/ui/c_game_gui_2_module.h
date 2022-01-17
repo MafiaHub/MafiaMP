@@ -3,13 +3,15 @@
 #include "menu/c_main_menu.h"
 #include "menu/c_menu_base.h"
 
+#include "../../ue/c_variant.h"
+
 #include <cstdint>
 
 namespace SDK {
     namespace mafia::ui {
         class C_GameGUI2Module {
           public:
-            // int PlaySound(unsigned int);
+            int SendMessageMovie(char const *, char const *, ue::C_Variant *, unsigned int);
 
             mafia::ui::menu::C_MenuBase *GetMenuBase() {
                 return *reinterpret_cast<mafia::ui::menu::C_MenuBase **>((uint64_t)this + 0x80);
