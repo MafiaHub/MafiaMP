@@ -50,6 +50,9 @@ namespace MafiaMP {
             if (!e.is_alive()) {
                 return;
             }
+            if (!GetWorldEngine()->IsEntityOwner(e, guid.g)) {
+                return;
+            }
 
             // update actor data
         });
