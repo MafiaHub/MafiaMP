@@ -14,6 +14,7 @@
 #include "../shared/messages/human/human_despawn.h"
 #include "../shared/messages/human/human_update.h"
 #include "../shared/messages/human/human_self_update.h"
+#include "../shared/messages/human/human_client_update.h"
 
 #include "../game/helpers/controls.h"
 #include "external/imgui/widgets/corner_text.h"
@@ -136,6 +137,15 @@ namespace MafiaMP::Core {
             // call GetPlayerFactory()->SetupClient(e, guid)
 
             // add Human::Tracking component and store game pointers
+
+            // set up client updates
+            const auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
+            es->modEvents.clientUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
+                Shared::Messages::Human::HumanClientUpdate humanUpdate;
+                // set up sync data
+                //peer->Send(humanUpdate, guid);
+                return true;
+            };
         });
         net->RegisterMessage<Shared::Messages::Human::HumanDespawn>(Shared::Messages::ModMessages::MOD_HUMAN_DESPAWN, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanDespawn *msg) {
             const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
