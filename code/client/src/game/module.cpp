@@ -48,7 +48,7 @@ namespace MafiaMP::Game {
 
             // Init the ImGui internal instance
             Framework::External::ImGUI::Config imguiConfig;
-            imguiConfig.renderBackend = Framework::External::ImGUI::RenderBackend::D3D11;
+            imguiConfig.renderBackend = Framework::External::ImGUI::RendererBackend::D3D11;
             imguiConfig.windowBackend = Framework::External::ImGUI::WindowBackend::WIN_32;
             imguiConfig.renderer      = MafiaMP::Core::gApplication->GetRenderer();
             imguiConfig.windowHandle  = gGlobals.window;
