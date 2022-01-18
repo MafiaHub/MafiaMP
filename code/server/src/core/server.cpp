@@ -1,6 +1,7 @@
 #include "server.h"
 
 #include "shared/messages/human/human_client_update.h"
+#include "shared/messages/human/human_spawn.h"
 
 namespace MafiaMP {
 
@@ -21,7 +22,11 @@ namespace MafiaMP {
             auto es = player.get_mut<Framework::World::Modules::Base::Streamable>();
 
             es->modEvents.spawnProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                // todo
+                const auto frame = player.get<Framework::World::Modules::Base::Frame>();
+                Shared::Messages::Human::HumanSpawn humanSpawn;
+                humanSpawn.FromParameters(e.id(), frame->modelHash);
+                net->Send(humanSpawn, guid);
+                // todo other stuff
                 return true;
             };
 
@@ -39,6 +44,9 @@ namespace MafiaMP {
                 // todo
                 return true;
             };
+
+            auto frame = player.get_mut<Framework::World::Modules::Base::Frame>();
+            frame->modelHash = /* TODO */ 1234567890;
         });
 
         SetOnPlayerDisconnectedCallback([this](flecs::entity player) {
