@@ -27,34 +27,21 @@ namespace MafiaMP::Game {
         if (Core::gApplication && !Core::gApplication->IsInitialized()) {
             Framework::Graphics::RendererConfiguration rendererOptions = {};
             rendererOptions.backend = Framework::Graphics::RendererBackend::BACKEND_D3D_11;
+            rendererOptions.platform = Framework::Graphics::PlatformBackend::PLATFORM_WIN32;
+
+            // fill out renderer info
+            rendererOptions.d3d11.device = gGlobals.renderDevice->_device;
+            rendererOptions.d3d11.deviceContext = gGlobals.renderDevice->_context;
+            rendererOptions.windowHandle = gGlobals.window;
 
             Framework::Integrations::Client::InstanceOptions opts;
             opts.discordAppId    = 763114144454672444;
             opts.useRenderer     = true;
             opts.usePresence     = true;
+            opts.useImGUI        = true;
             opts.rendererOptions = rendererOptions;
 
             Core::gApplication->Init(opts);
-
-            // Next steps requires an initialized application
-            if (!Core::gApplication->IsInitialized()) {
-                return;
-            }
-
-            // Init the render device
-            MafiaMP::Core::gApplication->GetRenderer()->SetWindow(gGlobals.window);
-            MafiaMP::Core::gApplication->GetRenderer()->GetD3D11Backend()->Init(gGlobals.renderDevice->_device, gGlobals.renderDevice->_context);
-            Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("[renderDevice] Initialized (device {:p}, context {:p} and swapchain {:p})", fmt::ptr(gGlobals.renderDevice->_device), fmt::ptr(gGlobals.renderDevice->_context), fmt::ptr(gGlobals.swapChain));
-
-            // Init the ImGui internal instance
-            Framework::External::ImGUI::Config imguiConfig;
-            imguiConfig.renderBackend = Framework::External::ImGUI::RendererBackend::D3D11;
-            imguiConfig.windowBackend = Framework::External::ImGUI::WindowBackend::WIN_32;
-            imguiConfig.renderer      = MafiaMP::Core::gApplication->GetRenderer();
-            imguiConfig.windowHandle  = gGlobals.window;
-            if (MafiaMP::Core::gApplication->GetImGUI()->Init(imguiConfig) != Framework::External::ImGUI::Error::IMGUI_NONE) {
-                Framework::Logging::GetLogger(FRAMEWORK_INNER_GRAPHICS)->info("ImGUI has failed to init");
-            }
         }
     }
 
