@@ -10,11 +10,15 @@
 #include "states/shutdown.h"
 #include "states/states.h"
 
+#include "../shared/messages/human/human_spawn.h"
+
 #include "../game/helpers/controls.h"
 #include "external/imgui/widgets/corner_text.h"
 
 #include <utils/version.h>
 #include "../shared/version.h"
+
+#include "../modules/human.hpp"
 
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication = nullptr;
@@ -37,6 +41,9 @@ namespace MafiaMP::Core {
 
         // This must always be the last call
         _stateMachine->RequestNextState(States::StateIds::Initialize);
+
+        // Register client modules
+        GetWorldEngine()->GetWorld()->import<Modules::Human>();
         return true;
     }
 
@@ -88,13 +95,19 @@ namespace MafiaMP::Core {
     }
 
     void Application::InitNetworkingMessages() {
-        SetOnConnectionFinalizedCallback([this](flecs::entity_t entityID) {
+        SetOnConnectionFinalizedCallback([this](flecs::entity_t serverID) {
             _stateMachine->RequestNextState(States::StateIds::SessionConnected);
 
             auto guid = GetNetworkingEngine()->GetNetworkClient()->GetPeer()->GetMyGUID();
             auto localPlayer = Game::Helpers::Controls::GetLocalPlayer();
 
-            _localPlayer = GetPlayerFactory()->CreateClient(guid.g, localPlayer, entityID);
+            const auto localPlayerEntity = GetWorldEngine()->CreateEntity(serverID);
+            _localPlayer = GetPlayerFactory()->SetupClient(localPlayerEntity, guid.g);
+
+            auto trackingData = _localPlayer.get_mut<Core::Modules::Human::Tracking>();
+            trackingData->_todo = localPlayer;
+
+            _localPlayer.add<Core::Modules::Human::LocalPlayer>();
         });
 
         SetOnConnectionClosedCallback([this]() {
@@ -102,6 +115,24 @@ namespace MafiaMP::Core {
             
             if (_localPlayer.is_alive()) 
                 _localPlayer.destruct();
+        });
+
+        // TEMP hook up human events
+        const auto net = GetNetworkingEngine()->GetNetworkClient();
+
+        net->RegisterMessage<Shared::Messages::Human::HumanSpawn>(Shared::Messages::ModMessages::MOD_HUMAN_SPAWN, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanSpawn *msg) {
+            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            // setup tracking info
+
+            // setup human on finished callback
+            
+            // call GetPlayerFactory()->SetupClient(e, guid)
+
+            // add Human::Tracking component and store game pointers
         });
     }
 } // namespace MafiaMP::Core
