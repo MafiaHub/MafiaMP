@@ -46,7 +46,7 @@ namespace MafiaMP {
             };
 
             auto frame = player.get_mut<Framework::World::Modules::Base::Frame>();
-            frame->modelHash = /* TODO */ 10029431515544697714;
+            frame->modelHash = 5566874084318867535;
         });
 
         SetOnPlayerDisconnectedCallback([this](flecs::entity player) {
