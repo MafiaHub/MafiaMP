@@ -11,6 +11,9 @@
 #include "states/states.h"
 
 #include "../shared/messages/human/human_spawn.h"
+#include "../shared/messages/human/human_despawn.h"
+#include "../shared/messages/human/human_update.h"
+#include "../shared/messages/human/human_self_update.h"
 
 #include "../game/helpers/controls.h"
 #include "external/imgui/widgets/corner_text.h"
@@ -133,6 +136,45 @@ namespace MafiaMP::Core {
             // call GetPlayerFactory()->SetupClient(e, guid)
 
             // add Human::Tracking component and store game pointers
+        });
+        net->RegisterMessage<Shared::Messages::Human::HumanDespawn>(Shared::Messages::ModMessages::MOD_HUMAN_DESPAWN, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanDespawn *msg) {
+            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            const auto trackingData = e.get<Core::Modules::Human::Tracking>();
+            if (!trackingData) {
+                return;
+            }
+
+            // request game actor despawn
+        });
+        net->RegisterMessage<Shared::Messages::Human::HumanUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_UPDATE, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanUpdate *msg) {
+            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            const auto trackingData = e.get<Core::Modules::Human::Tracking>();
+            if (!trackingData) {
+                return;
+            }
+
+            // update actor data
+        });
+        net->RegisterMessage<Shared::Messages::Human::HumanSelfUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_SELF_UPDATE, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanSelfUpdate *msg) {
+            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            const auto trackingData = e.get<Core::Modules::Human::Tracking>();
+            if (!trackingData) {
+                return;
+            }
+
+            // update actor data
         });
     }
 } // namespace MafiaMP::Core

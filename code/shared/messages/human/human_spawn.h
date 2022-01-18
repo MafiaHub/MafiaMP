@@ -3,8 +3,6 @@
 #include "../messages.h"
 #include <networking/messages/game_sync/message.h>
 
-#include <BitStream.h>
-
 namespace MafiaMP::Shared::Messages::Human {
     class HumanSpawn final: public Framework::Networking::Messages::GameSyncMessage {
       private:
@@ -33,4 +31,4 @@ namespace MafiaMP::Shared::Messages::Human {
             return _spawnProfile;
         }
     };
-} // namespace MafiaMP::Shared::Messages
+} // namespace MafiaMP::Shared::Messages::Human

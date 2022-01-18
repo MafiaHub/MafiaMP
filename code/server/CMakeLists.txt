@@ -1,5 +1,6 @@
 set(MAFIAMP_SERVER_FILES
     src/main.cpp
+    src/core/server.cpp
     ${CMAKE_BINARY_DIR}/mafiamp_version.cpp
 )
 
