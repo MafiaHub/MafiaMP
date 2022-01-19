@@ -38,8 +38,7 @@ namespace MafiaMP::Core::States {
         Game::Helpers::Controls::Lock(true);
 
         // Enable cursor
-        ImGuiIO &io = ImGui::GetIO();
-        io.MouseDrawCursor = true;
+        gApplication->GetImGUI()->ShowCursor(true);
         return true;
     }
 
@@ -48,8 +47,7 @@ namespace MafiaMP::Core::States {
         Game::Helpers::Camera::ResetBehindPlayer();
 
         // Hide cursor
-        ImGuiIO &io        = ImGui::GetIO();
-        io.MouseDrawCursor = false;
+        gApplication->GetImGUI()->ShowCursor(false);
         return true;
     }
 
