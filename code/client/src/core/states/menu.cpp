@@ -52,7 +52,7 @@ namespace MafiaMP::Core::States {
     }
 
     bool InMenuState::OnUpdate(Framework::Utils::States::Machine *machine) {
-        gApplication->GetImGUI()->PushWidget([&]() {
+        gApplication->GetImGUI()->PushWidget([this]() {
             if (!ImGui::Begin("Debug", &_shouldDisplayWidget)) {
                 ImGui::End();
                 return;
