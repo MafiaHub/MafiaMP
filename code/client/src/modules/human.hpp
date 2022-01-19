@@ -31,7 +31,7 @@ namespace MafiaMP::Core::Modules {
                     SDK::ue::sys::math::C_Vector newPos = tracking.human->GetPos();
                     SDK::ue::sys::math::C_Quat newRot   = tracking.human->GetRot();
                     tr.pos                              = {newPos.x, newPos.y, newPos.z};
-                    tr.rot                              = {newRot.x, newRot.y, newRot.z, newRot.w};
+                    tr.rot                              = {newRot.w, newRot.x, newRot.y, newRot.z};
                 }
             });
         }

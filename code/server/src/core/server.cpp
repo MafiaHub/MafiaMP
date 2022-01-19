@@ -1,7 +1,10 @@
 #include "server.h"
 
 #include "shared/messages/human/human_client_update.h"
+#include "shared/messages/human/human_update.h"
+#include "shared/messages/human/human_self_update.h"
 #include "shared/messages/human/human_spawn.h"
+#include "shared/messages/human/human_despawn.h"
 
 namespace MafiaMP {
 
@@ -31,17 +34,23 @@ namespace MafiaMP {
             };
 
             es->modEvents.despawnProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                // todo
+                Shared::Messages::Human::HumanDespawn humanDespawn;
+                humanDespawn.FromParameters(e.id());
+                net->Send(humanDespawn, guid);
                 return true;
             };
 
             es->modEvents.selfUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                // todo
+                Shared::Messages::Human::HumanSelfUpdate humanSelfUpdate;
+                humanSelfUpdate.FromParameters(e.id());
+                net->Send(humanSelfUpdate, guid);
                 return true;
             };
 
             es->modEvents.updateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                // todo
+                Shared::Messages::Human::HumanUpdate humanUpdate;
+                humanUpdate.FromParameters(e.id());
+                net->Send(humanUpdate, guid);
                 return true;
             };
 
