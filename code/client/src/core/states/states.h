@@ -7,6 +7,7 @@ namespace MafiaMP::Core::States {
         SessionConnection,
         SessionConnected,
         SessionDisconnection,
+        SessionOfflineDebug,
         Shutdown
     };
 }

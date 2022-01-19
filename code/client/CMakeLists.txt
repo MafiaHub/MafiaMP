@@ -6,6 +6,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/states/session_connected.cpp
     src/core/states/session_connection.cpp
     src/core/states/session_disconnection.cpp
+    src/core/states/session_offline_debug.cpp
     src/core/states/shutdown.cpp
     src/core/hooks/application.cpp
     src/core/hooks/camera.cpp

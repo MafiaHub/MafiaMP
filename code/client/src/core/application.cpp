@@ -7,6 +7,7 @@
 #include "states/session_connection.h"
 #include "states/session_connected.h"
 #include "states/session_disconnection.h"
+#include "states/session_offline_debug.h"
 #include "states/shutdown.h"
 #include "states/states.h"
 
@@ -35,6 +36,7 @@ namespace MafiaMP::Core {
         _stateMachine->RegisterState<States::SessionConnectionState>();
         _stateMachine->RegisterState<States::SessionConnectedState>();
         _stateMachine->RegisterState<States::SessionDisconnectionState>();
+        _stateMachine->RegisterState<States::SessionOfflineDebugState>();
         _stateMachine->RegisterState<States::ShutdownState>();
 
         // Create the entity factory

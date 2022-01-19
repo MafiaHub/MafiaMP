@@ -1,13 +1,10 @@
-#include "../application.h"
-
+#include <utils/safe_win32.h>
 #include "menu.h"
 #include "states.h"
 
 #include <utils/states/machine.h>
 
 #include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_win32.h>
-#include <imgui/backends/imgui_impl_dx11.h>
 
 #include "../../game/helpers/controls.h"
 #include "../../game/helpers/camera.h"
@@ -32,6 +29,7 @@ namespace MafiaMP::Core::States {
     bool InMenuState::OnEnter(Framework::Utils::States::Machine *) {
         _shouldDisplayWidget = true;
         _shouldProceedConnection = false;
+        _shouldProceedOfflineDebug = false;
 
         // Set camera
         Game::Helpers::Camera::SetPos({450.43698, -646.01941, 58.132675}, {-399.2962, -594.75391, 37.324718}, true);
@@ -62,7 +60,7 @@ namespace MafiaMP::Core::States {
                 return;
             }
 
-            ImGui::Text("Have you heard about our lord and savior");
+            ImGui::Text("Enter connection details:");
             static char serverIp[32] = "127.0.0.1";
             static char nickname[32] = "Player";
             ImGui::Text("Server IP: ");
@@ -71,7 +69,7 @@ namespace MafiaMP::Core::States {
             ImGui::Text("Nickname: ");
             ImGui::SameLine();
             ImGui::InputText("##nickname", nickname, 32);
-            if (ImGui::Button("Connect lol")) {
+            if (ImGui::Button("Connect")) {
                 // Update the application state for further usage
                 Framework::Integrations::Client::CurrentState newApplicationState;
                 newApplicationState._host = serverIp;
@@ -83,11 +81,20 @@ namespace MafiaMP::Core::States {
                 _shouldProceedConnection = true;
             }
 
+            ImGui::SameLine();
+
+            if (ImGui::Button("Play Offline (debug)")) {
+                _shouldProceedOfflineDebug = true;
+            }
+
             ImGui::End();
         });
+        if (_shouldProceedOfflineDebug) {
+            machine->RequestNextState(StateIds::SessionOfflineDebug);
+        }
         if (_shouldProceedConnection) {
             machine->RequestNextState(StateIds::SessionConnection);
         }
-        return _shouldProceedConnection;
+        return _shouldProceedConnection || _shouldProceedOfflineDebug;
     }
 } // namespace MafiaMP::Core::States
