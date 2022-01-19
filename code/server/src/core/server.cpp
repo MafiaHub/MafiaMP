@@ -22,7 +22,7 @@ namespace MafiaMP {
             auto es = player.get_mut<Framework::World::Modules::Base::Streamable>();
 
             es->modEvents.spawnProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                const auto frame = player.get<Framework::World::Modules::Base::Frame>();
+                const auto frame = e.get<Framework::World::Modules::Base::Frame>();
                 Shared::Messages::Human::HumanSpawn humanSpawn;
                 humanSpawn.FromParameters(e.id(), frame->modelHash);
                 net->Send(humanSpawn, guid);
