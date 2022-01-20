@@ -6,12 +6,15 @@
 #include "shared/messages/human/human_spawn.h"
 #include "shared/messages/human/human_despawn.h"
 
+#include "shared/modules/human_sync.hpp"
+
 namespace MafiaMP {
 
     void Server::PostInit() {
         InitNetworkingMessages();
 
-        // import modules
+        // Setup ECS modules
+        GetWorldEngine()->GetWorld()->import<Shared::Modules::HumanSync>();
     }
 
     void Server::PostUpdate() {}
@@ -48,14 +51,24 @@ namespace MafiaMP {
             };
 
             es->modEvents.updateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
+                const auto trackingMetadata = e.get<Shared::Modules::HumanSync::TrackingMetadata>();
+
                 Shared::Messages::Human::HumanUpdate humanUpdate;
                 humanUpdate.FromParameters(e.id());
+                humanUpdate.SetCharStateHandlerType(trackingMetadata->_charStateHandlerType);
+                humanUpdate.SetHealthPercent(trackingMetadata->_healthPercent);
+                humanUpdate.SetMoveMode(trackingMetadata->_moveMode);
+                humanUpdate.SetSprinting(trackingMetadata->_isSprinting);
+                humanUpdate.SetSprintSpeed(trackingMetadata->_sprintSpeed);
+                humanUpdate.SetStalking(trackingMetadata->_isStalking);
                 net->Send(humanUpdate, guid);
                 return true;
             };
 
             auto frame = player.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelHash = 5566874084318867535;
+
+            player.add<Shared::Modules::HumanSync::TrackingMetadata>();
         });
 
         SetOnPlayerDisconnectedCallback([this](flecs::entity player, uint64_t guid) {
@@ -71,7 +84,13 @@ namespace MafiaMP {
                 return;
             }
 
-            // update actor data
+            auto trackingMetadata = e.get_mut<Shared::Modules::HumanSync::TrackingMetadata>();
+            trackingMetadata->_charStateHandlerType = msg->GetCharStateHandlerType();
+            trackingMetadata->_healthPercent        = msg->GetHealthPercent();
+            trackingMetadata->_isSprinting          = msg->IsSprinting();
+            trackingMetadata->_isStalking           = msg->IsStalking();
+            trackingMetadata->_moveMode             = msg->GetMoveMode();
+            trackingMetadata->_sprintSpeed          = msg->GetSprintSpeed();
         });
     }
 } // namespace MafiaMP

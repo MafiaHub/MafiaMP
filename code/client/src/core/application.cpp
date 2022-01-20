@@ -23,6 +23,8 @@
 #include "../shared/messages/human/human_self_update.h"
 #include "../shared/messages/human/human_client_update.h"
 
+#include "../shared/modules/human_sync.hpp"
+
 #include "../game/helpers/controls.h"
 #include "external/imgui/widgets/corner_text.h"
 
@@ -56,6 +58,7 @@ namespace MafiaMP::Core {
 
         // Register client modules
         GetWorldEngine()->GetWorld()->import<Modules::Human>();
+        GetWorldEngine()->GetWorld()->import<Shared::Modules::HumanSync>();
 
         GetWorldEngine()->SetOnEntityDestroyCallback([](flecs::entity e) {
             if (e.get<Core::Modules::Human::Tracking>() != nullptr) {
@@ -182,17 +185,25 @@ namespace MafiaMP::Core {
 
             _localPlayer = newPlayer;
 
-            auto trackingData = _localPlayer.get_mut<Core::Modules::Human::Tracking>();
+            auto trackingData   = _localPlayer.get_mut<Core::Modules::Human::Tracking>();
             trackingData->human = localPlayer;
-            trackingData->info = nullptr;
+            trackingData->info  = nullptr;
 
+            _localPlayer.add<Shared::Modules::HumanSync::TrackingMetadata>();
             _localPlayer.add<Core::Modules::Human::LocalPlayer>();
 
-            const auto es = _localPlayer.get_mut<Framework::World::Modules::Base::Streamable>();
+            const auto es                  = _localPlayer.get_mut<Framework::World::Modules::Base::Streamable>();
             es->modEvents.clientUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
+                const auto trackingMetadata = e.get<Shared::Modules::HumanSync::TrackingMetadata>();
+
                 Shared::Messages::Human::HumanClientUpdate humanUpdate;
                 humanUpdate.FromParameters(e.id());
-                // set up sync data
+                humanUpdate.SetCharStateHandlerType(trackingMetadata->_charStateHandlerType);
+                humanUpdate.SetHealthPercent(trackingMetadata->_healthPercent);
+                humanUpdate.SetMoveMode(trackingMetadata->_moveMode);
+                humanUpdate.SetSprinting(trackingMetadata->_isSprinting);
+                humanUpdate.SetSprintSpeed(trackingMetadata->_sprintSpeed);
+                humanUpdate.SetStalking(trackingMetadata->_isStalking);
                 peer->Send(humanUpdate, guid);
                 return true;
             };
@@ -211,8 +222,11 @@ namespace MafiaMP::Core {
                 return;
             }
 
-            // setup tracking info
+            // Setup tracking info
             Core::Modules::Human::CreateHuman(e, msg->GetSpawnProfile());
+
+            // Setup other components
+            e.add<Shared::Modules::HumanSync::TrackingMetadata>();
 
             // set up client updates (NPC streaming)
             // TODO disabled for now, we don't really need to stream NPCs atm
@@ -240,6 +254,14 @@ namespace MafiaMP::Core {
             if (!e.is_alive()) {
                 return;
             }
+
+            auto trackingMetadata = e.get_mut<Shared::Modules::HumanSync::TrackingMetadata>();
+            trackingMetadata->_charStateHandlerType = msg->GetCharStateHandlerType();
+            trackingMetadata->_healthPercent        = msg->GetHealthPercent();
+            trackingMetadata->_isSprinting          = msg->IsSprinting();
+            trackingMetadata->_isStalking           = msg->IsStalking();
+            trackingMetadata->_moveMode             = msg->GetMoveMode();
+            trackingMetadata->_sprintSpeed          = msg->GetSprintSpeed();
 
             Core::Modules::Human::UpdateHuman(e);
         });

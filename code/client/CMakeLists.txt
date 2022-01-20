@@ -21,6 +21,7 @@ set(MAFIAMP_CLIENT_FILES
     src/game/streaming/entity_factory.cpp
     src/game/helpers/controls.cpp
     src/game/helpers/camera.cpp
+    src/game/helpers/human.cpp
     src/game/overrides/character_controller.cpp
     ${CMAKE_BINARY_DIR}/mafiamp_version.cpp
 )

@@ -4,6 +4,8 @@
 #include "../../sdk/ue/game/humainai/c_character_controller.h"
 #include "../../sdk/ue/game/humainai/c_character_state_handler.h"
 
+extern thread_local bool CreateNetCharacterController;
+
 namespace MafiaMP::Game::Overrides {
     class CharacterController : public SDK::ue::game::humanai::C_CharacterController {
       private:
