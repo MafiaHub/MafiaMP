@@ -9,6 +9,5 @@ namespace MafiaMP::Shared::Messages {
         MOD_HUMAN_DESPAWN,
         MOD_HUMAN_UPDATE,
         MOD_HUMAN_SELF_UPDATE,
-        MOD_HUMAN_CLIENT_UPDATE,
     };
 } // namespace Framework::Networking::Messages

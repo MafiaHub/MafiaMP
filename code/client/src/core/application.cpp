@@ -21,7 +21,6 @@
 #include "../shared/messages/human/human_despawn.h"
 #include "../shared/messages/human/human_update.h"
 #include "../shared/messages/human/human_self_update.h"
-#include "../shared/messages/human/human_client_update.h"
 
 #include "../shared/modules/human_sync.hpp"
 
@@ -193,10 +192,10 @@ namespace MafiaMP::Core {
             _localPlayer.add<Core::Modules::Human::LocalPlayer>();
 
             const auto es                  = _localPlayer.get_mut<Framework::World::Modules::Base::Streamable>();
-            es->modEvents.clientUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
+            es->modEvents.updateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
                 const auto trackingMetadata = e.get<Shared::Modules::HumanSync::TrackingMetadata>();
 
-                Shared::Messages::Human::HumanClientUpdate humanUpdate;
+                Shared::Messages::Human::HumanUpdate humanUpdate;
                 humanUpdate.FromParameters(GetWorldEngine()->GetServerID(e));
                 humanUpdate.SetCharStateHandlerType(trackingMetadata->_charStateHandlerType);
                 humanUpdate.SetHealthPercent(trackingMetadata->_healthPercent);

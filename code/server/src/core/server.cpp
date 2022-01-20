@@ -1,6 +1,5 @@
 #include "server.h"
 
-#include "shared/messages/human/human_client_update.h"
 #include "shared/messages/human/human_update.h"
 #include "shared/messages/human/human_self_update.h"
 #include "shared/messages/human/human_spawn.h"
@@ -75,7 +74,7 @@ namespace MafiaMP {
             // todo
         });
 
-        net->RegisterMessage<Shared::Messages::Human::HumanClientUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_CLIENT_UPDATE, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanClientUpdate *msg) {
+        net->RegisterMessage<Shared::Messages::Human::HumanUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_UPDATE, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanUpdate *msg) {
             const auto e = GetWorldEngine()->WrapEntity(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
