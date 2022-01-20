@@ -126,14 +126,16 @@ namespace MafiaMP::Core {
 
             auto trackingData = _localPlayer.get_mut<Core::Modules::Human::Tracking>();
             trackingData->human = localPlayer;
+            trackingData->info = nullptr;
 
             _localPlayer.add<Core::Modules::Human::LocalPlayer>();
 
             const auto es = _localPlayer.get_mut<Framework::World::Modules::Base::Streamable>();
             es->modEvents.clientUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
                 Shared::Messages::Human::HumanClientUpdate humanUpdate;
+                humanUpdate.FromParameters(e.id());
                 // set up sync data
-                //peer->Send(humanUpdate, guid);
+                peer->Send(humanUpdate, guid);
                 return true;
             };
         });
@@ -161,8 +163,9 @@ namespace MafiaMP::Core {
             const auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
             es->modEvents.clientUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
                 Shared::Messages::Human::HumanClientUpdate humanUpdate;
+                humanUpdate.FromParameters(e.id());
                 // set up sync data
-                //peer->Send(humanUpdate, guid);
+                peer->Send(humanUpdate, guid);
                 return true;
             };
         });

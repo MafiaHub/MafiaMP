@@ -40,6 +40,9 @@ namespace MafiaMP::Core::Modules {
 
         static inline void CreateHuman(flecs::entity e, uint64_t spawnProfile) {
             auto info = Core::gApplication->GetEntityFactory()->RequestHuman(spawnProfile);
+            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            trackingData->info = info;
+            trackingData->human = nullptr;
 
             const auto OnHumanRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
                 if (success) {
@@ -81,14 +84,11 @@ namespace MafiaMP::Core::Modules {
             info->SetRequestFinishCallback(OnHumanRequestFinish);
             info->SetReturnCallback(OnHumanReturned);
             info->SetNetworkEntity(e);
-
-            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
-            trackingData->info = info;
         }
 
         static inline void UpdateHuman(flecs::entity e) {
             const auto trackingData = e.get<Core::Modules::Human::Tracking>();
-            if (!trackingData && trackingData->info) {
+            if (!trackingData || !trackingData->human) {
                 return;
             }
 
