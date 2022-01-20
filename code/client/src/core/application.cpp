@@ -150,9 +150,6 @@ namespace MafiaMP::Core {
                 return;
             }
 
-            // call GetPlayerFactory()->SetupClient(e, guid)
-            GetPlayerFactory()->SetupClient(e, guid.g);
-
             // setup tracking info
             Core::Modules::Human::CreateHuman(e, msg->GetSpawnProfile());
 
