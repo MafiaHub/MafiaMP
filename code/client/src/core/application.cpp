@@ -91,7 +91,10 @@ namespace MafiaMP::Core {
 
 #if 1
         if (GetAsyncKeyState(VK_F3) & 0x1) {
-            Core::gApplication->GetEntityFactory()->ReturnAll();
+            for (size_t i = 0; i < _TEMP_vehicles.size(); i++) {
+                Core::gApplication->GetEntityFactory()->ReturnEntity(_TEMP_vehicles[i]);
+            }
+            _TEMP_vehicles.clear();
         }
 
         if (GetAsyncKeyState(VK_F5) & 0x1) {
@@ -101,6 +104,7 @@ namespace MafiaMP::Core {
         if (GetAsyncKeyState(VK_F1) & 0x1) {
             printf("asking car\n");
             auto info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");
+            _TEMP_vehicles.push_back(info);
 
             const auto OnCarRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
                 if (success) {

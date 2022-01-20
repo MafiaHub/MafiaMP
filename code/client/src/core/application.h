@@ -3,6 +3,7 @@
 #include <utils/safe_win32.h>
 
 #include "../game/streaming/entity_factory.h"
+#include "../game/streaming/entity_tracking_info.h"
 
 #include <integrations/client/instance.h>
 
@@ -14,6 +15,8 @@ namespace MafiaMP::Core {
         Framework::Utils::States::Machine *_stateMachine;
         Game::Streaming::EntityFactory *_entityFactory;
         flecs::entity _localPlayer;
+
+        std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
 
       public:
         virtual bool PostInit() override;
