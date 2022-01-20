@@ -197,7 +197,7 @@ namespace MafiaMP::Core {
                 const auto trackingMetadata = e.get<Shared::Modules::HumanSync::TrackingMetadata>();
 
                 Shared::Messages::Human::HumanClientUpdate humanUpdate;
-                humanUpdate.FromParameters(e.id());
+                humanUpdate.FromParameters(GetWorldEngine()->GetServerID(e));
                 humanUpdate.SetCharStateHandlerType(trackingMetadata->_charStateHandlerType);
                 humanUpdate.SetHealthPercent(trackingMetadata->_healthPercent);
                 humanUpdate.SetMoveMode(trackingMetadata->_moveMode);
