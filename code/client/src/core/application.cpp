@@ -56,6 +56,14 @@ namespace MafiaMP::Core {
 
         // Register client modules
         GetWorldEngine()->GetWorld()->import<Modules::Human>();
+
+        GetWorldEngine()->SetOnEntityDestroyCallback([](flecs::entity e) {
+            if (e.get<Core::Modules::Human::Tracking>() != nullptr) {
+                Core::Modules::Human::RemoveHuman(e);
+            }
+
+            return true;
+        });
         return true;
     }
 
@@ -92,7 +100,7 @@ namespace MafiaMP::Core {
             DrawCornerText(CORNER_RIGHT_BOTTOM, "Mafia: Multiplayer");
             DrawCornerText(CORNER_RIGHT_BOTTOM, fmt::format("Framework version: {} ({})", Framework::Utils::Version::rel, Framework::Utils::Version::git));
             DrawCornerText(CORNER_RIGHT_BOTTOM, fmt::format("MafiaMP version: {} ({})", MafiaMP::Version::rel, MafiaMP::Version::git));
-            
+
             // connection details
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[connState]));
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Ping: {}", ping));
@@ -132,9 +140,6 @@ namespace MafiaMP::Core {
 
         SetOnConnectionClosedCallback([this]() {
             _stateMachine->RequestNextState(States::StateIds::SessionDisconnection);
-            
-            if (_localPlayer.is_alive()) 
-                _localPlayer.destruct();
         });
 
         // TEMP hook up human events
@@ -150,48 +155,7 @@ namespace MafiaMP::Core {
             GetPlayerFactory()->SetupClient(e, guid.g);
 
             // setup tracking info
-            auto info = Core::gApplication->GetEntityFactory()->RequestHuman(msg->GetSpawnProfile());
-
-            const auto OnHumanRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
-                if (success) {
-                    auto human = reinterpret_cast<SDK::C_Human2 *>(info->GetEntity());
-                    if (!human) {
-                        return;
-                    }
-                    human->GameInit();
-                    human->Activate();
-
-                    const auto ent = info->GetNetworkEntity();
-                    const auto tr = ent.get<Framework::World::Modules::Base::Transform>();
-                    SDK::ue::sys::math::C_Vector newPos = { tr->pos.x, tr->pos.y, tr->pos.z };
-                    SDK::ue::sys::math::C_Quat newRot   = { tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w };
-                    SDK::ue::sys::math::C_Matrix transform = {};
-                    transform.Identity();
-                    transform.SetRot(newRot);
-                    transform.SetPos(newPos);
-                    human->SetTransform(transform);
-
-                    auto trackingData = ent.get_mut<Core::Modules::Human::Tracking>();
-                    trackingData->human = human;
-                }
-            };
-
-            const auto OnHumanReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
-                if (!info) {
-                    return;
-                }
-                auto human = reinterpret_cast<SDK::C_Human2 *>(info->GetEntity());
-                if (wasCreated && human) {
-                    human->Deactivate();
-                    human->GameDone();
-                    human->Release();
-                }
-            };
-
-            // setup tracking callbacks
-            info->SetRequestFinishCallback(OnHumanRequestFinish);
-            info->SetReturnCallback(OnHumanReturned);
-            info->SetNetworkEntity(e);
+            Core::Modules::Human::CreateHuman(e, msg->GetSpawnProfile());
 
             // set up client updates
             const auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
@@ -208,12 +172,7 @@ namespace MafiaMP::Core {
                 return;
             }
 
-            const auto trackingData = e.get<Core::Modules::Human::Tracking>();
-            if (!trackingData) {
-                return;
-            }
-
-            // request game actor despawn
+            Core::Modules::Human::RemoveHuman(e);
         });
         net->RegisterMessage<Shared::Messages::Human::HumanUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_UPDATE, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanUpdate *msg) {
             const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
@@ -221,20 +180,7 @@ namespace MafiaMP::Core {
                 return;
             }
 
-            const auto trackingData = e.get<Core::Modules::Human::Tracking>();
-            if (!trackingData) {
-                return;
-            }
-
-            // update actor data
-            const auto tr = e.get<Framework::World::Modules::Base::Transform>();
-            SDK::ue::sys::math::C_Vector newPos = { tr->pos.x, tr->pos.y, tr->pos.z };
-            SDK::ue::sys::math::C_Quat newRot   = { tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w };
-            SDK::ue::sys::math::C_Matrix transform = {};
-            transform.Identity();
-            transform.SetRot(newRot);
-            transform.SetPos(newPos);
-            trackingData->human->SetTransform(transform);
+            Core::Modules::Human::UpdateHuman(e);
         });
         net->RegisterMessage<Shared::Messages::Human::HumanSelfUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_SELF_UPDATE, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanSelfUpdate *msg) {
             const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
