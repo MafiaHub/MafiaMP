@@ -115,14 +115,11 @@ namespace MafiaMP::Core {
     }
 
     void Application::InitNetworkingMessages() {
-        SetOnConnectionFinalizedCallback([this](flecs::entity_t serverID) {
+        SetOnConnectionFinalizedCallback([this](flecs::entity newPlayer) {
             _stateMachine->RequestNextState(States::StateIds::SessionConnected);
-
-            auto guid = GetNetworkingEngine()->GetNetworkClient()->GetPeer()->GetMyGUID();
             auto localPlayer = Game::Helpers::Controls::GetLocalPlayer();
 
-            _localPlayer = GetWorldEngine()->CreateEntity(serverID);
-            GetPlayerFactory()->SetupClient(_localPlayer, guid.g);
+            _localPlayer = newPlayer;
 
             auto trackingData = _localPlayer.get_mut<Core::Modules::Human::Tracking>();
             trackingData->human = localPlayer;

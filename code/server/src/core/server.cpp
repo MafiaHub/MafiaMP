@@ -21,7 +21,7 @@ namespace MafiaMP {
     void Server::InitNetworkingMessages() {
         const auto net = GetNetworkingEngine()->GetNetworkServer();
 
-        SetOnPlayerConnectedCallback([this, net](flecs::entity player) {
+        SetOnPlayerConnectedCallback([this, net](flecs::entity player, uint64_t guid) {
             auto es = player.get_mut<Framework::World::Modules::Base::Streamable>();
 
             es->modEvents.spawnProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
@@ -58,7 +58,7 @@ namespace MafiaMP {
             frame->modelHash = 5566874084318867535;
         });
 
-        SetOnPlayerDisconnectedCallback([this](flecs::entity player) {
+        SetOnPlayerDisconnectedCallback([this](flecs::entity player, uint64_t guid) {
             // todo
         });
 
