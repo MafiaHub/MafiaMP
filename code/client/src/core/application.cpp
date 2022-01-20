@@ -29,7 +29,7 @@
 #include <utils/version.h>
 #include "../shared/version.h"
 
-#include "../modules/human.hpp"
+#include "modules/human.hpp"
 
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication = nullptr;
