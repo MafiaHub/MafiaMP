@@ -47,6 +47,8 @@ namespace MafiaMP::Core::Modules {
                     metadata._healthPercent = MafiaMP::Game::Helpers::Human::GetHealthPercent(tracking.human);
                     metadata._charStateHandlerType = charController->GetCurrentStateHandler()->GetStateHandlerType();
                     metadata._isStalking           = charController->IsStalkMove();
+                    metadata._isSprinting          = charController->IsSprinting();
+                    metadata._sprintSpeed          = charController->GetSprintMoveSpeed();
 
                     // Current state-specific sync data
                     switch (metadata._charStateHandlerType) {
@@ -55,8 +57,6 @@ namespace MafiaMP::Core::Modules {
                         uint8_t moveMode        = hmm != SDK::E_HumanMoveMode::E_HMM_NONE ? static_cast<uint8_t>(hmm) : (uint8_t)-1;
 
                         metadata._moveMode = moveMode;
-                        metadata._isSprinting = charController->IsSprinting();
-                        metadata._sprintSpeed = charController->GetSprintMoveSpeed();
 
                     } break;
 
