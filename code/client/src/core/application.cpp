@@ -83,6 +83,63 @@ namespace MafiaMP::Core {
             _entityFactory->Update();
         }
 
+        // Tick discord instance - Temporary
+        const auto discordApi = Core::gApplication->GetPresence();
+        if (discordApi && discordApi->IsInitialized()) {
+            discordApi->SetPresence("Freeroam", "Screwing around", discord::ActivityType::Playing);
+        }
+
+#if 1
+        if (GetAsyncKeyState(VK_F3) & 0x1) {
+            Core::gApplication->GetEntityFactory()->ReturnAll();
+        }
+
+        if (GetAsyncKeyState(VK_F5) & 0x1) {
+            Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect();
+        }
+
+        if (GetAsyncKeyState(VK_F1) & 0x1) {
+            printf("asking car\n");
+            auto info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");
+
+            const auto OnCarRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
+                if (success) {
+                    auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
+                    if (!car) {
+                        return;
+                    }
+                    car->GameInit();
+                    car->Activate();
+                    car->Unlock();
+
+                    auto localPlayer = SDK::GetGame()->GetActivePlayer();
+
+                    SDK::ue::sys::math::C_Vector newPos = localPlayer->GetPos();
+                    SDK::ue::sys::math::C_Quat newRot   = localPlayer->GetRot();
+                    SDK::ue::sys::math::C_Matrix transform = {};
+                    transform.Identity();
+                    transform.SetRot(newRot);
+                    transform.SetPos(newPos);
+                    car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
+                }
+            };
+
+            const auto OnCarReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
+                if (!info) {
+                    return;
+                }
+                auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
+                if (wasCreated && car) {
+                    car->Deactivate();
+                    car->GameDone();
+                    car->Release();
+                }
+            };
+
+            info->SetRequestFinishCallback(OnCarRequestFinish);
+            info->SetReturnCallback(OnCarReturned);
+        }
+#endif
 #if 1
         Core::gApplication->GetImGUI()->PushWidget([&]() {
             using namespace Framework::External::ImGUI::Widgets;
@@ -153,7 +210,9 @@ namespace MafiaMP::Core {
             // setup tracking info
             Core::Modules::Human::CreateHuman(e, msg->GetSpawnProfile());
 
-            // set up client updates
+            // set up client updates (NPC streaming)
+            // TODO disabled for now, we don't really need to stream NPCs atm
+#if 0
             const auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
             es->modEvents.clientUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
                 Shared::Messages::Human::HumanClientUpdate humanUpdate;
@@ -162,6 +221,7 @@ namespace MafiaMP::Core {
                 peer->Send(humanUpdate, guid);
                 return true;
             };
+#endif
         });
         net->RegisterMessage<Shared::Messages::Human::HumanDespawn>(Shared::Messages::ModMessages::MOD_HUMAN_DESPAWN, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanDespawn *msg) {
             const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
