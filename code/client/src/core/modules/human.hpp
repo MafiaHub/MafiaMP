@@ -35,7 +35,7 @@ namespace MafiaMP::Core::Modules {
             world.component<Tracking>();
             world.component<LocalPlayer>();
 
-            world.system<Tracking, Shared::Modules::HumanSync::TrackingMetadata, LocalPlayer, Framework::World::Modules::Base::Transform>("UpdateLocalPlayer").each([](flecs::entity e, Tracking &tracking, Shared::Modules::HumanSync::TrackingMetadata &metadata, LocalPlayer &lp, Framework::World::Modules::Base::Transform &tr) {
+            world.system<Tracking, Shared::Modules::HumanSync::UpdateData, LocalPlayer, Framework::World::Modules::Base::Transform>("UpdateLocalPlayer").each([](flecs::entity e, Tracking &tracking, Shared::Modules::HumanSync::UpdateData &metadata, LocalPlayer &lp, Framework::World::Modules::Base::Transform &tr) {
                 if (tracking.human) {
                     SDK::ue::sys::math::C_Vector newPos = tracking.human->GetPos();
                     SDK::ue::sys::math::C_Quat newRot   = tracking.human->GetRot();
@@ -142,14 +142,14 @@ namespace MafiaMP::Core::Modules {
             trackingData->human->SetTransform(transform);
 
             // Update human based data
-            const auto trackingMetadata = e.get<Shared::Modules::HumanSync::TrackingMetadata>();
-            SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(trackingMetadata->_charStateHandlerType);
+            const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
+            SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(updateData->_charStateHandlerType);
 
             // TODO: take care of vehicle sync data
             trackingData->charController->SetDesiredHandlerType(desiredStateHandlerType);
-            trackingData->charController->SetStalkMoveOverride(trackingMetadata->_isStalking);
-            SDK::E_HumanMoveMode hmm = trackingMetadata->_moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(trackingMetadata->_moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
-            trackingData->charController->SetMoveStateOverride(hmm, trackingMetadata->_isSprinting, trackingMetadata->_sprintSpeed);
+            trackingData->charController->SetStalkMoveOverride(updateData->_isStalking);
+            SDK::E_HumanMoveMode hmm = updateData->_moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(updateData->_moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
+            trackingData->charController->SetMoveStateOverride(hmm, updateData->_isSprinting, updateData->_sprintSpeed);
         }
 
         static inline void RemoveHuman(flecs::entity e) {

@@ -6,7 +6,7 @@
 
 namespace MafiaMP::Shared::Modules {
     struct HumanSync {
-        struct TrackingMetadata {
+        struct UpdateData {
             uint8_t _healthPercent = 100.0f;
 
             uint8_t _charStateHandlerType = -1;
@@ -21,7 +21,7 @@ namespace MafiaMP::Shared::Modules {
         HumanSync(flecs::world& world) {
             world.module<HumanSync>();
 
-            world.component<TrackingMetadata>();
+            world.component<UpdateData>();
         }
     };
 }

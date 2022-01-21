@@ -50,7 +50,7 @@ namespace MafiaMP {
             };
 
             es->modEvents.updateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                const auto trackingMetadata = e.get<Shared::Modules::HumanSync::TrackingMetadata>();
+                const auto trackingMetadata = e.get<Shared::Modules::HumanSync::UpdateData>();
 
                 Shared::Messages::Human::HumanUpdate humanUpdate;
                 humanUpdate.FromParameters(e.id());
@@ -67,7 +67,7 @@ namespace MafiaMP {
             auto frame = player.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelHash = 5566874084318867535;
 
-            player.add<Shared::Modules::HumanSync::TrackingMetadata>();
+            player.add<Shared::Modules::HumanSync::UpdateData>();
         });
 
         SetOnPlayerDisconnectedCallback([this](flecs::entity player, uint64_t guid) {
@@ -83,7 +83,7 @@ namespace MafiaMP {
                 return;
             }
 
-            auto trackingMetadata = e.get_mut<Shared::Modules::HumanSync::TrackingMetadata>();
+            auto trackingMetadata = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
             trackingMetadata->_charStateHandlerType = msg->GetCharStateHandlerType();
             trackingMetadata->_healthPercent        = msg->GetHealthPercent();
             trackingMetadata->_isSprinting          = msg->IsSprinting();
