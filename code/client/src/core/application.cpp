@@ -11,12 +11,6 @@
 #include "states/shutdown.h"
 #include "states/states.h"
 
-#include "../sdk/c_game.h"
-#include "../sdk/entities/c_car.h"
-#include "../sdk/entities/c_player_2.h"
-#include "../sdk/entities/c_vehicle.h"
-#include "../sdk/entities/human/c_human_weapon_controller.h"
-
 #include "../shared/messages/human/human_spawn.h"
 #include "../shared/messages/human/human_despawn.h"
 #include "../shared/messages/human/human_update.h"
@@ -55,6 +49,8 @@ namespace MafiaMP::Core {
         // This must always be the last call
         _stateMachine->RequestNextState(States::StateIds::Initialize);
 
+        _console = new UI::Console(_stateMachine);
+
         // Register client modules
         GetWorldEngine()->GetWorld()->import<Modules::Human>();
         GetWorldEngine()->GetWorld()->import<Shared::Modules::HumanSync>();
@@ -90,61 +86,12 @@ namespace MafiaMP::Core {
         if (discordApi && discordApi->IsInitialized()) {
             discordApi->SetPresence("Freeroam", "Screwing around", discord::ActivityType::Playing);
         }
-
 #if 1
-        if (GetAsyncKeyState(VK_F3) & 0x1) {
-            for (size_t i = 0; i < _TEMP_vehicles.size(); i++) {
-                Core::gApplication->GetEntityFactory()->ReturnEntity(_TEMP_vehicles[i]);
-            }
-            _TEMP_vehicles.clear();
+        if (GetAsyncKeyState(VK_F8) & 0x1) {
+            _console->Toggle();
         }
 
-        if (GetAsyncKeyState(VK_F5) & 0x1) {
-            Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect();
-        }
-
-        if (GetAsyncKeyState(VK_F1) & 0x1) {
-            printf("asking car\n");
-            auto info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");
-            _TEMP_vehicles.push_back(info);
-
-            const auto OnCarRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
-                if (success) {
-                    auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
-                    if (!car) {
-                        return;
-                    }
-                    car->GameInit();
-                    car->Activate();
-                    car->Unlock();
-
-                    auto localPlayer = SDK::GetGame()->GetActivePlayer();
-
-                    SDK::ue::sys::math::C_Vector newPos = localPlayer->GetPos();
-                    SDK::ue::sys::math::C_Quat newRot   = localPlayer->GetRot();
-                    SDK::ue::sys::math::C_Matrix transform = {};
-                    transform.Identity();
-                    transform.SetRot(newRot);
-                    transform.SetPos(newPos);
-                    car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
-                }
-            };
-
-            const auto OnCarReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
-                if (!info) {
-                    return;
-                }
-                auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
-                if (wasCreated && car) {
-                    car->Deactivate();
-                    car->GameDone();
-                    car->Release();
-                }
-            };
-
-            info->SetRequestFinishCallback(OnCarRequestFinish);
-            info->SetReturnCallback(OnCarReturned);
-        }
+        _console->Update();
 #endif
 #if 1
         Core::gApplication->GetImGUI()->PushWidget([&]() {
@@ -167,12 +114,6 @@ namespace MafiaMP::Core {
             // connection details
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[connState]));
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Ping: {}", ping));
-
-            // controls
-            DrawCornerText(CORNER_LEFT_TOP, "Controls:");
-            DrawCornerText(CORNER_LEFT_TOP, "F1 - spawn car");
-            DrawCornerText(CORNER_LEFT_TOP, "F3 - despawn all");
-            DrawCornerText(CORNER_LEFT_TOP, "F5 - disconnect from server");
         });
 #endif
     }
