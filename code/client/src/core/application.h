@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utils/safe_win32.h>
+#include <memory>
 
 #include "ui/console.h"
 
@@ -12,7 +13,7 @@ namespace MafiaMP::Core {
     class Application: public Framework::Integrations::Client::Instance {
       private:
         Framework::Utils::States::Machine *_stateMachine;
-        UI::Console *_console;
+        std::unique_ptr<UI::Console> _console;
         Game::Streaming::EntityFactory *_entityFactory;
         flecs::entity _localPlayer;
 

@@ -49,7 +49,7 @@ namespace MafiaMP::Core {
         // This must always be the last call
         _stateMachine->RequestNextState(States::StateIds::Initialize);
 
-        _console = new UI::Console(_stateMachine);
+        _console.reset(new UI::Console(_stateMachine));
 
         // Register client modules
         GetWorldEngine()->GetWorld()->import<Modules::Human>();

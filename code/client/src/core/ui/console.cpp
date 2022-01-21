@@ -56,15 +56,15 @@ namespace MafiaMP::Core::UI {
         }
 
         if (GetAsyncKeyState(VK_F1) & 0x1) {
-            spawnCar();
+            SpawnCar();
         }
 
         if (GetAsyncKeyState(VK_F3) & 0x1) {
-            despawnAll();
+            DespawnAll();
         }
 
         if (GetAsyncKeyState(VK_F5) & 0x1) {
-            disconnect();
+            Disconnect();
         }
 
         gApplication->GetImGUI()->PushWidget([this]() {
@@ -78,13 +78,13 @@ namespace MafiaMP::Core::UI {
             if (ImGui::BeginMenuBar()) {
                 if (ImGui::BeginMenu("Tools")) {
                     if (ImGui::MenuItem("Spawn car", "F1")) {
-                        spawnCar();
+                        SpawnCar();
                     }
                     if (ImGui::MenuItem("Despawn all", "F3")) {
-                        despawnAll();
+                        DespawnAll();
                     }
                     if (ImGui::MenuItem("Disconnect", "F5")) {
-                        disconnect();
+                        Disconnect();
                     }
                     if (ImGui::MenuItem("Close", "F8")) {
                         Close();
@@ -164,18 +164,18 @@ namespace MafiaMP::Core::UI {
         return true;
     }
 
-    void Console::disconnect() {
+    void Console::Disconnect() {
         Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect();
     }
 
-    void Console::despawnAll() {
+    void Console::DespawnAll() {
         for (size_t i = 0; i < _TEMP_vehicles.size(); i++) { 
             Core::gApplication->GetEntityFactory()->ReturnEntity(_TEMP_vehicles[i]); 
         }
         _TEMP_vehicles.clear();
     }
 
-    void Console::spawnCar() {
+    void Console::SpawnCar() {
         printf("asking car\n");
         auto info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");
         _TEMP_vehicles.push_back(info);
