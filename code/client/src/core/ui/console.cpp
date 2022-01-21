@@ -26,6 +26,7 @@ namespace MafiaMP::Core::UI {
 
     bool Console::Init() {
         _shouldDisplayWidget = true;
+        _autoScroll          = true;
         return true;
     }
 
@@ -121,15 +122,26 @@ namespace MafiaMP::Core::UI {
             }
 
             ImGui::TextColored(ImVec4(1, 1, 0, 1), "Output");
-            ImGui::BeginChild("Scrolling");
+            ImGui::Checkbox("Auto-scroll", &_autoScroll);
+            ImGui::Separator();
 
+            //TODO add color and styles
+            const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+            ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar);
             if (ringBuffer != nullptr) {
                 std::vector<std::string> log_message = ringBuffer -> last_formatted();
                 for (auto &log : log_message) {
                     ImGui::Text("%s", log.c_str());
                 }
             }
+            if (_autoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+                ImGui::SetScrollHereY(0.0f);
             ImGui::EndChild();
+
+            ImGui::Separator();
+
+            static char consoleText[32] = "";
+            ImGui::InputText("##console_text", consoleText, 32);
 
             ImGui::End();
         });

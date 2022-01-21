@@ -14,6 +14,7 @@ namespace MafiaMP::Core::UI {
       private:
         bool _shouldDisplayWidget;
         bool _isOpen;
+        bool _autoScroll;
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
         Framework::Utils::States::Machine *_machine;
         void disconnect();
