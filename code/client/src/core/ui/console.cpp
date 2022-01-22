@@ -211,28 +211,28 @@ namespace MafiaMP::Core::UI {
             std::string match_str = match.str();
 
             if (logCount == 1) {
-                ImGui::TextColored(ImVec4(0.5f, 1, 1, 1), match_str.c_str());
+                ImGui::TextColored(ImVec4(0.5f, 1, 1, 1), "%s", match_str.c_str());
                 ImGui::SameLine();
             }
             if (logCount == 2) {
-                ImGui::TextColored(ImVec4(0.5f, 0.5f, 1, 1), match_str.c_str());
+                ImGui::TextColored(ImVec4(0.5f, 0.5f, 1, 1), "%s", match_str.c_str());
                 ImGui::SameLine();
             }
             if (logCount == 3) {
                 if (match_str.compare("[info]") == 0)
-                    ImGui::TextColored(ImVec4(0, 1, 0, 1), match_str.c_str());
+                    ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", match_str.c_str());
                 else if (match_str.compare("[debug]") == 0)
-                    ImGui::TextColored(ImVec4(0, 0, 1, 1), match_str.c_str());
+                    ImGui::TextColored(ImVec4(0, 0, 1, 1), "%s", match_str.c_str());
                 else if (match_str.compare("[error]") == 0)
-                    ImGui::TextColored(ImVec4(1, 0, 0, 1), match_str.c_str());
+                    ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", match_str.c_str());
                 else if (match_str.compare("[warning]") == 0)
-                    ImGui::TextColored(ImVec4(1, 1, 0, 1), match_str.c_str());
+                    ImGui::TextColored(ImVec4(1, 1, 0, 1), "%s", match_str.c_str());
                 else if (match_str.compare("[trace]") == 0)
-                    ImGui::TextColored(ImVec4(0.5f, 0, 1, 1), match_str.c_str());
+                    ImGui::TextColored(ImVec4(0.5f, 0, 1, 1), "%s", match_str.c_str());
                 else if (match_str.compare("[critical]") == 0)
-                    ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), match_str.c_str());
+                    ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "%s", match_str.c_str());
                 else
-                    ImGui::TextColored(ImVec4(1, 0, 0.5f, 1), match_str.c_str());
+                    ImGui::TextColored(ImVec4(1, 0, 0.5f, 1), "%s", match_str.c_str());
                 
                 ImGui::SameLine();
                 const auto &suffix = match.suffix();
