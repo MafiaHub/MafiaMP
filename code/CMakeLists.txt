@@ -7,6 +7,7 @@ include_directories(${CMAKE_SOURCE_DIR}/code/framework ${CMAKE_CURRENT_SOURCE_DI
 if(WIN32)
     add_subdirectory(client)
     add_subdirectory(launcher)
+    #add_subdirectory(worker)
 endif()
 
 add_subdirectory(server)
