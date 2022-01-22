@@ -48,5 +48,6 @@ Sleep 5000
 if !WinExist("mafiamp-game-1") or !WinExist("mafiamp-game-2") {
     WinKill, mafiamp-game-1
     WinKill, mafiamp-game-2
+    Sleep 2000
     Reload
 }
