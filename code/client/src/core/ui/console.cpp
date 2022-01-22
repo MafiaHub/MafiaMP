@@ -3,7 +3,7 @@
 #include <utils/safe_win32.h>
 #include <logging/logger.h>
 #include <spdlog/spdlog.h>
-
+#include <regex>
 #include <imgui/imgui.h>
 
 #include "../../sdk/entities/c_car.h"
@@ -117,8 +117,8 @@ namespace MafiaMP::Core::UI {
             ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar);
             if (ringBuffer != nullptr) {
                 std::vector<std::string> log_message = ringBuffer -> last_formatted();
-                for (auto &log : log_message) {
-                    ImGui::Text("%s", log.c_str());
+                for (std::string &log : log_message) {
+                    FormatLog(log);
                 }
             }
             if (_autoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
@@ -199,5 +199,49 @@ namespace MafiaMP::Core::UI {
 
         info->SetRequestFinishCallback(OnCarRequestFinish);
         info->SetReturnCallback(OnCarReturned);
+    }
+
+    void Console::FormatLog(std::string log) {
+        std::regex brackets_regex("\\[.*?\\]", std::regex_constants::ECMAScript);
+
+        auto brackets_begin = std::sregex_iterator(log.begin(), log.end(), brackets_regex);
+        auto brackets_end   = std::sregex_iterator();
+
+        int logCount = 1;
+        for (std::sregex_iterator i = brackets_begin; i != brackets_end; ++i) {
+            std::smatch match     = *i;
+            std::string match_str = match.str();
+
+            if (logCount == 1) {
+                ImGui::TextColored(ImVec4(0.5f, 1, 1, 1), match_str.c_str());
+                ImGui::SameLine();
+            }
+            if (logCount == 2) {
+                ImGui::TextColored(ImVec4(0.5f, 0.5f, 1, 1), match_str.c_str());
+                ImGui::SameLine();
+            }
+            if (logCount == 3) {
+                if (match_str.compare("[info]") == 0)
+                    ImGui::TextColored(ImVec4(0, 1, 0, 1), match_str.c_str());
+                else if (match_str.compare("[debug]") == 0)
+                    ImGui::TextColored(ImVec4(0, 0, 1, 1), match_str.c_str());
+                else if (match_str.compare("[error]") == 0)
+                    ImGui::TextColored(ImVec4(1, 0, 0, 1), match_str.c_str());
+                else if (match_str.compare("[warning]") == 0)
+                    ImGui::TextColored(ImVec4(1, 1, 0, 1), match_str.c_str());
+                else if (match_str.compare("[trace]") == 0)
+                    ImGui::TextColored(ImVec4(0.5f, 0, 1, 1), match_str.c_str());
+                else if (match_str.compare("[critical]") == 0)
+                    ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), match_str.c_str());
+                else
+                    ImGui::TextColored(ImVec4(1, 0, 0.5f, 1), match_str.c_str());
+                
+                ImGui::SameLine();
+                auto &suffix = match.suffix();
+                if (suffix != nullptr)
+                    ImGui::Text(suffix.str().c_str());
+            }
+            logCount++;
+        }
     }
 } // namespace MafiaMP::Core::Modules
