@@ -16,6 +16,7 @@ namespace MafiaMP::Core {
         std::unique_ptr<UI::Console> _console;
         Game::Streaming::EntityFactory *_entityFactory;
         flecs::entity _localPlayer;
+        float _tickInterval = 0.01667f;
 
       public:
         virtual bool PostInit() override;
@@ -30,6 +31,10 @@ namespace MafiaMP::Core {
 
         Game::Streaming::EntityFactory *GetEntityFactory() const {
             return _entityFactory;
+        }
+
+        float GetTickInterval() const {
+            return _tickInterval;
         }
     };
 

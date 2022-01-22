@@ -91,7 +91,8 @@ namespace MafiaMP::Core::Modules {
             trackingData->info = info;
             trackingData->human = nullptr;
 
-            e.add<Interpolated>();
+            auto interp = e.get_mut<Interpolated>();
+            interp->interpolator.GetPosition()->SetCompensationFactor(1.5f);
 
             const auto OnHumanRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
                 CreateNetCharacterController = false;
@@ -156,8 +157,8 @@ namespace MafiaMP::Core::Modules {
             if (interp) {
                 const auto humanPos = trackingData->human->GetPos();
                 const auto humanRot = trackingData->human->GetRot();
-                interp->interpolator.GetPosition()->SetTargetValue({ humanPos.x, humanPos.y, humanPos.z }, tr->pos, 0.01667f); // todo fetch from tick interval
-                interp->interpolator.GetRotation()->SetTargetValue({humanRot.w,humanRot.x, humanRot.y, humanRot.z}, tr->rot, 0.01667f); // todo fetch from tick interval
+                interp->interpolator.GetPosition()->SetTargetValue({ humanPos.x, humanPos.y, humanPos.z }, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
+                interp->interpolator.GetRotation()->SetTargetValue({humanRot.w,humanRot.x, humanRot.y, humanRot.z}, tr->rot, MafiaMP::Core::gApplication->GetTickInterval());
             } else {
                 SDK::ue::sys::math::C_Vector newPos = { tr->pos.x, tr->pos.y, tr->pos.z };
                 SDK::ue::sys::math::C_Quat newRot   = { tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w };

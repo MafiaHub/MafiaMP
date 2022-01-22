@@ -119,7 +119,8 @@ namespace MafiaMP::Core {
     }
 
     void Application::InitNetworkingMessages() {
-        SetOnConnectionFinalizedCallback([this](flecs::entity newPlayer) {
+        SetOnConnectionFinalizedCallback([this](flecs::entity newPlayer, float tickInterval) {
+            _tickInterval = tickInterval;
             _stateMachine->RequestNextState(States::StateIds::SessionConnected);
             auto localPlayer = Game::Helpers::Controls::GetLocalPlayer();
 
