@@ -39,8 +39,6 @@ namespace MafiaMP::Core::UI {
 
     bool Console::Close() {
         _isOpen = false;
-        // Temp
-        Game::Helpers::Camera::ResetBehindPlayer();
 
         // Lock game controls
         Game::Helpers::Controls::Lock(false);
@@ -150,9 +148,6 @@ namespace MafiaMP::Core::UI {
     }
 
     bool Console::Open() {
-        // Set camera
-        Game::Helpers::Camera::SetPos({450.43698, -646.01941, 58.132675}, {-399.2962, -594.75391, 37.324718}, true);
-
         // Lock game controls
         Game::Helpers::Controls::Lock(true);
 
