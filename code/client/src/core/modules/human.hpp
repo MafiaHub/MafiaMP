@@ -13,9 +13,10 @@
 #include "../game/helpers/human.h"
 #include "../game/overrides/character_controller.h"
 
-#include "../../shared/modules/human_sync.hpp"
+#include "../shared/modules/human_sync.hpp"
 
 #include <world/modules/base.hpp>
+#include <utils/interpolator.h>
 
 namespace MafiaMP::Core::Modules {
     struct Human {
@@ -23,6 +24,10 @@ namespace MafiaMP::Core::Modules {
             SDK::C_Human2 *human                                 = nullptr;
             Game::Overrides::CharacterController *charController = nullptr;
             Game::Streaming::EntityTrackingInfo *info            = nullptr;
+        };
+
+        struct Interpolated {
+            Framework::Utils::Interpolator interpolator = {};
         };
 
         struct LocalPlayer {
@@ -34,6 +39,7 @@ namespace MafiaMP::Core::Modules {
 
             world.component<Tracking>();
             world.component<LocalPlayer>();
+            world.component<Interpolated>();
 
             world.system<Tracking, Shared::Modules::HumanSync::UpdateData, LocalPlayer, Framework::World::Modules::Base::Transform>("UpdateLocalPlayer").each([](flecs::entity e, Tracking &tracking, Shared::Modules::HumanSync::UpdateData &metadata, LocalPlayer &lp, Framework::World::Modules::Base::Transform &tr) {
                 if (tracking.human) {
@@ -66,6 +72,17 @@ namespace MafiaMP::Core::Modules {
                     }
                 }
             });
+
+            world.system<Tracking, Interpolated>("UpdateRemoteHuman").each([](flecs::entity e, Tracking &tracking, Interpolated &interpolated) {
+                if (tracking.human && e.get<LocalPlayer>() == nullptr) {
+                    const auto humanPos = tracking.human->GetPos();
+                    const auto humanRot = tracking.human->GetRot();
+                    const auto newPos = interpolated.interpolator.GetPosition()->UpdateTargetValue({humanPos.x, humanPos.y, humanPos.z});
+                    const auto newRot = interpolated.interpolator.GetRotation()->UpdateTargetValue({humanRot.w, humanRot.x, humanRot.y, humanRot.z});
+                    tracking.human->SetPos({newPos.x, newPos.y, newPos.z});
+                    tracking.human->SetRot({newRot.x, newRot.y, newRot.z, newRot.w});
+                }
+            });
         }
 
         static inline void CreateHuman(flecs::entity e, uint64_t spawnProfile) {
@@ -73,6 +90,8 @@ namespace MafiaMP::Core::Modules {
             auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
             trackingData->info = info;
             trackingData->human = nullptr;
+
+            e.add<Interpolated>();
 
             const auto OnHumanRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
                 CreateNetCharacterController = false;
@@ -133,13 +152,21 @@ namespace MafiaMP::Core::Modules {
 
             // Update basic data
             const auto tr = e.get<Framework::World::Modules::Base::Transform>();
-            SDK::ue::sys::math::C_Vector newPos = { tr->pos.x, tr->pos.y, tr->pos.z };
-            SDK::ue::sys::math::C_Quat newRot   = { tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w };
-            SDK::ue::sys::math::C_Matrix transform = {};
-            transform.Identity();
-            transform.SetRot(newRot);
-            transform.SetPos(newPos);
-            trackingData->human->SetTransform(transform);
+            auto interp = e.get_mut<Interpolated>();
+            if (interp) {
+                const auto humanPos = trackingData->human->GetPos();
+                const auto humanRot = trackingData->human->GetRot();
+                interp->interpolator.GetPosition()->SetTargetValue({ humanPos.x, humanPos.y, humanPos.z }, tr->pos, 0.01667f); // todo fetch from tick interval
+                interp->interpolator.GetRotation()->SetTargetValue({humanRot.w,humanRot.x, humanRot.y, humanRot.z}, tr->rot, 0.01667f); // todo fetch from tick interval
+            } else {
+                SDK::ue::sys::math::C_Vector newPos = { tr->pos.x, tr->pos.y, tr->pos.z };
+                SDK::ue::sys::math::C_Quat newRot   = { tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w };
+                SDK::ue::sys::math::C_Matrix transform = {};
+                transform.Identity();
+                transform.SetRot(newRot);
+                transform.SetPos(newPos);
+                trackingData->human->SetTransform(transform);
+            }
 
             // Update human based data
             const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
