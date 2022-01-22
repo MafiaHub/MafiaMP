@@ -12,9 +12,9 @@
 namespace MafiaMP::Core {
     class Application: public Framework::Integrations::Client::Instance {
       private:
-        Framework::Utils::States::Machine *_stateMachine;
+        std::unique_ptr<Framework::Utils::States::Machine> _stateMachine;
         std::unique_ptr<UI::Console> _console;
-        Game::Streaming::EntityFactory *_entityFactory;
+        std::unique_ptr<Game::Streaming::EntityFactory> _entityFactory;
         flecs::entity _localPlayer;
         float _tickInterval = 0.01667f;
 
@@ -26,11 +26,11 @@ namespace MafiaMP::Core {
         void InitNetworkingMessages();
 
         Framework::Utils::States::Machine* GetStateMachine() const {
-            return _stateMachine;
+            return _stateMachine.get();
         }
 
         Game::Streaming::EntityFactory *GetEntityFactory() const {
-            return _entityFactory;
+            return _entityFactory.get();
         }
 
         float GetTickInterval() const {
