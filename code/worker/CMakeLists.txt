@@ -4,4 +4,4 @@ set(MAFIAMP_WORKER_FILES
 
 add_executable(MafiaMPWorker WIN32 ${MAFIAMP_WORKER_FILES})
 target_include_directories(MafiaMPWorker PRIVATE .)
-target_link_libraries(MafiaMPWorker PRIVATE Framework FrameworkClient)
+target_link_libraries(MafiaMPWorker PRIVATE Framework FrameworkClient libcef)
