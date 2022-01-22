@@ -237,7 +237,7 @@ namespace MafiaMP::Core::UI {
                 ImGui::SameLine();
                 const auto &suffix = match.suffix();
                 if (suffix.length() > 0)
-                    ImGui::Text(suffix.str().c_str());
+                    ImGui::Text("%s", suffix.str().c_str());
             }
             logCount++;
         }
