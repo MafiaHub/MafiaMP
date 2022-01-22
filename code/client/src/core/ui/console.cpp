@@ -26,8 +26,6 @@ namespace MafiaMP::Core::UI {
 
     bool Console::Close() {
         _isOpen = false;
-        // Temp
-        Game::Helpers::Camera::ResetBehindPlayer();
 
         // Lock game controls
         Game::Helpers::Controls::Lock(false);
