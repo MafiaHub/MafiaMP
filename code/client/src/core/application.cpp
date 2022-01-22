@@ -31,7 +31,7 @@ namespace MafiaMP::Core {
 
     bool Application::PostInit() {
         // Create the state machine and initialize
-        _stateMachine  = new Framework::Utils::States::Machine;
+        _stateMachine = std::make_shared<Framework::Utils::States::Machine>();
         _stateMachine->RegisterState<States::InitializeState>();
         _stateMachine->RegisterState<States::InMenuState>();
         _stateMachine->RegisterState<States::SessionConnectionState>();
@@ -41,7 +41,7 @@ namespace MafiaMP::Core {
         _stateMachine->RegisterState<States::ShutdownState>();
 
         // Create the entity factory
-        _entityFactory = new Game::Streaming::EntityFactory;
+        _entityFactory = std::make_shared<Game::Streaming::EntityFactory>();
 
         // Register other things
         InitNetworkingMessages();
@@ -49,7 +49,7 @@ namespace MafiaMP::Core {
         // This must always be the last call
         _stateMachine->RequestNextState(States::StateIds::Initialize);
 
-        _console.reset(new UI::Console(_stateMachine));
+        _console = std::make_unique<UI::Console>(_stateMachine);
 
         // Register client modules
         GetWorldEngine()->GetWorld()->import<Modules::Human>();

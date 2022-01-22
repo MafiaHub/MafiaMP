@@ -17,19 +17,6 @@
 #include "../application.h"
 
 namespace MafiaMP::Core::UI {
-    Console::Console(Framework::Utils::States::Machine *m) {
-        _machine = m;
-        Init();
-    }
-
-    Console::~Console() {}
-
-    bool Console::Init() {
-        _shouldDisplayWidget = true;
-        _autoScroll          = true;
-        return true;
-    }
-
     void Console::Toggle() {
         if (_isOpen)
             Close();
@@ -164,14 +151,13 @@ namespace MafiaMP::Core::UI {
     }
 
     void Console::DespawnAll() {
-        for (size_t i = 0; i < _TEMP_vehicles.size(); i++) { 
-            Core::gApplication->GetEntityFactory()->ReturnEntity(_TEMP_vehicles[i]); 
+        for (const auto &vehicle : _TEMP_vehicles) {
+            Core::gApplication->GetEntityFactory()->ReturnEntity(vehicle);
         }
         _TEMP_vehicles.clear();
     }
 
     void Console::SpawnCar() {
-        printf("asking car\n");
         auto info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");
         _TEMP_vehicles.push_back(info);
 
