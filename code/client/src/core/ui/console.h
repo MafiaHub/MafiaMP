@@ -28,7 +28,6 @@ namespace MafiaMP::Core::UI {
         ~Console() = default;
 
         void Toggle();
-        bool Init();
         bool Update();
         bool Open();
         bool Close();
