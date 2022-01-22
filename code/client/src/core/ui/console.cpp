@@ -17,19 +17,6 @@
 #include "../application.h"
 
 namespace MafiaMP::Core::UI {
-    Console::Console(std::shared_ptr<Framework::Utils::States::Machine> machine) {
-        _machine = machine;
-        Init();
-    }
-
-    Console::~Console() {}
-
-    bool Console::Init() {
-        _shouldDisplayWidget = true;
-        _autoScroll          = true;
-        return true;
-    }
-
     void Console::Toggle() {
         if (_isOpen)
             Close();
@@ -150,9 +137,6 @@ namespace MafiaMP::Core::UI {
     }
 
     bool Console::Open() {
-        // Set camera
-        Game::Helpers::Camera::SetPos({450.43698, -646.01941, 58.132675}, {-399.2962, -594.75391, 37.324718}, true);
-
         // Lock game controls
         Game::Helpers::Controls::Lock(true);
 
@@ -169,14 +153,13 @@ namespace MafiaMP::Core::UI {
     }
 
     void Console::DespawnAll() {
-        for (size_t i = 0; i < _TEMP_vehicles.size(); i++) { 
-            Core::gApplication->GetEntityFactory()->ReturnEntity(_TEMP_vehicles[i]); 
+        for (const auto &vehicle : _TEMP_vehicles) {
+            Core::gApplication->GetEntityFactory()->ReturnEntity(vehicle);
         }
         _TEMP_vehicles.clear();
     }
 
     void Console::SpawnCar() {
-        printf("asking car\n");
         auto info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");
         _TEMP_vehicles.push_back(info);
 

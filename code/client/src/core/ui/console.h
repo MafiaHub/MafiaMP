@@ -12,11 +12,11 @@
 #include <memory>
 
 namespace MafiaMP::Core::UI {
-    class Console {
+    class Console final {
       private:
-        bool _shouldDisplayWidget = false;
+        bool _shouldDisplayWidget = true;
+        bool _autoScroll = true;
         bool _isOpen = false;
-        bool _autoScroll = false;
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
         std::shared_ptr<Framework::Utils::States::Machine> _machine;
         void Disconnect();
@@ -24,8 +24,8 @@ namespace MafiaMP::Core::UI {
         void SpawnCar();
 
       public:
-        Console(std::shared_ptr<Framework::Utils::States::Machine>);
-        ~Console();
+        Console(std::shared_ptr<Framework::Utils::States::Machine> machine) : _machine(machine) {}
+        ~Console() = default;
 
         void Toggle();
         bool Init();
