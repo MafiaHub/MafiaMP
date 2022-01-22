@@ -22,6 +22,8 @@ namespace MafiaMP::Core::UI {
         void Disconnect();
         void DespawnAll();
         void SpawnCar();
+        void CrashMe();
+        void BreakMe();
         void FormatLog(std::string log);
 
       public:

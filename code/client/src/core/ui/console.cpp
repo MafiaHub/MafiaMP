@@ -71,6 +71,12 @@ namespace MafiaMP::Core::UI {
                     if (ImGui::MenuItem("Disconnect", "F5")) {
                         Disconnect();
                     }
+                    if (ImGui::MenuItem("Crash me!")) {
+                        CrashMe();
+                    }
+                    if (ImGui::MenuItem("Break me!")) {
+                        BreakMe();
+                    }
                     if (ImGui::MenuItem("Close", "F8")) {
                         Close();
                     }
@@ -155,6 +161,14 @@ namespace MafiaMP::Core::UI {
             Core::gApplication->GetEntityFactory()->ReturnEntity(vehicle);
         }
         _TEMP_vehicles.clear();
+    }
+
+    void Console::CrashMe() {
+        *(int*)5 = 5;
+    }
+
+    void Console::BreakMe() {
+        __debugbreak();
     }
 
     void Console::SpawnCar() {
