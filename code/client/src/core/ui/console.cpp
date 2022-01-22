@@ -235,8 +235,8 @@ namespace MafiaMP::Core::UI {
                     ImGui::TextColored(ImVec4(1, 0, 0.5f, 1), match_str.c_str());
                 
                 ImGui::SameLine();
-                auto &suffix = match.suffix();
-                if (suffix != nullptr)
+                const auto &suffix = match.suffix();
+                if (suffix.length() > 0)
                     ImGui::Text(suffix.str().c_str());
             }
             logCount++;
