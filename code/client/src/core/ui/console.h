@@ -22,6 +22,7 @@ namespace MafiaMP::Core::UI {
         void Disconnect();
         void DespawnAll();
         void SpawnCar();
+        void FormatLog(std::string log);
 
       public:
         Console(std::shared_ptr<Framework::Utils::States::Machine> machine): _machine(machine) {}
