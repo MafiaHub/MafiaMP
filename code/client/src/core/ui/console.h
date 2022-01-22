@@ -9,6 +9,8 @@
 #include <integrations/client/instance.h>
 #include <utils/states/machine.h>
 
+#include <memory>
+
 namespace MafiaMP::Core::UI {
     class Console {
       private:
@@ -16,13 +18,13 @@ namespace MafiaMP::Core::UI {
         bool _isOpen = false;
         bool _autoScroll = false;
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
-        Framework::Utils::States::Machine *_machine = nullptr;
+        std::shared_ptr<Framework::Utils::States::Machine> _machine;
         void Disconnect();
         void DespawnAll();
         void SpawnCar();
 
       public:
-        Console(Framework::Utils::States::Machine *m);
+        Console(std::shared_ptr<Framework::Utils::States::Machine>);
         ~Console();
 
         void Toggle();

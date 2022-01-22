@@ -17,8 +17,8 @@
 #include "../application.h"
 
 namespace MafiaMP::Core::UI {
-    Console::Console(Framework::Utils::States::Machine *m) {
-        _machine = m;
+    Console::Console(std::shared_ptr<Framework::Utils::States::Machine> machine) {
+        _machine = machine;
         Init();
     }
 
