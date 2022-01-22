@@ -12,9 +12,9 @@
 namespace MafiaMP::Core::UI {
     class Console {
       private:
-        bool _shouldDisplayWidget;
-        bool _isOpen;
-        bool _autoScroll;
+        bool _shouldDisplayWidget = false;
+        bool _isOpen = false;
+        bool _autoScroll = false;
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
         Framework::Utils::States::Machine *_machine;
         void Disconnect();
