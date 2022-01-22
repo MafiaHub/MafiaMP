@@ -16,7 +16,7 @@ namespace MafiaMP::Core::UI {
         bool _isOpen = false;
         bool _autoScroll = false;
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
-        Framework::Utils::States::Machine *_machine;
+        Framework::Utils::States::Machine *_machine = nullptr;
         void Disconnect();
         void DespawnAll();
         void SpawnCar();
