@@ -20,8 +20,8 @@ WinMove, mafiamp-cli-1,, 0, (A_ScreenHeight / 1.5), (A_ScreenWidth / 2), (A_Scre
 ; game window
 WinWait Mafia: Advanced Multiplayer Edition
 WinActivate
-; WinSetTitle, mafiamp-game-1
-WinMove, Mafia: Advanced Multiplayer Edition,, 0, 0,,
+WinSetTitle, mafiamp-game-1
+WinMove, mafiamp-game-1,, 0, 0,(A_ScreenWidth / 2), (A_ScreenHeight / 1.5)
 Sleep 200
 
 ;
@@ -38,6 +38,16 @@ WinMove, mafiamp-cli-2,, (A_ScreenWidth / 2), (A_ScreenHeight / 1.5), (A_ScreenW
 ; game window
 WinWait Mafia: Advanced Multiplayer Edition
 WinActivate
-; WinSetTitle, oakwood-game-2
-WinMove, Mafia: Advanced Multiplayer Edition,, (A_ScreenWidth / 2), 0,,
+WinSetTitle, mafiamp-game-2
+WinMove, mafiamp-game-2,, (A_ScreenWidth / 2), 0,(A_ScreenWidth / 2), (A_ScreenHeight / 1.5)
 Sleep 200
+
+; Check if windows exist
+Sleep 5000
+
+if !WinExist("mafiamp-game-1") or !WinExist("mafiamp-game-2") {
+    WinKill, mafiamp-game-1
+    WinKill, mafiamp-game-2
+    Sleep 2000
+    Reload
+}
