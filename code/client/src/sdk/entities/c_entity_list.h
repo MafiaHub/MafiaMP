@@ -2,7 +2,6 @@
 
 #include "c_entity.h"
 #include "c_actor.h"
-#include "../ue/sys/utils/c_hash_name.h"
 
 namespace SDK {
     class C_EntityList {
