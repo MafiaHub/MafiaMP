@@ -295,7 +295,7 @@ namespace MafiaMP::Core::UI {
         __debugbreak();
     }
 
-    void CloseGame() {
+    void Console::CloseGame() {
         // very lazy game shutdown
         // don't try at home
         ExitProcess(0);
