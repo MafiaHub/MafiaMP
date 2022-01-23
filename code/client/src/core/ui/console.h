@@ -19,12 +19,17 @@ namespace MafiaMP::Core::UI {
       public:
         using CommandProc = std::function<void(const std::string &, const std::vector<std::string> &)>;
       private:
+        struct CommandInfo {
+            std::string description;
+            CommandProc proc;
+        };
+
         bool _shouldDisplayWidget = true;
         bool _autoScroll          = true;
         bool _isOpen              = false;
         bool _focusOnConsole      = false;
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
-        std::unordered_map<std::string, CommandProc> _commands;
+        std::unordered_map<std::string, CommandInfo> _commands;
         std::shared_ptr<Framework::Utils::States::Machine> _machine;
         void Disconnect();
         void DespawnAll();
@@ -43,6 +48,6 @@ namespace MafiaMP::Core::UI {
         bool Open();
         bool Close();
 
-        void RegisterCommand(const std::string &name, const CommandProc &proc);
+        void RegisterCommand(const std::string &name, const CommandProc &proc, const std::string &desc = "");
     };
 } // namespace MafiaMP::Core::UI

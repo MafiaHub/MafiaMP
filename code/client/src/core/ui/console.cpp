@@ -21,14 +21,21 @@ namespace MafiaMP::Core::UI {
     Console::Console(std::shared_ptr<Framework::Utils::States::Machine> machine): _machine(machine) {
         RegisterCommand("crash", [this] (const std::string &, const std::vector<std::string> &) {
             CrashMe();
-        });
+        }, "- crashes the game");
         RegisterCommand("echo", [this] (const std::string &input, const std::vector<std::string> &args) {
             std::string argsConcat;
             for (auto &arg : args) {
                 argsConcat += arg + " ";
             }
             Framework::Logging::GetLogger("Console")->info("echo input: '{}', args: {}", input, argsConcat);
-        });
+        }, "[args] - prints the arguments back ");
+        RegisterCommand("help", [this] (const std::string &input, const std::vector<std::string> &args) {
+            std::stringstream ss;
+            for (const auto &command : _commands) {
+                ss << fmt::format("{} {:>8}\n", command.first, command.second.description);
+            }
+            Framework::Logging::GetLogger("Console")->info("Available commands:\n{}", ss.str());
+        }, "- prints all available commands");
     }
 
     void Console::Toggle() {
@@ -158,30 +165,28 @@ namespace MafiaMP::Core::UI {
             ImGui::SameLine();
 
             // show autocomplete
+            // todo replace with std code, C used down here! 
             static bool isAutocompleteOpen = false;
-            std::vector<std::string> allCommands, filteredCommands;
-            for (auto &command : _commands) {
-                allCommands.push_back(command.first);
+            std::vector<std::string> allCommands;
+            for (const auto &command : _commands) {
+                if (strnicmp(command.first.c_str(), consoleText, strlen(consoleText)) == 0) {
+                    allCommands.push_back(command.first);
+                }
             }
             bool isFocused = ImGui::IsItemFocused();
             isAutocompleteOpen |= ImGui::IsItemActive();
 
-            // todo replace with std code, C used down here! 
-            for (auto &command : allCommands) {
-                if (strnicmp(command.c_str(), consoleText, strlen(consoleText)) == 0) {
-                    filteredCommands.push_back(command);
-                }
-            }
-
-            if (isAutocompleteOpen && filteredCommands.size() > 0 && strlen(consoleText) > 0) {
+            if (isAutocompleteOpen && allCommands.size() > 0 && strlen(consoleText) > 0) {
                 ImGui::SetNextWindowPos({ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y});
                 ImGui::SetNextWindowSize({ImGui::GetItemRectSize().x, 0});
                 if (ImGui::Begin("##popup", &isAutocompleteOpen, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_Tooltip)) {
                     isFocused |= ImGui::IsWindowFocused();
-                    for (auto &command : filteredCommands) {
+                    for (auto &command : allCommands) {
                         if (strstr(command.c_str(), consoleText) == NULL)
                             continue;
-                        if (ImGui::Selectable(command.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressed(ImGuiKey_Enter))) {
+
+                        const auto formattedSelectable = fmt::format("{} {}", command.c_str(), _commands[command].description);
+                        if (ImGui::Selectable(formattedSelectable.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressed(ImGuiKey_Enter))) {
                             strcpy(consoleText, command.c_str());
                             isAutocompleteOpen = false;
                         }
@@ -239,7 +244,7 @@ namespace MafiaMP::Core::UI {
         command = args[0];
 
         if (_commands.find(command) != _commands.end()) {
-            _commands[command](trim(argsPart), std::vector<std::string>(args.begin() + 1, args.end()));
+            _commands[command].proc(trim(argsPart), std::vector<std::string>(args.begin() + 1, args.end()));
         } else {
             Framework::Logging::GetLogger("Console")->warn("Unknown command: {}", input);
         }
@@ -363,11 +368,11 @@ namespace MafiaMP::Core::UI {
         }
     }
 
-    void Console::RegisterCommand(const std::string &name, const CommandProc &proc) {
+    void Console::RegisterCommand(const std::string &name, const CommandProc &proc, const std::string &desc) {
         if (name.empty()) {
             return;
         }
 
-        _commands[name] = proc;
+        _commands[name] = {desc, proc};
     }
 } // namespace MafiaMP::Core::Modules
