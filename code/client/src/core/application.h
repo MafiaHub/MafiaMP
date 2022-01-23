@@ -13,10 +13,12 @@ namespace MafiaMP::Core {
     class Application: public Framework::Integrations::Client::Instance {
       private:
         std::shared_ptr<Framework::Utils::States::Machine> _stateMachine;
-        std::unique_ptr<UI::Console> _console;
+        std::shared_ptr<UI::Console> _console;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
         flecs::entity _localPlayer;
         float _tickInterval = 0.01667f;
+
+        void PimpMyImGUI();
 
       public:
         virtual bool PostInit() override;
@@ -35,6 +37,10 @@ namespace MafiaMP::Core {
 
         float GetTickInterval() const {
             return _tickInterval;
+        }
+
+        std::shared_ptr<UI::Console> GetDevConsole() const {
+            return _console;
         }
     };
 
