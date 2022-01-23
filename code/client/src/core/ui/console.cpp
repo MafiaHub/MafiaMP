@@ -4,6 +4,7 @@
 #include <logging/logger.h>
 #include <spdlog/spdlog.h>
 #include <regex>
+#include <sstream>
 #include <imgui/imgui.h>
 
 #include "../../sdk/entities/c_car.h"
@@ -17,6 +18,19 @@
 #include "../application.h"
 
 namespace MafiaMP::Core::UI {
+    Console::Console(std::shared_ptr<Framework::Utils::States::Machine> machine): _machine(machine) {
+        RegisterCommand("crash", [this] (const std::string &, const std::vector<std::string> &) {
+            CrashMe();
+        });
+        RegisterCommand("echo", [this] (const std::string &input, const std::vector<std::string> &args) {
+            std::string argsConcat;
+            for (auto &arg : args) {
+                argsConcat += arg + " ";
+            }
+            Framework::Logging::GetLogger("Console")->info("echo input: '{}', args: {}", input, argsConcat);
+        });
+    }
+
     void Console::Toggle() {
         if (_isOpen)
             Close();
@@ -131,13 +145,110 @@ namespace MafiaMP::Core::UI {
 
             ImGui::Separator();
 
-            static char consoleText[32] = "";
-            ImGui::InputText("##console_text", consoleText, 32);
+            static char consoleText[512] = "";
+            if (ImGui::InputText("##console_text", consoleText, 512, ImGuiInputTextFlags_EnterReturnsTrue|ImGuiInputTextFlags_CtrlEnterForNewLine)) {
+                ProcessCommand(consoleText);
+                consoleText[0] = '\0';
+                ImGui::SetKeyboardFocusHere(-1);
+            }
+            if (_focusOnConsole) {
+                ImGui::SetKeyboardFocusHere(-1);
+                _focusOnConsole = false;
+            }
+            ImGui::SameLine();
+
+            // show autocomplete
+            static bool isAutocompleteOpen = false;
+            std::vector<std::string> allCommands, filteredCommands;
+            for (auto &command : _commands) {
+                allCommands.push_back(command.first);
+            }
+            bool isFocused = ImGui::IsItemFocused();
+            isAutocompleteOpen |= ImGui::IsItemActive();
+
+            // todo replace with std code, C used down here! 
+            for (auto &command : allCommands) {
+                if (strnicmp(command.c_str(), consoleText, strlen(consoleText)) == 0) {
+                    filteredCommands.push_back(command);
+                }
+            }
+
+            if (isAutocompleteOpen && filteredCommands.size() > 0 && strlen(consoleText) > 0) {
+                ImGui::SetNextWindowPos({ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y});
+                ImGui::SetNextWindowSize({ImGui::GetItemRectSize().x, 0});
+                if (ImGui::Begin("##popup", &isAutocompleteOpen, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_Tooltip)) {
+                    isFocused |= ImGui::IsWindowFocused();
+                    for (auto &command : filteredCommands) {
+                        if (strstr(command.c_str(), consoleText) == NULL)
+                            continue;
+                        if (ImGui::Selectable(command.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressed(ImGuiKey_Enter))) {
+                            strcpy(consoleText, command.c_str());
+                            isAutocompleteOpen = false;
+                        }
+                    }
+                }
+                ImGui::End();
+                isAutocompleteOpen &= isFocused;
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button("Send")) {
+                ProcessCommand(consoleText);
+                consoleText[0] = '\0';
+                _focusOnConsole = true;
+            }
+
+            ImGui::PushAllowKeyboardFocus( false );
+
+            // Draw arbitrary popup content...
+
+            ImGui::PopAllowKeyboardFocus();
 
             ImGui::End();
         });
 
         return true;
+    }
+
+    /* todo move to utils */
+    std::string ltrim(const std::string &s) {
+        return std::regex_replace(s, std::regex("^\\s+"), std::string(""));
+    }
+
+    std::string rtrim(const std::string &s) {
+        return std::regex_replace(s, std::regex("\\s+$"), std::string(""));
+    }
+
+    std::string trim(const std::string &s) {
+        return ltrim(rtrim(s));
+    }
+
+    void Console::ProcessCommand(const std::string &input) {
+        std::string command = "";
+        std::string argsPart = "";
+        std::vector<std::string> args;
+        std::stringstream parts(input);
+        std::string item;
+        int i = 0;
+        while (std::getline(parts, item, ' ')) {
+            if (i > 0) {
+                argsPart += item + " ";
+            }
+            args.push_back(item);
+            ++i;
+        }
+
+        if (args.size() == 0) {
+            return;
+        }
+
+        command = args[0];
+
+        if (_commands.find(command) != _commands.end()) {
+            _commands[command](trim(argsPart), std::vector<std::string>(args.begin() + 1, args.end()));
+        } else {
+            Framework::Logging::GetLogger("Console")->warn("Unknown command: {}", input);
+        }
     }
 
     bool Console::Open() {
@@ -148,6 +259,7 @@ namespace MafiaMP::Core::UI {
         gApplication->GetImGUI()->ShowCursor(true);
 
         _isOpen = true;
+        _focusOnConsole = true;
 
         return true;
     }
@@ -247,7 +359,7 @@ namespace MafiaMP::Core::UI {
                     ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "%s", match_str.c_str());
                 else
                     ImGui::TextColored(ImVec4(1, 0, 0.5f, 1), "%s", match_str.c_str());
-                
+
                 ImGui::SameLine();
                 const auto &suffix = match.suffix();
                 if (suffix.length() > 0)
@@ -255,5 +367,13 @@ namespace MafiaMP::Core::UI {
             }
             logCount++;
         }
+    }
+
+    void Console::RegisterCommand(const std::string &name, const CommandProc &proc) {
+        if (name.empty()) {
+            return;
+        }
+
+        _commands[name] = proc;
     }
 } // namespace MafiaMP::Core::Modules
