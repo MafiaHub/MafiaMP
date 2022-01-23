@@ -28,7 +28,7 @@ namespace MafiaMP::Core::UI {
                 argsConcat += arg + " ";
             }
             Framework::Logging::GetLogger("Console")->info("echo input: '{}', args: {}", input, argsConcat);
-        }, "[args] - prints the arguments back ");
+        }, "[args] - prints the arguments back");
         RegisterCommand("help", [this] (const std::string &input, const std::vector<std::string> &args) {
             std::stringstream ss;
             for (const auto &command : _commands) {
@@ -36,6 +36,9 @@ namespace MafiaMP::Core::UI {
             }
             Framework::Logging::GetLogger("Console")->info("Available commands:\n{}", ss.str());
         }, "- prints all available commands");
+        RegisterCommand("exit", [this] (const std::string &input, const std::vector<std::string> &args) {
+            CloseGame();
+        }, "- quits the game");
     }
 
     void Console::Toggle() {
@@ -97,6 +100,9 @@ namespace MafiaMP::Core::UI {
                     }
                     if (ImGui::MenuItem("Break me!")) {
                         BreakMe();
+                    }
+                    if (ImGui::MenuItem("Close")) {
+                        CloseGame();
                     }
                     if (ImGui::MenuItem("Close", "F8")) {
                         Close();
@@ -287,6 +293,12 @@ namespace MafiaMP::Core::UI {
 
     void Console::BreakMe() {
         __debugbreak();
+    }
+
+    void CloseGame() {
+        // very lazy game shutdown
+        // don't try at home
+        ExitProcess(0);
     }
 
     void Console::SpawnCar() {

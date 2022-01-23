@@ -36,6 +36,7 @@ namespace MafiaMP::Core::UI {
         void SpawnCar();
         void CrashMe();
         void BreakMe();
+        void CloseGame();
         void FormatLog(std::string log);
         void ProcessCommand(const std::string &);
 
