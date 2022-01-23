@@ -165,7 +165,7 @@ namespace MafiaMP::Core::UI {
             ImGui::SameLine();
 
             // show autocomplete
-            // todo replace with std code, C used down here!
+            // todo register TAB key to autocomplete first result
             static bool isAutocompleteOpen = false;
             std::vector<std::string> allCommands;
 
@@ -175,20 +175,21 @@ namespace MafiaMP::Core::UI {
             std::getline(ss, commandPreview, ' ');
 
             for (const auto &command : _commands) {
-                if (strnicmp(command.first.c_str(), commandPreview.c_str(), strlen(consoleText)) == 0) {
+                if (command.first._Starts_with(commandPreview)) {
                     allCommands.push_back(command.first);
                 }
             }
+
             bool isFocused = ImGui::IsItemFocused();
             isAutocompleteOpen |= ImGui::IsItemActive();
 
-            if (isAutocompleteOpen && allCommands.size() > 0 && strlen(commandPreview.c_str()) > 0) {
+            if (isAutocompleteOpen && allCommands.size() > 0 && commandPreview.size() > 0) {
                 ImGui::SetNextWindowPos({ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y});
                 ImGui::SetNextWindowSize({ImGui::GetItemRectSize().x, 0});
                 if (ImGui::Begin("##popup", &isAutocompleteOpen, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_Tooltip)) {
                     isFocused |= ImGui::IsWindowFocused();
                     for (auto &command : allCommands) {
-                        if (strstr(command.c_str(), commandPreview.c_str()) == NULL)
+                        if (command._Starts_with(commandPreview) == NULL)
                             continue;
 
                         const auto formattedSelectable = fmt::format("{} {}", command.c_str(), _commands[command].description);
