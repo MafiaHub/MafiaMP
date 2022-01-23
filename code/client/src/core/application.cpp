@@ -26,10 +26,6 @@
 
 #include "modules/human.hpp"
 
-#include "../sdk/ue/sys/utils/c_hash_name.h"
-#include "../sdk/entities/c_entity_list.h"
-#include "../sdk/entities/c_door.h"
-
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication = nullptr;
 
@@ -192,9 +188,6 @@ namespace MafiaMP::Core {
                 return true;
             };
 #endif
-            SDK::ue::sys::utils::C_HashName doorHash = SDK::ue::sys::utils::C_HashName::ComputeHash("bc_commercial_door_a_bv01_00");
-            auto door                                = SDK::GetEntityList()->GetEntityByName(doorHash, false);
-            Framework::Logging::GetInstance()->Get("aaa")->info("ccc");
         });
         net->RegisterMessage<Shared::Messages::Human::HumanDespawn>(Shared::Messages::ModMessages::MOD_HUMAN_DESPAWN, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanDespawn *msg) {
             const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());

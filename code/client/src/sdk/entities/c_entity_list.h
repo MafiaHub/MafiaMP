@@ -17,7 +17,7 @@ namespace SDK {
         virtual unsigned int GetEntityCount(void)                                                                    = 0;
         virtual C_Entity *GetEntityByIndex(int)                                                                      = 0;
         virtual C_Entity *GetEntityByGuid(unsigned int GUID, bool arg2)                                              = 0;
-        virtual C_Entity *GetEntityByName(ue::sys::utils::C_HashName, bool) = 0;
+        virtual C_Entity *GetEntityByName(/*ue::sys::utils::C_HashName, bool*/) = 0;
         virtual C_Actor *GetActorByGuid(unsigned int, bool)                                                          = 0;
         virtual void ProcessEventToListeners(/*C_Entity*, E_EntityEvents*/) = 0;
         virtual void RegisterListener(/*I_EntityListener**/) = 0;
