@@ -18,6 +18,8 @@ namespace MafiaMP::Core {
         flecs::entity _localPlayer;
         float _tickInterval = 0.01667f;
 
+        void PimpMyImGUI();
+
       public:
         virtual bool PostInit() override;
         virtual bool PreShutdown() override;
