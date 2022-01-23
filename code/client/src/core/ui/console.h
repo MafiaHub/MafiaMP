@@ -22,7 +22,7 @@ namespace MafiaMP::Core::UI {
         using CommandProc = std::function<void(cxxopts::ParseResult &)>;
       private:
         struct CommandInfo {
-            cxxopts::Options options;
+            std::unique_ptr<cxxopts::Options> options;
             CommandProc proc;
         };
         bool _shouldDisplayWidget = true;

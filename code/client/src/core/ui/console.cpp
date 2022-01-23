@@ -19,31 +19,48 @@
 #include "../application.h"
 
 namespace MafiaMP::Core::UI {
-    Console::Console(std::shared_ptr<Framework::Utils::States::Machine> machine): _machine(machine) {
-        _logger = Framework::Logging::GetLogger("Console").get();
+    Console::Console(std::shared_ptr<Framework::Utils::States::Machine> machine): _machine(machine), _logger(Framework::Logging::GetLogger("Console").get())
+    {
+        RegisterCommand(
+            "test", {
+                {"a,aargument", "Test argument 1", cxxopts::value<std::string>()},
+                {"b,bargument", "Test argument 2", cxxopts::value<int>()}
+            },
+            [this](cxxopts::ParseResult result) {
+                if (result.count("aargument")) {
+                    std::string argument1 = result["aargument"].as<std::string>();
+                    _logger->info("aargument - {}", argument1);
+                }
+                if (result.count("bargument")) {
+                    int argument2 = result["bargument"].as<int>();
+                    _logger->info("bargument - {}", argument2);
+                }
+            },
+            "Testing command");
         RegisterCommand(
             "crash", {},
             [this](cxxopts::ParseResult &) {
             CrashMe();
         }, "crashes the game");
-        /* RegisterCommand(
-            "echo",
-            [this](const std::string &input, const std::vector<std::string> &args) {
+        RegisterCommand(
+            "echo", {}, 
+            [this](cxxopts::ParseResult result) {
             std::string argsConcat;
+            cxxopts::PositionalList args = result.unmatched();
             for (auto &arg : args) {
                 argsConcat += arg + " ";
             }
-            _logger->info("echo input: '{}', args: {}", input, argsConcat);
-        }, "[args] - prints the arguments back");*/
-        /* RegisterCommand(
-            "help",
-            [this](cxxopts::Option &) {
+            _logger->info(argsConcat);
+        }, "[args] - prints the arguments back");
+        RegisterCommand(
+            "help", {},
+            [this](cxxopts::ParseResult &) {
             std::stringstream ss;
             for (const auto &command : _commands) {
-                ss << fmt::format("{} {:>8}\n", command.first, command.second.description);
+                ss << fmt::format("{} {:>8}\n", command.first, command.second.options->help());
             }
             _logger->info("Available commands:\n{}", ss.str());
-        }, "prints all available commands");*/
+        }, "prints all available commands");
         RegisterCommand(
             "exit", {},
             [this](cxxopts::ParseResult &) {
@@ -207,7 +224,8 @@ namespace MafiaMP::Core::UI {
                         if (command._Starts_with(commandPreview) == NULL)
                             continue;
 
-                        const auto formattedSelectable = fmt::format("{} {}", command.c_str(), _commands[command].options.help());
+                        auto help                      = _commands[command].options->help();
+                        const auto formattedSelectable = fmt::format("{} {}", command.c_str(), help);
                         if (ImGui::Selectable(formattedSelectable.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressed(ImGuiKey_Enter))) {
                             strcpy(consoleText, command.c_str());
                             isAutocompleteOpen = false;
@@ -246,17 +264,11 @@ namespace MafiaMP::Core::UI {
 
     void Console::ProcessCommand(const std::string &input) {
         std::string command = "";
-        std::string argsPart = "";
         std::vector<std::string> args;
         std::stringstream parts(input);
         std::string item;
-        int i = 0;
         while (std::getline(parts, item, ' ')) {
-            if (i > 0) {
-                argsPart += item + " ";
-            }
             args.push_back(item);
-            ++i;
         }
 
         if (args.size() == 0) {
@@ -266,16 +278,34 @@ namespace MafiaMP::Core::UI {
         command = args[0];
 
         if (_commands.find(command) != _commands.end()) {
-            args.erase(args.begin()); // erase first it's the command
-
-            std::vector<const char *> vArgs;
-            for (auto arg : args) { 
-                vArgs.push_back(arg.c_str());
+            std::vector<char *> vArgs;
+            for (auto arg : args) {
+                //TODO don't like this whole copy mem thing C++ sucks
+                const std::string::size_type size = arg.size();
+                char *buffer                      = new char[size + 1];
+                memcpy(buffer, arg.c_str(), size + 1);
+                vArgs.push_back(buffer);
             }
 
-            cxxopts::ParseResult result = _commands[command].options.parse(0, vArgs.data());
+            try {
+                cxxopts::ParseResult result = _commands[command].options->parse(vArgs.size(), vArgs.data());
 
-            _commands[command].proc(result);
+                if (result.count("help")) {
+                    // auto help
+                    _logger->info(_commands[command].options->help());
+                }
+                else {
+                    _commands[command].proc(result);
+                }
+
+                for (auto arg : vArgs) { 
+                    delete arg;
+                }
+            }
+            catch (const std::exception &e) {
+                _logger->error(e.what());
+            }
+
         } else {
             _logger->warn("Unknown command: {}", input);
         }
@@ -406,25 +436,24 @@ namespace MafiaMP::Core::UI {
     }
 
     void Console::RegisterCommand(const std::string &name, std::initializer_list<cxxopts::Option> options, const CommandProc &proc, const std::string &desc) {
-        if (name.empty() || _commands.find(name) == _commands.end()) {
-
+        if (name.empty() || _commands.find(name) != _commands.end()) {
+            _logger->warn("Command %s already exists", name);
             return;
         }
 
-        /* {
-            {"p,port", "Networking port to bind", cxxopts::value<int32_t>()->default_value(std::to_string(_opts.bindPort))}, {"h,host", "Networking host to bind", cxxopts::value<std::string>()->default_value(_opts.bindHost)}, {
-                "c,config", "JSON config file to read", cxxopts::value<std::string>()->default_value(_opts.modConfigFile)
-            }
-        }*/
+        try {
+            auto cmd = std::make_unique<cxxopts::Options>(name, desc);
 
-        cxxopts::Options cmd(name, desc);
+            if (options.size() > 0)
+                cmd->add_options("", options);
 
-        if (options.size() > 0)
-            cmd.add_options("" , options);
+            // default help
+            cmd->add_option("", {"h,help", "Print usage"});
 
-        //default help
-        cmd.add_option("" , {"h,help", "Print usage"});
-
-        _commands[name] = {cmd, proc};
+            _commands[name] = {std::move(cmd), proc};
+        }
+        catch (const std::exception &e) {
+            _logger->error(e.what());
+        }
     }
 } // namespace MafiaMP::Core::Modules
