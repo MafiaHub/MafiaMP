@@ -198,12 +198,6 @@ namespace MafiaMP::Core::UI {
                 _focusOnConsole = true;
             }
 
-            ImGui::PushAllowKeyboardFocus( false );
-
-            // Draw arbitrary popup content...
-
-            ImGui::PopAllowKeyboardFocus();
-
             ImGui::End();
         });
 
