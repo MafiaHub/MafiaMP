@@ -13,17 +13,18 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+#include <cxxopts.hpp>
+#include <spdlog/spdlog.h>
 
 namespace MafiaMP::Core::UI {
     class Console final {
       public:
-        using CommandProc = std::function<void(const std::string &, const std::vector<std::string> &)>;
+        using CommandProc = std::function<void(cxxopts::ParseResult &)>;
       private:
         struct CommandInfo {
-            std::string description;
+            std::unique_ptr<cxxopts::Options> options;
             CommandProc proc;
         };
-
         bool _shouldDisplayWidget = true;
         bool _autoScroll          = true;
         bool _isOpen              = false;
@@ -31,6 +32,7 @@ namespace MafiaMP::Core::UI {
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
         std::unordered_map<std::string, CommandInfo> _commands;
         std::shared_ptr<Framework::Utils::States::Machine> _machine;
+        spdlog::logger *_logger;
         void Disconnect();
         void DespawnAll();
         void SpawnCar();
@@ -49,6 +51,6 @@ namespace MafiaMP::Core::UI {
         bool Open();
         bool Close();
 
-        void RegisterCommand(const std::string &name, const CommandProc &proc, const std::string &desc = "");
+        void RegisterCommand(const std::string &name, std::initializer_list<cxxopts::Option> options, const CommandProc &proc, const std::string &desc = "");
     };
 } // namespace MafiaMP::Core::UI
