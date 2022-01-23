@@ -2,10 +2,11 @@
 #include "../application.h"
 #include <utils/safe_win32.h>
 #include <logging/logger.h>
-#include <spdlog/spdlog.h>
 #include <regex>
 #include <sstream>
 #include <imgui/imgui.h>
+#include <fmt/core.h>
+#include <numeric>
 
 #include "../../sdk/entities/c_car.h"
 #include "../../sdk/entities/c_player_2.h"
@@ -19,26 +20,35 @@
 
 namespace MafiaMP::Core::UI {
     Console::Console(std::shared_ptr<Framework::Utils::States::Machine> machine): _machine(machine) {
-        RegisterCommand("crash", [this] (const std::string &, const std::vector<std::string> &) {
+        _logger = Framework::Logging::GetLogger("Console").get();
+        RegisterCommand(
+            "crash", {},
+            [this](cxxopts::ParseResult &) {
             CrashMe();
-        }, "- crashes the game");
-        RegisterCommand("echo", [this] (const std::string &input, const std::vector<std::string> &args) {
+        }, "crashes the game");
+        /* RegisterCommand(
+            "echo",
+            [this](const std::string &input, const std::vector<std::string> &args) {
             std::string argsConcat;
             for (auto &arg : args) {
                 argsConcat += arg + " ";
             }
-            Framework::Logging::GetLogger("Console")->info("echo input: '{}', args: {}", input, argsConcat);
-        }, "[args] - prints the arguments back");
-        RegisterCommand("help", [this] (const std::string &input, const std::vector<std::string> &args) {
+            _logger->info("echo input: '{}', args: {}", input, argsConcat);
+        }, "[args] - prints the arguments back");*/
+        /* RegisterCommand(
+            "help",
+            [this](cxxopts::Option &) {
             std::stringstream ss;
             for (const auto &command : _commands) {
                 ss << fmt::format("{} {:>8}\n", command.first, command.second.description);
             }
-            Framework::Logging::GetLogger("Console")->info("Available commands:\n{}", ss.str());
-        }, "- prints all available commands");
-        RegisterCommand("exit", [this] (const std::string &input, const std::vector<std::string> &args) {
+            _logger->info("Available commands:\n{}", ss.str());
+        }, "prints all available commands");*/
+        RegisterCommand(
+            "exit", {},
+            [this](cxxopts::ParseResult &) {
             CloseGame();
-        }, "- quits the game");
+        }, "quits the game");
     }
 
     void Console::Toggle() {
@@ -143,7 +153,6 @@ namespace MafiaMP::Core::UI {
             ImGui::Checkbox("Auto-scroll", &_autoScroll);
             ImGui::Separator();
 
-            //TODO add color and styles
             const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
             ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar);
             if (ringBuffer != nullptr) {
@@ -198,7 +207,7 @@ namespace MafiaMP::Core::UI {
                         if (command._Starts_with(commandPreview) == NULL)
                             continue;
 
-                        const auto formattedSelectable = fmt::format("{} {}", command.c_str(), _commands[command].description);
+                        const auto formattedSelectable = fmt::format("{} {}", command.c_str(), _commands[command].options.help());
                         if (ImGui::Selectable(formattedSelectable.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressed(ImGuiKey_Enter))) {
                             strcpy(consoleText, command.c_str());
                             isAutocompleteOpen = false;
@@ -257,9 +266,18 @@ namespace MafiaMP::Core::UI {
         command = args[0];
 
         if (_commands.find(command) != _commands.end()) {
-            _commands[command].proc(trim(argsPart), std::vector<std::string>(args.begin() + 1, args.end()));
+            args.erase(args.begin()); // erase first it's the command
+
+            std::vector<const char *> vArgs;
+            for (auto arg : args) { 
+                vArgs.push_back(arg.c_str());
+            }
+
+            cxxopts::ParseResult result = _commands[command].options.parse(0, vArgs.data());
+
+            _commands[command].proc(result);
         } else {
-            Framework::Logging::GetLogger("Console")->warn("Unknown command: {}", input);
+            _logger->warn("Unknown command: {}", input);
         }
     }
 
@@ -387,11 +405,26 @@ namespace MafiaMP::Core::UI {
         }
     }
 
-    void Console::RegisterCommand(const std::string &name, const CommandProc &proc, const std::string &desc) {
-        if (name.empty()) {
+    void Console::RegisterCommand(const std::string &name, std::initializer_list<cxxopts::Option> options, const CommandProc &proc, const std::string &desc) {
+        if (name.empty() || _commands.find(name) == _commands.end()) {
+
             return;
         }
 
-        _commands[name] = {desc, proc};
+        /* {
+            {"p,port", "Networking port to bind", cxxopts::value<int32_t>()->default_value(std::to_string(_opts.bindPort))}, {"h,host", "Networking host to bind", cxxopts::value<std::string>()->default_value(_opts.bindHost)}, {
+                "c,config", "JSON config file to read", cxxopts::value<std::string>()->default_value(_opts.modConfigFile)
+            }
+        }*/
+
+        cxxopts::Options cmd(name, desc);
+
+        if (options.size() > 0)
+            cmd.add_options("" , options);
+
+        //default help
+        cmd.add_option("" , {"h,help", "Print usage"});
+
+        _commands[name] = {cmd, proc};
     }
 } // namespace MafiaMP::Core::Modules
