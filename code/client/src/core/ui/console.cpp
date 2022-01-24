@@ -185,7 +185,7 @@ namespace MafiaMP::Core::UI {
             ImGui::Separator();
 
             static char consoleText[512] = "";
-            if (ImGui::InputText("##console_text", consoleText, 512, ImGuiInputTextFlags_EnterReturnsTrue|ImGuiInputTextFlags_CtrlEnterForNewLine)) {
+            if (ImGui::InputText("##console_text", consoleText, 512, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CtrlEnterForNewLine)) {
                 ProcessCommand(consoleText);
                 consoleText[0] = '\0';
                 ImGui::SetKeyboardFocusHere(-1);
@@ -194,10 +194,14 @@ namespace MafiaMP::Core::UI {
                 ImGui::SetKeyboardFocusHere(-1);
                 _focusOnConsole = false;
             }
+            if (_focusInput) {
+                //TODO cursor at the end can't make this work for the life of me
+                ImGui::SetKeyboardFocusHere(-1);
+                _focusInput = false;
+            }
             ImGui::SameLine();
 
             // show autocomplete
-            // todo register TAB key to autocomplete first result
             static bool isAutocompleteOpen = false;
             std::vector<std::string> allCommands;
 
@@ -220,16 +224,27 @@ namespace MafiaMP::Core::UI {
                 ImGui::SetNextWindowSize({ImGui::GetItemRectSize().x, 0});
                 if (ImGui::Begin("##popup", &isAutocompleteOpen, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_Tooltip)) {
                     isFocused |= ImGui::IsWindowFocused();
+                    int foundCommandCount    = 0;
+                    std::string foundCommand = "";
                     for (auto &command : allCommands) {
                         if (command._Starts_with(commandPreview) == NULL)
                             continue;
 
+                        foundCommand = command;
+                        foundCommandCount++;
                         auto help                      = _commands[command].options->help();
                         const auto formattedSelectable = fmt::format("{} {}", command.c_str(), help);
+                        //TODO ImGui::Selectable(formattedSelectable.c_str(), true)
                         if (ImGui::Selectable(formattedSelectable.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressed(ImGuiKey_Enter))) {
                             strcpy(consoleText, command.c_str());
                             isAutocompleteOpen = false;
                         }
+                    }
+
+                    if (foundCommandCount == 1 && GetAsyncKeyState(VK_TAB) & 0x1) {
+                        ImGui::SetKeyboardFocusHere(-1);
+                        strcpy(consoleText, foundCommand.c_str());
+                        _focusInput = true;
                     }
                 }
                 ImGui::End();
@@ -239,7 +254,7 @@ namespace MafiaMP::Core::UI {
             ImGui::SameLine();
             if (ImGui::Button("Send")) {
                 ProcessCommand(consoleText);
-                consoleText[0] = '\0';
+                consoleText[0]  = '\0';
                 _focusOnConsole = true;
             }
 
