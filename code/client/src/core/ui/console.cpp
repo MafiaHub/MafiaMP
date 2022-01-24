@@ -77,6 +77,7 @@ namespace MafiaMP::Core::UI {
 
     bool Console::Close() {
         _isOpen = false;
+        _consoleControl = false;
 
         // Lock game controls
         Game::Helpers::Controls::Lock(false);
@@ -101,6 +102,21 @@ namespace MafiaMP::Core::UI {
 
         if (GetAsyncKeyState(VK_F5) & 0x1) {
             Disconnect();
+        }
+
+        if (GetAsyncKeyState(VK_MENU) & 0x1) {
+            if (_consoleControl == false) {
+                // take back controlls
+                Game::Helpers::Controls::Lock(true);
+                gApplication->GetImGUI()->ShowCursor(true);
+                _consoleControl = true;
+            }
+            else {
+                _consoleControl = false;
+                // controlls back to game
+                Game::Helpers::Controls::Lock(false);
+                gApplication->GetImGUI()->ShowCursor(false);
+            }
         }
 
         gApplication->GetImGUI()->PushWidget([this]() {
@@ -128,11 +144,11 @@ namespace MafiaMP::Core::UI {
                     if (ImGui::MenuItem("Break me!")) {
                         BreakMe();
                     }
-                    if (ImGui::MenuItem("Close")) {
-                        CloseGame();
-                    }
                     if (ImGui::MenuItem("Close", "F8")) {
                         Close();
+                    }
+                    if (ImGui::MenuItem("Exit Game")) {
+                        CloseGame();
                     }
                     ImGui::EndMenu();
                 }
@@ -258,6 +274,9 @@ namespace MafiaMP::Core::UI {
                 _focusOnConsole = true;
             }
 
+            ImGui::Separator();
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "Press ALT to return controlls to game or console");
+
             ImGui::End();
         });
 
@@ -335,6 +354,7 @@ namespace MafiaMP::Core::UI {
 
         _isOpen = true;
         _focusOnConsole = true;
+        _consoleControl = true;
 
         return true;
     }

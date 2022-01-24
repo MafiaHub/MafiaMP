@@ -30,6 +30,7 @@ namespace MafiaMP::Core::UI {
         bool _isOpen              = false;
         bool _focusOnConsole      = false;
         bool _focusInput          = false;
+        bool _consoleControl      = false;
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
         std::unordered_map<std::string, CommandInfo> _commands;
         std::shared_ptr<Framework::Utils::States::Machine> _machine;
