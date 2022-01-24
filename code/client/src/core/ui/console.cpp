@@ -312,13 +312,13 @@ namespace MafiaMP::Core::UI {
                 else {
                     _commands[command].proc(result);
                 }
-
-                for (auto arg : vArgs) { 
-                    delete arg;
-                }
             }
             catch (const std::exception &e) {
                 _logger->error(e.what());
+            }
+
+            for (auto arg : vArgs) { 
+                delete arg;
             }
 
         } else {
