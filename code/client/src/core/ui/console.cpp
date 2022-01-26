@@ -2,6 +2,7 @@
 #include "../application.h"
 #include <utils/safe_win32.h>
 #include <logging/logger.h>
+#include <cxxopts/cxxopts.hpp>
 #include <regex>
 #include <sstream>
 #include <imgui/imgui.h>
@@ -19,9 +20,9 @@
 #include "../application.h"
 
 namespace MafiaMP::Core::UI {
-    Console::Console(std::shared_ptr<Framework::Utils::States::Machine> machine): _machine(machine), _logger(Framework::Logging::GetLogger("Console").get())
+    Console::Console(std::shared_ptr<Framework::Utils::States::Machine> machine, std::shared_ptr<Framework::Utils::CommandProcessor> commandProcessor): _machine(machine), _commandProcessor(commandProcessor), _logger(Framework::Logging::GetLogger("Console").get())
     {
-        RegisterCommand(
+        _commandProcessor->RegisterCommand(
             "test", {
                 {"a,aargument", "Test argument 1", cxxopts::value<std::string>()},
                 {"b,bargument", "Test argument 2", cxxopts::value<int>()}
@@ -37,12 +38,12 @@ namespace MafiaMP::Core::UI {
                 }
             },
             "Testing command");
-        RegisterCommand(
+        _commandProcessor->RegisterCommand(
             "crash", {},
             [this](cxxopts::ParseResult &) {
             CrashMe();
         }, "crashes the game");
-        RegisterCommand(
+        _commandProcessor->RegisterCommand(
             "echo", {}, 
             [this](cxxopts::ParseResult result) {
             std::string argsConcat;
@@ -52,16 +53,16 @@ namespace MafiaMP::Core::UI {
             }
             _logger->info(argsConcat);
         }, "[args] - prints the arguments back");
-        RegisterCommand(
+        _commandProcessor->RegisterCommand(
             "help", {},
             [this](cxxopts::ParseResult &) {
             std::stringstream ss;
-            for (const auto &command : _commands) {
-                ss << fmt::format("{} {:>8}\n", command.first, command.second.options->help());
+            for (const auto &name : _commandProcessor->GetCommandNames()) {
+                ss << fmt::format("{} {:>8}\n", name, _commandProcessor->GetCommandInfo(name)->options->help());
             }
             _logger->info("Available commands:\n{}", ss.str());
         }, "prints all available commands");
-        RegisterCommand(
+        _commandProcessor->RegisterCommand(
             "exit", {},
             [this](cxxopts::ParseResult &) {
             CloseGame();
@@ -202,7 +203,7 @@ namespace MafiaMP::Core::UI {
 
             static char consoleText[512] = "";
             if (ImGui::InputText("##console_text", consoleText, 512, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CtrlEnterForNewLine)) {
-                ProcessCommand(consoleText);
+                SendCommand(consoleText);
                 consoleText[0] = '\0';
                 ImGui::SetKeyboardFocusHere(-1);
             }
@@ -226,9 +227,11 @@ namespace MafiaMP::Core::UI {
             std::stringstream ss(consoleText);
             std::getline(ss, commandPreview, ' ');
 
-            for (const auto &command : _commands) {
-                if (command.first._Starts_with(commandPreview)) {
-                    allCommands.push_back(command.first);
+            auto commands = _commandProcessor->GetCommandNames();
+
+            for (const auto &command : commands) {
+                if (command._Starts_with(commandPreview)) {
+                    allCommands.push_back(command);
                 }
             }
 
@@ -248,8 +251,8 @@ namespace MafiaMP::Core::UI {
 
                         foundCommand = command;
                         foundCommandCount++;
-                        auto help                      = _commands[command].options->help();
-                        const auto formattedSelectable = fmt::format("{} {}", command.c_str(), help);
+                        auto help                      = _commandProcessor->GetCommandInfo(command)->options->help();
+                        const auto formattedSelectable = fmt::format("{} {}", command, help);
                         //TODO ImGui::Selectable(formattedSelectable.c_str(), true)
                         if (ImGui::Selectable(formattedSelectable.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressed(ImGuiKey_Enter))) {
                             strcpy(consoleText, command.c_str());
@@ -269,13 +272,14 @@ namespace MafiaMP::Core::UI {
 
             ImGui::SameLine();
             if (ImGui::Button("Send")) {
-                ProcessCommand(consoleText);
+                SendCommand(consoleText);
+
                 consoleText[0]  = '\0';
                 _focusOnConsole = true;
             }
 
             ImGui::Separator();
-            ImGui::TextColored(ImVec4(1, 0, 0, 1), "Press ALT to return controlls to game or console");
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "Press ALT to return controls to game or console");
 
             ImGui::End();
         });
@@ -283,65 +287,30 @@ namespace MafiaMP::Core::UI {
         return true;
     }
 
-    /* todo move to utils */
-    std::string ltrim(const std::string &s) {
-        return std::regex_replace(s, std::regex("^\\s+"), std::string(""));
-    }
+    void Console::SendCommand(const std::string &command) {
+        const auto result = _commandProcessor->ProcessCommand(command);
 
-    std::string rtrim(const std::string &s) {
-        return std::regex_replace(s, std::regex("\\s+$"), std::string(""));
-    }
+        switch (result.GetError()) {
+            case Framework::Utils::CommandProcessorError::ERROR_NONE_PRINT_HELP: {
+                _logger->info("{}", result.GetMsg());
+            } break;
+            case Framework::Utils::CommandProcessorError::ERROR_EMPTY_INPUT: {
+                _logger->warn("Input was empty");
+            } break;
+            case Framework::Utils::CommandProcessorError::ERROR_CMD_ALREADY_EXISTS: {
+                _logger->warn("Command already exists: {}", result.GetMsg());
+            } break;
+            case Framework::Utils::CommandProcessorError::ERROR_CMD_UNSPECIFIED_NAME: {
+                _logger->warn("Command name was unspecified");
+            } break;
+            case Framework::Utils::CommandProcessorError::ERROR_CMD_UNKNOWN: {
+                _logger->warn("Command not found: {}", result.GetMsg());
+            } break;
+            case Framework::Utils::CommandProcessorError::ERROR_INTERNAL: {
+                _logger->warn("Internal error: {}", result.GetMsg());
+            } break;
 
-    std::string trim(const std::string &s) {
-        return ltrim(rtrim(s));
-    }
-
-    void Console::ProcessCommand(const std::string &input) {
-        std::string command = "";
-        std::vector<std::string> args;
-        std::stringstream parts(input);
-        std::string item;
-        while (std::getline(parts, item, ' ')) {
-            args.push_back(item);
-        }
-
-        if (args.size() == 0) {
-            return;
-        }
-
-        command = args[0];
-
-        if (_commands.find(command) != _commands.end()) {
-            std::vector<char *> vArgs;
-            for (auto arg : args) {
-                //TODO don't like this whole copy mem thing C++ sucks
-                const std::string::size_type size = arg.size();
-                char *buffer                      = new char[size + 1];
-                memcpy(buffer, arg.c_str(), size + 1);
-                vArgs.push_back(buffer);
-            }
-
-            try {
-                cxxopts::ParseResult result = _commands[command].options->parse(vArgs.size(), vArgs.data());
-
-                if (result.count("help")) {
-                    // auto help
-                    _logger->info(_commands[command].options->help());
-                }
-                else {
-                    _commands[command].proc(result);
-                }
-            }
-            catch (const std::exception &e) {
-                _logger->error(e.what());
-            }
-
-            for (auto arg : vArgs) { 
-                delete arg;
-            }
-
-        } else {
-            _logger->warn("Unknown command: {}", input);
+            default: break;
         }
     }
 
@@ -467,28 +436,6 @@ namespace MafiaMP::Core::UI {
                     ImGui::Text("%s", suffix.str().c_str());
             }
             logCount++;
-        }
-    }
-
-    void Console::RegisterCommand(const std::string &name, std::initializer_list<cxxopts::Option> options, const CommandProc &proc, const std::string &desc) {
-        if (name.empty() || _commands.find(name) != _commands.end()) {
-            _logger->warn("Command %s already exists", name);
-            return;
-        }
-
-        try {
-            auto cmd = std::make_unique<cxxopts::Options>(name, desc);
-
-            if (options.size() > 0)
-                cmd->add_options("", options);
-
-            // default help
-            cmd->add_option("", {"h,help", "Print usage"});
-
-            _commands[name] = {std::move(cmd), proc};
-        }
-        catch (const std::exception &e) {
-            _logger->error(e.what());
         }
     }
 } // namespace MafiaMP::Core::Modules

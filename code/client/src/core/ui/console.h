@@ -8,6 +8,7 @@
 #include <integrations/client/instance.h>
 #include <utils/states/machine.h>
 #include <utils/states/state.h>
+#include <utils/command_processor.h>
 
 #include <memory>
 #include <vector>
@@ -18,13 +19,7 @@
 
 namespace MafiaMP::Core::UI {
     class Console final {
-      public:
-        using CommandProc = std::function<void(cxxopts::ParseResult &)>;
       private:
-        struct CommandInfo {
-            std::unique_ptr<cxxopts::Options> options;
-            CommandProc proc;
-        };
         bool _shouldDisplayWidget = true;
         bool _autoScroll          = true;
         bool _isOpen              = false;
@@ -32,8 +27,8 @@ namespace MafiaMP::Core::UI {
         bool _focusInput          = false;
         bool _consoleControl      = false;
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
-        std::unordered_map<std::string, CommandInfo> _commands;
         std::shared_ptr<Framework::Utils::States::Machine> _machine;
+        std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
         spdlog::logger *_logger;
         void Disconnect();
         void DespawnAll();
@@ -42,17 +37,15 @@ namespace MafiaMP::Core::UI {
         void BreakMe();
         void CloseGame();
         void FormatLog(std::string log);
-        void ProcessCommand(const std::string &);
+        void SendCommand(const std::string &command);
 
       public:
-        Console(std::shared_ptr<Framework::Utils::States::Machine> machine);
+        Console(std::shared_ptr<Framework::Utils::States::Machine> machine, std::shared_ptr<Framework::Utils::CommandProcessor> commandProcessor);
         ~Console() = default;
 
         void Toggle();
         bool Update();
         bool Open();
         bool Close();
-
-        void RegisterCommand(const std::string &name, std::initializer_list<cxxopts::Option> options, const CommandProc &proc, const std::string &desc = "");
     };
 } // namespace MafiaMP::Core::UI
