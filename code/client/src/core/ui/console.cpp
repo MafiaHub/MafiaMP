@@ -6,6 +6,7 @@
 #include <regex>
 #include <sstream>
 #include <imgui/imgui.h>
+#include <external/optick/wrapper.h>
 #include <fmt/core.h>
 #include <numeric>
 
@@ -89,6 +90,8 @@ namespace MafiaMP::Core::UI {
     }
 
     bool Console::Update() {
+        OPTICK_EVENT();
+
         if (!_isOpen) {
             return _isOpen;
         }
