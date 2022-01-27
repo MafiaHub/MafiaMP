@@ -336,8 +336,8 @@ namespace MafiaMP::Core {
         ExitProcess(0);
     }
 
-    void Application::SpawnCar() {
-        auto info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");
+    void Application::SpawnCar(const std::string modelName) {
+        auto info = Core::gApplication->GetEntityFactory()->RequestVehicle(modelName);
         _TEMP_vehicles.push_back(info);
 
         const auto OnCarRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
@@ -421,6 +421,20 @@ namespace MafiaMP::Core {
                 CloseGame();
             },
             "quits the game");
+        _commandProcessor->RegisterCommand(
+            "car", {},
+            [this](cxxopts::ParseResult result) {
+                cxxopts::PositionalList args = result.unmatched();
+
+                if (!args.empty()) {
+                    const std::string modelName = args[0];
+                    SpawnCar(modelName);
+                }
+                else {
+                    SpawnCar();
+                }
+            },
+            "[modelName] - the model name of the car.");
     }
 
     void Application::SetupMenuBar() {
