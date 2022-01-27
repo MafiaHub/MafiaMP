@@ -14,14 +14,24 @@
 namespace MafiaMP::Core {
     class Application: public Framework::Integrations::Client::Instance {
       private:
+        friend class Console;
         std::shared_ptr<Framework::Utils::States::Machine> _stateMachine;
         std::shared_ptr<UI::Console> _console;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
+        std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
         flecs::entity _localPlayer;
         float _tickInterval = 0.01667f;
 
         void PimpMyImGUI();
+        void SetupCommands();
+        void SetupMenuBar();
+        void Disconnect();
+        void DespawnAll();
+        void SpawnCar();
+        void CrashMe();
+        void BreakMe();
+        void CloseGame();
 
       public:
         virtual bool PostInit() override;

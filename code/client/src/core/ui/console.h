@@ -19,6 +19,8 @@
 
 namespace MafiaMP::Core::UI {
     class Console final {
+      public:
+        using MenuBarProc = std::function<void()>;
       private:
         bool _shouldDisplayWidget = true;
         bool _autoScroll          = true;
@@ -27,25 +29,27 @@ namespace MafiaMP::Core::UI {
         bool _focusInput          = false;
         bool _consoleControl      = false;
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
-        std::shared_ptr<Framework::Utils::States::Machine> _machine;
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
+        std::vector<MenuBarProc> _menuBarDrawers;
         spdlog::logger *_logger;
-        void Disconnect();
-        void DespawnAll();
-        void SpawnCar();
-        void CrashMe();
-        void BreakMe();
-        void CloseGame();
         void FormatLog(std::string log);
         void SendCommand(const std::string &command);
 
       public:
-        Console(std::shared_ptr<Framework::Utils::States::Machine> machine, std::shared_ptr<Framework::Utils::CommandProcessor> commandProcessor);
+        Console(std::shared_ptr<Framework::Utils::CommandProcessor> commandProcessor);
         ~Console() = default;
 
         void Toggle();
         bool Update();
         bool Open();
         bool Close();
+
+        void RegisterMenuBarDrawer(MenuBarProc proc) {
+            _menuBarDrawers.push_back(proc);
+        }
+
+        bool IsOpen() const {
+            return _isOpen;
+        }
     };
 } // namespace MafiaMP::Core::UI

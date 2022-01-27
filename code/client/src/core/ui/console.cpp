@@ -21,54 +21,8 @@
 #include "../application.h"
 
 namespace MafiaMP::Core::UI {
-    Console::Console(std::shared_ptr<Framework::Utils::States::Machine> machine, std::shared_ptr<Framework::Utils::CommandProcessor> commandProcessor): _machine(machine), _commandProcessor(commandProcessor), _logger(Framework::Logging::GetLogger("Console").get())
-    {
-        _commandProcessor->RegisterCommand(
-            "test", {
-                {"a,aargument", "Test argument 1", cxxopts::value<std::string>()},
-                {"b,bargument", "Test argument 2", cxxopts::value<int>()}
-            },
-            [this](cxxopts::ParseResult result) {
-                if (result.count("aargument")) {
-                    std::string argument1 = result["aargument"].as<std::string>();
-                    _logger->info("aargument - {}", argument1);
-                }
-                if (result.count("bargument")) {
-                    int argument2 = result["bargument"].as<int>();
-                    _logger->info("bargument - {}", argument2);
-                }
-            },
-            "Testing command");
-        _commandProcessor->RegisterCommand(
-            "crash", {},
-            [this](cxxopts::ParseResult &) {
-            CrashMe();
-        }, "crashes the game");
-        _commandProcessor->RegisterCommand(
-            "echo", {}, 
-            [this](cxxopts::ParseResult result) {
-            std::string argsConcat;
-            cxxopts::PositionalList args = result.unmatched();
-            for (auto &arg : args) {
-                argsConcat += arg + " ";
-            }
-            _logger->info(argsConcat);
-        }, "[args] - prints the arguments back");
-        _commandProcessor->RegisterCommand(
-            "help", {},
-            [this](cxxopts::ParseResult &) {
-            std::stringstream ss;
-            for (const auto &name : _commandProcessor->GetCommandNames()) {
-                ss << fmt::format("{} {:>8}\n", name, _commandProcessor->GetCommandInfo(name)->options->help());
-            }
-            _logger->info("Available commands:\n{}", ss.str());
-        }, "prints all available commands");
-        _commandProcessor->RegisterCommand(
-            "exit", {},
-            [this](cxxopts::ParseResult &) {
-            CloseGame();
-        }, "quits the game");
-    }
+    Console::Console(std::shared_ptr<Framework::Utils::CommandProcessor> commandProcessor): _commandProcessor(commandProcessor), _logger(Framework::Logging::GetLogger("Console").get())
+    {}
 
     void Console::Toggle() {
         if (_isOpen)
@@ -96,18 +50,6 @@ namespace MafiaMP::Core::UI {
             return _isOpen;
         }
 
-        if (GetAsyncKeyState(VK_F1) & 0x1) {
-            SpawnCar();
-        }
-
-        if (GetAsyncKeyState(VK_F3) & 0x1) {
-            DespawnAll();
-        }
-
-        if (GetAsyncKeyState(VK_F5) & 0x1) {
-            Disconnect();
-        }
-
         if (GetAsyncKeyState(VK_MENU) & 0x1) {
             if (_consoleControl == false) {
                 // take back controlls
@@ -133,29 +75,12 @@ namespace MafiaMP::Core::UI {
 
             if (ImGui::BeginMenuBar()) {
                 if (ImGui::BeginMenu("Tools")) {
-                    if (ImGui::MenuItem("Spawn car", "F1")) {
-                        SpawnCar();
-                    }
-                    if (ImGui::MenuItem("Despawn all", "F3")) {
-                        DespawnAll();
-                    }
-                    if (ImGui::MenuItem("Disconnect", "F5")) {
-                        Disconnect();
-                    }
-                    if (ImGui::MenuItem("Crash me!")) {
-                        CrashMe();
-                    }
-                    if (ImGui::MenuItem("Break me!")) {
-                        BreakMe();
-                    }
                     if (ImGui::MenuItem("Close", "F8")) {
                         Close();
                     }
-                    if (ImGui::MenuItem("Exit Game")) {
-                        CloseGame();
-                    }
                     ImGui::EndMenu();
                 }
+
                 if (ImGui::BeginMenu("Log Level")) {
                     if (ImGui::MenuItem("Trace")) {
                         ringBuffer->set_level(spdlog::level::trace);
@@ -183,6 +108,11 @@ namespace MafiaMP::Core::UI {
                     }
                     ImGui::EndMenu();
                 }
+
+                for (auto &menuBarDrawer: _menuBarDrawers) {
+                    menuBarDrawer();
+                }
+
                 ImGui::EndMenuBar();
             }
 
@@ -329,73 +259,6 @@ namespace MafiaMP::Core::UI {
         _consoleControl = true;
 
         return true;
-    }
-
-    void Console::Disconnect() {
-        Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect();
-    }
-
-    void Console::DespawnAll() {
-        for (const auto &vehicle : _TEMP_vehicles) {
-            Core::gApplication->GetEntityFactory()->ReturnEntity(vehicle);
-        }
-        _TEMP_vehicles.clear();
-    }
-
-    void Console::CrashMe() {
-        *(int*)5 = 5;
-    }
-
-    void Console::BreakMe() {
-        __debugbreak();
-    }
-
-    void Console::CloseGame() {
-        // very lazy game shutdown
-        // don't try at home
-        ExitProcess(0);
-    }
-
-    void Console::SpawnCar() {
-        auto info = Core::gApplication->GetEntityFactory()->RequestVehicle("berkley_810");
-        _TEMP_vehicles.push_back(info);
-
-        const auto OnCarRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
-            if (success) {
-                auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
-                if (!car) {
-                    return;
-                }
-                car->GameInit();
-                car->Activate();
-                car->Unlock();
-
-                auto localPlayer = SDK::GetGame()->GetActivePlayer();
-
-                SDK::ue::sys::math::C_Vector newPos    = localPlayer->GetPos();
-                SDK::ue::sys::math::C_Quat newRot      = localPlayer->GetRot();
-                SDK::ue::sys::math::C_Matrix transform = {};
-                transform.Identity();
-                transform.SetRot(newRot);
-                transform.SetPos(newPos);
-                car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
-            }
-        };
-
-        const auto OnCarReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
-            if (!info) {
-                return;
-            }
-            auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
-            if (wasCreated && car) {
-                car->Deactivate();
-                car->GameDone();
-                car->Release();
-            }
-        };
-
-        info->SetRequestFinishCallback(OnCarRequestFinish);
-        info->SetReturnCallback(OnCarReturned);
     }
 
     void Console::FormatLog(std::string log) {
