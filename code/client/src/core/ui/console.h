@@ -21,9 +21,6 @@ namespace MafiaMP::Core::UI {
         MafiaConsole(std::shared_ptr<Framework::Utils::CommandProcessor> commandProcessor);
         ~MafiaConsole() = default;
 
-        bool Open();
-        bool Close();
-
         virtual void LockControls(bool lock) override;
     };
 } // namespace MafiaMP::Core::UI
