@@ -1,10 +1,10 @@
 #pragma once
 
-#include <utils/safe_win32.h>
 #include <memory>
+#include <utils/safe_win32.h>
 
-#include "ui/console.h"
 #include "../game/streaming/entity_factory.h"
+#include "ui/console.h"
 
 #include <integrations/client/instance.h>
 
@@ -29,7 +29,7 @@ namespace MafiaMP::Core {
         void SetupMenuBar();
         void Disconnect();
         void DespawnAll();
-        void SpawnCar();
+        void SpawnCar(const std::string modelName = "berkley_810");
         void CrashMe();
         void BreakMe();
         void CloseGame();
