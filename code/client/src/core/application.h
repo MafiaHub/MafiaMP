@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "ui/console.h"
+#include "../game/streaming/entity_factory.h"
 
 #include <integrations/client/instance.h>
 
@@ -16,7 +17,7 @@ namespace MafiaMP::Core {
       private:
         friend class Console;
         std::shared_ptr<Framework::Utils::States::Machine> _stateMachine;
-        std::shared_ptr<UI::Console> _console;
+        std::shared_ptr<UI::MafiaConsole> _console;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
@@ -56,7 +57,7 @@ namespace MafiaMP::Core {
             return _commandProcessor;
         }
 
-        std::shared_ptr<UI::Console> GetDevConsole() const {
+        std::shared_ptr<UI::MafiaConsole> GetDevConsole() const {
             return _console;
         }
     };

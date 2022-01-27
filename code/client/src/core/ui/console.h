@@ -2,54 +2,28 @@
 
 #include <utils/safe_win32.h>
 
-#include "../../game/streaming/entity_factory.h"
-#include "../../game/streaming/entity_tracking_info.h"
-
+#include <external/imgui/widgets/console.h>
 #include <integrations/client/instance.h>
+#include <utils/command_processor.h>
 #include <utils/states/machine.h>
 #include <utils/states/state.h>
-#include <utils/command_processor.h>
 
-#include <memory>
-#include <vector>
-#include <unordered_map>
-#include <functional>
 #include <cxxopts.hpp>
+#include <functional>
+#include <memory>
 #include <spdlog/spdlog.h>
+#include <unordered_map>
+#include <vector>
 
 namespace MafiaMP::Core::UI {
-    class Console final {
+    class MafiaConsole: public Framework::External::ImGUI::Widgets::Console {
       public:
-        using MenuBarProc = std::function<void()>;
-      private:
-        bool _shouldDisplayWidget = true;
-        bool _autoScroll          = true;
-        bool _isOpen              = false;
-        bool _focusOnConsole      = false;
-        bool _focusInput          = false;
-        bool _consoleControl      = false;
-        std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
-        std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
-        std::vector<MenuBarProc> _menuBarDrawers;
-        spdlog::logger *_logger;
-        void FormatLog(std::string log);
-        void SendCommand(const std::string &command);
+        MafiaConsole(std::shared_ptr<Framework::Utils::CommandProcessor> commandProcessor);
+        ~MafiaConsole() = default;
 
-      public:
-        Console(std::shared_ptr<Framework::Utils::CommandProcessor> commandProcessor);
-        ~Console() = default;
-
-        void Toggle();
-        bool Update();
         bool Open();
         bool Close();
 
-        void RegisterMenuBarDrawer(MenuBarProc proc) {
-            _menuBarDrawers.push_back(proc);
-        }
-
-        bool IsOpen() const {
-            return _isOpen;
-        }
+        virtual void LockControls(bool lock) override;
     };
 } // namespace MafiaMP::Core::UI

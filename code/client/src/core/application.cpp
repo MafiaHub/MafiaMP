@@ -16,9 +16,17 @@
 #include "../shared/messages/human/human_update.h"
 #include "../shared/messages/human/human_self_update.h"
 
+#include "../game/streaming/entity_factory.h"
+#include "../game/helpers/camera.h"
+#include "../game/helpers/controls.h"
+#include "../sdk/entities/c_car.h"
+#include "../sdk/entities/c_player_2.h"
+#include "../sdk/entities/c_vehicle.h"
+#include "../sdk/mafia/framework/c_mafia_framework.h"
+#include "../sdk/mafia/framework/c_mafia_framework_interfaces.h"
+
 #include "../shared/modules/human_sync.hpp"
 
-#include "../game/helpers/controls.h"
 #include "external/imgui/widgets/corner_text.h"
 
 #include <utils/version.h>
@@ -50,7 +58,7 @@ namespace MafiaMP::Core {
         _stateMachine->RequestNextState(States::StateIds::Initialize);
 
         _commandProcessor = std::make_shared<Framework::Utils::CommandProcessor>();
-        _console = std::make_shared<UI::Console>(_commandProcessor);
+        _console = std::make_shared<UI::MafiaConsole>(_commandProcessor);
 
         // setup debug routines
         SetupCommands();
@@ -98,19 +106,19 @@ namespace MafiaMP::Core {
         if (discordApi && discordApi->IsInitialized()) {
             discordApi->SetPresence("Freeroam", "Screwing around", discord::ActivityType::Playing);
         }
-#if 1
-        if (GetAsyncKeyState(VK_F8) & 0x1) {
-            _console->Toggle();
-        }
 
-        _console->Update();
-#endif
 #if 1
         Core::gApplication->GetImGUI()->PushWidget([&]() {
             using namespace Framework::External::ImGUI::Widgets;
             const auto networkClient = Core::gApplication->GetNetworkingEngine()->GetNetworkClient();
             const auto connState = networkClient->GetConnectionState();
             const auto ping      = networkClient->GetPing();
+
+            _console->Update();
+
+            if (GetAsyncKeyState(VK_F8) & 0x1) {
+                _console->Toggle();
+            }
 
             constexpr char *connStateNames[3] = {
                 "Connecting",
