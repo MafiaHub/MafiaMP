@@ -4,21 +4,21 @@
 
 #include "states/initialize.h"
 #include "states/menu.h"
-#include "states/session_connection.h"
 #include "states/session_connected.h"
+#include "states/session_connection.h"
 #include "states/session_disconnection.h"
 #include "states/session_offline_debug.h"
 #include "states/shutdown.h"
 #include "states/states.h"
 
-#include "../shared/messages/human/human_spawn.h"
 #include "../shared/messages/human/human_despawn.h"
-#include "../shared/messages/human/human_update.h"
 #include "../shared/messages/human/human_self_update.h"
+#include "../shared/messages/human/human_spawn.h"
+#include "../shared/messages/human/human_update.h"
 
-#include "../game/streaming/entity_factory.h"
 #include "../game/helpers/camera.h"
 #include "../game/helpers/controls.h"
+#include "../game/streaming/entity_factory.h"
 #include "../sdk/entities/c_car.h"
 #include "../sdk/entities/c_player_2.h"
 #include "../sdk/entities/c_vehicle.h"
@@ -29,8 +29,8 @@
 
 #include "external/imgui/widgets/corner_text.h"
 
-#include <utils/version.h>
 #include "../shared/version.h"
+#include <utils/version.h>
 
 #include "modules/human.hpp"
 
@@ -58,7 +58,7 @@ namespace MafiaMP::Core {
         _stateMachine->RequestNextState(States::StateIds::Initialize);
 
         _commandProcessor = std::make_shared<Framework::Utils::CommandProcessor>();
-        _console = std::make_shared<UI::MafiaConsole>(_commandProcessor);
+        _console          = std::make_shared<UI::MafiaConsole>(_commandProcessor);
 
         // setup debug routines
         SetupCommands();
@@ -111,8 +111,8 @@ namespace MafiaMP::Core {
         Core::gApplication->GetImGUI()->PushWidget([&]() {
             using namespace Framework::External::ImGUI::Widgets;
             const auto networkClient = Core::gApplication->GetNetworkingEngine()->GetNetworkClient();
-            const auto connState = networkClient->GetConnectionState();
-            const auto ping      = networkClient->GetPing();
+            const auto connState     = networkClient->GetConnectionState();
+            const auto ping          = networkClient->GetPing();
 
             _console->Update();
 
@@ -120,11 +120,7 @@ namespace MafiaMP::Core {
                 _console->Toggle();
             }
 
-            constexpr char *connStateNames[3] = {
-                "Connecting",
-                "Online",
-                "Offline"
-            };
+            constexpr char *connStateNames[3] = {"Connecting", "Online", "Offline"};
 
             // versioning
             DrawCornerText(CORNER_RIGHT_BOTTOM, "Mafia: Multiplayer");
@@ -167,7 +163,7 @@ namespace MafiaMP::Core {
             _localPlayer.add<Shared::Modules::HumanSync::UpdateData>();
             _localPlayer.add<Core::Modules::Human::LocalPlayer>();
 
-            const auto es                  = _localPlayer.get_mut<Framework::World::Modules::Base::Streamable>();
+            const auto es            = _localPlayer.get_mut<Framework::World::Modules::Base::Streamable>();
             es->modEvents.updateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
                 const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
 
@@ -230,7 +226,7 @@ namespace MafiaMP::Core {
                 return;
             }
 
-            auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+            auto updateData                   = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
             updateData->_charStateHandlerType = msg->GetCharStateHandlerType();
             updateData->_healthPercent        = msg->GetHealthPercent();
             updateData->_isSprinting          = msg->IsSprinting();
@@ -322,14 +318,12 @@ namespace MafiaMP::Core {
     }
 
     void Application::DespawnAll() {
-        for (const auto &vehicle : _TEMP_vehicles) {
-            GetEntityFactory()->ReturnEntity(vehicle);
-        }
+        for (const auto &vehicle : _TEMP_vehicles) { GetEntityFactory()->ReturnEntity(vehicle); }
         _TEMP_vehicles.clear();
     }
 
     void Application::CrashMe() {
-        *(int*)5 = 5;
+        *(int *)5 = 5;
     }
 
     void Application::BreakMe() {
@@ -386,10 +380,7 @@ namespace MafiaMP::Core {
 
     void Application::SetupCommands() {
         _commandProcessor->RegisterCommand(
-            "test", {
-                {"a,aargument", "Test argument 1", cxxopts::value<std::string>()},
-                {"b,bargument", "Test argument 2", cxxopts::value<int>()}
-            },
+            "test", {{"a,aargument", "Test argument 1", cxxopts::value<std::string>()}, {"b,bargument", "Test argument 2", cxxopts::value<int>()}},
             [this](cxxopts::ParseResult result) {
                 if (result.count("aargument")) {
                     std::string argument1 = result["aargument"].as<std::string>();
@@ -404,32 +395,32 @@ namespace MafiaMP::Core {
         _commandProcessor->RegisterCommand(
             "crash", {},
             [this](cxxopts::ParseResult &) {
-            CrashMe();
-        }, "crashes the game");
+                CrashMe();
+            },
+            "crashes the game");
         _commandProcessor->RegisterCommand(
             "echo", {},
             [this](cxxopts::ParseResult result) {
-            std::string argsConcat;
-            cxxopts::PositionalList args = result.unmatched();
-            for (auto &arg : args) {
-                argsConcat += arg + " ";
-            }
-            Framework::Logging::GetLogger("Debug")->info(argsConcat);
-        }, "[args] - prints the arguments back");
+                std::string argsConcat;
+                cxxopts::PositionalList args = result.unmatched();
+                for (auto &arg : args) { argsConcat += arg + " "; }
+                Framework::Logging::GetLogger("Debug")->info(argsConcat);
+            },
+            "[args] - prints the arguments back");
         _commandProcessor->RegisterCommand(
             "help", {},
             [this](cxxopts::ParseResult &) {
-            std::stringstream ss;
-            for (const auto &name : _commandProcessor->GetCommandNames()) {
-                ss << fmt::format("{} {:>8}\n", name, _commandProcessor->GetCommandInfo(name)->options->help());
-            }
-            Framework::Logging::GetLogger("Debug")->info("Available commands:\n{}", ss.str());
-        }, "prints all available commands");
+                std::stringstream ss;
+                for (const auto &name : _commandProcessor->GetCommandNames()) { ss << fmt::format("{} {:>8}\n", name, _commandProcessor->GetCommandInfo(name)->options->help()); }
+                Framework::Logging::GetLogger("Debug")->info("Available commands:\n{}", ss.str());
+            },
+            "prints all available commands");
         _commandProcessor->RegisterCommand(
             "exit", {},
             [this](cxxopts::ParseResult &) {
-            CloseGame();
-        }, "quits the game");
+                CloseGame();
+            },
+            "quits the game");
     }
 
     void Application::SetupMenuBar() {
