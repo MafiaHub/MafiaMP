@@ -7,7 +7,7 @@ int main(int argc, char **argv) {
     opts.bindName      = "Mafia MP Local Dev Server";
     opts.maxPlayers    = 10;
     opts.modName       = "MafiaMP";
-    opts.modSlug       = "mafia_mp";
+    opts.modSlug       = "mafiamp_server";
     opts.modVersion    = "0.1.0";
     opts.bindPassword  = "";
     opts.enableSignals = true;
