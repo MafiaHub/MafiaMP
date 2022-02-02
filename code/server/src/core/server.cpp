@@ -90,8 +90,6 @@ namespace MafiaMP {
             trackingMetadata->_isStalking           = msg->IsStalking();
             trackingMetadata->_moveMode             = msg->GetMoveMode();
             trackingMetadata->_sprintSpeed          = msg->GetSprintSpeed();
-
-            Framework::Logging::GetLogger("Debug")->debug("Player {}\tCrouching {}\tSprinting {}", e.id(), msg->IsStalking() ? "Yes" : "No", msg->IsSprinting() ? "Yes" : "No");
         });
     }
 } // namespace MafiaMP
