@@ -446,7 +446,7 @@ namespace MafiaMP::Core {
                 std::string filename = result["file"].as<std::string>();
                 if (!filename.empty()) {
                     // todo use prefix path for lua scripts? (currently hardcoded to "scripts/")
-                    cppfs::FileHandle file = cppfs::fs::open("scripts/" + filename);
+                    cppfs::FileHandle file = cppfs::fs::open(gProjectPath + "/scripts/" + filename);
                     if (!file.exists()) {
                         Framework::Logging::GetLogger(LOG_LUA)->warn("Script does not exist");
                         return;
@@ -491,4 +491,6 @@ namespace MafiaMP::Core {
             }
         });
     }
+
+    std::string gProjectPath;
 } // namespace MafiaMP::Core

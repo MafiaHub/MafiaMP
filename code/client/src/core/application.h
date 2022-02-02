@@ -64,4 +64,5 @@ namespace MafiaMP::Core {
     };
 
     extern std::unique_ptr<Application> gApplication;
+    extern std::string gProjectPath;
 } // namespace MafiaMP::Core

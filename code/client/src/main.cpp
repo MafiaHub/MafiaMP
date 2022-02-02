@@ -1,19 +1,21 @@
+#include "core/application.h"
+
 #include <MinHook.h>
-#include <Windows.h>
 #include <logging/logger.h>
 #include <utils/string_utils.h>
 
-#include <utils/hooking/hooking_patterns.h>
 #include <utils/hooking/hook_function.h>
+#include <utils/hooking/hooking_patterns.h>
 
 #include "sdk/patterns.h"
 
 extern "C" void __declspec(dllexport) InitClient(const wchar_t *projectPath) {
     Framework::Logging::GetInstance()->SetLogName("MafiaMP");
     Framework::Logging::GetInstance()->SetLogFolder(Framework::Utils::StringUtils::WideToNormal(projectPath) + "\\logs");
+    MafiaMP::Core::gProjectPath = Framework::Utils::StringUtils::WideToNormal(projectPath);
 
     MH_Initialize();
-	hook::set_base();
+    hook::set_base();
 
     // Load the patterns
     SDK::Patterns::InitPatterns();
