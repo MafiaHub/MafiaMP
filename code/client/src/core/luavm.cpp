@@ -5,6 +5,8 @@
 #include <logging/logger.h>
 #include <utils/hooking/hooking.h>
 
+#include <lua52/lua.hpp>
+
 #include <sstream>
 
 #define LUA_MULTRET (-1)
@@ -12,8 +14,37 @@
 using namespace SDK;
 
 namespace MafiaMP::Core {
-    typedef void lua_State;
     lua_State *g_luaState = nullptr;
+
+    extern "C" {
+        static int l_mmp_print(lua_State* L) {
+            int nargs = lua_gettop(L);
+
+            for (int i=1; i <= nargs; i++) {
+                if (lua_isstring(L, i)) {
+                    char *s = (char*)lua_tostring(L, i);
+                    Framework::Logging::GetLogger(LOG_LUA)->info("Output: {}", s);
+                }
+                else {
+                    // todo handle non-string args
+                }
+            }
+
+            return 0;
+        }
+
+        static const struct luaL_Reg printlib [] = {
+            {"print", l_mmp_print},
+            {NULL, NULL}
+        };
+
+        int luaopen_luammplib(lua_State *L) {
+            lua_getglobal(L, "_G");
+            luaL_setfuncs(L, printlib, 0);
+            lua_pop(L, 1);
+            return 0;
+        }
+    }
 
     typedef int32_t(__cdecl *luaL_loadbuffer_t)(lua_State *L, const char *buff, size_t size, const char *name);
     luaL_loadbuffer_t pluaL_loadbuffer = nullptr;
@@ -22,6 +53,9 @@ namespace MafiaMP::Core {
         if (g_luaState == nullptr && L != nullptr) {
             Framework::Logging::GetLogger(LOG_LUA)->info("Lua wrapper is initialized.");
             g_luaState = L;
+
+            // todo hook more lua methods
+            //luaopen_luammplib(L);
         }
 
         return pluaL_loadbuffer(L, "", 0, name);
@@ -48,7 +82,7 @@ namespace MafiaMP::Core {
         return plua_isstring(L, idx);
     }
 
-    int luaL_loadstring(lua_State *L, const char *s) {
+    int luaL_loadstring_mmp(lua_State *L, const char *s) {
         return pluaL_loadbuffer(L, s, strlen(s), s);
     }
 
@@ -56,7 +90,7 @@ namespace MafiaMP::Core {
 #undef luaL_dostring
 #endif // luaL_dostring
 
-#define luaL_dostring(L, s) (luaL_loadstring(L, s) || plua_pcall(L, 0, LUA_MULTRET, 0))
+#define luaL_dostring(L, s) (luaL_loadstring_mmp(L, s) || plua_pcall(L, 0, LUA_MULTRET, 0))
 
     bool LuaVM::ExecuteString(const char *string) {
         if (g_luaState == nullptr || pluaL_loadbuffer == nullptr || plua_pcall == nullptr)
