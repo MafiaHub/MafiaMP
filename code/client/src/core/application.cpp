@@ -422,19 +422,12 @@ namespace MafiaMP::Core {
             },
             "quits the game");
         _commandProcessor->RegisterCommand(
-            "car", {},
-            [this](cxxopts::ParseResult result) {
-                cxxopts::PositionalList args = result.unmatched();
-
-                if (!args.empty()) {
-                    const std::string modelName = args[0];
-                    SpawnCar(modelName);
-                }
-                else {
-                    SpawnCar();
-                }
+            "spawnCar", {{"m,model", "model name of the car", cxxopts::value<std::string>()->default_value("berkley_810")}},
+            [this](cxxopts::ParseResult result) {               
+                std::string modelName = result["model"].as<std::string>();
+                SpawnCar(modelName);
             },
-            "[modelName] - the model name of the car.");
+            "spawn a car of a given model");
     }
 
     void Application::SetupMenuBar() {
