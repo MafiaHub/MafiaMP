@@ -16,51 +16,6 @@ using namespace SDK;
 namespace MafiaMP::Core {
     lua_State *g_luaState = nullptr;
 
-    extern "C" {
-        static int l_mmp_print(lua_State* L) {
-            int nargs = lua_gettop(L);
-
-            for (int i=1; i <= nargs; i++) {
-                if (lua_isstring(L, i)) {
-                    char *s = (char*)lua_tostring(L, i);
-                    Framework::Logging::GetLogger(LOG_LUA)->info("Output: {}", s);
-                }
-                else {
-                    // todo handle non-string args
-                }
-            }
-
-            return 0;
-        }
-
-        static const struct luaL_Reg printlib [] = {
-            {"print", l_mmp_print},
-            {NULL, NULL}
-        };
-
-        int luaopen_luammplib(lua_State *L) {
-            lua_getglobal(L, "_G");
-            luaL_setfuncs(L, printlib, 0);
-            lua_pop(L, 1);
-            return 0;
-        }
-    }
-
-    typedef int32_t(__cdecl *luaL_loadbuffer_t)(lua_State *L, const char *buff, size_t size, const char *name);
-    luaL_loadbuffer_t pluaL_loadbuffer = nullptr;
-
-    int32_t luaL_loadbuffer_(lua_State *L, const char *buff, size_t size, const char *name) {
-        if (g_luaState == nullptr && L != nullptr) {
-            Framework::Logging::GetLogger(LOG_LUA)->info("Lua wrapper is initialized.");
-            g_luaState = L;
-
-            // todo hook more lua methods
-            //luaopen_luammplib(L);
-        }
-
-        return pluaL_loadbuffer(L, "", 0, name);
-    }
-
     typedef int32_t(__cdecl *lua_pcall_t)(lua_State *L, int32_t nargs, int32_t nresults, int32_t errfunc);
     lua_pcall_t plua_pcall = nullptr;
 
@@ -82,8 +37,53 @@ namespace MafiaMP::Core {
         return plua_isstring(L, idx);
     }
 
+    typedef int32_t(__cdecl *luaL_loadbuffer_t)(lua_State *L, const char *buff, size_t size, const char *name);
+    luaL_loadbuffer_t pluaL_loadbuffer = nullptr;
+
+    int32_t luaL_loadbuffer_(lua_State *L, const char *buff, size_t size, const char *name) {
+        if (g_luaState == nullptr && L != nullptr) {
+            Framework::Logging::GetLogger(LOG_LUA)->info("Lua wrapper is initialized.");
+            g_luaState = L;
+
+            // todo hook more lua methods
+            //luaopen_luammplib(L);
+        }
+
+        return pluaL_loadbuffer(L, "", 0, name);
+    }
+
     int luaL_loadstring_mmp(lua_State *L, const char *s) {
         return pluaL_loadbuffer(L, s, strlen(s), s);
+    }
+
+    extern "C" {
+        static int l_mmp_print(lua_State* L) {
+            int nargs = lua_gettop(L);
+
+            for (int i=1; i <= nargs; i++) {
+                if (lua_isstring_(L, i)) {
+                    char *s = (char*)lua_tostring_(L, i);
+                    Framework::Logging::GetLogger(LOG_LUA)->info("Output: {}", s);
+                }
+                else {
+                    // todo handle non-string args
+                }
+            }
+
+            return 0;
+        }
+
+        static const struct luaL_Reg printlib [] = {
+            {"print", l_mmp_print},
+            {NULL, NULL}
+        };
+
+        int luaopen_luammplib(lua_State *L) {
+            lua_getglobal(L, "_G");
+            luaL_setfuncs(L, printlib, 0);
+            lua_pop(L, 1);
+            return 0;
+        }
     }
 
 #ifdef luaL_dostring
