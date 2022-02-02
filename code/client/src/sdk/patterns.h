@@ -226,6 +226,12 @@ namespace SDK {
         // C_GameFramework
         uint64_t C_GameFramework__IsSuspendedAddr = 0x0;
 
+        // Lua
+        uint64_t Lua__pcallAddr = 0x0;
+        uint64_t Lua__loadbufferAddr = 0x0;
+        uint64_t Lua__tostringAddr = 0x0;
+        uint64_t Lua__isstringAddr = 0x0;
+
         static void InitPatterns();
     };
 

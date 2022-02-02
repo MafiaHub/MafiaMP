@@ -286,5 +286,11 @@ namespace SDK {
 
         // C_GameFramework
         gPatterns.C_GameFramework__IsSuspendedAddr = reinterpret_cast<uint64_t>(hook::pattern("80 39 ? 74 ? 80 79 ? ?").get_first());
+
+        // Lua
+        gPatterns.Lua__pcallAddr = hook::get_opcode_address("E8 ? ? ? ? 85 FF 78 2B");
+        gPatterns.Lua__loadbufferAddr = hook::get_opcode_address("E8 ? ? ? ? 85 C0 74 2F 48 8B 47 48");
+        gPatterns.Lua__tostringAddr = reinterpret_cast<uint64_t>(hook::pattern("4C 8B C9 81 FA ? ? ? ? 7E 37").get_first());
+        gPatterns.Lua__isstringAddr = hook::get_opcode_address("E8 ? ? ? ? 85 C0 74 5E 8B D3");
     }
 }; // namespace SDK

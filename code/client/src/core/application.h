@@ -1,15 +1,15 @@
 #pragma once
 
 #include <memory>
+
 #include <utils/safe_win32.h>
 
+#include "luavm.h"
 #include "../game/streaming/entity_factory.h"
 #include "ui/console.h"
 
 #include <integrations/client/instance.h>
-
 #include <utils/states/machine.h>
-
 #include <utils/command_processor.h>
 
 namespace MafiaMP::Core {
@@ -20,6 +20,7 @@ namespace MafiaMP::Core {
         std::shared_ptr<UI::MafiaConsole> _console;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
+        std::shared_ptr<LuaVM> _luaVM;
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
         flecs::entity _localPlayer;
         float _tickInterval = 0.01667f;

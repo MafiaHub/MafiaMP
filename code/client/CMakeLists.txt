@@ -1,5 +1,6 @@
 set(MAFIAMP_CLIENT_FILES
     src/main.cpp
+    src/core/luavm.cpp
     src/core/application.cpp
     src/core/ui/console.cpp
     src/core/states/initialize.cpp

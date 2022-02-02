@@ -31,6 +31,8 @@
 
 #include "../shared/version.h"
 #include <utils/version.h>
+#include <cppfs/FileHandle.h>
+#include <cppfs/fs.h>
 
 #include "modules/human.hpp"
 
@@ -75,6 +77,9 @@ namespace MafiaMP::Core {
 
             return true;
         });
+
+        // Setup Lua VM wrapper
+        _luaVM = std::make_shared<LuaVM>();
 
         return true;
     }
@@ -423,11 +428,42 @@ namespace MafiaMP::Core {
             "quits the game");
         _commandProcessor->RegisterCommand(
             "spawnCar", {{"m,model", "model name of the car", cxxopts::value<std::string>()->default_value("berkley_810")}},
-            [this](cxxopts::ParseResult result) {               
+            [this](cxxopts::ParseResult result) {
                 std::string modelName = result["model"].as<std::string>();
                 SpawnCar(modelName);
             },
             "spawn a car of a given model");
+        _commandProcessor->RegisterCommand(
+            "lua", {
+                {"c,command", "command to execute", cxxopts::value<std::string>()->default_value("")},
+                {"f,file", "file to execute", cxxopts::value<std::string>()->default_value("")}
+            },
+            [this](cxxopts::ParseResult result) {
+                std::string command = result["command"].as<std::string>();
+                if (!command.empty()) {
+                    _luaVM->ExecuteString(command.c_str());
+                }
+                std::string filename = result["file"].as<std::string>();
+                if (!filename.empty()) {
+                    // todo use prefix path for lua scripts? (currently hardcoded to "scripts/")
+                    cppfs::FileHandle file = cppfs::fs::open("scripts/" + filename);
+                    if (!file.exists()) {
+                        Framework::Logging::GetLogger(LOG_LUA)->warn("Script does not exist");
+                        return;
+                    }
+                    if (!file.isFile()) {
+                        Framework::Logging::GetLogger(LOG_LUA)->warn("Script is not a file");
+                        return;
+                    }
+                    std::string content = file.readFile();
+                    if (content.empty()) {
+                        Framework::Logging::GetLogger(LOG_LUA)->warn("Script is empty");
+                        return;
+                    }
+                    _luaVM->ExecuteString(content.c_str());
+                }
+            },
+            "executes Lua commands");
     }
 
     void Application::SetupMenuBar() {
