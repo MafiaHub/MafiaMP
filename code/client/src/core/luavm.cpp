@@ -16,6 +16,8 @@ using namespace SDK;
 namespace MafiaMP::Core {
     lua_State *g_luaState = nullptr;
 
+    extern std::string gProjectPath;
+
     typedef int32_t(__cdecl *lua_pcall_t)(lua_State *L, int32_t nargs, int32_t nresults, int32_t errfunc);
     lua_pcall_t plua_pcall = nullptr;
 
@@ -47,6 +49,11 @@ namespace MafiaMP::Core {
 
             // todo hook more lua methods
             //luaopen_luammplib(L);
+
+            // HACK set up package.path
+            const auto hack = fmt::format("package.path = package.path .. \";{}\\scripts\\?.lua\"", gProjectPath);
+            Framework::Logging::GetLogger(LOG_LUA)->info("Le hack for package loading: {}", hack);
+            pluaL_loadbuffer(L, hack.c_str(), hack.size(), hack.c_str());
         }
 
         return pluaL_loadbuffer(L, "", 0, name);
