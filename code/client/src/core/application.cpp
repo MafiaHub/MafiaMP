@@ -125,7 +125,7 @@ namespace MafiaMP::Core {
                 _console->Toggle();
             }
 
-            constexpr char *connStateNames[3] = {"Connecting", "Online", "Offline"};
+            const char *connStateNames[] = {"Connecting", "Online", "Offline"};
 
             // versioning
             DrawCornerText(CORNER_RIGHT_BOTTOM, "Mafia: Multiplayer");

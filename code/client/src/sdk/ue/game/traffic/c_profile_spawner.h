@@ -17,7 +17,7 @@ namespace SDK {
             uint8_t pad[200] = {0};
 
           public:
-            C_ProfileSpawner(ue::C_WeakPtr<ue::sys::core::C_SceneObject> &, const ue::sys::utils::C_HashName &, int, unsigned long unk2 = 10);
+            C_ProfileSpawner(ue::C_WeakPtr<ue::sys::core::C_SceneObject>, const ue::sys::utils::C_HashName &, int, unsigned long unk2 = 10);
             C_ProfileSpawner(const C_ProfileSpawner &) = delete;
             ~C_ProfileSpawner();
             C_ProfileSpawner &operator=(const C_ProfileSpawner &) = delete;

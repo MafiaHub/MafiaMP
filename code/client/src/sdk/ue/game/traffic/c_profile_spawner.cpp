@@ -6,7 +6,7 @@
 
 namespace SDK {
     namespace ue::game::traffic {
-        C_ProfileSpawner::C_ProfileSpawner(ue::C_WeakPtr<ue::sys::core::C_SceneObject> &sceneObject, const ue::sys::utils::C_HashName &profile, int unk1, unsigned long unk2) {
+        C_ProfileSpawner::C_ProfileSpawner(ue::C_WeakPtr<ue::sys::core::C_SceneObject> sceneObject, const ue::sys::utils::C_HashName &profile, int unk1, unsigned long unk2) {
             (*(void(__thiscall *)(C_ProfileSpawner *, ue::C_WeakPtr<ue::sys::core::C_SceneObject> &, const ue::sys::utils::C_HashName &, int,
                 unsigned long))gPatterns.C_ProfileSpawner__C_ProfileSpawnerAddr)(this, sceneObject, profile, unk1, unk2);
         }
