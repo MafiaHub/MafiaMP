@@ -193,7 +193,7 @@ namespace MafiaMP::Core {
         const auto net = GetNetworkingEngine()->GetNetworkClient();
 
         net->RegisterMessage<Shared::Messages::Human::HumanSpawn>(Shared::Messages::ModMessages::MOD_HUMAN_SPAWN, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanSpawn *msg) {
-            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
             }
