@@ -23,7 +23,7 @@ namespace MafiaMP {
     void Server::InitNetworkingMessages() {
         const auto net = GetNetworkingEngine()->GetNetworkServer();
 
-        SetOnPlayerConnectedCallback([this, net](flecs::entity player, uint64_t guid) {
+        SetOnPlayerConnectCallback([this, net](flecs::entity player, uint64_t guid) {
             auto es = player.get_mut<Framework::World::Modules::Base::Streamable>();
 
             es->modEvents.spawnProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
@@ -70,7 +70,7 @@ namespace MafiaMP {
             player.add<Shared::Modules::HumanSync::UpdateData>();
         });
 
-        SetOnPlayerDisconnectedCallback([this](flecs::entity player, uint64_t guid) {
+        SetOnPlayerDisconnectCallback([this](flecs::entity player, uint64_t guid) {
             // todo
         });
 
