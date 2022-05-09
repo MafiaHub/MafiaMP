@@ -31,7 +31,7 @@ namespace MafiaMP::Core::Modules {
         };
 
         struct LocalPlayer {
-            char _unused;
+            [[maybe_unused]] char _unused;
         };
 
         Human(flecs::world &world) {

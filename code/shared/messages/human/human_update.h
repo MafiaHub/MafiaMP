@@ -6,15 +6,15 @@
 namespace MafiaMP::Shared::Messages::Human {
     class HumanUpdate final: public Framework::Networking::Messages::GameSyncMessage {
       private:
-        uint8_t _healthPercent;
+        uint8_t _healthPercent{};
 
-        uint8_t _charStateHandlerType;
-        uint8_t _moveMode;
+        uint8_t _charStateHandlerType{};
+        uint8_t _moveMode{};
 
-        bool _isSprinting;
-        bool _isStalking;
+        bool _isSprinting{};
+        bool _isStalking{};
 
-        float _sprintSpeed;
+        float _sprintSpeed{};
 
       public:
         uint8_t GetMessageID() const override {

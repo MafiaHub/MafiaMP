@@ -27,7 +27,7 @@ namespace MafiaMP::Shared::Messages::Human {
             return _spawnProfile > 0 && ValidServerID();
         }
 
-        uint64_t GetSpawnProfile() {
+        uint64_t GetSpawnProfile() const {
             return _spawnProfile;
         }
     };
