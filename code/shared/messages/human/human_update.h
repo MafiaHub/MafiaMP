@@ -21,12 +21,7 @@ namespace MafiaMP::Shared::Messages::Human {
             return MOD_HUMAN_UPDATE;
         }
 
-        void FromParameters(flecs::entity_t serverID) {
-            _serverID = serverID;
-        }
-
         void Serialize(SLNet::BitStream *bs, bool write) override {
-            bs->Serialize(write, _serverID);
             bs->Serialize(write, _healthPercent);
             bs->Serialize(write, _charStateHandlerType);
             bs->Serialize(write, _moveMode);
@@ -35,8 +30,9 @@ namespace MafiaMP::Shared::Messages::Human {
             bs->Serialize(write, _sprintSpeed);
         }
 
-        bool Valid() override {
-            return ValidServerID();
+        bool Valid() const override {
+            // todo
+            return true;
         }
 
         void SetHealthPercent(uint8_t percent) {

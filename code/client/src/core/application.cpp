@@ -173,7 +173,7 @@ namespace MafiaMP::Core {
                 const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
 
                 Shared::Messages::Human::HumanUpdate humanUpdate;
-                humanUpdate.FromParameters(GetWorldEngine()->GetServerID(e));
+                humanUpdate.SetServerID(GetWorldEngine()->GetServerID(e));
                 humanUpdate.SetCharStateHandlerType(updateData->_charStateHandlerType);
                 humanUpdate.SetHealthPercent(updateData->_healthPercent);
                 humanUpdate.SetMoveMode(updateData->_moveMode);

@@ -13,18 +13,16 @@ namespace MafiaMP::Shared::Messages::Human {
             return MOD_HUMAN_SPAWN;
         }
 
-        void FromParameters(flecs::entity_t serverID, uint64_t spawnProfile) {
-            _serverID     = serverID;
+        void FromParameters(uint64_t spawnProfile) {
             _spawnProfile = spawnProfile;
         }
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
-            bs->Serialize(write, _serverID);
             bs->Serialize(write, _spawnProfile);
         }
 
-        bool Valid() override {
-            return _spawnProfile > 0 && ValidServerID();
+        bool Valid() const override {
+            return _spawnProfile > 0;
         }
 
         uint64_t GetSpawnProfile() const {

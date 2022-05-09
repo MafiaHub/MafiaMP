@@ -29,7 +29,8 @@ namespace MafiaMP {
             es->modEvents.spawnProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
                 const auto frame = e.get<Framework::World::Modules::Base::Frame>();
                 Shared::Messages::Human::HumanSpawn humanSpawn;
-                humanSpawn.FromParameters(e.id(), frame->modelHash);
+                humanSpawn.FromParameters(frame->modelHash);
+                humanSpawn.SetServerID(e.id());
                 net->Send(humanSpawn, guid);
                 // todo other stuff
                 return true;
@@ -37,14 +38,14 @@ namespace MafiaMP {
 
             es->modEvents.despawnProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
                 Shared::Messages::Human::HumanDespawn humanDespawn;
-                humanDespawn.FromParameters(e.id());
+                humanDespawn.SetServerID(e.id());
                 net->Send(humanDespawn, guid);
                 return true;
             };
 
             es->modEvents.selfUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
                 Shared::Messages::Human::HumanSelfUpdate humanSelfUpdate;
-                humanSelfUpdate.FromParameters(e.id());
+                humanSelfUpdate.SetServerID(e.id());
                 net->Send(humanSelfUpdate, guid);
                 return true;
             };
@@ -53,7 +54,7 @@ namespace MafiaMP {
                 const auto trackingMetadata = e.get<Shared::Modules::HumanSync::UpdateData>();
 
                 Shared::Messages::Human::HumanUpdate humanUpdate;
-                humanUpdate.FromParameters(e.id());
+                humanUpdate.SetServerID(e.id());
                 humanUpdate.SetCharStateHandlerType(trackingMetadata->_charStateHandlerType);
                 humanUpdate.SetHealthPercent(trackingMetadata->_healthPercent);
                 humanUpdate.SetMoveMode(trackingMetadata->_moveMode);

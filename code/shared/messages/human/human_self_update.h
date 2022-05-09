@@ -13,16 +13,12 @@ namespace MafiaMP::Shared::Messages::Human {
             return MOD_HUMAN_SELF_UPDATE;
         }
 
-        void FromParameters(flecs::entity_t serverID) {
-            _serverID = serverID;
-        }
-
         void Serialize(SLNet::BitStream *bs, bool write) override {
-            bs->Serialize(write, _serverID);
+            // noop
         }
 
-        bool Valid() override {
-            return ValidServerID();
+        bool Valid() const override {
+            return true;
         }
     };
 } // namespace MafiaMP::Shared::Messages::Human
