@@ -14,7 +14,7 @@ namespace MafiaMP::Game::Overrides {
         SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type _desiredHandlerType = SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_NONE;
         SDK::E_HumanMoveMode _humanMoveMode                                                         = SDK::E_HumanMoveMode::E_HMM_NONE;
         bool _stalkMoveOverride                                                                   = false;
-        bool _isSprintingOverriode                                                                 = false;
+        bool _isSprintingOverride                                                                 = false;
         float _sprintMoveSpeed                                                            = 0.0f;
 
         CharacterController();
@@ -46,7 +46,7 @@ namespace MafiaMP::Game::Overrides {
         }
         void SetMoveStateOverride(SDK::E_HumanMoveMode hmm, bool isSprinting, float sprintMoveSpeed) {
             _humanMoveMode            = hmm;
-            _isSprintingOverriode     = isSprinting;
+            _isSprintingOverride     = isSprinting;
             _sprintMoveSpeed          = sprintMoveSpeed;
         }
     };

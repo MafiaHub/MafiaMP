@@ -129,7 +129,7 @@ namespace MafiaMP::Game::Overrides {
 
         SetStalkMove(_stalkMoveOverride);
         if (_stalkMoveOverride) {
-            _isSprintingOverriode = false;
+            _isSprintingOverride = false;
         }
 
         if (_desiredHandlerType == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_MOVE) {
@@ -141,9 +141,9 @@ namespace MafiaMP::Game::Overrides {
 
             SetSprintMoveSpeed(_sprintMoveSpeed);
 
-            if (IsSprinting() != _isSprintingOverriode) {
-                SetSprinting(_isSprintingOverriode);
-                SDK::ue::game::humanai::C_CharacterStateHandlerBaseLocomotion::AddRemoveSprintDescriptor(this, _isSprintingOverriode);
+            if (IsSprinting() != _isSprintingOverride) {
+                SetSprinting(_isSprintingOverride);
+                SDK::ue::game::humanai::C_CharacterStateHandlerBaseLocomotion::AddRemoveSprintDescriptor(this, _isSprintingOverride);
                 if (!pMoveHandler->Idle2MoveTransitionActive(pMoveHandler->GetCurrentAnimationHandlePtr()) && !pMoveHandler->SharpTurnTransitionActive()) {
                     static SDK::ue::sys::utils::C_HashName s_MoveState             = SDK::ue::sys::utils::C_HashName::ComputeHash("Move");
                     static SDK::ue::sys::utils::C_HashName s_SprintState           = SDK::ue::sys::utils::C_HashName::ComputeHash("Sprint");

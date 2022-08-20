@@ -172,7 +172,7 @@ namespace MafiaMP::Core {
             es->modEvents.updateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
                 const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
 
-                Shared::Messages::Human::HumanUpdate humanUpdate;
+                Shared::Messages::Human::HumanUpdate humanUpdate{};
                 humanUpdate.SetServerID(GetWorldEngine()->GetServerID(e));
                 humanUpdate.SetCharStateHandlerType(updateData->_charStateHandlerType);
                 humanUpdate.SetHealthPercent(updateData->_healthPercent);
