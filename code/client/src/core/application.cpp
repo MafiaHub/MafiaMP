@@ -11,15 +11,6 @@
 #include "states/shutdown.h"
 #include "states/states.h"
 
-#include "../shared/messages/human/human_despawn.h"
-#include "../shared/messages/human/human_self_update.h"
-#include "../shared/messages/human/human_spawn.h"
-#include "../shared/messages/human/human_update.h"
-
-#include "../shared/messages/vehicle/vehicle_despawn.h"
-#include "../shared/messages/vehicle/vehicle_spawn.h"
-#include "../shared/messages/vehicle/vehicle_update.h"
-
 #include "../game/helpers/camera.h"
 #include "../game/helpers/controls.h"
 #include "../game/streaming/entity_factory.h"
@@ -28,9 +19,6 @@
 #include "../sdk/entities/c_vehicle.h"
 #include "../sdk/mafia/framework/c_mafia_framework.h"
 #include "../sdk/mafia/framework/c_mafia_framework_interfaces.h"
-
-#include "../shared/modules/human_sync.hpp"
-#include "../shared/modules/vehicle_sync.hpp"
 
 #include "external/imgui/widgets/corner_text.h"
 
@@ -77,8 +65,11 @@ namespace MafiaMP::Core {
         GetWorldEngine()->GetWorld()->import<Shared::Modules::HumanSync>();
 
         GetWorldEngine()->SetOnEntityDestroyCallback([](flecs::entity e) {
-            if (e.get<Core::Modules::Human::Tracking>() != nullptr) {
-                Core::Modules::Human::RemoveHuman(e);
+            if (e.get<Core::Modules::Human::IsHuman>()) {
+                Core::Modules::Human::Remove(e);
+            }
+            else if (e.get<Core::Modules::Vehicle::IsVehicle>()) {
+                Core::Modules::Vehicle::Remove(e);
             }
 
             return true;
@@ -195,110 +186,8 @@ namespace MafiaMP::Core {
             _stateMachine->RequestNextState(States::StateIds::SessionDisconnection);
         });
 
-        // TEMP hook up human events
-        const auto net = GetNetworkingEngine()->GetNetworkClient();
-
-        net->RegisterMessage<Shared::Messages::Human::HumanSpawn>(Shared::Messages::ModMessages::MOD_HUMAN_SPAWN, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanSpawn *msg) {
-            auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            // Setup tracking info
-            Core::Modules::Human::CreateHuman(e, msg->GetSpawnProfile());
-
-            // Setup other components
-            e.add<Shared::Modules::HumanSync::UpdateData>();
-
-            // set up client updates (NPC streaming)
-            // TODO disabled for now, we don't really need to stream NPCs atm
-#if 0
-            const auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
-            es->modEvents.clientUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                Shared::Messages::Human::HumanClientUpdate humanUpdate;
-                humanUpdate.FromParameters(e.id());
-                // set up sync data
-                peer->Send(humanUpdate, guid);
-                return true;
-            };
-#endif
-        });
-        net->RegisterMessage<Shared::Messages::Human::HumanDespawn>(Shared::Messages::ModMessages::MOD_HUMAN_DESPAWN, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanDespawn *msg) {
-            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            Core::Modules::Human::RemoveHuman(e);
-        });
-        net->RegisterMessage<Shared::Messages::Human::HumanUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_UPDATE, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanUpdate *msg) {
-            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            auto updateData                   = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
-            updateData->_charStateHandlerType = msg->GetCharStateHandlerType();
-            updateData->_healthPercent        = msg->GetHealthPercent();
-            updateData->_isSprinting          = msg->IsSprinting();
-            updateData->_isStalking           = msg->IsStalking();
-            updateData->_moveMode             = msg->GetMoveMode();
-            updateData->_sprintSpeed          = msg->GetSprintSpeed();
-
-            Core::Modules::Human::UpdateHuman(e);
-        });
-        net->RegisterMessage<Shared::Messages::Human::HumanSelfUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_SELF_UPDATE, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanSelfUpdate *msg) {
-            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            const auto trackingData = e.get<Core::Modules::Human::Tracking>();
-            if (!trackingData) {
-                return;
-            }
-
-            // update actor data
-        });
-
-        // vehicles
-        net->RegisterMessage<Shared::Messages::Vehicle::VehicleSpawn>(Shared::Messages::ModMessages::MOD_VEHICLE_SPAWN, [this](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleSpawn *msg) {
-            auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            // Setup tracking info
-            Core::Modules::Vehicle::CreateVehicle(e, msg->GetModelName());
-
-            // Setup other components
-            e.add<Shared::Modules::VehicleSync::UpdateData>();
-        });
-        net->RegisterMessage<Shared::Messages::Vehicle::VehicleDespawn>(Shared::Messages::ModMessages::MOD_VEHICLE_DESPAWN, [this](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleDespawn *msg) {
-            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            Core::Modules::Vehicle::RemoveVehicle(e);
-        });
-        net->RegisterMessage<Shared::Messages::Vehicle::VehicleUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_UPDATE, [this](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleUpdate *msg) {
-            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            updateData->velocity = msg->GetVelocity();
-            updateData->angularVelocity = msg->GetAngularVelocity();
-            updateData->gear = msg->GetGear();
-            updateData->horn = msg->GetHorn();
-            updateData->power = msg->GetPower();
-            updateData->brake = msg->GetBrake();
-            updateData->handbrake = msg->GetHandbrake();
-            updateData->steer = msg->GetSteer();
-            // Core::Modules::Vehicle::UpdateVehicle(e);
-        });
+        Modules::Human::SetupMessages(this);
+        Modules::Vehicle::SetupMessages(this);
     }
 
     void Application::PimpMyImGUI() {

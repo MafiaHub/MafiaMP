@@ -18,6 +18,12 @@
 #include <world/modules/base.hpp>
 #include <utils/interpolator.h>
 
+#include "../shared/modules/human_sync.hpp"
+#include "../shared/messages/human/human_despawn.h"
+#include "../shared/messages/human/human_self_update.h"
+#include "../shared/messages/human/human_spawn.h"
+#include "../shared/messages/human/human_update.h"
+
 namespace MafiaMP::Core::Modules {
     struct Human {
         struct Tracking {
@@ -34,12 +40,17 @@ namespace MafiaMP::Core::Modules {
             [[maybe_unused]] char _unused;
         };
 
+        struct IsHuman {
+            [[maybe_unused]] char _unused;
+        };
+
         Human(flecs::world &world) {
             world.module<Human>();
 
             world.component<Tracking>();
             world.component<LocalPlayer>();
             world.component<Interpolated>();
+            world.component<IsHuman>();
 
             world.system<Tracking, Shared::Modules::HumanSync::UpdateData, LocalPlayer, Framework::World::Modules::Base::Transform>("UpdateLocalPlayer").each([](flecs::entity e, Tracking &tracking, Shared::Modules::HumanSync::UpdateData &metadata, LocalPlayer &lp, Framework::World::Modules::Base::Transform &tr) {
                 if (tracking.human) {
@@ -85,7 +96,7 @@ namespace MafiaMP::Core::Modules {
             });
         }
 
-        static inline void CreateHuman(flecs::entity e, uint64_t spawnProfile) {
+        static inline void Create(flecs::entity e, uint64_t spawnProfile) {
             auto info = Core::gApplication->GetEntityFactory()->RequestHuman(spawnProfile);
             auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
             trackingData->info = info;
@@ -140,9 +151,11 @@ namespace MafiaMP::Core::Modules {
             info->SetRequestFinishCallback(OnHumanRequestFinish);
             info->SetReturnCallback(OnHumanReturned);
             info->SetNetworkEntity(e);
+
+            e.add<IsHuman>();
         }
 
-        static inline void UpdateHuman(flecs::entity e) {
+        static inline void Update(flecs::entity e) {
             const auto trackingData = e.get<Core::Modules::Human::Tracking>();
             if (!trackingData || !trackingData->human) {
                 return;
@@ -180,7 +193,7 @@ namespace MafiaMP::Core::Modules {
             trackingData->charController->SetMoveStateOverride(hmm, updateData->_isSprinting, updateData->_sprintSpeed);
         }
 
-        static inline void RemoveHuman(flecs::entity e) {
+        static inline void Remove(flecs::entity e) {
             auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
             if (!trackingData || e.get<LocalPlayer>() != nullptr) {
                 return;
@@ -188,6 +201,72 @@ namespace MafiaMP::Core::Modules {
 
             Core::gApplication->GetEntityFactory()->ReturnEntity(trackingData->info);
             trackingData->info = nullptr;
+        }
+
+        static inline void SetupMessages(Application *app) {
+            const auto net = app->GetNetworkingEngine()->GetNetworkClient();
+            net->RegisterMessage<Shared::Messages::Human::HumanSpawn>(Shared::Messages::ModMessages::MOD_HUMAN_SPAWN, [app](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanSpawn *msg) {
+                auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+                if (!e.is_alive()) {
+                    return;
+                }
+
+                // Setup tracking info
+                Create(e, msg->GetSpawnProfile());
+
+                // Setup other components
+                e.add<Shared::Modules::HumanSync::UpdateData>();
+
+                // set up client updates (NPC streaming)
+                // TODO disabled for now, we don't really need to stream NPCs atm
+    #if 0
+                const auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
+                es->modEvents.clientUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
+                    Shared::Messages::Human::HumanClientUpdate humanUpdate;
+                    humanUpdate.FromParameters(e.id());
+                    // set up sync data
+                    peer->Send(humanUpdate, guid);
+                    return true;
+                };
+    #endif
+            });
+            net->RegisterMessage<Shared::Messages::Human::HumanDespawn>(Shared::Messages::ModMessages::MOD_HUMAN_DESPAWN, [app](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanDespawn *msg) {
+                const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+                if (!e.is_alive()) {
+                    return;
+                }
+
+                Remove(e);
+            });
+            net->RegisterMessage<Shared::Messages::Human::HumanUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanUpdate *msg) {
+                const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+                if (!e.is_alive()) {
+                    return;
+                }
+
+                auto updateData                   = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+                updateData->_charStateHandlerType = msg->GetCharStateHandlerType();
+                updateData->_healthPercent        = msg->GetHealthPercent();
+                updateData->_isSprinting          = msg->IsSprinting();
+                updateData->_isStalking           = msg->IsStalking();
+                updateData->_moveMode             = msg->GetMoveMode();
+                updateData->_sprintSpeed          = msg->GetSprintSpeed();
+
+                Update(e);
+            });
+            net->RegisterMessage<Shared::Messages::Human::HumanSelfUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_SELF_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanSelfUpdate *msg) {
+                const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+                if (!e.is_alive()) {
+                    return;
+                }
+
+                const auto trackingData = e.get<Core::Modules::Human::Tracking>();
+                if (!trackingData) {
+                    return;
+                }
+
+                // update actor data
+            });
         }
     };
 } // namespace MafiaMP::Core::Modules

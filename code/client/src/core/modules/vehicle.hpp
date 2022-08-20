@@ -13,6 +13,11 @@
 #include <world/modules/base.hpp>
 #include <utils/interpolator.h>
 
+#include "../shared/modules/vehicle_sync.hpp"
+#include "../shared/messages/vehicle/vehicle_despawn.h"
+#include "../shared/messages/vehicle/vehicle_spawn.h"
+#include "../shared/messages/vehicle/vehicle_update.h"
+
 namespace MafiaMP::Core::Modules {
     struct Vehicle {
         struct Tracking {
@@ -24,11 +29,16 @@ namespace MafiaMP::Core::Modules {
             Framework::Utils::Interpolator interpolator = {};
         };
 
+        struct IsVehicle {
+            [[maybe_unused]] char _unused;
+        };
+
         Vehicle(flecs::world &world) {
             world.module<Vehicle>();
 
             world.component<Tracking>();
             world.component<Interpolated>();
+            world.component<IsVehicle>();
 
             world.system<Tracking, Shared::Modules::VehicleSync::UpdateData, Framework::World::Modules::Base::Transform>("UpdateOwnedVehicles").each([](flecs::entity e, Tracking &tracking, Shared::Modules::VehicleSync::UpdateData &metadata, Framework::World::Modules::Base::Transform &tr) {
             });
@@ -45,7 +55,7 @@ namespace MafiaMP::Core::Modules {
             });
         }
 
-        static inline void CreateVehicle(flecs::entity e, std::string modelName) {
+        static inline void Create(flecs::entity e, std::string modelName) {
             auto info = Core::gApplication->GetEntityFactory()->RequestVehicle(modelName);
             auto trackingData = e.get_mut<Core::Modules::Vehicle::Tracking>();
             trackingData->info = info;
@@ -94,9 +104,11 @@ namespace MafiaMP::Core::Modules {
             info->SetRequestFinishCallback(OnVehicleRequestFinish);
             info->SetReturnCallback(OnVehicleReturned);
             info->SetNetworkEntity(e);
+
+            e.add<IsVehicle>();
         }
 
-        static inline void UpdateVehicle(flecs::entity e) {
+        static inline void Update(flecs::entity e) {
             const auto trackingData = e.get<Core::Modules::Vehicle::Tracking>();
             if (!trackingData || !trackingData->vehicle) {
                 return;
@@ -121,7 +133,7 @@ namespace MafiaMP::Core::Modules {
             }
         }
 
-        static inline void RemoveVehicle(flecs::entity e) {
+        static inline void Remove(flecs::entity e) {
             auto trackingData = e.get_mut<Core::Modules::Vehicle::Tracking>();
             if (!trackingData) {
                 return;
@@ -129,6 +141,47 @@ namespace MafiaMP::Core::Modules {
 
             Core::gApplication->GetEntityFactory()->ReturnEntity(trackingData->info);
             trackingData->info = nullptr;
+        }
+
+        static inline void SetupMessages(Application *app) {
+            const auto net = app->GetNetworkingEngine()->GetNetworkClient();
+            net->RegisterMessage<Shared::Messages::Vehicle::VehicleSpawn>(Shared::Messages::ModMessages::MOD_VEHICLE_SPAWN, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleSpawn *msg) {
+                auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+                if (!e.is_alive()) {
+                    return;
+                }
+
+                // Setup tracking info
+                Create(e, msg->GetModelName());
+
+                // Setup other components
+                e.add<Shared::Modules::VehicleSync::UpdateData>();
+            });
+            net->RegisterMessage<Shared::Messages::Vehicle::VehicleDespawn>(Shared::Messages::ModMessages::MOD_VEHICLE_DESPAWN, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleDespawn *msg) {
+                const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+                if (!e.is_alive()) {
+                    return;
+                }
+
+                Remove(e);
+            });
+            net->RegisterMessage<Shared::Messages::Vehicle::VehicleUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleUpdate *msg) {
+                const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+                if (!e.is_alive()) {
+                    return;
+                }
+
+                auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+                updateData->velocity = msg->GetVelocity();
+                updateData->angularVelocity = msg->GetAngularVelocity();
+                updateData->gear = msg->GetGear();
+                updateData->horn = msg->GetHorn();
+                updateData->power = msg->GetPower();
+                updateData->brake = msg->GetBrake();
+                updateData->handbrake = msg->GetHandbrake();
+                updateData->steer = msg->GetSteer();
+                // Update(e);
+            });
         }
     };
 } // namespace MafiaMP::Core::Modules
