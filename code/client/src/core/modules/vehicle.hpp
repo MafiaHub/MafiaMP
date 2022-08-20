@@ -67,7 +67,7 @@ namespace MafiaMP::Core::Modules {
                     const auto ent = info->GetNetworkEntity();
                     const auto tr = ent.get<Framework::World::Modules::Base::Transform>();
                     SDK::ue::sys::math::C_Vector newPos = { tr->pos.x, tr->pos.y, tr->pos.z };
-                    SDK::ue::sys::math::C_Quat newRot   = { tr->rot.w, tr->rot.x, tr->rot.y, tr->rot.z };
+                    SDK::ue::sys::math::C_Quat newRot   = { tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w };
                     SDK::ue::sys::math::C_Matrix transform = {};
                     transform.Identity();
                     transform.SetRot(newRot);
