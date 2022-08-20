@@ -143,5 +143,5 @@ void spawnSomeCars(MafiaMP::Server *server) {
         auto frame = e.get_mut<Framework::World::Modules::Base::Frame>();
         frame->modelName = loc.modelName;
     }
-    printf("[INFO] Spawned %zu cars!\n", i);
+    Framework::Logging::GetLogger("test")->info("[INFO] Spawned %zu cars!\n", i);
 }
