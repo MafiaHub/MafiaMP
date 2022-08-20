@@ -155,6 +155,31 @@ namespace MafiaMP::Core::Modules {
             e.add<IsHuman>();
         }
 
+        static inline void SetupLocalPlayer(Application *app, flecs::entity e) {
+            auto trackingData   = e.get_mut<Core::Modules::Human::Tracking>();
+            trackingData->human = Game::Helpers::Controls::GetLocalPlayer();
+            trackingData->info  = nullptr;
+
+            e.add<Shared::Modules::HumanSync::UpdateData>();
+            e.add<Core::Modules::Human::LocalPlayer>();
+
+            const auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
+            es->modEvents.updateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
+                const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
+
+                Shared::Messages::Human::HumanUpdate humanUpdate{};
+                humanUpdate.SetServerID(app->GetWorldEngine()->GetServerID(e));
+                humanUpdate.SetCharStateHandlerType(updateData->_charStateHandlerType);
+                humanUpdate.SetHealthPercent(updateData->_healthPercent);
+                humanUpdate.SetMoveMode(updateData->_moveMode);
+                humanUpdate.SetSprinting(updateData->_isSprinting);
+                humanUpdate.SetSprintSpeed(updateData->_sprintSpeed);
+                humanUpdate.SetStalking(updateData->_isStalking);
+                peer->Send(humanUpdate, guid);
+                return true;
+            };
+        }
+
         static inline void Update(flecs::entity e) {
             const auto trackingData = e.get<Core::Modules::Human::Tracking>();
             if (!trackingData || !trackingData->human) {

@@ -155,32 +155,8 @@ namespace MafiaMP::Core {
         SetOnConnectionFinalizedCallback([this](flecs::entity newPlayer, float tickInterval) {
             _tickInterval = tickInterval;
             _stateMachine->RequestNextState(States::StateIds::SessionConnected);
-            auto localPlayer = Game::Helpers::Controls::GetLocalPlayer();
-
             _localPlayer = newPlayer;
-
-            auto trackingData   = _localPlayer.get_mut<Core::Modules::Human::Tracking>();
-            trackingData->human = localPlayer;
-            trackingData->info  = nullptr;
-
-            _localPlayer.add<Shared::Modules::HumanSync::UpdateData>();
-            _localPlayer.add<Core::Modules::Human::LocalPlayer>();
-
-            const auto es            = _localPlayer.get_mut<Framework::World::Modules::Base::Streamable>();
-            es->modEvents.updateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
-
-                Shared::Messages::Human::HumanUpdate humanUpdate{};
-                humanUpdate.SetServerID(GetWorldEngine()->GetServerID(e));
-                humanUpdate.SetCharStateHandlerType(updateData->_charStateHandlerType);
-                humanUpdate.SetHealthPercent(updateData->_healthPercent);
-                humanUpdate.SetMoveMode(updateData->_moveMode);
-                humanUpdate.SetSprinting(updateData->_isSprinting);
-                humanUpdate.SetSprintSpeed(updateData->_sprintSpeed);
-                humanUpdate.SetStalking(updateData->_isStalking);
-                peer->Send(humanUpdate, guid);
-                return true;
-            };
+            Core::Modules::Human::SetupLocalPlayer(this, newPlayer);
         });
 
         SetOnConnectionClosedCallback([this]() {
