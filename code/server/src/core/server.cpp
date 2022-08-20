@@ -1,12 +1,10 @@
 #include "server.h"
 
-#include "shared/messages/human/human_update.h"
-#include "shared/messages/human/human_self_update.h"
-#include "shared/messages/human/human_spawn.h"
-#include "shared/messages/human/human_despawn.h"
-
 #include "shared/modules/human_sync.hpp"
 #include "shared/modules/vehicle_sync.hpp"
+
+#include "modules/human.hpp"
+#include "modules/vehicle.hpp"
 
 // TODO UGLY
 void spawnSomeCars(MafiaMP::Server *server);
@@ -16,13 +14,13 @@ namespace MafiaMP {
     void Server::PostInit() {
         InitNetworkingMessages();
 
-        // Setup ECS modules
+        // Setup ECS modules (sync)
         GetWorldEngine()->GetWorld()->import<Shared::Modules::HumanSync>();
         GetWorldEngine()->GetWorld()->import<Shared::Modules::VehicleSync>();
 
-        // register factories
-        _humanFactory = std::make_shared<HumanFactory>();
-        _vehicleFactory = std::make_shared<VehicleFactory>();
+        // Setup ECS modules
+        GetWorldEngine()->GetWorld()->import<Core::Modules::Human>();
+        GetWorldEngine()->GetWorld()->import<Core::Modules::Vehicle>();
 
         // TODO UGLY
         spawnSomeCars(this);
@@ -36,31 +34,15 @@ namespace MafiaMP {
         const auto net = GetNetworkingEngine()->GetNetworkServer();
 
         SetOnPlayerConnectCallback([this, net](flecs::entity player, uint64_t guid) {
-            this->_humanFactory->SetupServer(net, player);
+            Core::Modules::Human::Create(net, player);
         });
 
         SetOnPlayerDisconnectCallback([this](flecs::entity player, uint64_t guid) {
             // todo
         });
 
-        net->RegisterMessage<Shared::Messages::Human::HumanUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_UPDATE, [this](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanUpdate *msg) {
-            const auto e = GetWorldEngine()->WrapEntity(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-            if (!GetWorldEngine()->IsEntityOwner(e, guid.g)) {
-                return;
-            }
-
-            auto trackingMetadata = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
-            trackingMetadata->_charStateHandlerType = msg->GetCharStateHandlerType();
-            trackingMetadata->_healthPercent        = msg->GetHealthPercent();
-            trackingMetadata->_isSprinting          = msg->IsSprinting();
-            trackingMetadata->_isStalking           = msg->IsStalking();
-            trackingMetadata->_moveMode             = msg->GetMoveMode();
-            trackingMetadata->_sprintSpeed          = msg->GetSprintSpeed();
-
-        });
+        Core::Modules::Human::SetupMessages(this->GetWorldEngine(), net);
+        Core::Modules::Vehicle::SetupMessages(this->GetWorldEngine(), net);
     }
 } // namespace MafiaMP
 
@@ -134,7 +116,7 @@ void spawnSomeCars(MafiaMP::Server *server) {
 
         auto e = server->GetWorldEngine()->CreateEntity();
         server->GetStreamingFactory()->SetupServer(e, 0);
-        server->GetVehicleFactory()->SetupServer(server->GetNetworkingEngine()->GetNetworkServer(), e);
+        MafiaMP::Core::Modules::Vehicle::Create(server->GetNetworkingEngine()->GetNetworkServer(), e);
 
         auto t = e.get_mut<Framework::World::Modules::Base::Transform>();
         t->pos = loc.pos;
@@ -143,5 +125,5 @@ void spawnSomeCars(MafiaMP::Server *server) {
         auto frame = e.get_mut<Framework::World::Modules::Base::Frame>();
         frame->modelName = loc.modelName;
     }
-    Framework::Logging::GetLogger("test")->info("[INFO] Spawned %zu cars!\n", i);
+    Framework::Logging::GetLogger("test")->info("[INFO] Spawned %d cars!\n", i);
 }

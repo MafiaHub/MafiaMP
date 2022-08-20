@@ -100,7 +100,7 @@ namespace MafiaMP::Core::Modules {
             auto interp = e.get_mut<Interpolated>();
             interp->interpolator.GetPosition()->SetCompensationFactor(1.5f);
 
-            const auto OnHumanRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
+            const auto OnHumanRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
                 CreateNetCharacterController = false;
                 if (success) {
                     auto human = reinterpret_cast<SDK::C_Human2 *>(info->GetEntity());
@@ -127,7 +127,7 @@ namespace MafiaMP::Core::Modules {
                 }
             };
 
-            const auto OnHumanReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
+            const auto OnHumanReturned = [](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
                 if (!info) {
                     return;
                 }
@@ -157,7 +157,7 @@ namespace MafiaMP::Core::Modules {
             e.add<Core::Modules::Human::LocalPlayer>();
 
             const auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
-            es->modEvents.updateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
+            es->modEvents.updateProc = [app](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
                 const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
 
                 Shared::Messages::Human::HumanUpdate humanUpdate{};

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <integrations/server/instance.h>
+
 #include "networking/network_peer.h"
 #include "world/modules/base.hpp"
 
@@ -11,19 +13,19 @@
 
 #include <flecs/flecs.h>
 
-namespace MafiaMP {
-    class HumanFactory {
-      private:
-        inline void SetupDefaults(flecs::entity e) {
+namespace MafiaMP::Core::Modules {
+    class Human {
+      public:
+
+        Human(flecs::world &world) {
+            world.module<Human>();
+        }
+
+        static inline void Create(Framework::Networking::NetworkServer *net, flecs::entity e) {
             auto frame = e.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelHash = 10505412751276834320; /* TODO */
 
             e.add<Shared::Modules::HumanSync::UpdateData>();
-        }
-
-      public:
-        inline void SetupServer(Framework::Networking::NetworkServer *net, flecs::entity e) {
-            SetupDefaults(e);
 
             auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
 
@@ -65,6 +67,26 @@ namespace MafiaMP {
                 net->Send(humanUpdate, guid);
                 return true;
             };
+        }
+
+        inline static void SetupMessages(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
+            net->RegisterMessage<Shared::Messages::Human::HumanUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_UPDATE, [srv](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanUpdate *msg) {
+                const auto e = srv->WrapEntity(msg->GetServerID());
+                if (!e.is_alive()) {
+                    return;
+                }
+                if (!srv->IsEntityOwner(e, guid.g)) {
+                    return;
+                }
+
+                auto trackingMetadata = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+                trackingMetadata->_charStateHandlerType = msg->GetCharStateHandlerType();
+                trackingMetadata->_healthPercent        = msg->GetHealthPercent();
+                trackingMetadata->_isSprinting          = msg->IsSprinting();
+                trackingMetadata->_isStalking           = msg->IsStalking();
+                trackingMetadata->_moveMode             = msg->GetMoveMode();
+                trackingMetadata->_sprintSpeed          = msg->GetSprintSpeed();
+            });
         }
     };
 } // namespace MafiaMP

@@ -60,10 +60,13 @@ namespace MafiaMP::Core {
         SetupCommands();
         SetupMenuBar();
 
-        // Register client modules
-        GetWorldEngine()->GetWorld()->import<Modules::Human>();
+        // Register client modules (sync)
         GetWorldEngine()->GetWorld()->import<Shared::Modules::HumanSync>();
         GetWorldEngine()->GetWorld()->import<Shared::Modules::VehicleSync>();
+
+        // Register client modules
+        GetWorldEngine()->GetWorld()->import<Modules::Human>();
+        GetWorldEngine()->GetWorld()->import<Modules::Vehicle>();
 
         GetWorldEngine()->SetOnEntityDestroyCallback([](flecs::entity e) {
             if (e.get<Core::Modules::Human::Tracking>()) {

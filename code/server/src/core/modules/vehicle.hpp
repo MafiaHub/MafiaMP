@@ -1,5 +1,7 @@
 #pragma once
 
+#include <integrations/server/instance.h>
+
 #include "networking/network_peer.h"
 #include "world/modules/base.hpp"
 
@@ -10,19 +12,19 @@
 
 #include <flecs/flecs.h>
 
-namespace MafiaMP {
-    class VehicleFactory {
-      private:
-        inline void SetupDefaults(flecs::entity e) {
+namespace MafiaMP::Core::Modules {
+    class Vehicle {
+      public:
+
+        Vehicle(flecs::world &world) {
+            world.module<Vehicle>();
+        }
+
+        static inline void Create(Framework::Networking::NetworkServer *net, flecs::entity e) {
             auto frame = e.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelName = "berkley_810"; /* TODO */
 
             e.add<Shared::Modules::VehicleSync::UpdateData>();
-        }
-
-      public:
-        inline void SetupServer(Framework::Networking::NetworkServer *net, flecs::entity e) {
-            SetupDefaults(e);
 
             auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
 
@@ -32,7 +34,6 @@ namespace MafiaMP {
                 vehicleSpawn.FromParameters(frame->modelName.c_str());
                 vehicleSpawn.SetServerID(e.id());
                 net->Send(vehicleSpawn, guid);
-                printf("Vehicle spawned: %s\n", frame->modelName.c_str());
                 // todo other stuff
                 return true;
             };
@@ -60,6 +61,28 @@ namespace MafiaMP {
                 net->Send(vehicleUpdate, guid);
                 return true;
             };
+        }
+
+        static inline void SetupMessages(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
+            net->RegisterMessage<Shared::Messages::Vehicle::VehicleUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_UPDATE, [srv](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleUpdate *msg) {
+                const auto e = srv->WrapEntity(msg->GetServerID());
+                if (!e.is_alive()) {
+                    return;
+                }
+                if (!srv->IsEntityOwner(e, guid.g)) {
+                    return;
+                }
+
+                auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+                updateData->velocity = msg->GetVelocity();
+                updateData->angularVelocity = msg->GetAngularVelocity();
+                updateData->gear = msg->GetGear();
+                updateData->horn = msg->GetHorn();
+                updateData->power = msg->GetPower();
+                updateData->brake = msg->GetBrake();
+                updateData->handbrake = msg->GetHandbrake();
+                updateData->steer = msg->GetSteer();
+            });
         }
     };
 } // namespace MafiaMP
