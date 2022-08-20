@@ -9,5 +9,11 @@ namespace MafiaMP::Shared::Messages {
         MOD_HUMAN_DESPAWN,
         MOD_HUMAN_UPDATE,
         MOD_HUMAN_SELF_UPDATE,
+
+        // Vehicle
+        MOD_VEHICLE_SPAWN,
+        MOD_VEHICLE_DESPAWN,
+        MOD_VEHICLE_UPDATE,
+        MOD_VEHICLE_SELF_UPDATE,
     };
 } // namespace Framework::Networking::Messages

@@ -9,8 +9,6 @@
 namespace MafiaMP::Shared::Modules {
     struct VehicleSync {
         struct UpdateData {
-            glm::vec3 pos;
-            glm::quat rot;
             glm::vec3 velocity;
             glm::vec3 angularVelocity;
             int gear = 0;

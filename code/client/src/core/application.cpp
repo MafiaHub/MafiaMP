@@ -16,6 +16,10 @@
 #include "../shared/messages/human/human_spawn.h"
 #include "../shared/messages/human/human_update.h"
 
+#include "../shared/messages/vehicle/vehicle_despawn.h"
+#include "../shared/messages/vehicle/vehicle_spawn.h"
+#include "../shared/messages/vehicle/vehicle_update.h"
+
 #include "../game/helpers/camera.h"
 #include "../game/helpers/controls.h"
 #include "../game/streaming/entity_factory.h"
@@ -26,6 +30,7 @@
 #include "../sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
 #include "../shared/modules/human_sync.hpp"
+#include "../shared/modules/vehicle_sync.hpp"
 
 #include "external/imgui/widgets/corner_text.h"
 
@@ -35,6 +40,7 @@
 #include <cppfs/fs.h>
 
 #include "modules/human.hpp"
+#include "modules/vehicle.hpp"
 
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication = nullptr;
@@ -253,6 +259,37 @@ namespace MafiaMP::Core {
             }
 
             // update actor data
+        });
+
+        // vehicles
+        net->RegisterMessage<Shared::Messages::Vehicle::VehicleSpawn>(Shared::Messages::ModMessages::MOD_VEHICLE_SPAWN, [this](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleSpawn *msg) {
+            auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            // Setup tracking info
+            Core::Modules::Vehicle::CreateVehicle(e, msg->GetModelName());
+
+            // Setup other components
+            e.add<Shared::Modules::VehicleSync::UpdateData>();
+        });
+        net->RegisterMessage<Shared::Messages::Vehicle::VehicleDespawn>(Shared::Messages::ModMessages::MOD_VEHICLE_DESPAWN, [this](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleDespawn *msg) {
+            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            Core::Modules::Vehicle::RemoveVehicle(e);
+        });
+        net->RegisterMessage<Shared::Messages::Vehicle::VehicleUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_UPDATE, [this](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleUpdate *msg) {
+            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            auto updateData                   = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            //Core::Modules::Vehicle::UpdateVehicle(e);
         });
     }
 

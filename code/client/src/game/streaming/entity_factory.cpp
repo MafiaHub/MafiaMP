@@ -100,7 +100,7 @@ namespace MafiaMP::Game::Streaming {
         return _humanFactory.Request(SDK::E_EntityType::E_ENTITY_HUMAN, spawnProfile);
     }
 
-    EntityTrackingInfo *EntityFactory::RequestVehicle(const std::string &modelName) {
+    EntityTrackingInfo *EntityFactory::RequestVehicle(std::string modelName) {
         return _vehicleFactory.Request(SDK::E_EntityType::E_ENTITY_CAR, modelName);
     }
 

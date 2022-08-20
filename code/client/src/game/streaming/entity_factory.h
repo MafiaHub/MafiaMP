@@ -19,7 +19,7 @@ namespace MafiaMP::Game::Streaming {
         EntityFactory();
 
         EntityTrackingInfo *RequestHuman(SDK::ue::sys::utils::C_HashName);
-        EntityTrackingInfo *RequestVehicle(const std::string &);
+        EntityTrackingInfo *RequestVehicle(std::string);
 
         void Update();
 
