@@ -63,6 +63,7 @@ namespace MafiaMP::Core {
         // Register client modules
         GetWorldEngine()->GetWorld()->import<Modules::Human>();
         GetWorldEngine()->GetWorld()->import<Shared::Modules::HumanSync>();
+        GetWorldEngine()->GetWorld()->import<Shared::Modules::VehicleSync>();
 
         GetWorldEngine()->SetOnEntityDestroyCallback([](flecs::entity e) {
             if (e.get<Core::Modules::Human::IsHuman>()) {
