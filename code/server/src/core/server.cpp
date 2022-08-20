@@ -6,14 +6,19 @@
 #include "shared/messages/human/human_despawn.h"
 
 #include "shared/modules/human_sync.hpp"
+#include "shared/modules/vehicle_sync.hpp"
 
 namespace MafiaMP {
 
     void Server::PostInit() {
+        // register factories
+        _humanFactory = std::make_shared<HumanFactory>();
+
         InitNetworkingMessages();
 
         // Setup ECS modules
         GetWorldEngine()->GetWorld()->import<Shared::Modules::HumanSync>();
+        GetWorldEngine()->GetWorld()->import<Shared::Modules::VehicleSync>();
     }
 
     void Server::PostUpdate() {}
@@ -24,51 +29,7 @@ namespace MafiaMP {
         const auto net = GetNetworkingEngine()->GetNetworkServer();
 
         SetOnPlayerConnectCallback([this, net](flecs::entity player, uint64_t guid) {
-            auto es = player.get_mut<Framework::World::Modules::Base::Streamable>();
-
-            es->modEvents.spawnProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                const auto frame = e.get<Framework::World::Modules::Base::Frame>();
-                Shared::Messages::Human::HumanSpawn humanSpawn;
-                humanSpawn.FromParameters(frame->modelHash);
-                humanSpawn.SetServerID(e.id());
-                net->Send(humanSpawn, guid);
-                // todo other stuff
-                return true;
-            };
-
-            es->modEvents.despawnProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                Shared::Messages::Human::HumanDespawn humanDespawn;
-                humanDespawn.SetServerID(e.id());
-                net->Send(humanDespawn, guid);
-                return true;
-            };
-
-            es->modEvents.selfUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                Shared::Messages::Human::HumanSelfUpdate humanSelfUpdate;
-                humanSelfUpdate.SetServerID(e.id());
-                net->Send(humanSelfUpdate, guid);
-                return true;
-            };
-
-            es->modEvents.updateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                const auto trackingMetadata = e.get<Shared::Modules::HumanSync::UpdateData>();
-
-                Shared::Messages::Human::HumanUpdate humanUpdate{};
-                humanUpdate.SetServerID(e.id());
-                humanUpdate.SetCharStateHandlerType(trackingMetadata->_charStateHandlerType);
-                humanUpdate.SetHealthPercent(trackingMetadata->_healthPercent);
-                humanUpdate.SetMoveMode(trackingMetadata->_moveMode);
-                humanUpdate.SetSprinting(trackingMetadata->_isSprinting);
-                humanUpdate.SetSprintSpeed(trackingMetadata->_sprintSpeed);
-                humanUpdate.SetStalking(trackingMetadata->_isStalking);
-                net->Send(humanUpdate, guid);
-                return true;
-            };
-
-            auto frame = player.get_mut<Framework::World::Modules::Base::Frame>();
-            frame->modelHash = 10505412751276834320;
-
-            player.add<Shared::Modules::HumanSync::UpdateData>();
+            this->_humanFactory->SetupServer(net, player);
         });
 
         SetOnPlayerDisconnectCallback([this](flecs::entity player, uint64_t guid) {
