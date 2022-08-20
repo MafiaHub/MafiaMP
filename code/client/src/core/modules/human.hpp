@@ -40,17 +40,12 @@ namespace MafiaMP::Core::Modules {
             [[maybe_unused]] char _unused;
         };
 
-        struct IsHuman {
-            [[maybe_unused]] char _unused;
-        };
-
         Human(flecs::world &world) {
             world.module<Human>();
 
             world.component<Tracking>();
             world.component<LocalPlayer>();
             world.component<Interpolated>();
-            world.component<IsHuman>();
 
             world.system<Tracking, Shared::Modules::HumanSync::UpdateData, LocalPlayer, Framework::World::Modules::Base::Transform>("UpdateLocalPlayer").each([](flecs::entity e, Tracking &tracking, Shared::Modules::HumanSync::UpdateData &metadata, LocalPlayer &lp, Framework::World::Modules::Base::Transform &tr) {
                 if (tracking.human) {
@@ -151,8 +146,6 @@ namespace MafiaMP::Core::Modules {
             info->SetRequestFinishCallback(OnHumanRequestFinish);
             info->SetReturnCallback(OnHumanReturned);
             info->SetNetworkEntity(e);
-
-            e.add<IsHuman>();
         }
 
         static inline void SetupLocalPlayer(Application *app, flecs::entity e) {

@@ -29,29 +29,26 @@ namespace MafiaMP::Core::Modules {
             Framework::Utils::Interpolator interpolator = {};
         };
 
-        struct IsVehicle {
-            [[maybe_unused]] char _unused;
-        };
-
         Vehicle(flecs::world &world) {
             world.module<Vehicle>();
 
             world.component<Tracking>();
             world.component<Interpolated>();
-            world.component<IsVehicle>();
 
             world.system<Tracking, Shared::Modules::VehicleSync::UpdateData, Framework::World::Modules::Base::Transform>("UpdateOwnedVehicles").each([](flecs::entity e, Tracking &tracking, Shared::Modules::VehicleSync::UpdateData &metadata, Framework::World::Modules::Base::Transform &tr) {
             });
 
             world.system<Tracking, Interpolated>("UpdateRemoteVehicle").each([](flecs::entity e, Tracking &tracking, Interpolated &interpolated) {
-                /* if (tracking.vehicle && e.get<LocalPlayer>() == nullptr) {
-                    const auto vehiclePos = tracking.vehicle->GetPos();
-                    const auto vehicleRot = tracking.vehicle->GetRot();
+                const auto myGUID = Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->GetPeer()->GetMyGUID();
+                if (tracking.vehicle && Framework::World::Modules::Base::IsEntityOwnedBy(e, myGUID.g) == false) {
+                    const auto car = tracking.vehicle;
+                    const auto vehiclePos = car->GetPos();
+                    const auto vehicleRot = car->GetRot();
                     const auto newPos = interpolated.interpolator.GetPosition()->UpdateTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z});
                     const auto newRot = interpolated.interpolator.GetRotation()->UpdateTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z});
-                    tracking.vehicle->SetPos({newPos.x, newPos.y, newPos.z});
-                    tracking.vehicle->SetRot({newRot.x, newRot.y, newRot.z, newRot.w});
-                } */
+                    car->SetPos({newPos.x, newPos.y, newPos.z});
+                    car->SetRot({newRot.x, newRot.y, newRot.z, newRot.w});
+                }
             });
         }
 
@@ -104,8 +101,6 @@ namespace MafiaMP::Core::Modules {
             info->SetRequestFinishCallback(OnVehicleRequestFinish);
             info->SetReturnCallback(OnVehicleReturned);
             info->SetNetworkEntity(e);
-
-            e.add<IsVehicle>();
         }
 
         static inline void Update(flecs::entity e) {

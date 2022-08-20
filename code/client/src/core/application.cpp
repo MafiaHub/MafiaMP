@@ -66,10 +66,10 @@ namespace MafiaMP::Core {
         GetWorldEngine()->GetWorld()->import<Shared::Modules::VehicleSync>();
 
         GetWorldEngine()->SetOnEntityDestroyCallback([](flecs::entity e) {
-            if (e.get<Core::Modules::Human::IsHuman>()) {
+            if (e.get<Core::Modules::Human::Tracking>()) {
                 Core::Modules::Human::Remove(e);
             }
-            else if (e.get<Core::Modules::Vehicle::IsVehicle>()) {
+            else if (e.get<Core::Modules::Vehicle::Tracking>()) {
                 Core::Modules::Vehicle::Remove(e);
             }
 
