@@ -288,8 +288,16 @@ namespace MafiaMP::Core {
                 return;
             }
 
-            auto updateData                   = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            //Core::Modules::Vehicle::UpdateVehicle(e);
+            auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            updateData->velocity = msg->GetVelocity();
+            updateData->angularVelocity = msg->GetAngularVelocity();
+            updateData->gear = msg->GetGear();
+            updateData->horn = msg->GetHorn();
+            updateData->power = msg->GetPower();
+            updateData->brake = msg->GetBrake();
+            updateData->handbrake = msg->GetHandbrake();
+            updateData->steer = msg->GetSteer();
+            // Core::Modules::Vehicle::UpdateVehicle(e);
         });
     }
 

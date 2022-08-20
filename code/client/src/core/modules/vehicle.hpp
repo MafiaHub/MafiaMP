@@ -54,7 +54,7 @@ namespace MafiaMP::Core::Modules {
             auto interp = e.get_mut<Interpolated>();
             interp->interpolator.GetPosition()->SetCompensationFactor(1.5f);
 
-            const auto OnVehicleRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
+            const auto OnVehicleRequestFinish = [trackingData](Game::Streaming::EntityTrackingInfo *info, bool success) {
                 if (success) {
                     auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
                     if (!car) {
@@ -78,7 +78,7 @@ namespace MafiaMP::Core::Modules {
                 }
             };
 
-            const auto OnVehicleReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
+            const auto OnVehicleReturned = [](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
                 if (!info) {
                     return;
                 }
