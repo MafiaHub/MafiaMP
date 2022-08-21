@@ -114,9 +114,7 @@ void spawnSomeCars(MafiaMP::Server *server) {
     for(i = 0; i < sizeof(locations) / sizeof(CarLocation); ++i) {
         const CarLocation& loc = locations[i];
 
-        auto e = server->GetWorldEngine()->CreateEntity();
-        server->GetStreamingFactory()->SetupServer(e, SLNet::UNASSIGNED_RAKNET_GUID.g);
-        MafiaMP::Core::Modules::Vehicle::Create(server->GetNetworkingEngine()->GetNetworkServer(), e);
+        auto e = MafiaMP::Core::Modules::Vehicle::Create(server);
 
         auto t = e.get_mut<Framework::World::Modules::Base::Transform>();
         t->pos = loc.pos;

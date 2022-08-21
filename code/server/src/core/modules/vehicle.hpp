@@ -1,6 +1,6 @@
 #pragma once
 
-#include <integrations/server/instance.h>
+#include "server.h"
 
 #include "networking/network_peer.h"
 #include "world/modules/base.hpp"
@@ -31,7 +31,10 @@ namespace MafiaMP::Core::Modules {
             });
         }
 
-        static inline void Create(Framework::Networking::NetworkServer *net, flecs::entity e) {
+        static inline flecs::entity Create(MafiaMP::Server *server) {
+            const auto net = server->GetNetworkingEngine()->GetNetworkServer();
+            auto e           = server->GetWorldEngine()->CreateEntity();
+            server->GetStreamingFactory()->SetupServer(e, SLNet::UNASSIGNED_RAKNET_GUID.g);
             auto frame = e.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelName = "berkley_810"; /* TODO */
 
@@ -88,6 +91,8 @@ namespace MafiaMP::Core::Modules {
                 net->Send(vehicleUpdate, guid);
                 return true;
             };
+
+            return e;
         }
 
         static inline void SetupMessages(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
