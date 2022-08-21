@@ -12,4 +12,4 @@ namespace MafiaMP::Core::Modules {
 
         static void SetupMessages(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net);
     };
-} // namespace MafiaMP
+} // namespace MafiaMP::Core::Modules

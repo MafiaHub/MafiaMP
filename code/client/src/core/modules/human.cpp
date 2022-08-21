@@ -60,7 +60,7 @@ namespace MafiaMP::Core::Modules {
                     } break;
 
                     case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR: {
-                        SDK::C_Human2CarWrapper *human2CarWrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
+                        auto human2CarWrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
                         // printf("id: %d\n", charController->GetCarHandler()->GetCarState());
                         if (human2CarWrapper && charController->GetCarHandler()->GetCarState() == 2) /* entering in progress */ {
                             SDK::C_Car *car  = (SDK::C_Car *)tracking.human->GetOwner();
