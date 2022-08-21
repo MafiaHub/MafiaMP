@@ -3,8 +3,8 @@
 #include "shared/modules/human_sync.hpp"
 #include "shared/modules/vehicle_sync.hpp"
 
-#include "modules/human.hpp"
-#include "modules/vehicle.hpp"
+#include "modules/human.h"
+#include "modules/vehicle.h"
 
 // TODO UGLY
 void spawnSomeCars(MafiaMP::Server *server);

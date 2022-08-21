@@ -27,8 +27,11 @@
 #include <cppfs/FileHandle.h>
 #include <cppfs/fs.h>
 
-#include "modules/human.hpp"
-#include "modules/vehicle.hpp"
+#include "shared/modules/human_sync.hpp"
+#include "shared/modules/vehicle_sync.hpp"
+
+#include "modules/human.h"
+#include "modules/vehicle.h"
 
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication = nullptr;
