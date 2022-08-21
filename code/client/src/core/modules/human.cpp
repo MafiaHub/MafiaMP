@@ -7,17 +7,17 @@
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
 #include "sdk/entities/c_vehicle.h"
-#include "sdk/wrappers/c_human_2_car_wrapper.h"
 #include "sdk/entities/human/c_human_script.h"
 #include "sdk/entities/human/c_human_weapon_controller.h"
+#include "sdk/wrappers/c_human_2_car_wrapper.h"
 
-#include "game/helpers/human.h"
 #include "game/helpers/controls.h"
+#include "game/helpers/human.h"
 #include "game/overrides/character_controller.h"
 #include "game/streaming/entity_tracking_info.h"
 
-#include <world/modules/base.hpp>
 #include "vehicle.h"
+#include <world/modules/base.hpp>
 
 #include "shared/messages/human/human_despawn.h"
 #include "shared/messages/human/human_self_update.h"
@@ -203,8 +203,8 @@ namespace MafiaMP::Core::Modules {
         trackingData->human->GetHumanScript()->SetDemigod(true);
         trackingData->human->GetHumanScript()->SetInvulnerabilityByScript(true);
 
-        auto updateData                                                                               = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
-        SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(updateData->_charStateHandlerType);
+        auto updateData                    = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+        const auto desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(updateData->_charStateHandlerType);
 
         // exit vehicle if we're no longer a passenger
         if (updateData->carPassenger.carId == 0 && updateData->carPassenger.enterState == STATE_INSIDE) {
@@ -250,7 +250,7 @@ namespace MafiaMP::Core::Modules {
         // Update human based data
         trackingData->charController->SetDesiredHandlerType(desiredStateHandlerType);
         trackingData->charController->SetStalkMoveOverride(updateData->_isStalking);
-        SDK::E_HumanMoveMode hmm = updateData->_moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(updateData->_moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
+        const auto hmm = updateData->_moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(updateData->_moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
         trackingData->charController->SetMoveStateOverride(hmm, updateData->_isSprinting, updateData->_sprintSpeed);
     }
 
