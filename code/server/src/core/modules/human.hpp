@@ -34,6 +34,10 @@ namespace MafiaMP::Core::Modules {
                 Shared::Messages::Human::HumanSpawn humanSpawn;
                 humanSpawn.FromParameters(frame->modelHash);
                 humanSpawn.SetServerID(e.id());
+
+                const auto trackingMetadata = e.get<Shared::Modules::HumanSync::UpdateData>();
+                humanSpawn.SetCarPassenger(trackingMetadata->carPassenger.carId, trackingMetadata->carPassenger.seatId);
+
                 net->Send(humanSpawn, guid);
                 // todo other stuff
                 return true;

@@ -80,7 +80,7 @@ namespace MafiaMP::Core::Modules {
                             SDK::C_Car* car = (SDK::C_Car*)tracking.human->GetOwner();
                             const auto carId = Core::Modules::Vehicle::GetCarEntity(car);
                             if(carId) {
-                                metadata.carPassenger = { STATE_INSIDE, carId, (int)human2CarWrapper->GetSeatID(tracking.human) };
+                                metadata.carPassenger = { STATE_INSIDE, false, carId, (int)human2CarWrapper->GetSeatID(tracking.human) };
                             }
                         }
                     } break;
@@ -102,8 +102,9 @@ namespace MafiaMP::Core::Modules {
                             if(carEnt.is_valid()) {
                                 const auto carTracking = carEnt.get<Core::Modules::Vehicle::Tracking>();
                                 if (carTracking) {
-                                    if (Game::Helpers::Human::PutIntoCar(tracking.charController, carTracking->car, updateData->carPassenger.seatId, false)) {
+                                    if (Game::Helpers::Human::PutIntoCar(tracking.charController, carTracking->car, updateData->carPassenger.seatId, updateData->carPassenger.enterForced)) {
                                         updateData->carPassenger.enterState = STATE_INSIDE;
+                                        updateData->carPassenger.enterForced = false;
                                     }
                                 }
                             }
@@ -284,7 +285,15 @@ namespace MafiaMP::Core::Modules {
                 Create(e, msg->GetSpawnProfile());
 
                 // Setup other components
-                e.add<Shared::Modules::HumanSync::UpdateData>();
+                auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+
+                const auto carPassenger = msg->GetCarPassenger();
+                if (carPassenger.carId) {
+                    updateData->carPassenger.carId = carPassenger.carId;
+                    updateData->carPassenger.seatId = carPassenger.seatId;
+                    updateData->carPassenger.enterState = STATE_ENTERING;
+                    updateData->carPassenger.enterForced = true;
+                }
 
                 // set up client updates (NPC streaming)
                 // TODO disabled for now, we don't really need to stream NPCs atm

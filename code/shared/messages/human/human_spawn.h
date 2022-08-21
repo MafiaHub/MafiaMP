@@ -8,6 +8,11 @@ namespace MafiaMP::Shared::Messages::Human {
       private:
         uint64_t _spawnProfile;
 
+        struct CarPassenger {
+            uint64_t carId{};
+            int seatId{};
+        } _carPassenger{};
+
       public:
         uint8_t GetMessageID() const override {
             return MOD_HUMAN_SPAWN;
@@ -19,6 +24,7 @@ namespace MafiaMP::Shared::Messages::Human {
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
             bs->Serialize(write, _spawnProfile);
+            bs->Serialize(write, _carPassenger);
         }
 
         bool Valid() const override {
@@ -27,6 +33,15 @@ namespace MafiaMP::Shared::Messages::Human {
 
         uint64_t GetSpawnProfile() const {
             return _spawnProfile;
+        }
+
+        void SetCarPassenger(uint64_t carId, int seatId) {
+            _carPassenger.carId = carId;
+            _carPassenger.seatId = seatId;
+        }
+
+        CarPassenger GetCarPassenger() const {
+            return _carPassenger;
         }
     };
 } // namespace MafiaMP::Shared::Messages::Human

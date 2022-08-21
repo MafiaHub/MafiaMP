@@ -21,6 +21,7 @@ namespace MafiaMP::Shared::Modules {
 
             struct CarPassenger {
                 CarEnterStates enterState = STATE_OUTSIDE;
+                bool enterForced{};
                 uint64_t carId{};
                 int seatId{};
             } carPassenger{};

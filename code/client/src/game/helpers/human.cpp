@@ -14,11 +14,13 @@ namespace MafiaMP::Game::Helpers {
     }
 
     bool Human::PutIntoCar(MafiaMP::Game::Overrides::CharacterController *charController, SDK::C_Car *car, int seat, bool force) {
+        if (!car) return false;
         SDK::C_Actor *act = *(SDK::C_Actor **)((uintptr_t)car + 0xA8);
         return charController->TriggerActorAction(act, SDK::E_AA_ENTER_CAR, seat, force, false);
     }
 
     bool Human::RemoveFromCar(MafiaMP::Game::Overrides::CharacterController *charController, SDK::C_Car *car, bool force) {
+        if (!car) return false;
         SDK::C_Actor *act = *(SDK::C_Actor **)((uintptr_t)car + 0xA8);
         return charController->TriggerActorAction(act, SDK::E_AA_LEAVE_CAR, 0, force, false);
     }
