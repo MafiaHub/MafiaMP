@@ -223,12 +223,12 @@ namespace MafiaMP::Core::Modules {
         });
     }
 
-    flecs::entity_t Vehicle::GetCarEntity(SDK::C_Car *carPtr) {
-        flecs::entity_t carID{};
+    flecs::entity Vehicle::GetCarEntity(SDK::C_Car *carPtr) {
+        flecs::entity carID{};
         _findAllVehicles.each([&carID, carPtr](flecs::entity e, Core::Modules::Vehicle::Tracking &trackingData) {
             if (trackingData.car == carPtr) {
                 const auto sid = e.get<Framework::World::Modules::Base::ServerID>();
-                carID = sid->id;
+                carID = flecs::entity(e.world(), sid->id);
             }
         });
         return carID;

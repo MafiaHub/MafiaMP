@@ -65,8 +65,8 @@ namespace MafiaMP::Core::Modules {
                         if (human2CarWrapper && charController->GetCarHandler()->GetCarState() == 2) /* entering in progress */ {
                             SDK::C_Car *car  = (SDK::C_Car *)tracking.human->GetOwner();
                             const auto carId = Core::Modules::Vehicle::GetCarEntity(car);
-                            if (carId) {
-                                metadata.carPassenger = {STATE_INSIDE, false, carId, (int)human2CarWrapper->GetSeatID(tracking.human)};
+                            if (carId.is_valid()) {
+                                metadata.carPassenger = {STATE_INSIDE, false, carId.id(), (int)human2CarWrapper->GetSeatID(tracking.human)};
                             }
                         }
                         else if (human2CarWrapper && charController->GetCarHandler()->GetCarState() == 8) /* leaving in progress */ {

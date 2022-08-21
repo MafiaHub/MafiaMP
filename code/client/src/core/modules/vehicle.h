@@ -33,6 +33,6 @@ namespace MafiaMP::Core::Modules {
 
         static void SetupMessages(Application *app);
         
-        static flecs::entity_t GetCarEntity(SDK::C_Car *carPtr);
+        static flecs::entity GetCarEntity(SDK::C_Car *carPtr);
     };
 } // namespace MafiaMP::Core::Modules
