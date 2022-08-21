@@ -76,12 +76,16 @@ namespace MafiaMP::Core::Modules {
 
                     case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR: {
                         SDK::C_Human2CarWrapper* human2CarWrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
+                        // printf("id: %d\n", charController->GetCarHandler()->GetCarState());
                         if(human2CarWrapper && charController->GetCarHandler()->GetCarState() == 2) /* entering in progress */ {
                             SDK::C_Car* car = (SDK::C_Car*)tracking.human->GetOwner();
                             const auto carId = Core::Modules::Vehicle::GetCarEntity(car);
                             if(carId) {
                                 metadata.carPassenger = { STATE_INSIDE, false, carId, (int)human2CarWrapper->GetSeatID(tracking.human) };
                             }
+                        }
+                        else if(human2CarWrapper && charController->GetCarHandler()->GetCarState() == 8) /* leaving in progress */ {
+                            metadata.carPassenger = {};
                         }
                     } break;
                     }
@@ -216,6 +220,15 @@ namespace MafiaMP::Core::Modules {
             auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
             SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(updateData->_charStateHandlerType);
 
+            // exit vehicle if we're no longer a passenger
+            if (updateData->carPassenger.carId == 0 && updateData->carPassenger.enterState == STATE_INSIDE) {
+                updateData->carPassenger.enterState = STATE_LEAVING;
+                printf("[Human] Leaving vehicle\n");
+                if (Game::Helpers::Human::RemoveFromCar(trackingData->charController, (SDK::C_Car*)trackingData->human->GetOwner(), false)) {
+                    updateData->carPassenger.enterState = STATE_OUTSIDE;
+                }
+            }
+
             if(SDK::ue::game::humanai::C_CharacterStateHandler::IsVehicleStateHandlerType(desiredStateHandlerType)) {
                 trackingData->charController->SetDesiredHandlerType(SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_NONE);
 
@@ -228,14 +241,6 @@ namespace MafiaMP::Core::Modules {
                 }
 
                 return;
-            }
-
-            // exit vehicle if we're no longer a passenger
-            if (updateData->carPassenger.carId == 0 && updateData->carPassenger.enterState == STATE_INSIDE) {
-                updateData->carPassenger.enterState = STATE_LEAVING;
-                if (Game::Helpers::Human::RemoveFromCar(trackingData->charController, (SDK::C_Car*)trackingData->human->GetOwner(), false)) {
-                    updateData->carPassenger.enterState = STATE_OUTSIDE;
-                }
             }
 
             // Update basic data
