@@ -18,6 +18,17 @@ namespace MafiaMP::Core::Modules {
 
         Vehicle(flecs::world &world) {
             world.module<Vehicle>();
+
+            world.system<Shared::Modules::VehicleSync::UpdateData>("FixVehicleSeats").each([](flecs::entity e, Shared::Modules::VehicleSync::UpdateData &updateData) {
+                for (int i = 0; i < 4; i++) {
+                    if (updateData.seats[i]) {
+                        const auto playerEnt = flecs::entity(e.world(), updateData.seats[i]);
+                        if (!playerEnt.is_alive()) {
+                            updateData.seats[i] = 0;
+                        }
+                    }
+                }
+            });
         }
 
         static inline void Create(Framework::Networking::NetworkServer *net, flecs::entity e) {
@@ -33,6 +44,9 @@ namespace MafiaMP::Core::Modules {
                 for (int i = 0; i < 4; i++) {
                     if (updateData->seats[i]) {
                         const auto playerEnt = flecs::entity(e.world(), updateData->seats[i]);
+                        if (!playerEnt.is_alive())
+                            continue;
+                        
                         const auto streamable = playerEnt.get<Framework::World::Modules::Base::Streamable>();
                         es.owner = streamable->owner;
                         return true;
