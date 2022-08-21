@@ -109,6 +109,25 @@ namespace MafiaMP::Core::Modules {
 
                     auto trackingData = ent.get_mut<Core::Modules::Vehicle::Tracking>();
                     trackingData->car = car;
+
+                    auto streamable = ent.get_mut<Framework::World::Modules::Base::Streamable>();
+                    streamable->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
+                        const auto updateData = e.get<Shared::Modules::VehicleSync::UpdateData>();
+                        const auto serverID = e.get<Framework::World::Modules::Base::ServerID>();
+
+                        Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate{};
+                        vehicleUpdate.SetServerID(serverID->id);
+                        vehicleUpdate.SetGear(updateData->gear);
+                        vehicleUpdate.SetHorn(updateData->horn);
+                        vehicleUpdate.SetPower(updateData->power);
+                        vehicleUpdate.SetBrake(updateData->brake);
+                        vehicleUpdate.SetHandbrake(updateData->handbrake);
+                        vehicleUpdate.SetSteer(updateData->steer);
+                        vehicleUpdate.SetVelocity(updateData->velocity);
+                        vehicleUpdate.SetAngularVelocity(updateData->angularVelocity);
+                        peer->Send(vehicleUpdate, guid);
+                        return true;
+                    };
                 }
             };
 
@@ -202,21 +221,16 @@ namespace MafiaMP::Core::Modules {
                     return;
                 }
 
-                const auto myGUID = Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->GetPeer()->GetMyGUID();
-                if (Framework::World::Modules::Base::IsEntityOwnedBy(e, myGUID.g) == false) {
-                    auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-                    updateData->velocity = msg->GetVelocity();
-                    updateData->angularVelocity = msg->GetAngularVelocity();
-                    updateData->gear = msg->GetGear();
-                    updateData->horn = msg->GetHorn();
-                    updateData->power = msg->GetPower();
-                    updateData->brake = msg->GetBrake();
-                    updateData->handbrake = msg->GetHandbrake();
-                    updateData->steer = msg->GetSteer();
-                    Update(e);
-                } else {
-                    // TODO handle optional forced updates
-                }
+                auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+                updateData->velocity = msg->GetVelocity();
+                updateData->angularVelocity = msg->GetAngularVelocity();
+                updateData->gear = msg->GetGear();
+                updateData->horn = msg->GetHorn();
+                updateData->power = msg->GetPower();
+                updateData->brake = msg->GetBrake();
+                updateData->handbrake = msg->GetHandbrake();
+                updateData->steer = msg->GetSteer();
+                Update(e);
             });
         }
     };
