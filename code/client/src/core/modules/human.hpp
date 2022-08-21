@@ -223,7 +223,6 @@ namespace MafiaMP::Core::Modules {
             // exit vehicle if we're no longer a passenger
             if (updateData->carPassenger.carId == 0 && updateData->carPassenger.enterState == STATE_INSIDE) {
                 updateData->carPassenger.enterState = STATE_LEAVING;
-                printf("[Human] Leaving vehicle\n");
                 if (Game::Helpers::Human::RemoveFromCar(trackingData->charController, (SDK::C_Car*)trackingData->human->GetOwner(), false)) {
                     updateData->carPassenger.enterState = STATE_OUTSIDE;
                 }
