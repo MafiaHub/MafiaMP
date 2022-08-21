@@ -4,6 +4,8 @@
 
 #include <flecs/flecs.h>
 
+enum CarEnterStates { STATE_OUTSIDE, STATE_ENTERING, STATE_LEAVING, STATE_INSIDE };
+
 namespace MafiaMP::Shared::Modules {
     struct HumanSync {
         struct UpdateData {
@@ -16,6 +18,12 @@ namespace MafiaMP::Shared::Modules {
             bool _isStalking  = false;
 
             float _sprintSpeed = 0.0f;
+
+            struct CarPassenger {
+                CarEnterStates enterState = STATE_OUTSIDE;
+                uint64_t carId{};
+                int seatId{};
+            } carPassenger{};
         };
 
         HumanSync(flecs::world& world) {

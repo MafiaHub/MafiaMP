@@ -64,6 +64,7 @@ namespace MafiaMP::Core::Modules {
                 humanUpdate.SetSprinting(trackingMetadata->_isSprinting);
                 humanUpdate.SetSprintSpeed(trackingMetadata->_sprintSpeed);
                 humanUpdate.SetStalking(trackingMetadata->_isStalking);
+                humanUpdate.SetCarPassenger(trackingMetadata->carPassenger.carId, trackingMetadata->carPassenger.seatId);
                 net->Send(humanUpdate, guid);
                 return true;
             };
@@ -86,6 +87,33 @@ namespace MafiaMP::Core::Modules {
                 trackingMetadata->_isStalking           = msg->IsStalking();
                 trackingMetadata->_moveMode             = msg->GetMoveMode();
                 trackingMetadata->_sprintSpeed          = msg->GetSprintSpeed();
+
+                const auto carPassenger = msg->GetCarPassenger();
+
+                // TODO improve this code
+                if (trackingMetadata->carPassenger.carId != carPassenger.carId) {
+                    if (trackingMetadata->carPassenger.carId) {
+                        const auto carEnt = srv->WrapEntity(trackingMetadata->carPassenger.carId);
+
+                        if (carEnt.is_alive()) {
+                            auto car = carEnt.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+                            car->seats[trackingMetadata->carPassenger.seatId] = 0;
+                        }
+                    }
+                    if (carPassenger.carId) {
+                        const auto carEnt = srv->WrapEntity(carPassenger.carId);
+
+                        if (carEnt.is_alive()) {
+                            auto car = carEnt.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+                            car->seats[carPassenger.seatId] = e.id();
+
+                            // TODO rework so that we can ensure player doesn't sit in fully occupied vehicle etc
+                        }
+                    }
+                }
+
+                trackingMetadata->carPassenger.carId = carPassenger.carId;
+                trackingMetadata->carPassenger.seatId = carPassenger.seatId;
             });
         }
     };

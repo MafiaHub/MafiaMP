@@ -28,6 +28,19 @@ namespace MafiaMP::Core::Modules {
 
             auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
 
+            es->assignOwnerProc = [](flecs::entity e, Framework::World::Modules::Base::Streamable &es) {
+                const auto updateData = e.get<Shared::Modules::VehicleSync::UpdateData>();
+                for (int i = 0; i < 4; i++) {
+                    if (updateData->seats[i]) {
+                        const auto playerEnt = flecs::entity(e.world(), updateData->seats[i]);
+                        const auto streamable = playerEnt.get<Framework::World::Modules::Base::Streamable>();
+                        es.owner = streamable->owner;
+                        return true;
+                    }
+                }
+                return false;
+            };
+
             es->modEvents.spawnProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
                 const auto frame = e.get<Framework::World::Modules::Base::Frame>();
                 Shared::Messages::Vehicle::VehicleSpawn vehicleSpawn;

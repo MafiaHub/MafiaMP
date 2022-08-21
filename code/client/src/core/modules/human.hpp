@@ -2,27 +2,29 @@
 
 #include <flecs/flecs.h>
 
-#include "../sdk/c_game.h"
-#include "../sdk/entities/c_car.h"
-#include "../sdk/entities/c_player_2.h"
-#include "../sdk/entities/c_vehicle.h"
-#include "../sdk/entities/human/c_human_weapon_controller.h"
-#include "../sdk/entities/human/c_human_script.h"
+#include "sdk/c_game.h"
+#include "sdk/entities/c_car.h"
+#include "sdk/entities/c_player_2.h"
+#include "sdk/entities/c_vehicle.h"
+#include "sdk/wrappers/c_human_2_car_wrapper.h"
+#include "sdk/entities/human/c_human_weapon_controller.h"
+#include "sdk/entities/human/c_human_script.h"
 
-#include "../game/streaming/entity_tracking_info.h"
-#include "../game/helpers/human.h"
-#include "../game/overrides/character_controller.h"
+#include "game/streaming/entity_tracking_info.h"
+#include "game/helpers/human.h"
+#include "game/overrides/character_controller.h"
 
-#include "../shared/modules/human_sync.hpp"
+#include "modules/vehicle.hpp"
+#include "shared/modules/human_sync.hpp"
 
 #include <world/modules/base.hpp>
 #include <utils/interpolator.h>
 
-#include "../shared/modules/human_sync.hpp"
-#include "../shared/messages/human/human_despawn.h"
-#include "../shared/messages/human/human_self_update.h"
-#include "../shared/messages/human/human_spawn.h"
-#include "../shared/messages/human/human_update.h"
+#include "shared/modules/human_sync.hpp"
+#include "shared/messages/human/human_despawn.h"
+#include "shared/messages/human/human_self_update.h"
+#include "shared/messages/human/human_spawn.h"
+#include "shared/messages/human/human_update.h"
 
 namespace MafiaMP::Core::Modules {
     struct Human {
@@ -73,20 +75,47 @@ namespace MafiaMP::Core::Modules {
                     } break;
 
                     case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR: {
-                        //TODO: implement
+                        SDK::C_Human2CarWrapper* human2CarWrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
+                        if(human2CarWrapper && charController->GetCarHandler()->GetCarState() == 2) /* entering in progress */ {
+                            SDK::C_Car* car = (SDK::C_Car*)tracking.human->GetOwner();
+                            const auto carId = Core::Modules::Vehicle::GetCarEntity(car);
+                            if(carId) {
+                                metadata.carPassenger = { STATE_INSIDE, carId, (int)human2CarWrapper->GetSeatID(tracking.human) };
+                            }
+                        }
                     } break;
+                    }
+
+                    if (metadata._charStateHandlerType != SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
+                        // not in a vehicle, so make sure data is reset
+                        metadata.carPassenger = {};
                     }
                 }
             });
 
             world.system<Tracking, Interpolated>("UpdateRemoteHuman").each([](flecs::entity e, Tracking &tracking, Interpolated &interpolated) {
                 if (tracking.human && e.get<LocalPlayer>() == nullptr) {
-                    const auto humanPos = tracking.human->GetPos();
-                    const auto humanRot = tracking.human->GetRot();
-                    const auto newPos = interpolated.interpolator.GetPosition()->UpdateTargetValue({humanPos.x, humanPos.y, humanPos.z});
-                    const auto newRot = interpolated.interpolator.GetRotation()->UpdateTargetValue({humanRot.w, humanRot.x, humanRot.y, humanRot.z});
-                    tracking.human->SetPos({newPos.x, newPos.y, newPos.z});
-                    tracking.human->SetRot({newRot.x, newRot.y, newRot.z, newRot.w});
+                    auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+                    if(tracking.charController->GetCurrentStateHandlerType() != SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
+                        if (updateData->carPassenger.enterState == STATE_ENTERING) {
+                            const auto carEnt = Core::gApplication->GetWorldEngine()->GetEntityByServerID(updateData->carPassenger.carId);
+                            if(carEnt.is_valid()) {
+                                const auto carTracking = carEnt.get<Core::Modules::Vehicle::Tracking>();
+                                if (carTracking) {
+                                    if (Game::Helpers::Human::PutIntoCar(tracking.charController, carTracking->car, updateData->carPassenger.seatId, false)) {
+                                        updateData->carPassenger.enterState = STATE_INSIDE;
+                                    }
+                                }
+                            }
+                        } else if (!SDK::ue::game::humanai::C_CharacterStateHandler::IsVehicleStateHandlerType(tracking.charController->GetCurrentStateHandlerType())) {
+                            const auto humanPos = tracking.human->GetPos();
+                            const auto humanRot = tracking.human->GetRot();
+                            const auto newPos = interpolated.interpolator.GetPosition()->UpdateTargetValue({humanPos.x, humanPos.y, humanPos.z});
+                            const auto newRot = interpolated.interpolator.GetRotation()->UpdateTargetValue({humanRot.w, humanRot.x, humanRot.y, humanRot.z});
+                            tracking.human->SetPos({newPos.x, newPos.y, newPos.z});
+                            tracking.human->SetRot({newRot.x, newRot.y, newRot.z, newRot.w});
+                        }
+                    }
                 }
             });
         }
@@ -168,6 +197,7 @@ namespace MafiaMP::Core::Modules {
                 humanUpdate.SetSprinting(updateData->_isSprinting);
                 humanUpdate.SetSprintSpeed(updateData->_sprintSpeed);
                 humanUpdate.SetStalking(updateData->_isStalking);
+                humanUpdate.SetCarPassenger(updateData->carPassenger.carId, updateData->carPassenger.seatId);
                 peer->Send(humanUpdate, guid);
                 return true;
             };
@@ -181,6 +211,31 @@ namespace MafiaMP::Core::Modules {
 
             trackingData->human->GetHumanScript()->SetDemigod(true);
             trackingData->human->GetHumanScript()->SetInvulnerabilityByScript(true);
+
+            auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+            SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(updateData->_charStateHandlerType);
+
+            if(SDK::ue::game::humanai::C_CharacterStateHandler::IsVehicleStateHandlerType(desiredStateHandlerType)) {
+                trackingData->charController->SetDesiredHandlerType(SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_NONE);
+
+                if(desiredStateHandlerType == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
+                    if(trackingData->charController->GetCurrentStateHandlerType() != SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
+                        if(updateData->carPassenger.carId > 0 && updateData->carPassenger.enterState == STATE_OUTSIDE) {
+                            updateData->carPassenger.enterState = STATE_ENTERING;
+                        }
+                    }
+                }
+
+                return;
+            }
+
+            // exit vehicle if we're no longer a passenger
+            if (updateData->carPassenger.carId == 0 && updateData->carPassenger.enterState == STATE_INSIDE) {
+                updateData->carPassenger.enterState = STATE_LEAVING;
+                if (Game::Helpers::Human::RemoveFromCar(trackingData->charController, (SDK::C_Car*)trackingData->human->GetOwner(), false)) {
+                    updateData->carPassenger.enterState = STATE_OUTSIDE;
+                }
+            }
 
             // Update basic data
             const auto tr = e.get<Framework::World::Modules::Base::Transform>();
@@ -201,10 +256,6 @@ namespace MafiaMP::Core::Modules {
             }
 
             // Update human based data
-            const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
-            SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(updateData->_charStateHandlerType);
-
-            // TODO: take care of vehicle sync data
             trackingData->charController->SetDesiredHandlerType(desiredStateHandlerType);
             trackingData->charController->SetStalkMoveOverride(updateData->_isStalking);
             SDK::E_HumanMoveMode hmm = updateData->_moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(updateData->_moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
@@ -269,6 +320,10 @@ namespace MafiaMP::Core::Modules {
                 updateData->_isStalking           = msg->IsStalking();
                 updateData->_moveMode             = msg->GetMoveMode();
                 updateData->_sprintSpeed          = msg->GetSprintSpeed();
+
+                const auto carPassenger = msg->GetCarPassenger();
+                updateData->carPassenger.carId = carPassenger.carId;
+                updateData->carPassenger.seatId = carPassenger.seatId;
 
                 Update(e);
             });

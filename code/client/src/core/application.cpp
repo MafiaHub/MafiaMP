@@ -11,18 +11,18 @@
 #include "states/shutdown.h"
 #include "states/states.h"
 
-#include "../game/helpers/camera.h"
-#include "../game/helpers/controls.h"
-#include "../game/streaming/entity_factory.h"
-#include "../sdk/entities/c_car.h"
-#include "../sdk/entities/c_player_2.h"
-#include "../sdk/entities/c_vehicle.h"
-#include "../sdk/mafia/framework/c_mafia_framework.h"
-#include "../sdk/mafia/framework/c_mafia_framework_interfaces.h"
+#include "game/helpers/camera.h"
+#include "game/helpers/controls.h"
+#include "game/streaming/entity_factory.h"
+#include "sdk/entities/c_car.h"
+#include "sdk/entities/c_player_2.h"
+#include "sdk/entities/c_vehicle.h"
+#include "sdk/mafia/framework/c_mafia_framework.h"
+#include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
 #include "external/imgui/widgets/corner_text.h"
 
-#include "../shared/version.h"
+#include "shared/version.h"
 #include <utils/version.h>
 #include <cppfs/FileHandle.h>
 #include <cppfs/fs.h>

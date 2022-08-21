@@ -19,6 +19,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/render_device.cpp
     src/core/hooks/traffic.cpp
     src/core/hooks/vehicle.cpp
+    src/core/modules/vehicle.cpp
     src/game/module.cpp
     src/game/streaming/entity_factory.cpp
     src/game/helpers/controls.cpp
@@ -74,7 +75,7 @@ set(MAFIAMP_SDK_FILES
 )
 
 add_library(MafiaMPClient SHARED ${MAFIAMP_CLIENT_FILES} ${MAFIAMP_SDK_FILES})
-target_include_directories(MafiaMPClient PRIVATE .)
+target_include_directories(MafiaMPClient PRIVATE src)
 target_link_libraries(MafiaMPClient Framework FrameworkClient shlwapi Lua54)
 target_link_options(MafiaMPClient PRIVATE /SAFESEH:NO /MANIFEST:NO)
 

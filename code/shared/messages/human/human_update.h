@@ -16,6 +16,11 @@ namespace MafiaMP::Shared::Messages::Human {
 
         float _sprintSpeed{};
 
+        struct CarPassenger {
+            uint64_t carId{};
+            int seatId{};
+        } _carPassenger{};
+
       public:
         uint8_t GetMessageID() const override {
             return MOD_HUMAN_UPDATE;
@@ -28,6 +33,7 @@ namespace MafiaMP::Shared::Messages::Human {
             bs->Serialize(write, _isSprinting);
             bs->Serialize(write, _isStalking);
             bs->Serialize(write, _sprintSpeed);
+            bs->Serialize(write, _carPassenger);
         }
 
         bool Valid() const override {
@@ -81,6 +87,15 @@ namespace MafiaMP::Shared::Messages::Human {
 
         float GetSprintSpeed() const {
             return _sprintSpeed;
+        }
+
+        void SetCarPassenger(uint64_t carId, int seatId) {
+            _carPassenger.carId = carId;
+            _carPassenger.seatId = seatId;
+        }
+
+        CarPassenger GetCarPassenger() const {
+            return _carPassenger;
         }
     };
 } // namespace MafiaMP::Shared::Messages::Human

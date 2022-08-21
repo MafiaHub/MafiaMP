@@ -2,24 +2,25 @@
 
 #include <flecs/flecs.h>
 
-#include "../sdk/c_game.h"
-#include "../sdk/entities/c_vehicle.h"
-#include "../game/streaming/entity_factory.h"
-#include "../sdk/entities/c_car.h"
-#include "../sdk/mafia/framework/c_mafia_framework.h"
-#include "../sdk/mafia/framework/c_mafia_framework_interfaces.h"
+#include "sdk/c_game.h"
+#include "sdk/entities/c_vehicle.h"
+#include "game/streaming/entity_factory.h"
+#include "sdk/entities/c_car.h"
+#include "sdk/mafia/framework/c_mafia_framework.h"
+#include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
-#include "../game/streaming/entity_tracking_info.h"
+#include "core/application.h"
+#include "game/streaming/entity_tracking_info.h"
 
-#include "../shared/modules/vehicle_sync.hpp"
+#include "shared/modules/vehicle_sync.hpp"
 
 #include <world/modules/base.hpp>
 #include <utils/interpolator.h>
 
-#include "../shared/modules/vehicle_sync.hpp"
-#include "../shared/messages/vehicle/vehicle_despawn.h"
-#include "../shared/messages/vehicle/vehicle_spawn.h"
-#include "../shared/messages/vehicle/vehicle_update.h"
+#include "shared/modules/vehicle_sync.hpp"
+#include "shared/messages/vehicle/vehicle_despawn.h"
+#include "shared/messages/vehicle/vehicle_spawn.h"
+#include "shared/messages/vehicle/vehicle_update.h"
 
 namespace MafiaMP::Core::Modules {
     struct Vehicle {
@@ -32,11 +33,15 @@ namespace MafiaMP::Core::Modules {
             Framework::Utils::Interpolator interpolator = {};
         };
 
+        static flecs::query<Tracking> _findAllVehicles;
+
         Vehicle(flecs::world &world) {
             world.module<Vehicle>();
 
             world.component<Tracking>();
             world.component<Interpolated>();
+
+            _findAllVehicles = world.query_builder<Tracking>().build();
 
             world.system<Tracking, Shared::Modules::VehicleSync::UpdateData, Framework::World::Modules::Base::Transform>("UpdateOwnedVehicles").each([](flecs::entity e, Tracking &tracking, Shared::Modules::VehicleSync::UpdateData &metadata, Framework::World::Modules::Base::Transform &tr) {
                 const auto myGUID = Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->GetPeer()->GetMyGUID();
@@ -233,5 +238,7 @@ namespace MafiaMP::Core::Modules {
                 Update(e);
             });
         }
+
+        static flecs::entity_t GetCarEntity(SDK::C_Car *carPtr);
     };
 } // namespace MafiaMP::Core::Modules
