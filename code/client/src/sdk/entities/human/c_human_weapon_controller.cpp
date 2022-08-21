@@ -11,7 +11,7 @@ namespace SDK {
     }
 
     void C_HumanWeaponController::GetShotPosDir(SDK::ue::sys::math::C_Vector *outPosition, SDK::ue::sys::math::C_Vector *outDirection, float *unknown) {
-        hook::this_call<void>(gPatterns.C_HumanWeaponController__GetShotPosDir, this, outPosition, outDirection, Unknown);
+        hook::this_call<void>(gPatterns.C_HumanWeaponController__GetShotPosDir, this, outPosition, outDirection, unknown);
     }
 
     bool C_HumanWeaponController::IsThrownWeapon() {
