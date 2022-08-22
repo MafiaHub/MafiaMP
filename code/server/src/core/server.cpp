@@ -8,10 +8,14 @@
 #include "modules/human.h"
 #include "modules/vehicle.h"
 
+#include "shared/rpc/spawn_car.h"
+
 #include <fmt/format.h>
 
 // TODO UGLY
 void spawnSomeCars(MafiaMP::Server *server);
+
+extern std::vector<std::string> TEST_vehiclelist;
 
 namespace MafiaMP {
 
@@ -55,7 +59,7 @@ namespace MafiaMP {
             if (!chatMessage->Valid())
                 return;
 
-            const auto ent = GetWorldEngine()->WrapEntity(chatMessage->GetServerID());
+            const auto ent = GetWorldEngine()->GetEntityByGUID(chatMessage->GetPacket()->guid.g);
             if (!ent.is_alive())
                 return;
 
@@ -63,6 +67,32 @@ namespace MafiaMP {
             const auto msg = fmt::format("{}: {}", st->nickname, chatMessage->GetText());
             BroadcastChatMessage(ent, msg);
         });
+
+        // spawn car rpc TEST
+        net->RegisterRPC<Shared::RPC::SpawnCar>([this](Shared::RPC::SpawnCar *msg) {
+            if (!msg->Valid()) {
+                return;
+            }
+
+            const auto ent = GetWorldEngine()->GetEntityByGUID(msg->GetPacket()->guid.g);
+            if (!ent.is_alive())
+                return;
+
+            if (std::find(TEST_vehiclelist.begin(), TEST_vehiclelist.end(), msg->GetModelName()) == TEST_vehiclelist.end()) {
+                return;
+            }
+
+            auto t = ent.get<Framework::World::Modules::Base::Transform>();
+            auto carEnt = MafiaMP::Core::Modules::Vehicle::Create(this);
+
+            auto carT = carEnt.get_mut<Framework::World::Modules::Base::Transform>();
+            carT->pos = t->pos;
+            carT->rot = glm::identity<glm::quat>();
+
+            auto frame       = carEnt.get_mut<Framework::World::Modules::Base::Frame>();
+            frame->modelName = msg->GetModelName();
+        });
+        
 
         Core::Modules::Human::SetupMessages(this->GetWorldEngine(), net);
         Core::Modules::Vehicle::SetupMessages(this->GetWorldEngine(), net);
@@ -158,3 +188,61 @@ void spawnSomeCars(MafiaMP::Server *server) {
     }
     Framework::Logging::GetLogger("test")->info("[INFO] Spawned {} cars!\n", i);
 }
+
+std::vector<std::string> TEST_vehiclelist = {
+    "berkley_810",
+    "betting_office",
+    "bolt_ace",
+    "bolt_ace_pickup",
+    "bolt_cooler",
+    "bolt_delivery",
+    "bolt_delivery_amb",
+    "bolt_hearse",
+    "bolt_mail",
+    "bolt_model_b",
+    "bolt_pickup",
+    "bolt_truck",
+    "bolt_truck_scripted_farm",
+    "bolt_v8",
+    "brubaker_forte",
+    "bulworth_packhard",
+    "bulworth_sentry",
+    "carrozella_c_series",
+    "celeste_mark_5",
+    "crazy_horse",
+    "culver_airmaster",
+    "disorder",
+    "eckhart_crusader",
+    "eckhart_elite",
+    "eckhart_fletcher",
+    "falconer_classic",
+    "flame_spear",
+    "hank_a",
+    "haverley_tomahawk_p",
+    "houston_coupe",
+    "lassiter_v16",
+    "lassiter_v16_appolyon",
+    "lassiter_v16_roadster",
+    "manta_prototype",
+    "moto_blackcats",
+    "motorcycle_1935",
+    "mutagen",
+    "parry_bus",
+    "samson_drifter",
+    "samson_tanker",
+    "shubert_e_six_det",
+    "shubert_e_six_p",
+    "shubert_e_six",
+    "shubert_e_six_taxi",
+    "shubert_frigate",
+    "shubert_six",
+    "shubert_six_det",
+    "shubert_six_p",
+    "shubert_six_taxi",
+    "smith_moray",
+    "smith_thrower",
+    "smith_v12_chicago",
+    "smith_v12",
+    "trautenberg_sport",
+    "waybar_concept",
+};

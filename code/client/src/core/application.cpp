@@ -31,6 +31,7 @@
 
 #include "shared/modules/human_sync.hpp"
 #include "shared/modules/vehicle_sync.hpp"
+#include "shared/rpc/spawn_car.h"
 
 #include "modules/human.h"
 #include "modules/vehicle.h"
@@ -303,45 +304,53 @@ namespace MafiaMP::Core {
     }
 
     void Application::SpawnCar(const std::string modelName) {
-        auto info = Core::gApplication->GetEntityFactory()->RequestVehicle(modelName);
-        _TEMP_vehicles.push_back(info);
+        const auto net = GetNetworkingEngine()->GetNetworkClient();
+        if (net->GetConnectionState() == Framework::Networking::CONNECTED) {
+            Shared::RPC::SpawnCar spawnCarMsg {};
+            spawnCarMsg.SetModelName(modelName);
+            net->SendRPC(spawnCarMsg);
+        }
+        else {
+            auto info = Core::gApplication->GetEntityFactory()->RequestVehicle(modelName);
+            _TEMP_vehicles.push_back(info);
 
-        const auto OnCarRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
-            if (success) {
-                auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
-                if (!car) {
+            const auto OnCarRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
+                if (success) {
+                    auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
+                    if (!car) {
+                        return;
+                    }
+                    car->GameInit();
+                    car->Activate();
+                    car->Unlock();
+
+                    auto localPlayer = SDK::GetGame()->GetActivePlayer();
+
+                    SDK::ue::sys::math::C_Vector newPos    = localPlayer->GetPos();
+                    SDK::ue::sys::math::C_Quat newRot      = localPlayer->GetRot();
+                    SDK::ue::sys::math::C_Matrix transform = {};
+                    transform.Identity();
+                    transform.SetRot(newRot);
+                    transform.SetPos(newPos);
+                    car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
+                }
+            };
+
+            const auto OnCarReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
+                if (!info) {
                     return;
                 }
-                car->GameInit();
-                car->Activate();
-                car->Unlock();
+                auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
+                if (wasCreated && car) {
+                    car->Deactivate();
+                    car->GameDone();
+                    car->Release();
+                }
+            };
 
-                auto localPlayer = SDK::GetGame()->GetActivePlayer();
-
-                SDK::ue::sys::math::C_Vector newPos    = localPlayer->GetPos();
-                SDK::ue::sys::math::C_Quat newRot      = localPlayer->GetRot();
-                SDK::ue::sys::math::C_Matrix transform = {};
-                transform.Identity();
-                transform.SetRot(newRot);
-                transform.SetPos(newPos);
-                car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
-            }
-        };
-
-        const auto OnCarReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
-            if (!info) {
-                return;
-            }
-            auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
-            if (wasCreated && car) {
-                car->Deactivate();
-                car->GameDone();
-                car->Release();
-            }
-        };
-
-        info->SetRequestFinishCallback(OnCarRequestFinish);
-        info->SetReturnCallback(OnCarReturned);
+            info->SetRequestFinishCallback(OnCarRequestFinish);
+            info->SetReturnCallback(OnCarReturned);
+        }
     }
 
     void Application::SetupCommands() {
