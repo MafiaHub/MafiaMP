@@ -30,7 +30,5 @@ namespace MafiaMP::Core::UI {
         bool _isFocused     = false;
         std::vector<std::string> _chatMessages;
         char _inputText[1024] {};
-
-        void LockControls(bool lock);
     };
 } // namespace MafiaMP::Core::UI

@@ -44,6 +44,8 @@ namespace MafiaMP::Core {
 
         void InitNetworkingMessages();
 
+        void LockControls(bool lock);
+        
         std::shared_ptr<Framework::Utils::States::Machine> GetStateMachine() const {
             return _stateMachine;
         }

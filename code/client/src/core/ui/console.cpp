@@ -16,19 +16,6 @@ namespace MafiaMP::Core::UI {
     MafiaConsole::MafiaConsole(std::shared_ptr<Framework::Utils::CommandProcessor> commandProcessor): Framework::External::ImGUI::Widgets::Console(commandProcessor) {}
 
     void MafiaConsole::LockControls(bool lock) {
-        if (lock) {
-            // Lock game controls
-            Game::Helpers::Controls::Lock(true);
-
-            // Enable cursor
-            Core::gApplication->GetImGUI()->ShowCursor(true);
-        }
-        else {
-            // Unlock game controls
-            Game::Helpers::Controls::Lock(false);
-
-            // Disable cursor
-            Core::gApplication->GetImGUI()->ShowCursor(false);
-        }
+        gApplication->LockControls(lock);
     }
 } // namespace MafiaMP::Core::UI

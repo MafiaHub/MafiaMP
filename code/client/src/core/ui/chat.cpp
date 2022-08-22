@@ -24,7 +24,7 @@ namespace MafiaMP::Core::UI {
 
         if (GetAsyncKeyState(VK_RETURN) & 0x1 && !_isFocused) {
             _isFocused = true;
-            LockControls(true);
+            gApplication->LockControls(true);
             ImGui::SetScrollHereY(1.0f);
         }
 
@@ -39,7 +39,7 @@ namespace MafiaMP::Core::UI {
                     strcpy(_inputText, "");
                 }
 
-                LockControls(false);
+                gApplication->LockControls(false);
                 ImGui::SetScrollHereY(1.0f);
             }
         } else {
@@ -47,22 +47,5 @@ namespace MafiaMP::Core::UI {
         }
         ImGui::SetScrollHereY(1.0f);
         ImGui::End();
-    }
-    
-    void Chat::LockControls(bool lock) {
-        if (lock) {
-            // Lock game controls
-            Game::Helpers::Controls::Lock(true);
-
-            // Enable cursor
-            Core::gApplication->GetImGUI()->ShowCursor(true);
-        }
-        else {
-            // Unlock game controls
-            Game::Helpers::Controls::Lock(false);
-
-            // Disable cursor
-            Core::gApplication->GetImGUI()->ShowCursor(false);
-        }
     }
 } // namespace MafiaMP::Core::UI

@@ -278,6 +278,23 @@ namespace MafiaMP::Core {
         ExitProcess(0);
     }
 
+    void Application::LockControls(bool lock) {
+        if (lock) {
+            // Lock game controls
+            Game::Helpers::Controls::Lock(true);
+
+            // Enable cursor
+            GetImGUI()->ShowCursor(true);
+        }
+        else {
+            // Unlock game controls
+            Game::Helpers::Controls::Lock(false);
+
+            // Disable cursor
+            GetImGUI()->ShowCursor(false);
+        }
+    }
+
     void Application::SpawnCar(const std::string modelName) {
         auto info = Core::gApplication->GetEntityFactory()->RequestVehicle(modelName);
         _TEMP_vehicles.push_back(info);
