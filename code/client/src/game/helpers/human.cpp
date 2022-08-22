@@ -24,4 +24,10 @@ namespace MafiaMP::Game::Helpers {
         SDK::C_Actor *act = *(SDK::C_Actor **)((uintptr_t)car + 0xA8);
         return charController->TriggerActorAction(act, SDK::E_AA_LEAVE_CAR, 0, force, false);
     }
+    void Human::AddWeapon(SDK::C_Human2 *human, int weapon, int ammo) {
+        if (!human)
+            return;
+
+        human->m_pHumanInventory->AddWeapon(weapon, ammo);
+    }
 }

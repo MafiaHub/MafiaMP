@@ -13,6 +13,7 @@
 
 #include "game/helpers/camera.h"
 #include "game/helpers/controls.h"
+#include "game/helpers/human.h"
 #include "game/streaming/entity_factory.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
@@ -437,9 +438,21 @@ namespace MafiaMP::Core {
                 const auto net = GetNetworkingEngine()->GetNetworkClient();
                 if (net->GetConnectionState() == Framework::Networking::CONNECTED) {
                     MafiaMP::Shared::Messages::Misc::ChatMessage chatMessage {};
-                    chatMessage.FromParameters(result.arguments()[0].value());
+                    chatMessage.FromParameters(result["msg"].as<std::string>());
                     chatMessage.SetServerID(GetLocalPlayerID());
                     net->Send(chatMessage, SLNet::UNASSIGNED_RAKNET_GUID);
+                }
+            },
+            "sends a chat message");
+        _commandProcessor->RegisterCommand(
+            "wep", {{"w,wep", "weapon id", cxxopts::value<int>()->default_value("85")}, {"a,ammo", "ammo count", cxxopts::value<int>()->default_value("200")}},
+            [this](cxxopts::ParseResult result) {
+                const auto human = Game::Helpers::Controls::GetLocalPlayer(); 
+                if (human) {
+                    auto wep = result["wep"].as<int>();
+                    auto ammo = result["ammo"].as<int>();
+                    Game::Helpers::Human::AddWeapon(human, wep, ammo);
+                    Framework::Logging::GetLogger("test")->debug("Added wep {} with ammo {}", wep, ammo);
                 }
             },
             "sends a chat message");
