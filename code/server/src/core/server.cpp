@@ -62,8 +62,6 @@ namespace MafiaMP {
             const auto st = ent.get<Framework::World::Modules::Base::Streamer>();
             const auto msg = fmt::format("{}: {}", st->nickname, chatMessage->GetText());
             BroadcastChatMessage(ent, msg);
-
-            Framework::Logging::GetLogger("chat")->info(msg);
         });
 
         Core::Modules::Human::SetupMessages(this->GetWorldEngine(), net);
@@ -75,6 +73,7 @@ namespace MafiaMP {
         proxyMsg.SetServerID(ent.id());
         proxyMsg.FromParameters(msg);
         GetNetworkingEngine()->GetNetworkServer()->Send(proxyMsg, SLNet::UNASSIGNED_RAKNET_GUID);
+        Framework::Logging::GetLogger("chat")->info(fmt::format("[{}] {}", ent.id(), msg));
     }
 } // namespace MafiaMP
 
