@@ -1,16 +1,30 @@
+#include <utils/safe_win32.h>
 #include <MinHook.h>
 #include <utils/hooking/hook_function.h>
 #include <utils/hooking/hooking.h>
 
+#include "core/application.h"
+#include "shared/modules/human_sync.hpp"
+
 typedef bool(__fastcall *C_HumanWeaponController__SetAiming_t)(void *, bool);
 C_HumanWeaponController__SetAiming_t C_HumanWeaponController__SetAiming_Original = nullptr;
 bool C_HumanWeaponController__SetAiming(void* _this, bool aiming) {
+    const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer();
+    if (localPlayer) {
+        const auto updateData           = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+        updateData->weaponData.isAiming = aiming;
+    }
     return C_HumanWeaponController__SetAiming_Original(_this, aiming);
 }
 
 typedef bool(__fastcall *C_HumanWeaponController__SetFirePressedFlag_t)(void *, bool);
 C_HumanWeaponController__SetFirePressedFlag_t C_HumanWeaponController__SetFirePressedFlag_Original = nullptr;
 bool C_HumanWeaponController__SetFirePressedFlag(void *_this, bool firePressed) {
+    const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer();
+    if (localPlayer) {
+        const auto updateData           = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+        updateData->weaponData.isFiring = firePressed;
+    }
     return C_HumanWeaponController__SetFirePressedFlag_Original(_this, firePressed);
 }
 

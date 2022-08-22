@@ -70,6 +70,10 @@ namespace MafiaMP::Core {
             return _chat;
         }
 
+        flecs::entity GetLocalPlayer() const {
+            return _localPlayer;
+        }
+        
         uint64_t GetLocalPlayerID();
     };
 

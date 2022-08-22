@@ -190,6 +190,10 @@ namespace MafiaMP::Core::Modules {
             humanUpdate.SetSprintSpeed(updateData->_sprintSpeed);
             humanUpdate.SetStalking(updateData->_isStalking);
             humanUpdate.SetCarPassenger(updateData->carPassenger.carId, updateData->carPassenger.seatId);
+
+            const auto wepData     = updateData->weaponData;
+            humanUpdate.SetWeaponData({wepData.isAiming, wepData.isFiring});
+            
             peer->Send(humanUpdate, guid);
             return true;
         };
@@ -253,6 +257,11 @@ namespace MafiaMP::Core::Modules {
         trackingData->charController->SetStalkMoveOverride(updateData->_isStalking);
         const auto hmm = updateData->_moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(updateData->_moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
         trackingData->charController->SetMoveStateOverride(hmm, updateData->_isSprinting, updateData->_sprintSpeed);
+
+        // weapon sync
+        const auto wepController = trackingData->human->GetHumanWeaponController();
+        wepController->SetAiming(updateData->weaponData.isAiming);
+        wepController->SetFirePressedFlag(updateData->weaponData.isFiring);
     }
 
     void Human::Remove(flecs::entity e) {
@@ -321,6 +330,9 @@ namespace MafiaMP::Core::Modules {
             updateData->_isStalking           = msg->IsStalking();
             updateData->_moveMode             = msg->GetMoveMode();
             updateData->_sprintSpeed          = msg->GetSprintSpeed();
+            
+            const auto wepData     = msg->GetWeaponData();
+            updateData->weaponData = {wepData.isAiming, wepData.isFiring};
             
             auto frame = e.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelHash = msg->GetSpawnProfile();

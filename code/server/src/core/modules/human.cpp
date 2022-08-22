@@ -68,6 +68,9 @@ namespace MafiaMP::Core::Modules {
             humanUpdate.SetStalking(trackingMetadata->_isStalking);
             humanUpdate.SetCarPassenger(trackingMetadata->carPassenger.carId, trackingMetadata->carPassenger.seatId);
             humanUpdate.SetSpawnProfile(frame->modelHash);
+            
+            const auto wepData = trackingMetadata->weaponData;
+            humanUpdate.SetWeaponData({wepData.isAiming, wepData.isFiring});
 
             net->Send(humanUpdate, guid);
             return true;
@@ -91,6 +94,9 @@ namespace MafiaMP::Core::Modules {
             trackingMetadata->_isStalking           = msg->IsStalking();
             trackingMetadata->_moveMode             = msg->GetMoveMode();
             trackingMetadata->_sprintSpeed          = msg->GetSprintSpeed();
+
+            const auto wepData = msg->GetWeaponData();
+            trackingMetadata->weaponData = {wepData.isAiming, wepData.isFiring};
 
             const auto carPassenger = msg->GetCarPassenger();
 

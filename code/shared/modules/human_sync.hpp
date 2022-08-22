@@ -25,6 +25,12 @@ namespace MafiaMP::Shared::Modules {
                 uint64_t carId{};
                 int seatId{};
             } carPassenger{};
+
+            struct WeaponData {
+                // TODO
+                bool isAiming = false;
+                bool isFiring = false;
+            } weaponData;
         };
 
         HumanSync(flecs::world& world) {

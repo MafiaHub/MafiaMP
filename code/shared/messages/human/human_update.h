@@ -21,6 +21,12 @@ namespace MafiaMP::Shared::Messages::Human {
             int seatId{};
         } _carPassenger{};
 
+        struct WeaponData {
+            // TODO
+            bool isAiming = false;
+            bool isFiring = false;
+        } _weaponData;
+
         uint64_t _spawnProfile {};
 
       public:
@@ -36,6 +42,7 @@ namespace MafiaMP::Shared::Messages::Human {
             bs->Serialize(write, _isStalking);
             bs->Serialize(write, _sprintSpeed);
             bs->Serialize(write, _carPassenger);
+            bs->Serialize(write, _weaponData);
             bs->Serialize(write, _spawnProfile);
         }
 
@@ -99,6 +106,14 @@ namespace MafiaMP::Shared::Messages::Human {
 
         CarPassenger GetCarPassenger() const {
             return _carPassenger;
+        }
+
+        void SetWeaponData(WeaponData data) {
+            _weaponData = data;
+        }
+        
+        WeaponData GetWeaponData() const {
+            return _weaponData;
         }
 
         void SetSpawnProfile(uint64_t profile) {
