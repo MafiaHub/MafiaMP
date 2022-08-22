@@ -87,7 +87,7 @@ namespace MafiaMP {
 
             auto carT = carEnt.get_mut<Framework::World::Modules::Base::Transform>();
             carT->pos = t->pos;
-            carT->rot = glm::identity<glm::quat>();
+            carT->rot = t->rot;
 
             auto frame       = carEnt.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelName = msg->GetModelName();
