@@ -10,9 +10,9 @@
 #include "sdk/patterns.h"
 
 extern "C" void __declspec(dllexport) InitClient(const wchar_t *projectPath) {
-    Framework::Logging::GetInstance()->SetLogName("MafiaMP");
-    Framework::Logging::GetInstance()->SetLogFolder(Framework::Utils::StringUtils::WideToNormal(projectPath) + "\\logs");
     MafiaMP::Core::gProjectPath = Framework::Utils::StringUtils::WideToNormal(projectPath);
+    Framework::Logging::GetInstance()->SetLogName("MafiaMP");
+    Framework::Logging::GetInstance()->SetLogFolder(fmt::format("{}\\logs", MafiaMP::Core::gProjectPath));
 
     MH_Initialize();
     hook::set_base();
