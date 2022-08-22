@@ -20,6 +20,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/render_device.cpp
     src/core/hooks/traffic.cpp
     src/core/hooks/vehicle.cpp
+    src/core/hooks/weapon_controller.cpp
     src/core/modules/vehicle.cpp
     src/core/modules/human.cpp
     src/game/module.cpp
