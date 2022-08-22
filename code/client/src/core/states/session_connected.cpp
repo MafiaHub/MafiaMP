@@ -35,7 +35,9 @@ namespace MafiaMP::Core::States {
 
     bool SessionConnectedState::OnUpdate(Framework::Utils::States::Machine *) {
         gApplication->GetImGUI()->PushWidget([]() {
-            gApplication->GetChat()->Update();
+            if (!gApplication->GetDevConsole()->IsOpen()){
+                gApplication->GetChat()->Update();
+            }
         });
         return false;
     }

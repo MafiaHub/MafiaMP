@@ -415,6 +415,18 @@ namespace MafiaMP::Core {
                 }
             },
             "executes Lua commands");
+        _commandProcessor->RegisterCommand(
+            "chat", {{"m,msg", "message to send", cxxopts::value<std::string>()->default_value("")}},
+            [this](cxxopts::ParseResult result) {
+                const auto net = GetNetworkingEngine()->GetNetworkClient();
+                if (net->GetConnectionState() == Framework::Networking::CONNECTED) {
+                    MafiaMP::Shared::Messages::Misc::ChatMessage chatMessage {};
+                    chatMessage.FromParameters(result.arguments()[0].value());
+                    chatMessage.SetServerID(GetLocalPlayerID());
+                    net->Send(chatMessage, SLNet::UNASSIGNED_RAKNET_GUID);
+                }
+            },
+            "sends a chat message");
     }
 
     void Application::SetupMenuBar() {

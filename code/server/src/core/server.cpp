@@ -59,6 +59,8 @@ namespace MafiaMP {
             proxyMsg.SetServerID(ent.id());
             proxyMsg.FromParameters(fmt::format("{}: {}", st->nickname, chatMessage->GetText()));
             GetNetworkingEngine()->GetNetworkServer()->Send(proxyMsg, SLNet::UNASSIGNED_RAKNET_GUID);
+
+            Framework::Logging::GetLogger("chat")->info(proxyMsg.GetText());
         });
 
         Core::Modules::Human::SetupMessages(this->GetWorldEngine(), net);
