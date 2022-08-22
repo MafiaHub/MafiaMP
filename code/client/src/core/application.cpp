@@ -175,10 +175,13 @@ namespace MafiaMP::Core {
             _stateMachine->RequestNextState(States::StateIds::SessionConnected);
             _localPlayer = newPlayer;
             Core::Modules::Human::SetupLocalPlayer(this, newPlayer);
+
+            Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Connection established!");
         });
 
         SetOnConnectionClosedCallback([this]() {
             _stateMachine->RequestNextState(States::StateIds::SessionDisconnection);
+            Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Connection lost!");
         });
 
         const auto net = GetNetworkingEngine()->GetNetworkClient();
@@ -187,10 +190,14 @@ namespace MafiaMP::Core {
             if (!chatMessage->Valid())
                 return;
             _chat->AddMessage(chatMessage->GetText());
+            
+            Framework::Logging::GetLogger("chat")->trace(chatMessage->GetText());
         });
 
         Modules::Human::SetupMessages(this);
         Modules::Vehicle::SetupMessages(this);
+
+        Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Networking messages registered!");
     }
 
     void Application::PimpMyImGUI() {

@@ -66,6 +66,8 @@ namespace MafiaMP {
 
         Core::Modules::Human::SetupMessages(this->GetWorldEngine(), net);
         Core::Modules::Vehicle::SetupMessages(this->GetWorldEngine(), net);
+
+        Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Networking messages registered!");
     }
 
     void Server::BroadcastChatMessage(flecs::entity ent, const std::string &msg) {
