@@ -52,4 +52,28 @@ namespace MafiaMP::Game::Helpers {
 
         return pActivePlayer->GetCharacterController()->AreControlsLocked();
     }
+
+    uint64_t Controls::GetLocalPlayerSpawnProfile() {
+        // TODO fixme
+        SDK::mafia::framework::C_MafiaFramework *mafiaFramework = SDK::mafia::framework::C_MafiaFramework::GetInstance();
+        if (!mafiaFramework) {
+            return 0;
+        }
+
+        SDK::mafia::framework::C_MafiaFrameworkInterfaces *mafiaFrameworkInterfaces = mafiaFramework->GetInterfaces();
+        if (!mafiaFrameworkInterfaces) {
+            return 0;
+        }
+        SDK::C_PlayerModelManager *playerModelManager = mafiaFrameworkInterfaces->GetPlayerModelManager();
+        if (!playerModelManager) {
+            return 0;
+        }
+
+        SDK::C_PlayerSpawner *playerSpawner = playerModelManager->GetPlayerSpawner();
+        if (!playerSpawner) {
+            return 0;
+        }
+
+        return playerSpawner->GetSpawnProfile();
+    }
 }

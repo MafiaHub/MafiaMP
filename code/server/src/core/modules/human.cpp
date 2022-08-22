@@ -20,7 +20,7 @@ namespace MafiaMP::Core::Modules {
 
     void Human::Create(Framework::Networking::NetworkServer *net, flecs::entity e) {
         auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
-        frame->modelHash = 10505412751276834320; /* TODO */
+        frame->modelHash = 335218123840277515; /* TODO */
 
         e.add<Shared::Modules::HumanSync::UpdateData>();
 
@@ -56,6 +56,7 @@ namespace MafiaMP::Core::Modules {
 
         es->modEvents.updateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             const auto trackingMetadata = e.get<Shared::Modules::HumanSync::UpdateData>();
+            const auto frame            = e.get<Framework::World::Modules::Base::Frame>();
 
             Shared::Messages::Human::HumanUpdate humanUpdate {};
             humanUpdate.SetServerID(e.id());
@@ -66,6 +67,8 @@ namespace MafiaMP::Core::Modules {
             humanUpdate.SetSprintSpeed(trackingMetadata->_sprintSpeed);
             humanUpdate.SetStalking(trackingMetadata->_isStalking);
             humanUpdate.SetCarPassenger(trackingMetadata->carPassenger.carId, trackingMetadata->carPassenger.seatId);
+            humanUpdate.SetSpawnProfile(frame->modelHash);
+
             net->Send(humanUpdate, guid);
             return true;
         };

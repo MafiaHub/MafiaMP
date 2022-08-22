@@ -21,6 +21,8 @@ namespace MafiaMP::Shared::Messages::Human {
             int seatId{};
         } _carPassenger{};
 
+        uint64_t _spawnProfile {};
+
       public:
         uint8_t GetMessageID() const override {
             return MOD_HUMAN_UPDATE;
@@ -34,6 +36,7 @@ namespace MafiaMP::Shared::Messages::Human {
             bs->Serialize(write, _isStalking);
             bs->Serialize(write, _sprintSpeed);
             bs->Serialize(write, _carPassenger);
+            bs->Serialize(write, _spawnProfile);
         }
 
         bool Valid() const override {
@@ -96,6 +99,14 @@ namespace MafiaMP::Shared::Messages::Human {
 
         CarPassenger GetCarPassenger() const {
             return _carPassenger;
+        }
+
+        void SetSpawnProfile(uint64_t profile) {
+            _spawnProfile = profile;
+        }
+
+        uint64_t GetSpawnProfile() const {
+            return _spawnProfile;
         }
     };
 } // namespace MafiaMP::Shared::Messages::Human

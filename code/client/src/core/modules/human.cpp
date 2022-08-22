@@ -48,7 +48,7 @@ namespace MafiaMP::Core::Modules {
                     metadata._isStalking           = charController->IsStalkMove();
                     metadata._isSprinting          = charController->IsSprinting();
                     metadata._sprintSpeed          = charController->GetSprintMoveSpeed();
-
+                    
                     // Current state-specific sync data
                     switch (metadata._charStateHandlerType) {
                     case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_MOVE: {
@@ -179,6 +179,7 @@ namespace MafiaMP::Core::Modules {
         const auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
         es->modEvents.updateProc = [app](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
+            const auto frame      = e.get<Framework::World::Modules::Base::Frame>();
 
             Shared::Messages::Human::HumanUpdate humanUpdate {};
             humanUpdate.SetServerID(app->GetWorldEngine()->GetServerID(e));
@@ -320,6 +321,9 @@ namespace MafiaMP::Core::Modules {
             updateData->_isStalking           = msg->IsStalking();
             updateData->_moveMode             = msg->GetMoveMode();
             updateData->_sprintSpeed          = msg->GetSprintSpeed();
+            
+            auto frame = e.get_mut<Framework::World::Modules::Base::Frame>();
+            frame->modelHash = msg->GetSpawnProfile();
 
             const auto carPassenger         = msg->GetCarPassenger();
             updateData->carPassenger.carId  = carPassenger.carId;
@@ -333,10 +337,13 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            const auto trackingData = e.get<Core::Modules::Human::Tracking>();
+            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
             if (!trackingData) {
                 return;
             }
+
+            auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
+            frame->modelHash = msg->GetSpawnProfile();
 
             // update actor data
         });

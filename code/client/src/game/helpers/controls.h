@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 namespace SDK {
     class C_Player2;
 }
@@ -9,6 +11,7 @@ namespace MafiaMP::Game::Helpers {
       public:
         static SDK::C_Player2 *GetLocalPlayer();
         static void Lock(bool);
-        static bool Controls::AreControlsLocked();
+        static bool AreControlsLocked();
+        static uint64_t GetLocalPlayerSpawnProfile(); 
     };
 }
