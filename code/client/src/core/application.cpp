@@ -22,10 +22,12 @@
 
 #include "external/imgui/widgets/corner_text.h"
 
+#include "shared/messages/misc/chat_message.h"
+
 #include "shared/version.h"
-#include <utils/version.h>
 #include <cppfs/FileHandle.h>
 #include <cppfs/fs.h>
+#include <utils/version.h>
 
 #include "shared/modules/human_sync.hpp"
 #include "shared/modules/vehicle_sync.hpp"
@@ -58,6 +60,16 @@ namespace MafiaMP::Core {
 
         _commandProcessor = std::make_shared<Framework::Utils::CommandProcessor>();
         _console          = std::make_shared<UI::MafiaConsole>(_commandProcessor);
+        _chat             = std::make_shared<UI::Chat>();
+
+        _chat->SetOnMessageSentCallback([this](const std::string &msg) {
+            const auto net = gApplication->GetNetworkingEngine()->GetNetworkClient();
+
+            MafiaMP::Shared::Messages::Misc::ChatMessage chatMessage {};
+            chatMessage.FromParameters(msg);
+            chatMessage.SetServerID(GetLocalPlayerID());
+            net->Send(chatMessage, SLNet::UNASSIGNED_RAKNET_GUID);
+        });
 
         // setup debug routines
         SetupCommands();
@@ -167,6 +179,14 @@ namespace MafiaMP::Core {
 
         SetOnConnectionClosedCallback([this]() {
             _stateMachine->RequestNextState(States::StateIds::SessionDisconnection);
+        });
+
+        const auto net = GetNetworkingEngine()->GetNetworkClient();
+
+        net->RegisterMessage<Shared::Messages::Misc::ChatMessage>(Shared::Messages::MOD_CHAT_MESSAGE, [this](SLNet::RakNetGUID guid, Shared::Messages::Misc::ChatMessage *chatMessage) {
+            if (!chatMessage->Valid())
+                return;
+            _chat->AddMessage(chatMessage->GetText());
         });
 
         Modules::Human::SetupMessages(this);
@@ -351,10 +371,7 @@ namespace MafiaMP::Core {
             },
             "spawn a car of a given model");
         _commandProcessor->RegisterCommand(
-            "lua", {
-                {"c,command", "command to execute", cxxopts::value<std::string>()->default_value("")},
-                {"f,file", "file to execute", cxxopts::value<std::string>()->default_value("")}
-            },
+            "lua", {{"c,command", "command to execute", cxxopts::value<std::string>()->default_value("")}, {"f,file", "file to execute", cxxopts::value<std::string>()->default_value("")}},
             [this](cxxopts::ParseResult result) {
                 std::string command = result["command"].as<std::string>();
                 if (!command.empty()) {
@@ -407,6 +424,14 @@ namespace MafiaMP::Core {
                 ImGui::EndMenu();
             }
         });
+    }
+
+    uint64_t Application::GetLocalPlayerID() {
+        if (!_localPlayer)
+            return 0;
+        
+        const auto sid = _localPlayer.get<Framework::World::Modules::Base::ServerID>();
+        return sid->id;
     }
 
     std::string gProjectPath;

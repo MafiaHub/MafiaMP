@@ -3,6 +3,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/luavm.cpp
     src/core/application.cpp
     src/core/ui/console.cpp
+    src/core/ui/chat.cpp
     src/core/states/initialize.cpp
     src/core/states/menu.cpp
     src/core/states/session_connected.cpp

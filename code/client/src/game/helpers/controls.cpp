@@ -43,4 +43,13 @@ namespace MafiaMP::Game::Helpers {
         }
         SDK::GetGameInputModule()->PauseInput(lock);
     }
+
+    bool Controls::AreControlsLocked() {
+        auto pActivePlayer = GetLocalPlayer();
+        if (!pActivePlayer) {
+            return false;
+        }
+
+        return pActivePlayer->GetCharacterController()->AreControlsLocked();
+    }
 }

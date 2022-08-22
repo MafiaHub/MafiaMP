@@ -7,6 +7,7 @@
 #include "luavm.h"
 #include "../game/streaming/entity_factory.h"
 #include "ui/console.h"
+#include "ui/chat.h"
 
 #include <integrations/client/instance.h>
 #include <utils/states/machine.h>
@@ -18,6 +19,7 @@ namespace MafiaMP::Core {
         friend class Console;
         std::shared_ptr<Framework::Utils::States::Machine> _stateMachine;
         std::shared_ptr<UI::MafiaConsole> _console;
+        std::shared_ptr<UI::Chat> _chat;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
         std::shared_ptr<LuaVM> _luaVM;
@@ -61,6 +63,12 @@ namespace MafiaMP::Core {
         std::shared_ptr<UI::MafiaConsole> GetDevConsole() const {
             return _console;
         }
+
+        std::shared_ptr<UI::Chat> GetChat() const {
+            return _chat;
+        }
+
+        uint64_t GetLocalPlayerID();
     };
 
     extern std::unique_ptr<Application> gApplication;

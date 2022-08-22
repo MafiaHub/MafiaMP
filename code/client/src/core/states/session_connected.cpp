@@ -5,6 +5,8 @@
 
 #include <utils/states/machine.h>
 
+#include "core/application.h"
+
 namespace MafiaMP::Core::States {
     SessionConnectedState::SessionConnectedState() {}
 
@@ -32,6 +34,9 @@ namespace MafiaMP::Core::States {
     }
 
     bool SessionConnectedState::OnUpdate(Framework::Utils::States::Machine *) {
-        return true;
+        gApplication->GetImGUI()->PushWidget([]() {
+            gApplication->GetChat()->Update();
+        });
+        return false;
     }
 } // namespace MafiaMP::Core::States

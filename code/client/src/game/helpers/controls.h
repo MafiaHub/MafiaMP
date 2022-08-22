@@ -9,5 +9,6 @@ namespace MafiaMP::Game::Helpers {
       public:
         static SDK::C_Player2 *GetLocalPlayer();
         static void Lock(bool);
+        static bool Controls::AreControlsLocked();
     };
 }

@@ -58,18 +58,29 @@ namespace MafiaMP::Core::States {
                 return;
             }
 
+            bool isDiscordPresent = gApplication->GetPresence()->IsInitialized();
+
             ImGui::Text("Enter connection details:");
             static char serverIp[32] = "127.0.0.1";
             static char nickname[32] = "Player";
             ImGui::Text("Server IP: ");
             ImGui::SameLine();
             ImGui::InputText("##server_ip", serverIp, 32);
-            ImGui::Text("Nickname: ");
-            ImGui::SameLine();
-            ImGui::InputText("##nickname", nickname, 32);
+            
+            if (!isDiscordPresent) {
+                ImGui::Text("Nickname: ");
+                ImGui::SameLine();
+                ImGui::InputText("##nickname", nickname, 32);
+            } else {
+                discord::User currUser {};
+                gApplication->GetPresence()->GetUserManager().GetCurrentUser(&currUser);
+                strcpy(nickname, currUser.GetUsername());
+                ImGui::Text("Nickname: %s (set via Discord)", nickname);
+            }
+            
             if (ImGui::Button("Connect")) {
                 // Update the application state for further usage
-                Framework::Integrations::Client::CurrentState newApplicationState;
+                Framework::Integrations::Client::CurrentState newApplicationState = MafiaMP::Core::gApplication->GetCurrentState();
                 newApplicationState._host = serverIp;
                 newApplicationState._port     = 27015; //TODO: fix this
                 newApplicationState._nickname = nickname;

@@ -3,8 +3,12 @@
 #include "shared/modules/human_sync.hpp"
 #include "shared/modules/vehicle_sync.hpp"
 
+#include "shared/messages/misc/chat_message.h"
+
 #include "modules/human.h"
 #include "modules/vehicle.h"
+
+#include <fmt/format.h>
 
 // TODO UGLY
 void spawnSomeCars(MafiaMP::Server *server);
@@ -39,6 +43,22 @@ namespace MafiaMP {
 
         SetOnPlayerDisconnectCallback([this](flecs::entity player, uint64_t guid) {
             // todo
+        });
+
+        net->RegisterMessage<Shared::Messages::Misc::ChatMessage>(Shared::Messages::MOD_CHAT_MESSAGE, [this](SLNet::RakNetGUID guid, Shared::Messages::Misc::ChatMessage *chatMessage) {
+            if (!chatMessage->Valid())
+                return;
+
+            const auto ent = GetWorldEngine()->WrapEntity(chatMessage->GetServerID());
+            if (!ent.is_alive())
+                return;
+
+            const auto st = ent.get<Framework::World::Modules::Base::Streamer>();
+
+            Shared::Messages::Misc::ChatMessage proxyMsg {};
+            proxyMsg.SetServerID(ent.id());
+            proxyMsg.FromParameters(fmt::format("{}: {}", st->nickname, chatMessage->GetText()));
+            GetNetworkingEngine()->GetNetworkServer()->Send(proxyMsg, SLNet::UNASSIGNED_RAKNET_GUID);
         });
 
         Core::Modules::Human::SetupMessages(this->GetWorldEngine(), net);
