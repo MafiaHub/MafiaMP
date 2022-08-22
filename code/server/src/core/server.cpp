@@ -39,10 +39,16 @@ namespace MafiaMP {
 
         SetOnPlayerConnectCallback([this, net](flecs::entity player, uint64_t guid) {
             Core::Modules::Human::Create(net, player);
+            
+            const auto st  = player.get<Framework::World::Modules::Base::Streamer>();
+            const auto msg = fmt::format("Player {} has joined the session!", st->nickname);
+            BroadcastChatMessage(player, msg);
         });
 
         SetOnPlayerDisconnectCallback([this](flecs::entity player, uint64_t guid) {
-            // todo
+            const auto st  = player.get<Framework::World::Modules::Base::Streamer>();
+            const auto msg = fmt::format("Player {} has left the session!", st->nickname);
+            BroadcastChatMessage(player, msg);
         });
 
         net->RegisterMessage<Shared::Messages::Misc::ChatMessage>(Shared::Messages::MOD_CHAT_MESSAGE, [this](SLNet::RakNetGUID guid, Shared::Messages::Misc::ChatMessage *chatMessage) {
@@ -54,17 +60,21 @@ namespace MafiaMP {
                 return;
 
             const auto st = ent.get<Framework::World::Modules::Base::Streamer>();
+            const auto msg = fmt::format("{}: {}", st->nickname, chatMessage->GetText());
+            BroadcastChatMessage(ent, msg);
 
-            Shared::Messages::Misc::ChatMessage proxyMsg {};
-            proxyMsg.SetServerID(ent.id());
-            proxyMsg.FromParameters(fmt::format("{}: {}", st->nickname, chatMessage->GetText()));
-            GetNetworkingEngine()->GetNetworkServer()->Send(proxyMsg, SLNet::UNASSIGNED_RAKNET_GUID);
-
-            Framework::Logging::GetLogger("chat")->info(proxyMsg.GetText());
+            Framework::Logging::GetLogger("chat")->info(msg);
         });
 
         Core::Modules::Human::SetupMessages(this->GetWorldEngine(), net);
         Core::Modules::Vehicle::SetupMessages(this->GetWorldEngine(), net);
+    }
+
+    void Server::BroadcastChatMessage(flecs::entity ent, const std::string &msg) {
+        Shared::Messages::Misc::ChatMessage proxyMsg {};
+        proxyMsg.SetServerID(ent.id());
+        proxyMsg.FromParameters(msg);
+        GetNetworkingEngine()->GetNetworkServer()->Send(proxyMsg, SLNet::UNASSIGNED_RAKNET_GUID);
     }
 } // namespace MafiaMP
 
