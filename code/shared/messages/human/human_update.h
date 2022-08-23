@@ -25,6 +25,9 @@ namespace MafiaMP::Shared::Messages::Human {
             // TODO
             bool isAiming = false;
             bool isFiring = false;
+            glm::vec3 aimPos {};
+            glm::vec3 aimDir {};
+            uint16_t currentWeaponId {};
         } _weaponData;
 
         uint64_t _spawnProfile {};

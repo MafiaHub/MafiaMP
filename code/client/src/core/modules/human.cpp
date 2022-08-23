@@ -26,12 +26,17 @@
 #include "shared/modules/human_sync.hpp"
 
 namespace MafiaMP::Core::Modules {
+
+    flecs::query<Human::Tracking> Human::findAllHumans;
+
     Human::Human(flecs::world &world) {
         world.module<Human>();
 
         world.component<Tracking>();
         world.component<LocalPlayer>();
         world.component<Interpolated>();
+
+        findAllHumans = world.query_builder<Human::Tracking>().build();
 
         world.system<Tracking, Shared::Modules::HumanSync::UpdateData, LocalPlayer, Framework::World::Modules::Base::Transform>("UpdateLocalPlayer")
             .each([](flecs::entity e, Tracking &tracking, Shared::Modules::HumanSync::UpdateData &metadata, LocalPlayer &lp, Framework::World::Modules::Base::Transform &tr) {
@@ -144,6 +149,11 @@ namespace MafiaMP::Core::Modules {
                 trackingData->human          = human;
                 trackingData->charController = reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(human->GetCharacterController());
                 assert(MafiaMP::Game::Overrides::CharacterController::IsInstanceOfClass(trackingData->charController));
+
+                //TODO(DavoSK): remove
+                Game::Helpers::Human::AddWeapon(human, 85, 200);
+                Game::Helpers::Human::AddWeapon(human, 3, 200);
+                Game::Helpers::Human::AddWeapon(human, 13, 200);
             }
         };
 
@@ -176,6 +186,11 @@ namespace MafiaMP::Core::Modules {
         e.add<Shared::Modules::HumanSync::UpdateData>();
         e.add<Core::Modules::Human::LocalPlayer>();
 
+        // TODO(DavoSK): remove
+        Game::Helpers::Human::AddWeapon(trackingData->human, 85, 200);
+        Game::Helpers::Human::AddWeapon(trackingData->human, 3, 200);
+        Game::Helpers::Human::AddWeapon(trackingData->human, 13, 200);
+
         const auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
         es->modEvents.updateProc = [app](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
@@ -192,7 +207,7 @@ namespace MafiaMP::Core::Modules {
             humanUpdate.SetCarPassenger(updateData->carPassenger.carId, updateData->carPassenger.seatId);
 
             const auto wepData     = updateData->weaponData;
-            humanUpdate.SetWeaponData({wepData.isAiming, wepData.isFiring});
+            humanUpdate.SetWeaponData({wepData.isAiming, wepData.isFiring, wepData.aimPos, wepData.aimDir, wepData.currentWeaponId});
             
             peer->Send(humanUpdate, guid);
             return true;
@@ -258,10 +273,17 @@ namespace MafiaMP::Core::Modules {
         const auto hmm = updateData->_moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(updateData->_moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
         trackingData->charController->SetMoveStateOverride(hmm, updateData->_isSprinting, updateData->_sprintSpeed);
 
-        // weapon sync
+        // weapon sync 
         const auto wepController = trackingData->human->GetHumanWeaponController();
-        wepController->SetAiming(updateData->weaponData.isAiming);
+
+        //NOTE(DavoSK): we are doin those two inside hook, since it could fight with game
+        wepController->SetAiming(updateData->weaponData.isAiming); 
         wepController->SetFirePressedFlag(updateData->weaponData.isFiring);
+        
+        if (wepController->GetRightHandWeaponID() != updateData->weaponData.currentWeaponId) {
+            wepController->DoWeaponSelectByItemId(updateData->weaponData.currentWeaponId, true);
+            printf("change weapon to: %d\n", updateData->weaponData.currentWeaponId);
+        }
     }
 
     void Human::Remove(flecs::entity e) {
@@ -332,7 +354,7 @@ namespace MafiaMP::Core::Modules {
             updateData->_sprintSpeed          = msg->GetSprintSpeed();
             
             const auto wepData     = msg->GetWeaponData();
-            updateData->weaponData = {wepData.isAiming, wepData.isFiring};
+            updateData->weaponData = {wepData.isAiming, wepData.isFiring, wepData.aimPos, wepData.aimDir, wepData.currentWeaponId};
             
             auto frame = e.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelHash = msg->GetSpawnProfile();

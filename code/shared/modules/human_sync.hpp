@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include <flecs/flecs.h>
+#include <glm/glm.hpp>
 
 enum CarEnterStates { STATE_OUTSIDE, STATE_ENTERING, STATE_LEAVING, STATE_INSIDE };
 
@@ -30,6 +31,9 @@ namespace MafiaMP::Shared::Modules {
                 // TODO
                 bool isAiming = false;
                 bool isFiring = false;
+                glm::vec3 aimPos {};
+                glm::vec3 aimDir {};
+                uint16_t currentWeaponId {};
             } weaponData;
         };
 

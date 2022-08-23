@@ -259,6 +259,7 @@ namespace SDK {
         gPatterns.C_HumanInventory__UseMedkit               = hook::get_opcode_address("E8 ? ? ? ? 0F B6 D8 84 C0 74 28");
 
         // C_HumanWeaponController
+        gPatterns.C_HumanWeaponController__DoWeaponSelectByItemId = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40 48 8B 81 60"));
         gPatterns.C_HumanWeaponController__GetRightHandWeaponID = hook::get_opcode_address("E8 ? ? ? ? 3B 46 78 ");
         gPatterns.C_HumanWeaponController__IsThrownWeapon       = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 81 ? ? ? ? 8B 40 48"));
         gPatterns.C_HumanWeaponController__GetShotPosDir        = hook::get_opcode_address("E8 ? ? ? ? F2 0F 10 44 24 ? 48 8B CF");

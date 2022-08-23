@@ -5,29 +5,100 @@
 
 #include "core/application.h"
 #include "shared/modules/human_sync.hpp"
+#include "../../sdk/ue/sys/math/c_vector.h"
+#include "../../sdk/entities/c_player_2.h"
+
+#include "game/helpers/controls.h"
+
+#include <logging/logger.h>
+#include <flecs/flecs.h>
+#include <core/modules/human.h>
+
+using namespace SDK;
+
+flecs::entity FindHumanByHumanWeaponController(void* C_HumanWeaponController) {
+    flecs::entity foundPlayerEntity {};
+    MafiaMP::Core::Modules::Human::findAllHumans.each([C_HumanWeaponController, &foundPlayerEntity](flecs::entity e, MafiaMP::Core::Modules::Human::Tracking &tracking) {
+        if (tracking.human->GetHumanWeaponController() == C_HumanWeaponController) {
+            foundPlayerEntity = e;
+            return;
+        }
+    });
+
+    return foundPlayerEntity;
+}
 
 typedef bool(__fastcall *C_HumanWeaponController__SetAiming_t)(void *, bool);
 C_HumanWeaponController__SetAiming_t C_HumanWeaponController__SetAiming_Original = nullptr;
 bool C_HumanWeaponController__SetAiming(void* _this, bool aiming) {
-    const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer();
-    if (localPlayer) {
-        auto updateData           = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-        updateData->weaponData.isAiming = aiming;
+    auto gameLocalPlayer   = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
+    if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
+        if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
+            auto updateData                 = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            updateData->weaponData.isAiming = aiming;
+        }
     }
+    /*else if (const auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
+        const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+        aiming                = updateData->weaponData.isAiming;
+    }*/
+
     return C_HumanWeaponController__SetAiming_Original(_this, aiming);
 }
 
 typedef bool(__fastcall *C_HumanWeaponController__SetFirePressedFlag_t)(void *, bool);
 C_HumanWeaponController__SetFirePressedFlag_t C_HumanWeaponController__SetFirePressedFlag_Original = nullptr;
 bool C_HumanWeaponController__SetFirePressedFlag(void *_this, bool firePressed) {
-    const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer();
-    if (localPlayer) {
-        auto updateData           = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-        updateData->weaponData.isFiring = firePressed;
-    }
+    auto gameLocalPlayer   = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
+    if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
+        if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
+            auto updateData                 = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            updateData->weaponData.isFiring = firePressed;
+        }
+    } /*
+    else if (const auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
+        const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+        firePressed           = updateData->weaponData.isFiring;
+    }*/
+    
     return C_HumanWeaponController__SetFirePressedFlag_Original(_this, firePressed);
 }
 
+typedef void(__fastcall *C_HumanWeaponController__GetShotPosDir_t)(void *, ue::sys::math::C_Vector &, ue::sys::math::C_Vector &, float*);
+C_HumanWeaponController__GetShotPosDir_t C_HumanWeaponController__GetShotPosDir_Original = nullptr;
+void C_HumanWeaponController__GetShotPosDir(void *_this, ue::sys::math::C_Vector &pos, ue::sys::math::C_Vector &dir, float *distance) {
+    C_HumanWeaponController__GetShotPosDir_Original(_this, pos, dir, distance);
+    
+    if (!distance)
+        return;
+
+    auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
+    if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
+        if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
+            auto updateData               = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            updateData->weaponData.aimPos = {pos.x, pos.y, pos.z};
+            updateData->weaponData.aimDir = {dir.x, dir.y, dir.z};
+        }
+    } else if (auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
+        const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+        pos                   = {updateData->weaponData.aimPos.x, updateData->weaponData.aimPos.y, updateData->weaponData.aimPos.z};
+        dir                   = {updateData->weaponData.aimDir.x, updateData->weaponData.aimDir.y, updateData->weaponData.aimDir.z};
+    }
+}
+
+typedef bool(__fastcall *C_HumanWeaponController__DoWeaponSelectByItemId_t)(void*, unsigned int, bool);
+C_HumanWeaponController__DoWeaponSelectByItemId_t C_HumanWeaponController__DoWeaponSelectByItemId_Original = nullptr;
+bool C_HumanWeaponController__DoWeaponSelectByItemId(void *_this, unsigned int itemId, bool unk1) {
+    auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
+    if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
+        if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
+            auto updateData                 = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            updateData->weaponData.currentWeaponId = uint16_t(itemId);
+        }
+    }
+    
+    return C_HumanWeaponController__DoWeaponSelectByItemId_Original(_this, itemId, unk1);
+}
 
 static InitFunction init([]() {
     const auto addr1 = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 10 48 8B 88 ? ? ? ? C6 41 14 00");
@@ -35,4 +106,10 @@ static InitFunction init([]() {
 
     const auto addr2 = hook::pattern("84 D2 75 11 33 C0").get_first();
     MH_CreateHook((LPVOID)addr2, (PBYTE)C_HumanWeaponController__SetFirePressedFlag, reinterpret_cast<void **>(&C_HumanWeaponController__SetFirePressedFlag_Original));
+
+    const auto addr3 = hook::pattern("4C 8B DC 49 89 5B 08 49 89 73 10 49 89 7B 18 4D 89 73 20 55").get_first();
+    MH_CreateHook((LPVOID)addr3, (PBYTE)C_HumanWeaponController__GetShotPosDir, reinterpret_cast<void **>(&C_HumanWeaponController__GetShotPosDir_Original));
+
+    const auto addr4 = hook::pattern("48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40 48 8B 81 60").get_first();
+    MH_CreateHook((LPVOID)addr4, (PBYTE)C_HumanWeaponController__DoWeaponSelectByItemId, reinterpret_cast<void **>(&C_HumanWeaponController__DoWeaponSelectByItemId_Original));
 });

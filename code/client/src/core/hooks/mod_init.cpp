@@ -15,7 +15,7 @@ void __fastcall C_InitDone__MafiaFramework(void *_this) {
 
 // Intro vide hooking
 int __fastcall C_CommandLine__FindCommand(void *_this, const char *command) {
-    if (strstr(command, "NoMy2K") || strstr(command, "SkipLoadingPrompt") /*|| strstr(command, "fastRender")*/) {
+    if (strstr(command, "NoMy2K") || strstr(command, "SkipLoadingPrompt") || strstr(command, "fastRender")) {
         return 1;
     }
     return -1;

@@ -70,7 +70,13 @@ namespace MafiaMP::Core::Modules {
             humanUpdate.SetSpawnProfile(frame->modelHash);
             
             const auto wepData = trackingMetadata->weaponData;
-            humanUpdate.SetWeaponData({wepData.isAiming, wepData.isFiring});
+            humanUpdate.SetWeaponData({
+                wepData.isAiming, 
+                wepData.isFiring, 
+                wepData.aimPos, 
+                wepData.aimDir, 
+                wepData.currentWeaponId
+            });
 
             net->Send(humanUpdate, guid);
             return true;
@@ -96,7 +102,7 @@ namespace MafiaMP::Core::Modules {
             trackingMetadata->_sprintSpeed          = msg->GetSprintSpeed();
 
             const auto wepData = msg->GetWeaponData();
-            trackingMetadata->weaponData = {wepData.isAiming, wepData.isFiring};
+            trackingMetadata->weaponData = {wepData.isAiming, wepData.isFiring, wepData.aimPos, wepData.aimDir, wepData.currentWeaponId};
 
             const auto carPassenger = msg->GetCarPassenger();
 
