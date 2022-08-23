@@ -11,20 +11,13 @@
 #include "states/shutdown.h"
 #include "states/states.h"
 
-#include "game/helpers/camera.h"
 #include "game/helpers/controls.h"
-#include "game/helpers/human.h"
 #include "game/streaming/entity_factory.h"
-#include "sdk/entities/c_car.h"
-#include "sdk/entities/c_player_2.h"
 #include "sdk/entities/c_vehicle.h"
-#include "sdk/mafia/framework/c_mafia_framework.h"
-#include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
 #include "external/imgui/widgets/corner_text.h"
 
 #include "shared/version.h"
-#include <cppfs/FileHandle.h>
 #include <cppfs/fs.h>
 #include <utils/version.h>
 
@@ -73,8 +66,7 @@ namespace MafiaMP::Core {
         });
 
         // setup debug routines
-        SetupCommands();
-        SetupMenuBar();
+        _devFeatures.Init();
 
         // Register client modules (sync)
         GetWorldEngine()->GetWorld()->import<Shared::Modules::HumanSync>();
@@ -105,6 +97,9 @@ namespace MafiaMP::Core {
         if (_entityFactory) {
             _entityFactory->ReturnAll();
         }
+
+        _devFeatures.Shutdown();
+
         return true;
     }
 
@@ -116,6 +111,8 @@ namespace MafiaMP::Core {
         if (_entityFactory) {
             _entityFactory->Update();
         }
+
+        _devFeatures.Update();
 
         static bool isStyleInitialized = false;
         if (!isStyleInitialized) {
@@ -153,20 +150,6 @@ namespace MafiaMP::Core {
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[connState]));
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Ping: {}", ping));
         });
-
-        if (_console->IsOpen()) {
-            if (GetAsyncKeyState(VK_F1) & 0x1) {
-                SpawnCar();
-            }
-
-            if (GetAsyncKeyState(VK_F3) & 0x1) {
-                DespawnAll();
-            }
-
-            if (GetAsyncKeyState(VK_F5) & 0x1) {
-                Disconnect();
-            }
-        }
 #endif
     }
 
@@ -185,15 +168,8 @@ namespace MafiaMP::Core {
             Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Connection lost!");
         });
 
-        const auto net = GetNetworkingEngine()->GetNetworkClient();
 
-        net->RegisterRPC<Shared::RPC::ChatMessage>([this](Shared::RPC::ChatMessage *chatMessage) {
-            if (!chatMessage->Valid())
-                return;
-            _chat->AddMessage(chatMessage->GetText());
-            
-            Framework::Logging::GetLogger("chat")->trace(chatMessage->GetText());
-        });
+        InitRPCs();
 
         Modules::Human::SetupMessages(this);
         Modules::Vehicle::SetupMessages(this);
@@ -263,29 +239,6 @@ namespace MafiaMP::Core {
         ImGui::GetStyle().WindowTitleAlign         = {0.5f, 0.5f};
     }
 
-    void Application::Disconnect() {
-        GetNetworkingEngine()->GetNetworkClient()->Disconnect();
-    }
-
-    void Application::DespawnAll() {
-        for (const auto &vehicle : _TEMP_vehicles) { GetEntityFactory()->ReturnEntity(vehicle); }
-        _TEMP_vehicles.clear();
-    }
-
-    void Application::CrashMe() {
-        *(int *)5 = 5;
-    }
-
-    void Application::BreakMe() {
-        __debugbreak();
-    }
-
-    void Application::CloseGame() {
-        // very lazy game shutdown
-        // don't try at home
-        ExitProcess(0);
-    }
-
     void Application::LockControls(bool lock) {
         if (lock) {
             // Lock game controls
@@ -303,191 +256,24 @@ namespace MafiaMP::Core {
         }
     }
 
-    void Application::SpawnCar(const std::string modelName) {
-        const auto net = GetNetworkingEngine()->GetNetworkClient();
-        if (net->GetConnectionState() == Framework::Networking::CONNECTED) {
-            Shared::RPC::SpawnCar spawnCarMsg {};
-            spawnCarMsg.SetModelName(modelName);
-            net->SendRPC(spawnCarMsg);
-        }
-        else {
-            auto info = Core::gApplication->GetEntityFactory()->RequestVehicle(modelName);
-            _TEMP_vehicles.push_back(info);
-
-            const auto OnCarRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
-                if (success) {
-                    auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
-                    if (!car) {
-                        return;
-                    }
-                    car->GameInit();
-                    car->Activate();
-                    car->Unlock();
-
-                    auto localPlayer = SDK::GetGame()->GetActivePlayer();
-
-                    SDK::ue::sys::math::C_Vector newPos    = localPlayer->GetPos();
-                    SDK::ue::sys::math::C_Quat newRot      = localPlayer->GetRot();
-                    SDK::ue::sys::math::C_Matrix transform = {};
-                    transform.Identity();
-                    transform.SetRot(newRot);
-                    transform.SetPos(newPos);
-                    car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
-                }
-            };
-
-            const auto OnCarReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
-                if (!info) {
-                    return;
-                }
-                auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
-                if (wasCreated && car) {
-                    car->Deactivate();
-                    car->GameDone();
-                    car->Release();
-                }
-            };
-
-            info->SetRequestFinishCallback(OnCarRequestFinish);
-            info->SetReturnCallback(OnCarReturned);
-        }
-    }
-
-    void Application::SetupCommands() {
-        _commandProcessor->RegisterCommand(
-            "test", {{"a,aargument", "Test argument 1", cxxopts::value<std::string>()}, {"b,bargument", "Test argument 2", cxxopts::value<int>()}},
-            [this](const cxxopts::ParseResult& result) {
-                if (result.count("aargument")) {
-                    std::string argument1 = result["aargument"].as<std::string>();
-                    Framework::Logging::GetLogger("Debug")->info("aargument - {}", argument1);
-                }
-                if (result.count("bargument")) {
-                    int argument2 = result["bargument"].as<int>();
-                    Framework::Logging::GetLogger("Debug")->info("bargument - {}", argument2);
-                }
-            },
-            "Testing command");
-        _commandProcessor->RegisterCommand(
-            "crash", {},
-            [this](cxxopts::ParseResult &) {
-                CrashMe();
-            },
-            "crashes the game");
-        _commandProcessor->RegisterCommand(
-            "echo", {},
-            [this](const cxxopts::ParseResult& result) {
-                std::string argsConcat;
-                cxxopts::PositionalList args = result.unmatched();
-                for (auto &arg : args) { argsConcat += arg + " "; }
-                Framework::Logging::GetLogger("Debug")->info(argsConcat);
-            },
-            "[args] - prints the arguments back");
-        _commandProcessor->RegisterCommand(
-            "help", {},
-            [this](cxxopts::ParseResult &) {
-                std::stringstream ss;
-                for (const auto &name : _commandProcessor->GetCommandNames()) { ss << fmt::format("{} {:>8}\n", name, _commandProcessor->GetCommandInfo(name)->options->help()); }
-                Framework::Logging::GetLogger("Debug")->info("Available commands:\n{}", ss.str());
-            },
-            "prints all available commands");
-        _commandProcessor->RegisterCommand(
-            "exit", {},
-            [this](cxxopts::ParseResult &) {
-                CloseGame();
-            },
-            "quits the game");
-        _commandProcessor->RegisterCommand(
-            "spawnCar", {{"m,model", "model name of the car", cxxopts::value<std::string>()->default_value("berkley_810")}},
-            [this](const cxxopts::ParseResult& result) {
-                std::string modelName = result["model"].as<std::string>();
-                SpawnCar(modelName);
-            },
-            "spawn a car of a given model");
-        _commandProcessor->RegisterCommand(
-            "lua", {{"c,command", "command to execute", cxxopts::value<std::string>()->default_value("")}, {"f,file", "file to execute", cxxopts::value<std::string>()->default_value("")}},
-            [this](const cxxopts::ParseResult& result) {
-                std::string command = result["command"].as<std::string>();
-                if (!command.empty()) {
-                    _luaVM->ExecuteString(command.c_str());
-                }
-                std::string filename = result["file"].as<std::string>();
-                if (!filename.empty()) {
-                    // todo use prefix path for lua scripts? (currently hardcoded to "scripts/")
-                    cppfs::FileHandle file = cppfs::fs::open(gProjectPath + "/scripts/" + filename);
-                    if (!file.exists()) {
-                        Framework::Logging::GetLogger(LOG_LUA)->warn("Script does not exist");
-                        return;
-                    }
-                    if (!file.isFile()) {
-                        Framework::Logging::GetLogger(LOG_LUA)->warn("Script is not a file");
-                        return;
-                    }
-                    std::string content = file.readFile();
-                    if (content.empty()) {
-                        Framework::Logging::GetLogger(LOG_LUA)->warn("Script is empty");
-                        return;
-                    }
-                    _luaVM->ExecuteString(content.c_str());
-                }
-            },
-            "executes Lua commands");
-        _commandProcessor->RegisterCommand(
-            "chat", {{"m,msg", "message to send", cxxopts::value<std::string>()->default_value("")}},
-            [this](const cxxopts::ParseResult& result) {
-                const auto net = GetNetworkingEngine()->GetNetworkClient();
-                if (net->GetConnectionState() == Framework::Networking::CONNECTED) {
-                    MafiaMP::Shared::RPC::ChatMessage chatMessage {};
-                    chatMessage.FromParameters(result["msg"].as<std::string>());
-                    net->SendRPC(chatMessage, SLNet::UNASSIGNED_RAKNET_GUID);
-                }
-            },
-            "sends a chat message");
-        _commandProcessor->RegisterCommand(
-            "wep", {{"w,wep", "weapon id", cxxopts::value<int>()->default_value("85")}, {"a,ammo", "ammo count", cxxopts::value<int>()->default_value("200")}},
-            [this](const cxxopts::ParseResult& result) {
-                const auto human = Game::Helpers::Controls::GetLocalPlayer(); 
-                if (human) {
-                    auto wep = result["wep"].as<int>();
-                    auto ammo = result["ammo"].as<int>();
-                    Game::Helpers::Human::AddWeapon(human, wep, ammo);
-                    Framework::Logging::GetLogger("test")->debug("Added wep {} with ammo {}", wep, ammo);
-                }
-            },
-            "sends a chat message");
-    }
-
-    void Application::SetupMenuBar() {
-        _console->RegisterMenuBarDrawer([this]() {
-            if (ImGui::BeginMenu("Debug")) {
-                if (ImGui::MenuItem("Spawn car", "F1")) {
-                    SpawnCar();
-                }
-                if (ImGui::MenuItem("Despawn all", "F3")) {
-                    DespawnAll();
-                }
-                if (ImGui::MenuItem("Disconnect", "F5")) {
-                    Disconnect();
-                }
-                if (ImGui::MenuItem("Crash me!")) {
-                    CrashMe();
-                }
-                if (ImGui::MenuItem("Break me!")) {
-                    BreakMe();
-                }
-                if (ImGui::MenuItem("Exit Game")) {
-                    CloseGame();
-                }
-                ImGui::EndMenu();
-            }
-        });
-    }
-
     uint64_t Application::GetLocalPlayerID() {
         if (!_localPlayer)
             return 0;
         
         const auto sid = _localPlayer.get<Framework::World::Modules::Base::ServerID>();
         return sid->id;
+    }
+
+    void Application::InitRPCs() {
+        const auto net = GetNetworkingEngine()->GetNetworkClient();
+
+        net->RegisterRPC<Shared::RPC::ChatMessage>([this](Shared::RPC::ChatMessage *chatMessage) {
+            if (!chatMessage->Valid())
+                return;
+            _chat->AddMessage(chatMessage->GetText());
+
+            Framework::Logging::GetLogger("chat")->trace(chatMessage->GetText());
+        });
     }
 
     std::string gProjectPath;

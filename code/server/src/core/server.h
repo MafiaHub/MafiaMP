@@ -15,5 +15,7 @@ namespace MafiaMP {
         void PreShutdown() override;
 
         void BroadcastChatMessage(flecs::entity ent, const std::string &msg);
+
+        void InitRPCs();
     };
 } // namespace MafiaMP

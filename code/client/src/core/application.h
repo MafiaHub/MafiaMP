@@ -8,6 +8,7 @@
 #include "../game/streaming/entity_factory.h"
 #include "ui/console.h"
 #include "ui/chat.h"
+#include "dev_features.h"
 
 #include <integrations/client/instance.h>
 #include <utils/states/machine.h>
@@ -16,34 +17,26 @@
 namespace MafiaMP::Core {
     class Application: public Framework::Integrations::Client::Instance {
       private:
-        friend class Console;
+        friend class DevFeatures;
         std::shared_ptr<Framework::Utils::States::Machine> _stateMachine;
         std::shared_ptr<UI::MafiaConsole> _console;
         std::shared_ptr<UI::Chat> _chat;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
         std::shared_ptr<LuaVM> _luaVM;
-        std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
         flecs::entity _localPlayer;
+        DevFeatures _devFeatures;
         float _tickInterval = 0.01667f;
 
-        void PimpMyImGUI();
-        void SetupCommands();
-        void SetupMenuBar();
-        void Disconnect();
-        void DespawnAll();
-        void SpawnCar(const std::string modelName = "berkley_810");
-        void CrashMe();
-        void BreakMe();
-        void CloseGame();
-
       public:
-        virtual bool PostInit() override;
-        virtual bool PreShutdown() override;
-        virtual void PostUpdate() override;
+        bool PostInit() override;
+        bool PreShutdown() override;
+        void PostUpdate() override;
 
         void InitNetworkingMessages();
+        void InitRPCs();
 
+        void PimpMyImGUI();
         void LockControls(bool lock);
         
         std::shared_ptr<Framework::Utils::States::Machine> GetStateMachine() const {

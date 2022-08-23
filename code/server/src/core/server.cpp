@@ -54,6 +54,22 @@ namespace MafiaMP {
             BroadcastChatMessage(player, msg);
         });
 
+        InitRPCs();
+
+        Core::Modules::Human::SetupMessages(this->GetWorldEngine(), net);
+        Core::Modules::Vehicle::SetupMessages(this->GetWorldEngine(), net);
+
+        Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Networking messages registered!");
+    }
+
+    void Server::BroadcastChatMessage(flecs::entity ent, const std::string &msg) {
+        Shared::RPC::ChatMessage proxyMsg {};
+        proxyMsg.FromParameters(msg);
+        GetNetworkingEngine()->GetNetworkServer()->SendRPC(proxyMsg, SLNet::UNASSIGNED_RAKNET_GUID);
+        Framework::Logging::GetLogger("chat")->info(fmt::format("[{}] {}", ent.id(), msg));
+    }
+    void Server::InitRPCs() {
+        const auto net = GetNetworkingEngine()->GetNetworkServer();
         net->RegisterRPC<Shared::RPC::ChatMessage>([this](Shared::RPC::ChatMessage *chatMessage) {
             if (!chatMessage->Valid())
                 return;
@@ -91,19 +107,6 @@ namespace MafiaMP {
             auto frame       = carEnt.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelName = msg->GetModelName();
         });
-        
-
-        Core::Modules::Human::SetupMessages(this->GetWorldEngine(), net);
-        Core::Modules::Vehicle::SetupMessages(this->GetWorldEngine(), net);
-
-        Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Networking messages registered!");
-    }
-
-    void Server::BroadcastChatMessage(flecs::entity ent, const std::string &msg) {
-        Shared::RPC::ChatMessage proxyMsg {};
-        proxyMsg.FromParameters(msg);
-        GetNetworkingEngine()->GetNetworkServer()->SendRPC(proxyMsg, SLNet::UNASSIGNED_RAKNET_GUID);
-        Framework::Logging::GetLogger("chat")->info(fmt::format("[{}] {}", ent.id(), msg));
     }
 } // namespace MafiaMP
 
