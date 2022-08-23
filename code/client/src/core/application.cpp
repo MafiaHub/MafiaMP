@@ -23,8 +23,6 @@
 
 #include "external/imgui/widgets/corner_text.h"
 
-#include "shared/messages/misc/chat_message.h"
-
 #include "shared/version.h"
 #include <cppfs/FileHandle.h>
 #include <cppfs/fs.h>
@@ -32,7 +30,9 @@
 
 #include "shared/modules/human_sync.hpp"
 #include "shared/modules/vehicle_sync.hpp"
+
 #include "shared/rpc/spawn_car.h"
+#include "shared/rpc/chat_message.h"
 
 #include "modules/human.h"
 #include "modules/vehicle.h"
@@ -67,10 +67,9 @@ namespace MafiaMP::Core {
         _chat->SetOnMessageSentCallback([this](const std::string &msg) {
             const auto net = gApplication->GetNetworkingEngine()->GetNetworkClient();
 
-            MafiaMP::Shared::Messages::Misc::ChatMessage chatMessage {};
+            MafiaMP::Shared::RPC::ChatMessage chatMessage {};
             chatMessage.FromParameters(msg);
-            chatMessage.SetServerID(GetLocalPlayerID());
-            net->Send(chatMessage, SLNet::UNASSIGNED_RAKNET_GUID);
+            net->SendRPC(chatMessage, SLNet::UNASSIGNED_RAKNET_GUID);
         });
 
         // setup debug routines
@@ -188,7 +187,7 @@ namespace MafiaMP::Core {
 
         const auto net = GetNetworkingEngine()->GetNetworkClient();
 
-        net->RegisterMessage<Shared::Messages::Misc::ChatMessage>(Shared::Messages::MOD_CHAT_MESSAGE, [this](SLNet::RakNetGUID guid, Shared::Messages::Misc::ChatMessage *chatMessage) {
+        net->RegisterRPC<Shared::RPC::ChatMessage>([this](Shared::RPC::ChatMessage *chatMessage) {
             if (!chatMessage->Valid())
                 return;
             _chat->AddMessage(chatMessage->GetText());
@@ -357,7 +356,7 @@ namespace MafiaMP::Core {
     void Application::SetupCommands() {
         _commandProcessor->RegisterCommand(
             "test", {{"a,aargument", "Test argument 1", cxxopts::value<std::string>()}, {"b,bargument", "Test argument 2", cxxopts::value<int>()}},
-            [this](cxxopts::ParseResult result) {
+            [this](const cxxopts::ParseResult& result) {
                 if (result.count("aargument")) {
                     std::string argument1 = result["aargument"].as<std::string>();
                     Framework::Logging::GetLogger("Debug")->info("aargument - {}", argument1);
@@ -376,7 +375,7 @@ namespace MafiaMP::Core {
             "crashes the game");
         _commandProcessor->RegisterCommand(
             "echo", {},
-            [this](cxxopts::ParseResult result) {
+            [this](const cxxopts::ParseResult& result) {
                 std::string argsConcat;
                 cxxopts::PositionalList args = result.unmatched();
                 for (auto &arg : args) { argsConcat += arg + " "; }
@@ -399,14 +398,14 @@ namespace MafiaMP::Core {
             "quits the game");
         _commandProcessor->RegisterCommand(
             "spawnCar", {{"m,model", "model name of the car", cxxopts::value<std::string>()->default_value("berkley_810")}},
-            [this](cxxopts::ParseResult result) {
+            [this](const cxxopts::ParseResult& result) {
                 std::string modelName = result["model"].as<std::string>();
                 SpawnCar(modelName);
             },
             "spawn a car of a given model");
         _commandProcessor->RegisterCommand(
             "lua", {{"c,command", "command to execute", cxxopts::value<std::string>()->default_value("")}, {"f,file", "file to execute", cxxopts::value<std::string>()->default_value("")}},
-            [this](cxxopts::ParseResult result) {
+            [this](const cxxopts::ParseResult& result) {
                 std::string command = result["command"].as<std::string>();
                 if (!command.empty()) {
                     _luaVM->ExecuteString(command.c_str());
@@ -434,19 +433,18 @@ namespace MafiaMP::Core {
             "executes Lua commands");
         _commandProcessor->RegisterCommand(
             "chat", {{"m,msg", "message to send", cxxopts::value<std::string>()->default_value("")}},
-            [this](cxxopts::ParseResult result) {
+            [this](const cxxopts::ParseResult& result) {
                 const auto net = GetNetworkingEngine()->GetNetworkClient();
                 if (net->GetConnectionState() == Framework::Networking::CONNECTED) {
-                    MafiaMP::Shared::Messages::Misc::ChatMessage chatMessage {};
+                    MafiaMP::Shared::RPC::ChatMessage chatMessage {};
                     chatMessage.FromParameters(result["msg"].as<std::string>());
-                    chatMessage.SetServerID(GetLocalPlayerID());
-                    net->Send(chatMessage, SLNet::UNASSIGNED_RAKNET_GUID);
+                    net->SendRPC(chatMessage, SLNet::UNASSIGNED_RAKNET_GUID);
                 }
             },
             "sends a chat message");
         _commandProcessor->RegisterCommand(
             "wep", {{"w,wep", "weapon id", cxxopts::value<int>()->default_value("85")}, {"a,ammo", "ammo count", cxxopts::value<int>()->default_value("200")}},
-            [this](cxxopts::ParseResult result) {
+            [this](const cxxopts::ParseResult& result) {
                 const auto human = Game::Helpers::Controls::GetLocalPlayer(); 
                 if (human) {
                     auto wep = result["wep"].as<int>();

@@ -15,8 +15,5 @@ namespace MafiaMP::Shared::Messages {
         MOD_VEHICLE_DESPAWN,
         MOD_VEHICLE_UPDATE,
         MOD_VEHICLE_SELF_UPDATE,
-
-        // Misc
-        MOD_CHAT_MESSAGE,
     };
 } // namespace Framework::Networking::Messages

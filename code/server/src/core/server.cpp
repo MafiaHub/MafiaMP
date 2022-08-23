@@ -3,12 +3,11 @@
 #include "shared/modules/human_sync.hpp"
 #include "shared/modules/vehicle_sync.hpp"
 
-#include "shared/messages/misc/chat_message.h"
-
 #include "modules/human.h"
 #include "modules/vehicle.h"
 
 #include "shared/rpc/spawn_car.h"
+#include "shared/rpc/chat_message.h"
 
 #include <fmt/format.h>
 
@@ -55,7 +54,7 @@ namespace MafiaMP {
             BroadcastChatMessage(player, msg);
         });
 
-        net->RegisterMessage<Shared::Messages::Misc::ChatMessage>(Shared::Messages::MOD_CHAT_MESSAGE, [this](SLNet::RakNetGUID guid, Shared::Messages::Misc::ChatMessage *chatMessage) {
+        net->RegisterRPC<Shared::RPC::ChatMessage>([this](Shared::RPC::ChatMessage *chatMessage) {
             if (!chatMessage->Valid())
                 return;
 
@@ -101,10 +100,9 @@ namespace MafiaMP {
     }
 
     void Server::BroadcastChatMessage(flecs::entity ent, const std::string &msg) {
-        Shared::Messages::Misc::ChatMessage proxyMsg {};
-        proxyMsg.SetServerID(ent.id());
+        Shared::RPC::ChatMessage proxyMsg {};
         proxyMsg.FromParameters(msg);
-        GetNetworkingEngine()->GetNetworkServer()->Send(proxyMsg, SLNet::UNASSIGNED_RAKNET_GUID);
+        GetNetworkingEngine()->GetNetworkServer()->SendRPC(proxyMsg, SLNet::UNASSIGNED_RAKNET_GUID);
         Framework::Logging::GetLogger("chat")->info(fmt::format("[{}] {}", ent.id(), msg));
     }
 } // namespace MafiaMP

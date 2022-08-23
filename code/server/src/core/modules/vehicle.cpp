@@ -17,11 +17,11 @@ namespace MafiaMP::Core::Modules {
         world.module<Vehicle>();
 
         world.system<Shared::Modules::VehicleSync::UpdateData>("FixVehicleSeats").each([](flecs::entity e, Shared::Modules::VehicleSync::UpdateData &updateData) {
-            for (int i = 0; i < 4; i++) {
-                if (updateData.seats[i]) {
-                    const auto playerEnt = flecs::entity(e.world(), updateData.seats[i]);
+            for (auto &seat : updateData.seats) {
+                if (seat) {
+                    const auto playerEnt = flecs::entity(e.world(), seat);
                     if (!playerEnt.is_alive()) {
-                        updateData.seats[i] = 0;
+                        seat = 0;
                     }
                 }
             }
@@ -41,9 +41,9 @@ namespace MafiaMP::Core::Modules {
 
         es->assignOwnerProc = [](flecs::entity e, Framework::World::Modules::Base::Streamable &es) {
             const auto updateData = e.get<Shared::Modules::VehicleSync::UpdateData>();
-            for (int i = 0; i < 4; i++) {
-                if (updateData->seats[i]) {
-                    const auto playerEnt = flecs::entity(e.world(), updateData->seats[i]);
+            for (const auto seat : updateData->seats) {
+                if (seat) {
+                    const auto playerEnt = flecs::entity(e.world(), seat);
                     if (!playerEnt.is_alive())
                         continue;
 

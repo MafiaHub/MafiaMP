@@ -23,7 +23,7 @@ namespace MafiaMP::Shared::RPC {
             bs->Serialize(write, _modelName);
         }
 
-        bool Valid() override {
+        bool Valid() const override {
             return !_modelName.IsEmpty();
         }
     };
