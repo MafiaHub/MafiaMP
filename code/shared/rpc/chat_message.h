@@ -15,12 +15,10 @@
 #include <string>
 
 namespace MafiaMP::Shared::RPC {
-    class ChatMessage final: public Framework::Networking::RPC::IRPC {
+    class ChatMessage final: public Framework::Networking::RPC::IRPC<ChatMessage> {
       private:
         SLNet::RakString _text;
       public:
-        ChatMessage(): IRPC("ChatMessage") {}
-
         void FromParameters(const std::string &msg) {
             _text = msg.c_str();
         }

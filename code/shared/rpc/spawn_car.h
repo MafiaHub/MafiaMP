@@ -1,17 +1,15 @@
 #pragma once
 
-#include <networking/rpc/rpc.h>
+#include "src/networking/rpc/rpc.h"
 
 #include <string>
 
 namespace MafiaMP::Shared::RPC {
-    class SpawnCar final: public Framework::Networking::RPC::IRPC {
+    class SpawnCar final: public Framework::Networking::RPC::IRPC<SpawnCar> {
       private:
         SLNet::RakString _modelName {};
       public:
-        SpawnCar(): IRPC("SpawnCar") {}
-
-        void SetModelName(std::string name) {
+        void SetModelName(const std::string& name) {
             _modelName = name.c_str();
         }
         
