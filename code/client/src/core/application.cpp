@@ -267,7 +267,7 @@ namespace MafiaMP::Core {
     void Application::InitRPCs() {
         const auto net = GetNetworkingEngine()->GetNetworkClient();
 
-        net->RegisterRPC<Shared::RPC::ChatMessage>([this](Shared::RPC::ChatMessage *chatMessage) {
+        net->RegisterRPC<Shared::RPC::ChatMessage>([this](SLNet::RakNetGUID guid, Shared::RPC::ChatMessage *chatMessage) {
             if (!chatMessage->Valid())
                 return;
             _chat->AddMessage(chatMessage->GetText());

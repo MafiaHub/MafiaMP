@@ -70,11 +70,11 @@ namespace MafiaMP {
     }
     void Server::InitRPCs() {
         const auto net = GetNetworkingEngine()->GetNetworkServer();
-        net->RegisterRPC<Shared::RPC::ChatMessage>([this](Shared::RPC::ChatMessage *chatMessage) {
+        net->RegisterRPC<Shared::RPC::ChatMessage>([this](SLNet::RakNetGUID guid, Shared::RPC::ChatMessage *chatMessage) {
             if (!chatMessage->Valid())
                 return;
 
-            const auto ent = GetWorldEngine()->GetEntityByGUID(chatMessage->GetPacket()->guid.g);
+            const auto ent = GetWorldEngine()->GetEntityByGUID(guid.g);
             if (!ent.is_alive())
                 return;
 
@@ -84,12 +84,12 @@ namespace MafiaMP {
         });
 
         // spawn car rpc TEST
-        net->RegisterRPC<Shared::RPC::SpawnCar>([this](Shared::RPC::SpawnCar *msg) {
+        net->RegisterRPC<Shared::RPC::SpawnCar>([this](SLNet::RakNetGUID guid, Shared::RPC::SpawnCar *msg) {
             if (!msg->Valid()) {
                 return;
             }
 
-            const auto ent = GetWorldEngine()->GetEntityByGUID(msg->GetPacket()->guid.g);
+            const auto ent = GetWorldEngine()->GetEntityByGUID(guid.g);
             if (!ent.is_alive())
                 return;
 
