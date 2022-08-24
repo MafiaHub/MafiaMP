@@ -12,6 +12,8 @@
 #include <world/modules/base.hpp>
 #include <utils/interpolator.h>
 
+enum CarEnterStates { STATE_OUTSIDE, STATE_ENTERING, STATE_LEAVING, STATE_INSIDE };
+
 namespace MafiaMP::Core::Modules {
     struct Human {
         struct Tracking {
@@ -26,6 +28,13 @@ namespace MafiaMP::Core::Modules {
 
         struct LocalPlayer {
             [[maybe_unused]] char _unused;
+        };
+
+        struct HumanData {
+            struct CarPassenger {
+                CarEnterStates enterState = STATE_OUTSIDE;
+                bool enterForced{};
+            } carPassenger{};
         };
 
         Human(flecs::world &world);

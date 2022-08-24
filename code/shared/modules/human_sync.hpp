@@ -4,7 +4,6 @@
 
 #include <flecs/flecs.h>
 
-enum CarEnterStates { STATE_OUTSIDE, STATE_ENTERING, STATE_LEAVING, STATE_INSIDE };
 
 namespace MafiaMP::Shared::Modules {
     struct HumanSync {
@@ -20,8 +19,6 @@ namespace MafiaMP::Shared::Modules {
             float _sprintSpeed = 0.0f;
 
             struct CarPassenger {
-                CarEnterStates enterState = STATE_OUTSIDE;
-                bool enterForced{};
                 uint64_t carId{};
                 int seatId{};
             } carPassenger{};

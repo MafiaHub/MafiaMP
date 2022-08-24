@@ -32,6 +32,7 @@ namespace MafiaMP::Core::Modules {
         world.component<Tracking>();
         world.component<LocalPlayer>();
         world.component<Interpolated>();
+        world.component<HumanData>();
 
         world.system<Tracking, Shared::Modules::HumanSync::UpdateData, LocalPlayer, Framework::World::Modules::Base::Transform>("UpdateLocalPlayer")
             .each([](flecs::entity e, Tracking &tracking, Shared::Modules::HumanSync::UpdateData &metadata, LocalPlayer &lp, Framework::World::Modules::Base::Transform &tr) {
@@ -66,7 +67,7 @@ namespace MafiaMP::Core::Modules {
                             auto *car  = (SDK::C_Car *)tracking.human->GetOwner();
                             const auto carId = Core::Modules::Vehicle::GetCarEntity(car);
                             if (carId.is_valid()) {
-                                metadata.carPassenger = {STATE_INSIDE, false, carId.id(), (int)human2CarWrapper->GetSeatID(tracking.human)};
+                                metadata.carPassenger = {carId.id(), (int)human2CarWrapper->GetSeatID(tracking.human)};
                             }
                         }
                         else if (human2CarWrapper && charController->GetCarHandler()->GetCarState() == 8) /* leaving in progress */ {
@@ -85,15 +86,16 @@ namespace MafiaMP::Core::Modules {
         world.system<Tracking, Interpolated>("UpdateRemoteHuman").each([](flecs::entity e, Tracking &tracking, Interpolated &interpolated) {
             if (tracking.human && e.get<LocalPlayer>() == nullptr) {
                 auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+                auto humanData = e.get_mut<HumanData>();
                 if (tracking.charController->GetCurrentStateHandlerType() != SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
-                    if (updateData->carPassenger.enterState == STATE_ENTERING) {
+                    if (humanData->carPassenger.enterState == STATE_ENTERING) {
                         const auto carEnt = Core::gApplication->GetWorldEngine()->GetEntityByServerID(updateData->carPassenger.carId);
                         if (carEnt.is_valid()) {
                             const auto carTracking = carEnt.get<Core::Modules::Vehicle::Tracking>();
                             if (carTracking) {
-                                if (Game::Helpers::Human::PutIntoCar(tracking.charController, carTracking->car, updateData->carPassenger.seatId, updateData->carPassenger.enterForced)) {
-                                    updateData->carPassenger.enterState  = STATE_INSIDE;
-                                    updateData->carPassenger.enterForced = false;
+                                if (Game::Helpers::Human::PutIntoCar(tracking.charController, carTracking->car, updateData->carPassenger.seatId, humanData->carPassenger.enterForced)) {
+                                    humanData->carPassenger.enterState  = STATE_INSIDE;
+                                    humanData->carPassenger.enterForced = false;
                                 }
                             }
                         }
@@ -119,6 +121,8 @@ namespace MafiaMP::Core::Modules {
 
         auto interp = e.get_mut<Interpolated>();
         interp->interpolator.GetPosition()->SetCompensationFactor(1.5f);
+
+        e.add<HumanData>();
 
         const auto OnHumanRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
             CreateNetCharacterController = false;
@@ -175,6 +179,7 @@ namespace MafiaMP::Core::Modules {
 
         e.add<Shared::Modules::HumanSync::UpdateData>();
         e.add<Core::Modules::Human::LocalPlayer>();
+        e.add<HumanData>();
 
         const auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
         es->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
@@ -198,13 +203,14 @@ namespace MafiaMP::Core::Modules {
         trackingData->human->GetHumanScript()->SetInvulnerabilityByScript(true);
 
         auto updateData                    = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+        auto humanData                     = e.get_mut<HumanData>();
         const auto desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(updateData->_charStateHandlerType);
 
         // exit vehicle if we're no longer a passenger
-        if (updateData->carPassenger.carId == 0 && updateData->carPassenger.enterState == STATE_INSIDE) {
-            updateData->carPassenger.enterState = STATE_LEAVING;
+        if (updateData->carPassenger.carId == 0 && humanData->carPassenger.enterState == STATE_INSIDE) {
+            humanData->carPassenger.enterState = STATE_LEAVING;
             if (Game::Helpers::Human::RemoveFromCar(trackingData->charController, (SDK::C_Car *)trackingData->human->GetOwner(), false)) {
-                updateData->carPassenger.enterState = STATE_OUTSIDE;
+                humanData->carPassenger.enterState = STATE_OUTSIDE;
             }
         }
 
@@ -213,8 +219,8 @@ namespace MafiaMP::Core::Modules {
 
             if (desiredStateHandlerType == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
                 if (trackingData->charController->GetCurrentStateHandlerType() != SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
-                    if (updateData->carPassenger.carId > 0 && updateData->carPassenger.enterState == STATE_OUTSIDE) {
-                        updateData->carPassenger.enterState = STATE_ENTERING;
+                    if (updateData->carPassenger.carId > 0 && humanData->carPassenger.enterState == STATE_OUTSIDE) {
+                        humanData->carPassenger.enterState = STATE_ENTERING;
                     }
                 }
             }
@@ -276,13 +282,14 @@ namespace MafiaMP::Core::Modules {
 
             // Setup other components
             auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+            auto humanData  = e.get_mut<HumanData>();
 
             const auto carPassenger = msg->GetCarPassenger();
             if (carPassenger.carId) {
                 updateData->carPassenger.carId       = carPassenger.carId;
                 updateData->carPassenger.seatId      = carPassenger.seatId;
-                updateData->carPassenger.enterState  = STATE_ENTERING;
-                updateData->carPassenger.enterForced = true;
+                humanData->carPassenger.enterState  = STATE_ENTERING;
+                humanData->carPassenger.enterForced = true;
             }
 
             // set up client updates (NPC streaming)
