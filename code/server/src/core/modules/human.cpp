@@ -9,7 +9,7 @@
 #include "shared/messages/human/human_spawn.h"
 #include "shared/messages/human/human_update.h"
 #include "shared/modules/human_sync.hpp"
-#include "shared/modules/vehicle_sync.hpp"
+#include "vehicle.h"
 
 #include <flecs/flecs.h>
 
@@ -60,18 +60,7 @@ namespace MafiaMP::Core::Modules {
 
             Shared::Messages::Human::HumanUpdate humanUpdate {};
             humanUpdate.SetServerID(e.id());
-            humanUpdate.SetCharStateHandlerType(trackingMetadata->_charStateHandlerType);
-            humanUpdate.SetHealthPercent(trackingMetadata->_healthPercent);
-            humanUpdate.SetMoveMode(trackingMetadata->_moveMode);
-            humanUpdate.SetSprinting(trackingMetadata->_isSprinting);
-            humanUpdate.SetSprintSpeed(trackingMetadata->_sprintSpeed);
-            humanUpdate.SetStalking(trackingMetadata->_isStalking);
-            humanUpdate.SetCarPassenger(trackingMetadata->carPassenger.carId, trackingMetadata->carPassenger.seatId);
-            humanUpdate.SetSpawnProfile(frame->modelHash);
-
-            const auto wepData = trackingMetadata->weaponData;
-            humanUpdate.SetWeaponData({wepData.isAiming, wepData.isFiring});
-
+            humanUpdate.SetData(*trackingMetadata);
             net->Send(humanUpdate, guid);
             return true;
         };
@@ -88,17 +77,8 @@ namespace MafiaMP::Core::Modules {
             }
 
             auto trackingMetadata                   = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
-            trackingMetadata->_charStateHandlerType = msg->GetCharStateHandlerType();
-            trackingMetadata->_healthPercent        = msg->GetHealthPercent();
-            trackingMetadata->_isSprinting          = msg->IsSprinting();
-            trackingMetadata->_isStalking           = msg->IsStalking();
-            trackingMetadata->_moveMode             = msg->GetMoveMode();
-            trackingMetadata->_sprintSpeed          = msg->GetSprintSpeed();
-
-            const auto wepData           = msg->GetWeaponData();
-            trackingMetadata->weaponData = {wepData.isAiming, wepData.isFiring};
-
-            const auto carPassenger = msg->GetCarPassenger();
+            const auto newData = msg->GetData();
+            const auto& carPassenger = newData.carPassenger;
 
             // TODO improve this code
             if (trackingMetadata->carPassenger.carId != carPassenger.carId) {
@@ -106,7 +86,7 @@ namespace MafiaMP::Core::Modules {
                     const auto carEnt = srv->WrapEntity(trackingMetadata->carPassenger.carId);
 
                     if (carEnt.is_alive()) {
-                        auto car                                          = carEnt.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+                        auto car                                          = carEnt.get_mut<Modules::Vehicle::CarData>();
                         car->seats[trackingMetadata->carPassenger.seatId] = 0;
                     }
                 }
@@ -114,7 +94,7 @@ namespace MafiaMP::Core::Modules {
                     const auto carEnt = srv->WrapEntity(carPassenger.carId);
 
                     if (carEnt.is_alive()) {
-                        auto car                        = carEnt.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+                        auto car                        = carEnt.get_mut<Modules::Vehicle::CarData>();
                         car->seats[carPassenger.seatId] = e.id();
 
                         // TODO rework so that we can ensure player doesn't sit in fully occupied vehicle etc
@@ -122,8 +102,7 @@ namespace MafiaMP::Core::Modules {
                 }
             }
 
-            trackingMetadata->carPassenger.carId  = carPassenger.carId;
-            trackingMetadata->carPassenger.seatId = carPassenger.seatId;
+            *trackingMetadata = newData;
         });
     }
 } // namespace MafiaMP::Core::Modules

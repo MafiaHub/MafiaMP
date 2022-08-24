@@ -10,7 +10,7 @@
 namespace MafiaMP::Shared::Messages::Vehicle {
     class VehicleUpdate final: public Framework::Networking::Messages::GameSyncMessage {
       private:
-        Modules::VehicleSync::UpdateData _updateData;
+        Modules::VehicleSync::UpdateData _updateData{};
 
       public:
         uint8_t GetMessageID() const override {

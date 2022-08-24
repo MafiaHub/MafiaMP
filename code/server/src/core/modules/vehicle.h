@@ -6,6 +6,10 @@
 namespace MafiaMP::Core::Modules {
     class Vehicle {
       public:
+        struct CarData {
+            uint64_t seats[4]{};
+        };
+
         Vehicle(flecs::world &world);
 
         static flecs::entity Create(MafiaMP::Server *server);

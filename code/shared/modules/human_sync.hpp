@@ -9,10 +9,10 @@ enum CarEnterStates { STATE_OUTSIDE, STATE_ENTERING, STATE_LEAVING, STATE_INSIDE
 namespace MafiaMP::Shared::Modules {
     struct HumanSync {
         struct UpdateData {
-            uint8_t _healthPercent = 100.0f;
+            float _healthPercent = 100.0f;
 
-            uint8_t _charStateHandlerType = -1;
-            uint8_t _moveMode             = -1;
+            int _charStateHandlerType = -1;
+            int _moveMode             = -1;
 
             bool _isSprinting = false;
             bool _isStalking  = false;

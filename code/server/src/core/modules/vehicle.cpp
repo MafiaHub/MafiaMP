@@ -16,7 +16,9 @@ namespace MafiaMP::Core::Modules {
     Vehicle::Vehicle(flecs::world &world) {
         world.module<Vehicle>();
 
-        world.system<Shared::Modules::VehicleSync::UpdateData>("FixVehicleSeats").each([](flecs::entity e, Shared::Modules::VehicleSync::UpdateData &updateData) {
+        world.component<CarData>();
+
+        world.system<CarData>("FixVehicleSeats").each([](flecs::entity e, CarData &updateData) {
             for (auto &seat : updateData.seats) {
                 if (seat) {
                     const auto playerEnt = flecs::entity(e.world(), seat);
@@ -36,12 +38,13 @@ namespace MafiaMP::Core::Modules {
         frame->modelName = "berkley_810"; /* TODO */
 
         e.add<Shared::Modules::VehicleSync::UpdateData>();
+        e.add<CarData>();
 
         auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
 
         es->assignOwnerProc = [](flecs::entity e, Framework::World::Modules::Base::Streamable &es) {
-            const auto updateData = e.get<Shared::Modules::VehicleSync::UpdateData>();
-            for (const auto seat : updateData->seats) {
+            const auto carData = e.get<CarData>();
+            for (const auto seat : carData->seats) {
                 if (seat) {
                     const auto playerEnt = flecs::entity(e.world(), seat);
                     if (!playerEnt.is_alive())

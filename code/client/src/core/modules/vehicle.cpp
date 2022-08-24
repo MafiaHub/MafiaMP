@@ -1,4 +1,5 @@
 #include <utils/safe_win32.h>
+
 #include "vehicle.h"
 
 #include "sdk/entities/c_vehicle.h"
@@ -7,6 +8,7 @@
 
 #include "game/streaming/entity_tracking_info.h"
 
+#include <utility>
 #include <world/modules/base.hpp>
 
 #include "shared/messages/vehicle/vehicle_despawn.h"
@@ -15,7 +17,7 @@
 #include "shared/modules/vehicle_sync.hpp"
 
 namespace MafiaMP::Core::Modules {
-    flecs::query<Vehicle::Tracking> Vehicle::_findAllVehicles;
+    flecs::query<Vehicle::Tracking> Vehicle::_findAllVehicles {};
 
     Vehicle::Vehicle(flecs::world &world) {
         world.module<Vehicle>();
@@ -28,7 +30,7 @@ namespace MafiaMP::Core::Modules {
         world.system<Tracking, Shared::Modules::VehicleSync::UpdateData, Framework::World::Modules::Base::Transform>("UpdateOwnedVehicles")
             .each([](flecs::entity e, Tracking &tracking, Shared::Modules::VehicleSync::UpdateData &metadata, Framework::World::Modules::Base::Transform &tr) {
                 const auto myGUID = Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->GetPeer()->GetMyGUID();
-                if (tracking.car && Framework::World::Engine::IsEntityOwner(e, myGUID.g) == true) {
+                if (tracking.car && Framework::World::Engine::IsEntityOwner(e, myGUID.g)) {
                     const auto car                                      = tracking.car;
                     SDK::ue::sys::math::C_Vector carPos                 = ((SDK::C_Actor *)car)->GetPos();
                     SDK::ue::sys::math::C_Quat carRot                   = ((SDK::C_Actor *)car)->GetRot();
@@ -51,7 +53,7 @@ namespace MafiaMP::Core::Modules {
 
         world.system<Tracking, Interpolated>("UpdateRemoteVehicles").each([](flecs::entity e, Tracking &tracking, Interpolated &interpolated) {
             const auto myGUID = Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->GetPeer()->GetMyGUID();
-            if (tracking.car && Framework::World::Engine::IsEntityOwner(e, myGUID.g) == false) {
+            if (tracking.car && !Framework::World::Engine::IsEntityOwner(e, myGUID.g)) {
                 const auto car                         = tracking.car;
                 const auto vehiclePos                  = car->GetPos();
                 const auto vehicleRot                  = car->GetRot();
@@ -67,7 +69,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Vehicle::Create(flecs::entity e, std::string modelName) {
-        auto info          = Core::gApplication->GetEntityFactory()->RequestVehicle(modelName);
+        auto info          = Core::gApplication->GetEntityFactory()->RequestVehicle(std::move(modelName));
         auto trackingData  = e.get_mut<Core::Modules::Vehicle::Tracking>();
         trackingData->info = info;
         trackingData->car  = nullptr;
@@ -146,9 +148,8 @@ namespace MafiaMP::Core::Modules {
             interp->interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, tr->rot, MafiaMP::Core::gApplication->GetTickInterval());
         }
         else {
-            SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
-            SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
-            SDK::ue::sys::math::C_Matrix transform = {};
+            SDK::ue::sys::math::C_Vector newPos = {tr->pos.x, tr->pos.y, tr->pos.z};
+            SDK::ue::sys::math::C_Quat newRot   = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
             trackingData->car->SetPos(newPos);
             trackingData->car->SetRot(newRot);
         }

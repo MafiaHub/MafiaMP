@@ -17,8 +17,6 @@ namespace MafiaMP::Shared::Modules {
             float brake = 0.0f;
             float handbrake = 0.0f;
             float steer = 0.0f;
-
-            uint64_t seats[4]{}; // TODO sync to clients
         };
 
         VehicleSync(flecs::world& world) {

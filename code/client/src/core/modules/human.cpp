@@ -63,7 +63,7 @@ namespace MafiaMP::Core::Modules {
                         auto human2CarWrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
                         // printf("id: %d\n", charController->GetCarHandler()->GetCarState());
                         if (human2CarWrapper && charController->GetCarHandler()->GetCarState() == 2) /* entering in progress */ {
-                            SDK::C_Car *car  = (SDK::C_Car *)tracking.human->GetOwner();
+                            auto *car  = (SDK::C_Car *)tracking.human->GetOwner();
                             const auto carId = Core::Modules::Vehicle::GetCarEntity(car);
                             if (carId.is_valid()) {
                                 metadata.carPassenger = {STATE_INSIDE, false, carId.id(), (int)human2CarWrapper->GetSeatID(tracking.human)};
@@ -168,7 +168,7 @@ namespace MafiaMP::Core::Modules {
         info->SetNetworkEntity(e);
     }
 
-    void Human::SetupLocalPlayer(Application *app, flecs::entity e) {
+    void Human::SetupLocalPlayer(Application *, flecs::entity e) {
         auto trackingData   = e.get_mut<Core::Modules::Human::Tracking>();
         trackingData->human = Game::Helpers::Controls::GetLocalPlayer();
         trackingData->info  = nullptr;
@@ -177,23 +177,12 @@ namespace MafiaMP::Core::Modules {
         e.add<Core::Modules::Human::LocalPlayer>();
 
         const auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
-        es->modEvents.updateProc = [app](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
+        es->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
-            const auto frame      = e.get<Framework::World::Modules::Base::Frame>();
 
             Shared::Messages::Human::HumanUpdate humanUpdate {};
-            humanUpdate.SetServerID(app->GetWorldEngine()->GetServerID(e));
-            humanUpdate.SetCharStateHandlerType(updateData->_charStateHandlerType);
-            humanUpdate.SetHealthPercent(updateData->_healthPercent);
-            humanUpdate.SetMoveMode(updateData->_moveMode);
-            humanUpdate.SetSprinting(updateData->_isSprinting);
-            humanUpdate.SetSprintSpeed(updateData->_sprintSpeed);
-            humanUpdate.SetStalking(updateData->_isStalking);
-            humanUpdate.SetCarPassenger(updateData->carPassenger.carId, updateData->carPassenger.seatId);
-
-            const auto wepData     = updateData->weaponData;
-            humanUpdate.SetWeaponData({wepData.isAiming, wepData.isFiring});
-            
+            humanUpdate.SetServerID(Framework::World::ClientEngine::GetServerID(e));
+            humanUpdate.SetData(*updateData);
             peer->Send(humanUpdate, guid);
             return true;
         };
@@ -324,22 +313,7 @@ namespace MafiaMP::Core::Modules {
             }
 
             auto updateData                   = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
-            updateData->_charStateHandlerType = msg->GetCharStateHandlerType();
-            updateData->_healthPercent        = msg->GetHealthPercent();
-            updateData->_isSprinting          = msg->IsSprinting();
-            updateData->_isStalking           = msg->IsStalking();
-            updateData->_moveMode             = msg->GetMoveMode();
-            updateData->_sprintSpeed          = msg->GetSprintSpeed();
-            
-            const auto wepData     = msg->GetWeaponData();
-            updateData->weaponData = {wepData.isAiming, wepData.isFiring};
-            
-            auto frame = e.get_mut<Framework::World::Modules::Base::Frame>();
-            frame->modelHash = msg->GetSpawnProfile();
-
-            const auto carPassenger         = msg->GetCarPassenger();
-            updateData->carPassenger.carId  = carPassenger.carId;
-            updateData->carPassenger.seatId = carPassenger.seatId;
+            *updateData = msg->GetData();
 
             Update(e);
         });
