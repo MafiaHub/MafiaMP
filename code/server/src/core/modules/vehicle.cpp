@@ -77,14 +77,7 @@ namespace MafiaMP::Core::Modules {
 
             Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
             vehicleUpdate.SetServerID(e.id());
-            vehicleUpdate.SetVelocity(trackingMetadata->velocity);
-            vehicleUpdate.SetAngularVelocity(trackingMetadata->angularVelocity);
-            vehicleUpdate.SetGear(trackingMetadata->gear);
-            vehicleUpdate.SetHorn(trackingMetadata->horn);
-            vehicleUpdate.SetPower(trackingMetadata->power);
-            vehicleUpdate.SetBrake(trackingMetadata->brake);
-            vehicleUpdate.SetHandbrake(trackingMetadata->handbrake);
-            vehicleUpdate.SetSteer(trackingMetadata->steer);
+            vehicleUpdate.SetData(*trackingMetadata);
             net->Send(vehicleUpdate, guid);
             return true;
         };
@@ -103,14 +96,7 @@ namespace MafiaMP::Core::Modules {
             }
 
             auto updateData             = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            updateData->velocity        = msg->GetVelocity();
-            updateData->angularVelocity = msg->GetAngularVelocity();
-            updateData->gear            = msg->GetGear();
-            updateData->horn            = msg->GetHorn();
-            updateData->power           = msg->GetPower();
-            updateData->brake           = msg->GetBrake();
-            updateData->handbrake       = msg->GetHandbrake();
-            updateData->steer           = msg->GetSteer();
+            *updateData = msg->GetData();
         });
     }
 } // namespace MafiaMP::Core::Modules

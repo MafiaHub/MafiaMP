@@ -105,14 +105,7 @@ namespace MafiaMP::Core::Modules {
 
                     Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
                     vehicleUpdate.SetServerID(serverID->id);
-                    vehicleUpdate.SetGear(updateData->gear);
-                    vehicleUpdate.SetHorn(updateData->horn);
-                    vehicleUpdate.SetPower(updateData->power);
-                    vehicleUpdate.SetBrake(updateData->brake);
-                    vehicleUpdate.SetHandbrake(updateData->handbrake);
-                    vehicleUpdate.SetSteer(updateData->steer);
-                    vehicleUpdate.SetVelocity(updateData->velocity);
-                    vehicleUpdate.SetAngularVelocity(updateData->angularVelocity);
+                    vehicleUpdate.SetData(*updateData);
                     peer->Send(vehicleUpdate, guid);
                     return true;
                 };
@@ -210,25 +203,18 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto updateData             = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            updateData->velocity        = msg->GetVelocity();
-            updateData->angularVelocity = msg->GetAngularVelocity();
-            updateData->gear            = msg->GetGear();
-            updateData->horn            = msg->GetHorn();
-            updateData->power           = msg->GetPower();
-            updateData->brake           = msg->GetBrake();
-            updateData->handbrake       = msg->GetHandbrake();
-            updateData->steer           = msg->GetSteer();
+            auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            *updateData     = msg->GetData();
             Update(e);
         });
     }
 
     flecs::entity Vehicle::GetCarEntity(SDK::C_Car *carPtr) {
-        flecs::entity carID{};
+        flecs::entity carID {};
         _findAllVehicles.each([&carID, carPtr](flecs::entity e, Core::Modules::Vehicle::Tracking &trackingData) {
             if (trackingData.car == carPtr) {
                 const auto sid = e.get<Framework::World::Modules::Base::ServerID>();
-                carID = flecs::entity(e.world(), sid->id);
+                carID          = flecs::entity(e.world(), sid->id);
             }
         });
         return carID;
