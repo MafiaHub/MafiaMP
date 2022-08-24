@@ -202,6 +202,12 @@ namespace MafiaMP::Core {
             },
             "sends a chat message");
         gApplication->_commandProcessor->RegisterCommand(
+            "disconnect", {},
+            [this](const cxxopts::ParseResult &) {
+                Disconnect();
+            },
+            "disconnect from server");
+        gApplication->_commandProcessor->RegisterCommand(
             "wep", {{"w,wep", "weapon id", cxxopts::value<int>()->default_value("85")}, {"a,ammo", "ammo count", cxxopts::value<int>()->default_value("200")}},
             [this](const cxxopts::ParseResult &result) {
                 const auto human = Game::Helpers::Controls::GetLocalPlayer();
