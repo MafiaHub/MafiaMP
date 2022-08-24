@@ -7,6 +7,8 @@
 namespace SDK {
     class C_HumanWeaponController {
       public:
+        bool DoWeaponSelectByItemId(unsigned int, bool);
+
         int GetRightHandWeaponID();
 
         void GetShotPosDir(SDK::ue::sys::math::C_Vector *, SDK::ue::sys::math::C_Vector *, float *);

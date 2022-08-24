@@ -6,6 +6,10 @@
 #include "../../patterns.h"
 
 namespace SDK {
+    bool C_HumanWeaponController::DoWeaponSelectByItemId(unsigned int weaponId, bool unk) {
+        return hook::this_call<bool>(gPatterns.C_HumanWeaponController__DoWeaponSelectByItemId, this, weaponId, unk);
+    }
+
     int C_HumanWeaponController::GetRightHandWeaponID() {
         return hook::this_call<int>(gPatterns.C_HumanWeaponController__GetRightHandWeaponID, this);
     }

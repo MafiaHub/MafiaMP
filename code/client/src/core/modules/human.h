@@ -48,5 +48,7 @@ namespace MafiaMP::Core::Modules {
         static void Remove(flecs::entity e);
 
         static void SetupMessages(Application *app);
+        
+        static flecs::query<Tracking> findAllHumans;
     };
 } // namespace MafiaMP::Core::Modules
