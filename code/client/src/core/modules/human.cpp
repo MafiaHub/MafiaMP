@@ -194,7 +194,6 @@ namespace MafiaMP::Core::Modules {
         // TODO(DavoSK): remove
         Game::Helpers::Human::AddWeapon(trackingData->human, 85, 200);
         Game::Helpers::Human::AddWeapon(trackingData->human, 3, 200);
-        Game::Helpers::Human::AddWeapon(trackingData->human, 13, 200);
 
         const auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
         es->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
@@ -277,7 +276,6 @@ namespace MafiaMP::Core::Modules {
         
         if (wepController->GetRightHandWeaponID() != updateData->weaponData.currentWeaponId) {
             wepController->DoWeaponSelectByItemId(updateData->weaponData.currentWeaponId, true);
-            printf("change weapon to: %d\n", updateData->weaponData.currentWeaponId);
         }
     }
 
