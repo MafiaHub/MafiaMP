@@ -40,7 +40,7 @@ namespace MafiaMP {
     void Server::InitNetworkingMessages() {
         const auto net = GetNetworkingEngine()->GetNetworkServer();
 
-        SetOnPlayerConnectCallback([this, net](flecs::entity player, uint64_t guid) {
+        SetOnPlayerConnectCallback([this, net](flecs::entity player, uint64_t) {
             Core::Modules::Human::Create(net, player);
             
             const auto st  = player.get<Framework::World::Modules::Base::Streamer>();
@@ -48,7 +48,7 @@ namespace MafiaMP {
             BroadcastChatMessage(player, msg);
         });
 
-        SetOnPlayerDisconnectCallback([this](flecs::entity player, uint64_t guid) {
+        SetOnPlayerDisconnectCallback([this](flecs::entity player, uint64_t) {
             const auto st  = player.get<Framework::World::Modules::Base::Streamer>();
             const auto msg = fmt::format("Player {} has left the session!", st->nickname);
             BroadcastChatMessage(player, msg);
@@ -187,7 +187,7 @@ void spawnSomeCars(MafiaMP::Server *server) {
         auto frame = e.get_mut<Framework::World::Modules::Base::Frame>();
         frame->modelName = loc.modelName;
     }
-    Framework::Logging::GetLogger("test")->info("[INFO] Spawned {} cars!\n", i);
+    Framework::Logging::GetLogger("test")->info("[INFO] Spawned {} cars!", i);
 }
 
 std::vector<std::string> TEST_vehiclelist = {
