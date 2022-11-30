@@ -4,6 +4,8 @@ int main(int argc, char **argv) {
     Framework::Integrations::Server::InstanceOptions opts;
     opts.bindHost      = "0.0.0.0";
     opts.bindPort      = 27015;
+    opts.webBindHost   = "0.0.0.0";
+    opts.webBindPort   = 27016;
     opts.bindName      = "Mafia MP Local Dev Server";
     opts.maxPlayers    = 10;
     opts.modName       = "MafiaMP";
