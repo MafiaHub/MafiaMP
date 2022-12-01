@@ -19,6 +19,7 @@ extern std::vector<std::string> TEST_vehiclelist;
 namespace MafiaMP {
 
     void Server::PostInit() {
+        _serverRef = this;
         InitNetworkingMessages();
 
         // Setup ECS modules (sync)

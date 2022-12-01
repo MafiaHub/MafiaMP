@@ -17,5 +17,7 @@ namespace MafiaMP {
         void BroadcastChatMessage(flecs::entity ent, const std::string &msg);
 
         void InitRPCs();
+
+        static inline Server *_serverRef = nullptr;
     };
 } // namespace MafiaMP
