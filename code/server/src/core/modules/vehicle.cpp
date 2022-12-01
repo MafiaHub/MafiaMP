@@ -1,5 +1,3 @@
-#pragma once
-
 #include "vehicle.h"
 
 #include "networking/network_peer.h"

@@ -10,6 +10,7 @@
 
 #include "game/streaming/entity_tracking_info.h"
 #include <vector>
+#include <string>
 namespace MafiaMP::Core {
     class DevFeatures final {
       private:

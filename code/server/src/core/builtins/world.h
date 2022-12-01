@@ -3,7 +3,11 @@
 #include "scripting/engines/node/engine.h"
 #include "scripting/engines/node/sdk.h"
 
+#include "../modules/environment.h"
 #include "../modules/vehicle.h"
+
+#include "../../shared/rpc/environment.h"
+
 #include "vehicle.h"
 
 namespace MafiaMP::Scripting {
@@ -16,9 +20,32 @@ namespace MafiaMP::Scripting {
             frame->modelName = modelName;
 
             return v8pp::class_<Scripting::Vehicle>::create_object(isolate, e.id());
-          }
+        }
+
+        static void SetWeather(std::string weatherSetName) {
+            auto world = Framework::World::Engine::_worldRef;
+
+            auto weather = world->get_mut<Core::Modules::Environment::Weather>();
+            weather->_weatherSetName = weatherSetName;
+            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, weather->_weatherSetName, weather->_dayTimeHours);
+        }
+
+        static void SetDayTimeHours(float dayTimeHours) {
+            auto world = Framework::World::Engine::_worldRef;
+
+            auto weather             = world->get_mut<Core::Modules::Environment::Weather>();
+            weather->_dayTimeHours = dayTimeHours;
+            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, weather->_weatherSetName, weather->_dayTimeHours);
+        }
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
+            // Create the environment namespace
+            v8pp::module environment(isolate);
+            environment.function("setWeather", &World::SetWeather);
+            environment.function("setDayTimeHours", &World::SetDayTimeHours);
+            rootModule->submodule("Environment", environment);
+
+            // Create the vehicle namespace
             rootModule->function("createVehicle", &World::CreateVehicle);
         }
     };

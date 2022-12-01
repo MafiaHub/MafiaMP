@@ -62,7 +62,7 @@ namespace MafiaMP::Core {
         ExitProcess(0);
     }
 
-    void DevFeatures::SpawnCar(const std::string modelName) {
+    void DevFeatures::SpawnCar(std::string modelName) {
         const auto net = gApplication->GetNetworkingEngine()->GetNetworkClient();
         if (net->GetConnectionState() == Framework::Networking::CONNECTED) {
             Shared::RPC::SpawnCar spawnCarMsg {};

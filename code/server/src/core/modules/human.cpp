@@ -1,5 +1,3 @@
-#pragma once
-
 #include "human.h"
 
 #include "world/modules/base.hpp"

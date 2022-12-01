@@ -14,6 +14,7 @@
 #include "game/helpers/controls.h"
 #include "game/streaming/entity_factory.h"
 #include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.h"
 
 #include "external/imgui/widgets/corner_text.h"
 
@@ -25,6 +26,7 @@
 #include "shared/modules/mod.hpp"
 #include "shared/modules/vehicle_sync.hpp"
 
+#include "shared/rpc/environment.h"
 #include "shared/rpc/chat_message.h"
 #include "shared/rpc/spawn_car.h"
 
@@ -275,6 +277,15 @@ namespace MafiaMP::Core {
             _chat->AddMessage(chatMessage->GetText());
 
             Framework::Logging::GetLogger("chat")->trace(chatMessage->GetText());
+        });
+        net->RegisterRPC<Shared::RPC::SetEnvironment>([this](SLNet::RakNetGUID guid, Shared::RPC::SetEnvironment *environmentMsg) {
+            if (!environmentMsg->Valid()) {
+                return;
+            }
+
+            const auto gfx = SDK::ue::gfx::environmenteffects::C_GfxEnvironmentEffects::GetInstance();
+            gfx->GetWeatherManager()->SetWeatherSet(environmentMsg->GetWeatherSet().c_str(), 1.0f);
+            gfx->GetWeatherManager()->SetDayTimeHours(environmentMsg->GetDayTimeHours());
         });
         net->RegisterGameRPC<Framework::World::RPC::SetTransform>([this](SLNet::RakNetGUID guid, Framework::World::RPC::SetTransform *msg) {
             if (!msg->Valid()) {
