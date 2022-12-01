@@ -18,10 +18,7 @@ namespace MafiaMP::Scripting {
           }
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
-            auto mod = v8pp::module(isolate);
-            mod.function("createVehicle", &World::CreateVehicle);
-
-            rootModule->submodule("world", mod);
+            rootModule->function("createVehicle", &World::CreateVehicle);
         }
     };
 } // namespace MafiaMP::Scripting
