@@ -9,12 +9,13 @@
 namespace MafiaMP::Scripting {
     class World final {
       public:
-          static Scripting::Vehicle CreateVehicle(std::string modelName) {
+        static v8::Local<v8::Object> CreateVehicle(v8::Isolate *isolate, std::string modelName) {
             auto e = MafiaMP::Core::Modules::Vehicle::Create(Server::_serverRef);
 
             auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelName = modelName;
-            return Scripting::Vehicle(e.id());
+
+            return v8pp::class_<Scripting::Vehicle>::create_object(isolate, e.id());
           }
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {

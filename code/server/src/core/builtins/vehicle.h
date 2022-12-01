@@ -1,11 +1,11 @@
 #pragma once
 
+#include "integrations/server/scripting/builtins/node/entity.h"
 #include "scripting/engines/node/engine.h"
 #include "scripting/engines/node/sdk.h"
-#include "integrations/server/scripting/builtins/node/entity.h"
 
 namespace MafiaMP::Scripting {
-    class Vehicle final : public Framework::Integrations::Scripting::Entity {
+    class Vehicle final: public Framework::Integrations::Scripting::Entity {
       public:
         Vehicle(flecs::entity_t ent): Entity(ent) {}
 
@@ -21,7 +21,7 @@ namespace MafiaMP::Scripting {
             }
 
             v8pp::class_<Vehicle> cls(isolate);
-
+            cls.inherit<Framework::Integrations::Scripting::Entity>();
             rootModule->class_("Vehicle", cls);
         }
     };
