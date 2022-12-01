@@ -31,7 +31,7 @@ namespace MafiaMP {
         GetWorldEngine()->GetWorld()->import<Core::Modules::Vehicle>();
 
         // TODO UGLY
-        spawnSomeCars(this);
+        //spawnSomeCars(this);
     }
 
     void Server::PostUpdate() {}
