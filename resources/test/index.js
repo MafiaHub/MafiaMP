@@ -57,14 +57,27 @@ const vehicleSpawns = [
     ["houston_coupe", [-890.751465,-147.323196,3.245617], [0.999277, -0.011216,0.034156,0.012345]]
 ];
 
-sdk.on('resourceLoaded', (name) => {
-    console.log('Hello from the other side', name);
+const weatherSets = ["mm_030_molotov_cp_010_cine", "mm_150_boat_cp_010", "mm_210_gallery_cp_050"];
 
-    vehicleSpawns.forEach(veh => {
+sdk.on('resourceLoaded', (name) => {
+    // Spawn vehicles
+    for (const veh of vehicleSpawns){
         const car = sdk.createVehicle(veh[0]);
         car.setPosition(new sdk.Vector3(veh[1][0], veh[1][1], veh[1][2]));
         car.setRotation(new sdk.Quaternion(veh[2][0], veh[2][1], veh[2][2], veh[2][3]));
-    })
-
+    }
     console.log(`spawned ${vehicleSpawns.length} vehicles!`);
-})
+
+    // Periodically update the weather set and time
+    let actualTime = 11;
+    setInterval(function(){
+        const selectedSet = weatherSets[Math.floor(Math.random() * weatherSets.length)];
+        sdk.Environment.setWeather(selectedSet);
+
+        sdk.Environment.setDayTimeHours(actualTime);
+        actualTime++;
+        if(actualTime >= 24){
+            actualTime = 1;
+        }
+    }, 10000);
+});
