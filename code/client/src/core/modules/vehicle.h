@@ -32,6 +32,8 @@ namespace MafiaMP::Core::Modules {
         static void Remove(flecs::entity e);
 
         static void SetupMessages(Application *app);
+
+        static void UpdateTransform(flecs::entity e);
         
         static flecs::entity GetCarEntity(SDK::C_Car *carPtr);
     };

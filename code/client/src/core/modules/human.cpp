@@ -24,6 +24,7 @@
 #include "shared/messages/human/human_spawn.h"
 #include "shared/messages/human/human_update.h"
 #include "shared/modules/human_sync.hpp"
+#include "shared/modules/mod.hpp"
 
 namespace MafiaMP::Core::Modules {
 
@@ -128,6 +129,7 @@ namespace MafiaMP::Core::Modules {
         interp->interpolator.GetPosition()->SetCompensationFactor(1.5f);
 
         e.add<HumanData>();
+        e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
 
         const auto OnHumanRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
             CreateNetCharacterController = false;
@@ -190,6 +192,7 @@ namespace MafiaMP::Core::Modules {
         e.add<Shared::Modules::HumanSync::UpdateData>();
         e.add<Core::Modules::Human::LocalPlayer>();
         e.add<HumanData>();
+        e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
 
         // TODO(DavoSK): remove
         Game::Helpers::Human::AddWeapon(trackingData->human, 85, 200);
@@ -360,5 +363,31 @@ namespace MafiaMP::Core::Modules {
 
             // update actor data
         });
+    }
+    void Human::UpdateTransform(flecs::entity e) {
+        const auto trackingData = e.get<Core::Modules::Human::Tracking>();
+        if (!trackingData || !trackingData->human) {
+            return;
+        }
+
+        // Update basic data
+        const auto tr = e.get<Framework::World::Modules::Base::Transform>();
+        auto interp   = e.get_mut<Interpolated>();
+        if (interp) {
+            // todo reset lerp
+            const auto humanPos = trackingData->human->GetPos();
+            const auto humanRot = trackingData->human->GetRot();
+            interp->interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
+            interp->interpolator.GetRotation()->SetTargetValue({humanRot.w, humanRot.x, humanRot.y, humanRot.z}, tr->rot, MafiaMP::Core::gApplication->GetTickInterval());
+        }
+        else {
+            SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
+            SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
+            SDK::ue::sys::math::C_Matrix transform = {};
+            transform.Identity();
+            transform.SetRot(newRot);
+            transform.SetPos(newPos);
+            trackingData->human->SetTransform(transform);
+        }
     }
 } // namespace MafiaMP::Core::Modules

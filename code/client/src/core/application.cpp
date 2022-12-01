@@ -22,10 +22,13 @@
 #include <utils/version.h>
 
 #include "shared/modules/human_sync.hpp"
+#include "shared/modules/mod.hpp"
 #include "shared/modules/vehicle_sync.hpp"
 
-#include "shared/rpc/spawn_car.h"
 #include "shared/rpc/chat_message.h"
+#include "shared/rpc/spawn_car.h"
+
+#include "world/game_rpc/set_transform.h"
 
 #include "modules/human.h"
 #include "modules/vehicle.h"
@@ -69,19 +72,19 @@ namespace MafiaMP::Core {
         _devFeatures.Init();
 
         // Register client modules (sync)
-        GetWorldEngine()->GetWorld()->import<Shared::Modules::HumanSync>();
-        GetWorldEngine()->GetWorld()->import<Shared::Modules::VehicleSync>();
+        GetWorldEngine()->GetWorld()->import <Shared::Modules::Mod>();
+        GetWorldEngine()->GetWorld()->import <Shared::Modules::HumanSync>();
+        GetWorldEngine()->GetWorld()->import <Shared::Modules::VehicleSync>();
 
         // Register client modules
-        GetWorldEngine()->GetWorld()->import<Modules::Human>();
-        GetWorldEngine()->GetWorld()->import<Modules::Vehicle>();
+        GetWorldEngine()->GetWorld()->import <Modules::Human>();
+        GetWorldEngine()->GetWorld()->import <Modules::Vehicle>();
 
         GetWorldEngine()->SetOnEntityDestroyCallback([](flecs::entity e) {
-            if (e.get<Core::Modules::Human::Tracking>()) {
-                Core::Modules::Human::Remove(e);
-            }
-            else if (e.get<Core::Modules::Vehicle::Tracking>()) {
-                Core::Modules::Vehicle::Remove(e);
+            const auto ekind = e.get<Shared::Modules::Mod::EntityKind>();
+            switch (ekind->kind) {
+            case Shared::Modules::Mod::MOD_PLAYER: Core::Modules::Human::Remove(e); break;
+            case Shared::Modules::Mod::MOD_VEHICLE: Core::Modules::Vehicle::Remove(e); break;
             }
 
             return true;
@@ -167,7 +170,6 @@ namespace MafiaMP::Core {
             _stateMachine->RequestNextState(States::StateIds::SessionDisconnection);
             Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Connection lost!");
         });
-
 
         InitRPCs();
 
@@ -259,7 +261,7 @@ namespace MafiaMP::Core {
     uint64_t Application::GetLocalPlayerID() {
         if (!_localPlayer)
             return 0;
-        
+
         const auto sid = _localPlayer.get<Framework::World::Modules::Base::ServerID>();
         return sid->id;
     }
@@ -273,6 +275,20 @@ namespace MafiaMP::Core {
             _chat->AddMessage(chatMessage->GetText());
 
             Framework::Logging::GetLogger("chat")->trace(chatMessage->GetText());
+        });
+        net->RegisterGameRPC<Framework::World::RPC::SetTransform>([this](SLNet::RakNetGUID guid, Framework::World::RPC::SetTransform *msg) {
+            if (!msg->Valid()) {
+                return;
+            }
+            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+            const auto ekind = e.get<Shared::Modules::Mod::EntityKind>();
+            switch (ekind->kind) {
+            case Shared::Modules::Mod::MOD_PLAYER: Core::Modules::Human::UpdateTransform(e); break;
+            case Shared::Modules::Mod::MOD_VEHICLE: Core::Modules::Vehicle::UpdateTransform(e); break;
+            }
         });
     }
 

@@ -15,6 +15,7 @@
 #include "shared/messages/vehicle/vehicle_spawn.h"
 #include "shared/messages/vehicle/vehicle_update.h"
 #include "shared/modules/vehicle_sync.hpp"
+#include "shared/modules/mod.hpp"
 
 namespace MafiaMP::Core::Modules {
     flecs::query<Vehicle::Tracking> Vehicle::_findAllVehicles {};
@@ -76,6 +77,8 @@ namespace MafiaMP::Core::Modules {
 
         auto interp = e.get_mut<Interpolated>();
         interp->interpolator.GetPosition()->SetCompensationFactor(1.5f);
+
+        e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_VEHICLE});
 
         const auto OnVehicleRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
             if (success) {
@@ -208,6 +211,30 @@ namespace MafiaMP::Core::Modules {
             *updateData     = msg->GetData();
             Update(e);
         });
+    }
+
+    void Vehicle::UpdateTransform(flecs::entity e) {
+        const auto trackingData = e.get<Core::Modules::Vehicle::Tracking>();
+        if (!trackingData || !trackingData->car) {
+            return;
+        }
+
+        // Update basic data
+        const auto tr = e.get<Framework::World::Modules::Base::Transform>();
+        auto interp   = e.get_mut<Interpolated>();
+        if (interp) {
+            // TODO reset lerp
+            const auto vehiclePos = trackingData->car->GetPos();
+            const auto vehicleRot = trackingData->car->GetRot();
+            interp->interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
+            interp->interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, tr->rot, MafiaMP::Core::gApplication->GetTickInterval());
+        }
+        else {
+            SDK::ue::sys::math::C_Vector newPos = {tr->pos.x, tr->pos.y, tr->pos.z};
+            SDK::ue::sys::math::C_Quat newRot   = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
+            trackingData->car->SetPos(newPos);
+            trackingData->car->SetRot(newRot);
+        }
     }
 
     flecs::entity Vehicle::GetCarEntity(SDK::C_Car *carPtr) {
