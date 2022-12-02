@@ -14,6 +14,9 @@
 #include "shared/messages/vehicle/vehicle_despawn.h"
 #include "shared/messages/vehicle/vehicle_spawn.h"
 #include "shared/messages/vehicle/vehicle_update.h"
+
+#include "shared/rpc/set_vehicledata.h"
+
 #include "shared/modules/vehicle_sync.hpp"
 #include "shared/modules/mod.hpp"
 
@@ -202,6 +205,23 @@ namespace MafiaMP::Core::Modules {
             Remove(e);
         });
         net->RegisterMessage<Shared::Messages::Vehicle::VehicleUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleUpdate *msg) {
+            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            *updateData     = msg->GetData();
+            Update(e);
+        });
+
+        InitRPCs(app);
+    }
+
+    void Vehicle::InitRPCs(Application *app) {
+        const auto net = app->GetNetworkingEngine()->GetNetworkClient();
+
+        net->RegisterGameRPC<Shared::RPC::SetVehicleData>([app](SLNet::RakNetGUID guid, Shared::RPC::SetVehicleData *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
