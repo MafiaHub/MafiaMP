@@ -5,6 +5,7 @@
 #include "../ue/c_ptr.h"
 #include "../ue/game/human/c_behavior_character.h"
 #include "../ue/game/humainai/c_character_controller.h"
+#include "../ue/game/humainai/c_character_state.h"
 #include "../ue/game/injury/c_injuryanalyser.h"
 #include "../ue/sys/core/c_scene_object.h"
 #include "../ue/sys/math/c_matrix.h"
@@ -39,18 +40,20 @@ namespace SDK {
         C_CorpseEmitter *m_pCorpseEmitter;                              // 0168 - 0170
         char pad3[0x38];                                                // 0170 - 01A8
         C_WeaponEmitter *m_pWeaponEmitter;                              // 01A8 - 01B0
-        char pad4[0x28];                                                // 01B0 - 01D8
+        char pad4[0x18];                                                // 01B0 - 01C8
+        ue::game::humanai::C_CharacterState *m_pCharacterState;         // 01C8 - 01D0
+        char pad5[0x8];                                                 // 01D0 - 01D8
         ue::game::human::C_BehaviorCharacter *m_pBehaviorCharacter;     // 01D8 - 01E0
         float m_fHealth;                                                // 01E0 - 01E4
         float m_fHealthMax;                                             // 01E4 - 01E8
-        char pad5[0x10];                                                // 01E8 - 01F8
+        char pad6[0x10];                                                // 01E8 - 01F8
         bool m_bInvulnerable;                                           // 01F8 - 01F9
-        char pad6[2];                                                   // 01F9 - 01FB
+        char pad7[2];                                                   // 01F9 - 01FB
         bool m_bDemigod;                                                // 01FB - 01FC
-        char pad7[0xBC];                                                // 01FC - 02B8
+        char pad8[0xBC];                                                // 01FC - 02B8
         float field_02B8;                                               // 02B8 - 02BC
         float field_02BC;                                               // 02BC - 02C0
-        char pad8[0x88];                                                // 02C0 - 0348
+        char pad9[0x88];                                                // 02C0 - 0348
         uintptr_t field_0348;                                           // 0348 - 0350
 
       public:
