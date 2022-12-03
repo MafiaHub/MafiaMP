@@ -3,6 +3,7 @@
 #include "../ai/sight/c_human_detector.h"
 #include "../game/ai/hear/c_actorear.h"
 #include "../ue/c_ptr.h"
+#include "../ue/game/human/c_behavior_character.h"
 #include "../ue/game/humainai/c_character_controller.h"
 #include "../ue/game/injury/c_injuryanalyser.h"
 #include "../ue/sys/core/c_scene_object.h"
@@ -24,33 +25,33 @@ namespace SDK {
         friend class C_HumanScript;
 
       public:
-        char pad0[0x100];                                       // 0008 - 0108
-        ai::sight::C_HumanDetector *m_pHumanDetector;           // 0108 - 0110
-        char pad1[0x10];                                        // 0110 - 0120
-        game::ai::hear::C_ActorEar *m_pActorEar;                // 0120 - 0128
-        C_InventoryWrapper *m_pHumanInventory;                  // 0128 - 0130
-        C_HumanScript *m_pHumanScript;                          // 0130 - 0138
-        char pad2[0x10];                                        // 0148 - 0148
-        C_HumanWeaponController *m_pHumanWeaponController;      // 0148 - 0150
-        ue::game::injury::C_InjuryAnalyser* m_pInjuryAnalyser;  // 0150 - 0158
-        C_HumanHeadController *m_pHumanHeadController;          // 0158 - 0160
-        void *m_pUnkPtr;                                        // 0160 - 0168
-        C_CorpseEmitter *m_pCorpseEmitter;                      // 0168 - 0170
-        char pad3[0x38];                                        // 0170 - 01A8
-        C_WeaponEmitter *m_pWeaponEmitter;                      // 01A8 - 01B0
-        char pad4[0x28];                                        // 01B0 - 01D8
-        void *m_pBehaviorCharacter;                             // 01D8 - 01E0
-        float m_fHealth;                                        // 01E0 - 01E4
-        float m_fHealthMax;                                     // 01E4 - 01E8
-        char pad5[0x10];                                        // 01E8 - 01F8
-        bool m_bInvulnerable;                                   // 01F8 - 01F9
-        char pad6[2];                                           // 01F9 - 01FB
-        bool m_bDemigod;                                        // 01FB - 01FC
-        char pad7[0xBC];                                        // 01FC - 02B8
-        float field_02B8;                                       // 02B8 - 02BC
-        float field_02BC;                                       // 02BC - 02C0
-        char pad8[0x88];                                        // 02C0 - 0348
-        uintptr_t field_0348;                                   // 0348 - 0350
+        char pad0[0x100];                                               // 0008 - 0108
+        ai::sight::C_HumanDetector *m_pHumanDetector;                   // 0108 - 0110
+        char pad1[0x10];                                                // 0110 - 0120
+        game::ai::hear::C_ActorEar *m_pActorEar;                        // 0120 - 0128
+        C_InventoryWrapper *m_pHumanInventory;                          // 0128 - 0130
+        C_HumanScript *m_pHumanScript;                                  // 0130 - 0138
+        char pad2[0x10];                                                // 0148 - 0148
+        C_HumanWeaponController *m_pHumanWeaponController;              // 0148 - 0150
+        ue::game::injury::C_InjuryAnalyser* m_pInjuryAnalyser;          // 0150 - 0158
+        C_HumanHeadController *m_pHumanHeadController;                  // 0158 - 0160
+        void *m_pUnkPtr;                                                // 0160 - 0168
+        C_CorpseEmitter *m_pCorpseEmitter;                              // 0168 - 0170
+        char pad3[0x38];                                                // 0170 - 01A8
+        C_WeaponEmitter *m_pWeaponEmitter;                              // 01A8 - 01B0
+        char pad4[0x28];                                                // 01B0 - 01D8
+        ue::game::human::C_BehaviorCharacter *m_pBehaviorCharacter;     // 01D8 - 01E0
+        float m_fHealth;                                                // 01E0 - 01E4
+        float m_fHealthMax;                                             // 01E4 - 01E8
+        char pad5[0x10];                                                // 01E8 - 01F8
+        bool m_bInvulnerable;                                           // 01F8 - 01F9
+        char pad6[2];                                                   // 01F9 - 01FB
+        bool m_bDemigod;                                                // 01FB - 01FC
+        char pad7[0xBC];                                                // 01FC - 02B8
+        float field_02B8;                                               // 02B8 - 02BC
+        float field_02BC;                                               // 02BC - 02C0
+        char pad8[0x88];                                                // 02C0 - 0348
+        uintptr_t field_0348;                                           // 0348 - 0350
 
       public:
         virtual void TickPrePhysics(float, /*ue::sys::math::C_Frustum const**/ void *, /*ue::sys::math::C_Frustum const**/ void *)           = 0;
