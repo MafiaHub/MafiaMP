@@ -3,6 +3,7 @@
 #include "../ai/sight/c_human_detector.h"
 #include "../game/ai/hear/c_actorear.h"
 #include "../ue/c_ptr.h"
+#include "../ue/game/human/c_agent.h"
 #include "../ue/game/human/c_behavior_character.h"
 #include "../ue/game/humainai/c_character_controller.h"
 #include "../ue/game/humainai/c_character_state.h"
@@ -54,7 +55,7 @@ namespace SDK {
         float field_02B8;                                               // 02B8 - 02BC
         float field_02BC;                                               // 02BC - 02C0
         char pad9[0x88];                                                // 02C0 - 0348
-        uintptr_t field_0348;                                           // 0348 - 0350
+        ue::game::human::C_Agent *m_pAgent;                             // 0348 - 0350
 
       public:
         virtual void TickPrePhysics(float, /*ue::sys::math::C_Frustum const**/ void *, /*ue::sys::math::C_Frustum const**/ void *)           = 0;
@@ -160,7 +161,7 @@ namespace SDK {
         }
 
         float GetDepthInWater() {
-            return (field_02BC < 0.0f ? field_02B8 - *(float *)(*(uintptr_t *)(field_0348 + 664) + 8) : 0.0f);
+            return (field_02BC < 0.0f ? field_02B8 - *(float *)(*(uintptr_t *)(m_pAgent + 664) + 8) : 0.0f);
         }
     };
 
