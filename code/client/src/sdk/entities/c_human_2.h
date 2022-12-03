@@ -161,7 +161,7 @@ namespace SDK {
         }
 
         float GetDepthInWater() {
-            return (field_02BC < 0.0f ? field_02B8 - *(float *)(*(uintptr_t *)(m_pAgent + 664) + 8) : 0.0f);
+            return (field_02BC < 0.0f ? field_02B8 - *(float *)(*(uintptr_t *)m_pAgent->m_pAgentController + 8) : 0.0f);
         }
     };
 
