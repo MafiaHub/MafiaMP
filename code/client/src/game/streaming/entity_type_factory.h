@@ -145,13 +145,18 @@ namespace MafiaMP::Game::Streaming {
             for (EntityTrackingInfo *infos : trackedEntities) Return(infos);
         }
 
+        // Update our collection of spawners
+        // Each spawner can be in one of two states: Ready or Loading. 
+        // A spawner is Ready if it has finished loading and is now ready to spawn entities. A spawner is Loading if it is still loading and not ready to spawn entities.
         void Update() {
             auto spawnerIter = _spawners.begin();
             while (spawnerIter != _spawners.end()) {
+                // Is there are any ongoing requests or is there are any entities that have been created?
                 if (!spawnerIter->second._ongoingRequests.empty() || !spawnerIter->second._createdEntities.empty()) {
                     SpawnerWrap &spawner = spawnerIter->second;
 
                     if (spawner.GetState() == EntitySpawnerState::Ready) {
+                        // Do we have ongoing requests ?
                         auto &ongoingRequests = spawner._ongoingRequests;
                         auto requestIter      = ongoingRequests.begin();
                         while (requestIter != ongoingRequests.end()) {
@@ -164,6 +169,8 @@ namespace MafiaMP::Game::Streaming {
                             EntitySpawnResult spawnResult;
                             SDK::C_Entity *entity;
                             std::tie(spawnResult, entity) = _spawnerSpawnEntity(spawner.GetInnerSpawner());
+
+                            // Entity was spawned successfully, update information and return
                             if (spawnResult == EntitySpawnResult::OK) {
                                 auto &createdEntities = spawner._createdEntities;
                                 createdEntities.emplace_back(std::move(*requestIter));
@@ -175,6 +182,7 @@ namespace MafiaMP::Game::Streaming {
                                     trackingInfo->_requestFinish(trackingInfo, true);
                             }
                             else if (spawnResult == EntitySpawnResult::Failed) {
+                                // Entity failed to spawn, return a null pointer
                                 requestFinished = true;
 
                                 ExtendedTrackingInfo &request = *requestIter;
@@ -183,6 +191,7 @@ namespace MafiaMP::Game::Streaming {
                                     request._info->_requestFinish(nullptr, false);
                             }
                             else if (spawnResult == EntitySpawnResult::KeepLoading) {
+                                // If entity is still loading, flag the spawner as being loading
                                 spawner._state = EntitySpawnerState::Loading;
                             }
 
@@ -199,6 +208,7 @@ namespace MafiaMP::Game::Streaming {
                     ++spawnerIter;
                 }
                 else {
+                    // Just destroy the spawner since there are no more job for it
                     _spawnerDestroy(spawnerIter->second.GetInnerSpawner());
                     spawnerIter = _spawners.erase(spawnerIter);
                 }
