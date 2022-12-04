@@ -1,5 +1,7 @@
 #include "human.h"
 
+#include <glm/glm.hpp>
+
 #include "sdk/entities/c_human_2.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/human/c_human_script.h"
@@ -7,10 +9,9 @@
 
 namespace MafiaMP::Game::Helpers {
     uint8_t Human::GetHealthPercent(SDK::C_Human2 *human){
-        float fHealth        = human->GetHumanScript()->GetHealth();
-        float fHealthMax     = human->GetHumanScript()->GetHealthMax();
-        float fHealthPercent = std::clamp((fHealth / fHealthMax) * 100.f, 0.0f, 100.0f);
-        return (uint8_t)fHealthPercent;
+        float fHealth = human->GetHumanScript()->GetHealth();
+        float fHealthMax = human->GetHumanScript()->GetHealthMax();
+        return (uint8_t)glm::clamp(fHealth / fHealthMax, 0.0f, 100.0f);
     }
 
     bool Human::PutIntoCar(MafiaMP::Game::Overrides::CharacterController *charController, SDK::C_Car *car, int seat, bool force) {
