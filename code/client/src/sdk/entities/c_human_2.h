@@ -1,12 +1,22 @@
 #pragma once
 
+#include "../ai/sight/c_human_detector.h"
+#include "../game/ai/hear/c_actorear.h"
 #include "../ue/c_ptr.h"
+#include "../ue/game/audio/radio/c_radio_sound.h"
+#include "../ue/game/human/c_agent.h"
+#include "../ue/game/human/c_behavior_character.h"
 #include "../ue/game/humainai/c_character_controller.h"
+#include "../ue/game/humainai/c_character_state.h"
+#include "../ue/game/injury/c_injuryanalyser.h"
 #include "../ue/sys/core/c_scene_object.h"
+#include "../ue/sys/core/c_model_component.h"
 #include "../ue/sys/math/c_matrix.h"
 #include "../ue/sys/math/c_vector.h"
 #include "../ue/sys/utils/c_hash_name.h"
 #include "../inventory/c_inventory_wrapper.h"
+#include "../c_corpse_emitter.h"
+#include "../c_weapon_emitter.h"
 #include "c_actor.h"
 #include "human/c_human_head_controller.h"
 #include "human/c_human_weapon_controller.h"
@@ -19,26 +29,47 @@ namespace SDK {
         friend class C_HumanScript;
 
       public:
-        char pad0[0x120];                                   // 0008 - 0128
-        C_InventoryWrapper *m_pHumanInventory;              // 0128 - 0130
-        C_HumanScript *m_pHumanScript;                      // 0130 - 0138
-        char pad1[0x10];                                    // 0148 - 0148
-        C_HumanWeaponController *m_pHumanWeaponController;  // 0148 - 0150
-        void* m_pInjuryAnalyser;                            // 0150 - 0158
-        C_HumanHeadController *m_pHumanHeadController;      // 0158 - 0160
-        char pad2[0x78];                                    // 0160 - 01D8
-        void *m_pBehaviorCharacter;                         // 01D8 - 01E0
-        float m_fHealth;                                    // 01E0 - 01E4
-        float m_fHealthMax;                                 // 01E4 - 01E8
-        char pad3[0x10];                                    // 01E8 - 01F8
-        bool m_bInvulnerable;                               // 01F8 - 01F9
-        char pad4[2];                                       // 01F9 - 01FB
-        bool m_bDemigod;                                    // 01FB - 01FC
-        char pad5[0xBC];                                    // 01FC - 02B8
-        float field_02B8;                                   // 02B8 - 02BC
-        float field_02BC;                                   // 02BC - 02C0
-        char pad6[0x88];                                    // 02C0 - 0348
-        uintptr_t field_0348;                               // 0348 - 0350
+        char pad0[0x100];                                                       // 0008 - 0108
+        ai::sight::C_HumanDetector *m_pHumanDetector;                           // 0108 - 0110
+        char pad1[0x10];                                                        // 0110 - 0120
+        game::ai::hear::C_ActorEar *m_pActorEar;                                // 0120 - 0128
+        C_InventoryWrapper *m_pHumanInventory;                                  // 0128 - 0130
+        C_HumanScript *m_pHumanScript;                                          // 0130 - 0138
+        char pad2[0x10];                                                        // 0148 - 0148
+        C_HumanWeaponController *m_pHumanWeaponController;                      // 0148 - 0150
+        ue::game::injury::C_InjuryAnalyser* m_pInjuryAnalyser;                  // 0150 - 0158
+        C_HumanHeadController *m_pHumanHeadController;                          // 0158 - 0160
+        void *m_pUnkPtr;                                                        // 0160 - 0168
+        C_CorpseEmitter *m_pCorpseEmitter;                                      // 0168 - 0170
+        char pad3[0x38];                                                        // 0170 - 01A8
+        C_WeaponEmitter *m_pWeaponEmitter;                                      // 01A8 - 01B0
+        char pad4[0x18];                                                        // 01B0 - 01C8
+        ue::game::humanai::C_CharacterState *m_pCharacterState;                 // 01C8 - 01D0
+        char pad5[0x8];                                                         // 01D0 - 01D8
+        ue::game::human::C_BehaviorCharacter *m_pBehaviorCharacter;             // 01D8 - 01E0
+        float m_fHealth;                                                        // 01E0 - 01E4
+        float m_fHealthMax;                                                     // 01E4 - 01E8
+        char pad6[0x10];                                                        // 01E8 - 01F8
+        bool m_bInvulnerable;                                                   // 01F8 - 01F9
+        char pad7[2];                                                           // 01F9 - 01FB
+        bool m_bDemigod;                                                        // 01FB - 01FC
+        char pad8[0xBC];                                                        // 01FC - 02B8
+        float field_02B8;                                                       // 02B8 - 02BC
+        float m_fWaterLevel;                                                    // 02BC - 02C0
+        bool m_bWasCarried;                                                     // 02E2 - 02E3
+        char pad9[0x65];                                                        // 02E3 - 0348
+        ue::game::human::C_Agent *m_pAgent;                                     // 0348 - 0350
+        char pad10[0x34];                                                       // 0350 - 0384
+        float m_fTransparency;                                                  // 0384 - 0388
+        char pad11[0x10];                                                       // 0388 - 0398
+        void *m_pLastGroundEntity;                                              // 0398 - 03A0
+        void *m_pInteractedEntity;                                              // 03A0 - 03A8
+        char pad12[0xD0];                                                       // 03A8 - 0478
+        ue::game::humanai::C_CharacterController *m_pCharacterController;       // 0478 - 0480
+        char pad13[0x18];                                                       // 0480 - 0498
+        ue::game::audio::radio::C_RadioSound *m_pRadioSound;                    // 0498 - 04A0
+        char pad14[0x8];                                                        // 04A0 - 04A8
+        ue::sys::core::C_ModelComponent *m_pModelComponent;                     // 04A8 - 04B0
 
       public:
         virtual void TickPrePhysics(float, /*ue::sys::math::C_Frustum const**/ void *, /*ue::sys::math::C_Frustum const**/ void *)           = 0;
@@ -144,7 +175,7 @@ namespace SDK {
         }
 
         float GetDepthInWater() {
-            return (field_02BC < 0.0f ? field_02B8 - *(float *)(*(uintptr_t *)(field_0348 + 664) + 8) : 0.0f);
+            return (m_fWaterLevel < 0.0f ? field_02B8 - *(float *)(*(uintptr_t *)m_pAgent->m_pAgentController + 8) : 0.0f);
         }
     };
 

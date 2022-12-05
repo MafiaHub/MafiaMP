@@ -10,17 +10,17 @@ namespace SDK {
     namespace mafia::framework {
         class C_MafiaFrameworkInterfaces {
           private:
-            C_Game *m_pGame;                                         // 0
-            void *m_pMission;                                        // 8
-            C_EntityList *m_pEntityList;                             // 10
-            void *m_pSDSScriptMachineManager;                        // 18
-            void *m_pSDSLoadUnloadNotify;                            // 20
-            void *m_pActorActionListenerRegistrator;                 // 28
-            C_PlayerModelManager *m_pPlayerModelManager;             // 30
-            void *m_pScriptDataStorage;                              // 38
-            void *m_pPlayerVehicleStreamingTickedModule;             // 40
-            mafia::streaming::C_StreamingModule *m_pStreamingModule; // 48
-            void *m_pGlobalGameDataManager;
+            C_Game *m_pGame;                                         // 0000 - 0008
+            void *m_pMission;                                        // 0008 - 0010
+            C_EntityList *m_pEntityList;                             // 0010 - 0018
+            void *m_pSDSScriptMachineManager;                        // 0018 - 0020
+            void *m_pSDSLoadUnloadNotify;                            // 0020 - 0028
+            void *m_pActorActionListenerRegistrator;                 // 0028 - 0030
+            C_PlayerModelManager *m_pPlayerModelManager;             // 0030 - 0038
+            void *m_pScriptDataStorage;                              // 0038 - 0040
+            void *m_pPlayerVehicleStreamingTickedModule;             // 0040 - 0048
+            mafia::streaming::C_StreamingModule *m_pStreamingModule; // 0048 - 0050
+            void *m_pGlobalGameDataManager;                          // 0050 - 0058
 
           public:
             C_Game *GetGame() {
