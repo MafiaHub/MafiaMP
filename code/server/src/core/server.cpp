@@ -50,10 +50,10 @@ namespace MafiaMP {
 
             // Broadcast the environment setup
             const auto weather = GetWorldEngine()->GetWorld()->get<Core::Modules::Environment::Weather>();
-            Shared::RPC::SetEnvironment environmentMsg;
-            environmentMsg.FromParameters(weather->_weatherSetName, weather->_dayTimeHours);
+            Shared::RPC::SetEnvironment environmentMsg{};
+            environmentMsg.FromParameters(SLNet::RakString(weather->_weatherSetName.c_str()), weather->_dayTimeHours);
             net->SendRPC(environmentMsg, SLNet::RakNetGUID(guid));
-            
+
             // Broadcast chat message
             const auto st  = player.get<Framework::World::Modules::Base::Streamer>();
             const auto msg = fmt::format("Player {} has joined the session!", st->nickname);

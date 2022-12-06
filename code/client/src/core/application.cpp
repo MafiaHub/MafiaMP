@@ -284,8 +284,11 @@ namespace MafiaMP::Core {
             }
 
             const auto gfx = SDK::ue::gfx::environmenteffects::C_GfxEnvironmentEffects::GetInstance();
-            gfx->GetWeatherManager()->SetWeatherSet(environmentMsg->GetWeatherSet().c_str(), 1.0f);
-            gfx->GetWeatherManager()->SetDayTimeHours(environmentMsg->GetDayTimeHours());
+
+            if (environmentMsg->GetWeatherSet().HasValue())
+                gfx->GetWeatherManager()->SetWeatherSet(environmentMsg->GetWeatherSet().Value().C_String(), 1.0f);
+            if (environmentMsg->GetDayTimeHours().HasValue())
+                gfx->GetWeatherManager()->SetDayTimeHours(environmentMsg->GetDayTimeHours().Value());
         });
         net->RegisterGameRPC<Framework::World::RPC::SetTransform>([this](SLNet::RakNetGUID guid, Framework::World::RPC::SetTransform *msg) {
             if (!msg->Valid()) {

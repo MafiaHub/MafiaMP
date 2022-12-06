@@ -27,7 +27,7 @@ namespace MafiaMP::Scripting {
 
             auto weather = world->get_mut<Core::Modules::Environment::Weather>();
             weather->_weatherSetName = weatherSetName;
-            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, weather->_weatherSetName, weather->_dayTimeHours);
+            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, SLNet::RakString(weather->_weatherSetName.c_str()), {});
         }
 
         static void SetDayTimeHours(float dayTimeHours) {
@@ -35,7 +35,7 @@ namespace MafiaMP::Scripting {
 
             auto weather             = world->get_mut<Core::Modules::Environment::Weather>();
             weather->_dayTimeHours = dayTimeHours;
-            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, weather->_weatherSetName, weather->_dayTimeHours);
+            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, {}, weather->_dayTimeHours);
         }
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {

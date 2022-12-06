@@ -2,33 +2,40 @@
 
 #include "shared/messages/messages.h"
 #include "src/networking/rpc/rpc.h"
+#include "utils/optional.h"
 
 namespace MafiaMP::Shared::RPC {
     class SetEnvironment final: public Framework::Networking::RPC::IRPC<SetEnvironment> {
       private:
-        SLNet::RakString _weatherSet;
-        float _dayTimeHours;
+        Framework::Utils::Optional<SLNet::RakString> _weatherSet{};
+        Framework::Utils::Optional<float> _dayTimeHours{};
 
         public:
-        void FromParameters(const std::string &weatherSet, float dayTimeHours) {
-              _weatherSet = weatherSet.c_str();
+        void FromParameters(const Framework::Utils::Optional<SLNet::RakString> &weatherSet = {}, Framework::Utils::Optional<float> dayTimeHours = {}) {
+            _weatherSet = weatherSet;
             _dayTimeHours = dayTimeHours;
         }
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
-            bs->Serialize(write, _weatherSet);
-            bs->Serialize(write, _dayTimeHours);
+            _weatherSet.Serialize(bs, write);
+            _dayTimeHours.Serialize(bs, write);
         }
 
         bool Valid() const override {
-            return !_weatherSet.IsEmpty() && _dayTimeHours >= 0.0f && _dayTimeHours <= 24.0f;
+            if (_weatherSet.HasValue() && _weatherSet().IsEmpty()) {
+                return false;
+            }
+            if (_dayTimeHours.HasValue() && (_dayTimeHours() < 0.0f || _dayTimeHours() > 24.0f)) {
+                return false;
+            }
+            return true;
         }
 
-        std::string GetWeatherSet() const {
-            return _weatherSet.C_String();
+        Framework::Utils::Optional<SLNet::RakString> GetWeatherSet() const {
+            return _weatherSet;
         }
 
-        float GetDayTimeHours() const {
+        Framework::Utils::Optional<float> GetDayTimeHours() const {
             return _dayTimeHours;
         }
     };
