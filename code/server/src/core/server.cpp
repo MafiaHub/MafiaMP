@@ -3,6 +3,8 @@
 #include "shared/modules/human_sync.hpp"
 #include "shared/modules/vehicle_sync.hpp"
 
+#include "core/builtins/builtins.h"
+
 #include "modules/environment.h"
 #include "modules/human.h"
 #include "modules/vehicle.h"
@@ -70,6 +72,14 @@ namespace MafiaMP {
         Core::Modules::Vehicle::SetupMessages(this->GetWorldEngine(), net);
 
         Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Networking messages registered!");
+    }
+
+    void Server::ModuleRegister(Framework::Scripting::Engines::SDKRegisterWrapper sdk) {
+        if (sdk.GetKind() != Framework::Scripting::ENGINE_NODE)
+            return;
+
+        const auto nodeSDK = sdk.GetNodeSDK();
+        MafiaMP::Scripting::Builtins::Register(nodeSDK->GetIsolate(), nodeSDK->GetModule());
     }
 
     void Server::BroadcastChatMessage(flecs::entity ent, const std::string &msg) {

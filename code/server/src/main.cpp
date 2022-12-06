@@ -1,5 +1,4 @@
 #include "core/server.h"
-#include "core/builtins/builtins.h"
 
 int main(int argc, char **argv) {
     Framework::Integrations::Server::InstanceOptions opts;
@@ -22,14 +21,6 @@ int main(int argc, char **argv) {
     opts.firebaseProjectId = "mafiahub-3ebed";
     opts.firebaseAppId     = "1:546323083920:web:6716980a4d6412e87e1e15";
     opts.firebaseApiKey    = "AIzaSyBwcNaneu4K17RaLbACw18teTi1G0QpJkw";
-
-    opts.sdkRegisterCallback = [](Framework::Scripting::Engines::SDKRegisterWrapper sdk) {
-        if (sdk.GetKind() != Framework::Scripting::ENGINE_NODE)
-            return;
-
-        const auto nodeSDK = sdk.GetNodeSDK();
-        MafiaMP::Scripting::Builtins::Register(nodeSDK->GetIsolate(), nodeSDK->GetModule());
-    };
 
     MafiaMP::Server server;
     if (server.Init(opts) != Framework::Integrations::Server::ServerError::SERVER_NONE) {

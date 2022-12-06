@@ -1,4 +1,5 @@
 #include <utils/safe_win32.h>
+
 #include "human.h"
 
 #include <flecs/flecs.h>
@@ -55,7 +56,7 @@ namespace MafiaMP::Core::Modules {
                     metadata._isStalking           = charController->IsStalkMove();
                     metadata._isSprinting          = charController->IsSprinting();
                     metadata._sprintSpeed          = charController->GetSprintMoveSpeed();
-                    
+
                     // Current state-specific sync data
                     switch (metadata._charStateHandlerType) {
                     case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_MOVE: {
@@ -70,7 +71,7 @@ namespace MafiaMP::Core::Modules {
                         auto human2CarWrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
                         // printf("id: %d\n", charController->GetCarHandler()->GetCarState());
                         if (human2CarWrapper && charController->GetCarHandler()->GetCarState() == 2) /* entering in progress */ {
-                            auto *car  = (SDK::C_Car *)tracking.human->GetOwner();
+                            auto *car        = (SDK::C_Car *)tracking.human->GetOwner();
                             const auto carId = Core::Modules::Vehicle::GetCarEntity(car);
                             if (carId.is_valid()) {
                                 metadata.carPassenger = {carId.id(), (int)human2CarWrapper->GetSeatID(tracking.human)};
@@ -92,7 +93,7 @@ namespace MafiaMP::Core::Modules {
         world.system<Tracking, Interpolated>("UpdateRemoteHuman").each([](flecs::entity e, Tracking &tracking, Interpolated &interpolated) {
             if (tracking.human && e.get<LocalPlayer>() == nullptr) {
                 auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
-                auto humanData = e.get_mut<HumanData>();
+                auto humanData  = e.get_mut<HumanData>();
                 if (tracking.charController->GetCurrentStateHandlerType() != SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
                     if (humanData->carPassenger.enterState == STATE_ENTERING) {
                         const auto carEnt = Core::gApplication->GetWorldEngine()->GetEntityByServerID(updateData->carPassenger.carId);
@@ -156,7 +157,7 @@ namespace MafiaMP::Core::Modules {
                 trackingData->charController = reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(human->GetCharacterController());
                 assert(MafiaMP::Game::Overrides::CharacterController::IsInstanceOfClass(trackingData->charController));
 
-                //TODO(DavoSK): remove
+                // TODO(DavoSK): remove
                 Game::Helpers::Human::AddWeapon(human, 85, 200);
                 Game::Helpers::Human::AddWeapon(human, 3, 200);
                 Game::Helpers::Human::AddWeapon(human, 13, 200);
@@ -270,13 +271,13 @@ namespace MafiaMP::Core::Modules {
         const auto hmm = updateData->_moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(updateData->_moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
         trackingData->charController->SetMoveStateOverride(hmm, updateData->_isSprinting, updateData->_sprintSpeed);
 
-        // weapon sync 
+        // weapon sync
         const auto wepController = trackingData->human->GetHumanWeaponController();
 
-        //NOTE(DavoSK): we are doin those two inside hook, since it could fight with game
-        wepController->SetAiming(updateData->weaponData.isAiming); 
+        // NOTE(DavoSK): we are doin those two inside hook, since it could fight with game
+        wepController->SetAiming(updateData->weaponData.isAiming);
         wepController->SetFirePressedFlag(updateData->weaponData.isFiring);
-        
+
         if (wepController->GetRightHandWeaponID() != updateData->weaponData.currentWeaponId) {
             wepController->DoWeaponSelectByItemId(updateData->weaponData.currentWeaponId, true);
         }
@@ -309,8 +310,8 @@ namespace MafiaMP::Core::Modules {
 
             const auto carPassenger = msg->GetCarPassenger();
             if (carPassenger.carId) {
-                updateData->carPassenger.carId       = carPassenger.carId;
-                updateData->carPassenger.seatId      = carPassenger.seatId;
+                updateData->carPassenger.carId      = carPassenger.carId;
+                updateData->carPassenger.seatId     = carPassenger.seatId;
                 humanData->carPassenger.enterState  = STATE_ENTERING;
                 humanData->carPassenger.enterForced = true;
             }
@@ -342,8 +343,8 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto updateData                   = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
-            *updateData = msg->GetData();
+            auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+            *updateData     = msg->GetData();
 
             Update(e);
         });
