@@ -110,10 +110,6 @@ namespace MafiaMP::Core {
     }
 
     void Application::PostUpdate() {
-        if (_input) {
-            _input->Update();
-        }
-
         if (_stateMachine) {
             _stateMachine->Update();
         }
@@ -161,6 +157,10 @@ namespace MafiaMP::Core {
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Ping: {}", ping));
         });
 #endif
+
+        if (_input) {
+            _input->Update();
+        }
     }
 
     void Application::InitNetworkingMessages() {
