@@ -7,9 +7,9 @@
 #include "modules/human.h"
 #include "modules/vehicle.h"
 
+#include "shared/rpc/chat_message.h"
 #include "shared/rpc/environment.h"
 #include "shared/rpc/spawn_car.h"
-#include "shared/rpc/chat_message.h"
 
 #include <fmt/format.h>
 
@@ -23,16 +23,16 @@ namespace MafiaMP {
         InitNetworkingMessages();
 
         // Setup ECS modules (sync)
-        GetWorldEngine()->GetWorld()->import<Shared::Modules::HumanSync>();
-        GetWorldEngine()->GetWorld()->import<Shared::Modules::VehicleSync>();
+        GetWorldEngine()->GetWorld()->import <Shared::Modules::HumanSync>();
+        GetWorldEngine()->GetWorld()->import <Shared::Modules::VehicleSync>();
 
         // Setup ECS modules
-        GetWorldEngine()->GetWorld()->import<Core::Modules::Environment>();
-        GetWorldEngine()->GetWorld()->import<Core::Modules::Human>();
-        GetWorldEngine()->GetWorld()->import<Core::Modules::Vehicle>();
+        GetWorldEngine()->GetWorld()->import <Core::Modules::Environment>();
+        GetWorldEngine()->GetWorld()->import <Core::Modules::Human>();
+        GetWorldEngine()->GetWorld()->import <Core::Modules::Vehicle>();
 
         // Setup specific components - default values
-        auto weather = GetWorldEngine()->GetWorld()->get_mut<Core::Modules::Environment::Weather>();
+        auto weather             = GetWorldEngine()->GetWorld()->get_mut<Core::Modules::Environment::Weather>();
         weather->_weatherSetName = "mm_110_omerta_cp_010_cs_cs_park";
         weather->_dayTimeHours   = 11.0f;
     }
@@ -50,9 +50,7 @@ namespace MafiaMP {
 
             // Broadcast the environment setup
             const auto weather = GetWorldEngine()->GetWorld()->get<Core::Modules::Environment::Weather>();
-            Shared::RPC::SetEnvironment environmentMsg{};
-            environmentMsg.FromParameters(SLNet::RakString(weather->_weatherSetName.c_str()), weather->_dayTimeHours);
-            net->SendRPC(environmentMsg, SLNet::RakNetGUID(guid));
+            FW_SEND_COMPONENT_RPC_TO(Shared::RPC::SetEnvironment, SLNet::RakNetGUID(guid), SLNet::RakString(weather->_weatherSetName.c_str()), weather->_dayTimeHours);
 
             // Broadcast chat message
             const auto st  = player.get<Framework::World::Modules::Base::Streamer>();
@@ -75,9 +73,7 @@ namespace MafiaMP {
     }
 
     void Server::BroadcastChatMessage(flecs::entity ent, const std::string &msg) {
-        Shared::RPC::ChatMessage proxyMsg {};
-        proxyMsg.FromParameters(msg);
-        GetNetworkingEngine()->GetNetworkServer()->SendRPC(proxyMsg, SLNet::UNASSIGNED_RAKNET_GUID);
+        FW_SEND_COMPONENT_RPC(Shared::RPC::ChatMessage, msg);
         Framework::Logging::GetLogger("chat")->info(fmt::format("[{}] {}", ent.id(), msg));
     }
     void Server::InitRPCs() {
@@ -90,7 +86,7 @@ namespace MafiaMP {
             if (!ent.is_alive())
                 return;
 
-            const auto st = ent.get<Framework::World::Modules::Base::Streamer>();
+            const auto st  = ent.get<Framework::World::Modules::Base::Streamer>();
             const auto msg = fmt::format("{}: {}", st->nickname, chatMessage->GetText());
             BroadcastChatMessage(ent, msg);
         });
@@ -109,7 +105,7 @@ namespace MafiaMP {
                 return;
             }
 
-            auto t = ent.get<Framework::World::Modules::Base::Transform>();
+            auto t      = ent.get<Framework::World::Modules::Base::Transform>();
             auto carEnt = MafiaMP::Core::Modules::Vehicle::Create(this);
 
             auto carT = carEnt.get_mut<Framework::World::Modules::Base::Transform>();
