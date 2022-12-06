@@ -46,12 +46,12 @@ HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT fla
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     const auto app = MafiaMP::Core::gApplication.get();
     if (app && app->IsInitialized()) {
+        app->GetInput()->ProcessEvent(hWnd, msg, wParam, lParam);
+
         if (app->GetImGUI()->ProcessEvent(hWnd, msg, wParam, lParam) == Framework::External::ImGUI::InputState::BLOCK) {
             return 0;
         }
     }
-
-    app->GetInput()->ProcessEvent(hWnd, msg, wParam, lParam);
 
     switch (msg) {
     /*case WM_SIZE:

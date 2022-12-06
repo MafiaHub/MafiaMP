@@ -110,6 +110,10 @@ namespace MafiaMP::Core {
     }
 
     void Application::PostUpdate() {
+        if (_input) {
+            _input->Update();
+        }
+
         if (_stateMachine) {
             _stateMachine->Update();
         }
@@ -141,7 +145,7 @@ namespace MafiaMP::Core {
 
             _console->Update();
 
-            if (GetAsyncKeyState(VK_F8) & 0x1) {
+            if (_input->IsKeyPressed(FW_KEY_F8)) {
                 _console->Toggle();
             }
 

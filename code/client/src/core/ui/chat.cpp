@@ -13,7 +13,7 @@ namespace MafiaMP::Core::UI {
         ImGui::BeginChild("##scrolling", ImVec2(ImGui::GetWindowWidth() * 0.95f, ImGui::GetWindowHeight() * 0.80f));
 
         if (!_chatMessages.empty()) {
-            for (const auto& msg : _chatMessages) {
+            for (const auto &msg : _chatMessages) {
                 ImGui::TextWrapped("%s", msg.c_str());
             }
         }
@@ -24,7 +24,7 @@ namespace MafiaMP::Core::UI {
             _newMsgArrived = false;
         }
 
-        if (GetAsyncKeyState(VK_RETURN) & 0x1 && !_isFocused) {
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_RETURN) && !_isFocused) {
             _isFocused = true;
             gApplication->LockControls(true);
             if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())

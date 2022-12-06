@@ -24,16 +24,16 @@ namespace MafiaMP::Game {
         };
 
         bool IsKeyDown(int key) override {
-            return false;
+            return _keysDown[MapKey(key)];
         };
         bool IsKeyUp(int key) override {
-            return false;
+            return !_keysDown[MapKey(key)];
         };
         bool IsKeyPressed(int key) override {
-            return false;
+            return _keysPressed[MapKey(key)];
         };
         bool IsKeyReleased(int key) override {
-            return false;
+            return _keysReleased[MapKey(key)];
         };
 
         bool IsMouseButtonDown(int button) override {
@@ -52,5 +52,10 @@ namespace MafiaMP::Game {
         uint32_t MapKey(uint32_t key) override;
 
         void ProcessEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+      private:
+        bool _keysDown[256]     = {false};
+        bool _keysPressed[256]  = {false};
+        bool _keysReleased[256] = {false};
     };
 } // namespace MafiaMP::Game

@@ -1,6 +1,6 @@
-#include <utils/safe_win32.h>
 #include "session_offline_debug.h"
 #include "states.h"
+#include <utils/safe_win32.h>
 
 #include "../../game/helpers/controls.h"
 
@@ -25,7 +25,7 @@ namespace MafiaMP::Core::States {
 
     bool SessionOfflineDebugState::OnEnter(Framework::Utils::States::Machine *) {
         // Reset camera by player
-        //TODO
+        // TODO
 
         // Give back controls
         MafiaMP::Game::Helpers::Controls::Lock(false);
@@ -39,7 +39,7 @@ namespace MafiaMP::Core::States {
     bool SessionOfflineDebugState::OnUpdate(Framework::Utils::States::Machine *machine) {
         bool shouldProceed = false;
 
-        if (GetAsyncKeyState(VK_F9) & 0x1) {
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F9)) {
             machine->RequestNextState(StateIds::Menu);
             shouldProceed = true;
         }
