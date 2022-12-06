@@ -282,7 +282,7 @@ const weatherSets = [
 sdk.on("resourceLoaded", (name) => {
     // Spawn vehicles
     for (const veh of vehicleSpawns) {
-        const car = sdk.createVehicle(veh.modelName);
+        const car = sdk.World.createVehicle(veh.modelName);
         car.setPosition(veh.pos);
         car.setRotation(veh.rot);
     }

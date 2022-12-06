@@ -46,7 +46,9 @@ namespace MafiaMP::Scripting {
             rootModule->submodule("Environment", environment);
 
             // Create the vehicle namespace
-            rootModule->function("createVehicle", &World::CreateVehicle);
+            v8pp::module world(isolate);
+            world.function("createVehicle", &World::CreateVehicle);
+            rootModule->submodule("World", world);
         }
     };
 } // namespace MafiaMP::Scripting
