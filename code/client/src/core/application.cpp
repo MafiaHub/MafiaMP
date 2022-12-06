@@ -26,8 +26,8 @@
 #include "shared/modules/mod.hpp"
 #include "shared/modules/vehicle_sync.hpp"
 
-#include "shared/rpc/environment.h"
 #include "shared/rpc/chat_message.h"
+#include "shared/rpc/environment.h"
 #include "shared/rpc/spawn_car.h"
 
 #include "world/game_rpc/set_transform.h"
@@ -59,7 +59,8 @@ namespace MafiaMP::Core {
         _stateMachine->RequestNextState(States::StateIds::Initialize);
 
         _commandProcessor = std::make_shared<Framework::Utils::CommandProcessor>();
-        _console          = std::make_shared<UI::MafiaConsole>(_commandProcessor);
+        _input            = std::make_shared<MafiaMP::Game::GameInput>();
+        _console          = std::make_shared<UI::MafiaConsole>(_commandProcessor, _input);
         _chat             = std::make_shared<UI::Chat>();
 
         _chat->SetOnMessageSentCallback([this](const std::string &msg) {

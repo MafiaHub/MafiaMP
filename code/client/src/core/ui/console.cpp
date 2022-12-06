@@ -13,7 +13,7 @@
 #include "../../game/helpers/controls.h"
 
 namespace MafiaMP::Core::UI {
-    MafiaConsole::MafiaConsole(std::shared_ptr<Framework::Utils::CommandProcessor> commandProcessor): Framework::External::ImGUI::Widgets::Console(commandProcessor) {}
+    MafiaConsole::MafiaConsole(std::shared_ptr<Framework::Utils::CommandProcessor> commandProcessor, std::shared_ptr<Framework::Input::IInput> input): Framework::External::ImGUI::Widgets::Console(commandProcessor, input) {}
 
     void MafiaConsole::LockControls(bool lock) {
         gApplication->LockControls(lock);

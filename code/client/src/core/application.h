@@ -4,15 +4,19 @@
 
 #include <utils/safe_win32.h>
 
-#include "luavm.h"
 #include "../game/streaming/entity_factory.h"
-#include "ui/console.h"
+
+#include "luavm.h"
 #include "ui/chat.h"
+#include "ui/console.h"
+
 #include "dev_features.h"
 
+#include "game/helpers/game_input.h"
+
 #include <integrations/client/instance.h>
-#include <utils/states/machine.h>
 #include <utils/command_processor.h>
+#include <utils/states/machine.h>
 
 namespace MafiaMP::Core {
     class Application: public Framework::Integrations::Client::Instance {
@@ -23,6 +27,7 @@ namespace MafiaMP::Core {
         std::shared_ptr<UI::Chat> _chat;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
+        std::shared_ptr<MafiaMP::Game::GameInput> _input;
         std::shared_ptr<LuaVM> _luaVM;
         flecs::entity _localPlayer;
         DevFeatures _devFeatures;
@@ -38,7 +43,7 @@ namespace MafiaMP::Core {
 
         void PimpMyImGUI();
         void LockControls(bool lock);
-        
+
         std::shared_ptr<Framework::Utils::States::Machine> GetStateMachine() const {
             return _stateMachine;
         }
@@ -55,6 +60,10 @@ namespace MafiaMP::Core {
             return _commandProcessor;
         }
 
+        std::shared_ptr<MafiaMP::Game::GameInput> GetInput() const {
+            return _input;
+        }
+
         std::shared_ptr<UI::MafiaConsole> GetDevConsole() const {
             return _console;
         }
@@ -66,7 +75,7 @@ namespace MafiaMP::Core {
         flecs::entity GetLocalPlayer() const {
             return _localPlayer;
         }
-        
+
         uint64_t GetLocalPlayerID();
     };
 
