@@ -16,6 +16,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/camera.cpp
     src/core/hooks/character_controller.cpp
     src/core/hooks/fast_load.cpp
+    src/core/hooks/game_director.cpp
     src/core/hooks/loading_screen.cpp
     src/core/hooks/mod_init.cpp
     src/core/hooks/render_device.cpp
