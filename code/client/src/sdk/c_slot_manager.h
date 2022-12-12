@@ -1,6 +1,7 @@
 #pragma once
 
 #include "patterns.h"
+#include "c_ticked_module.h"
 
 namespace SDK {
     enum class E_SlotType : int {
@@ -78,7 +79,7 @@ namespace SDK {
         LAST                    = 81
     };
 
-    class C_SlotManager {
+    class C_SlotManager : public C_TickedModule {
       public:
         static C_SlotManager *GetInstance() {
             //NOTE: pattern here :)
