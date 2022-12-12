@@ -1,6 +1,12 @@
 #pragma once
 
+#include "../../i_mission.h"
 #include "../../c_game.h"
+#include "../../c_script_data_storage.h"
+#include "../../c_sds_script_machine_manager.h"
+#include "../../c_sds_load_unload_notify.h"
+#include "../../c_ticked_module.h"
+#include "ggd/c_global_game_data_manager.h"
 #include "../../entities/c_entity_list.h"
 #include "../../entities/player/c_player_model_manager.h"
 
@@ -11,16 +17,16 @@ namespace SDK {
         class C_MafiaFrameworkInterfaces {
           private:
             C_Game *m_pGame;                                         // 0000 - 0008
-            void *m_pMission;                                        // 0008 - 0010
+            I_Mission *m_pMission;                                   // 0008 - 0010
             C_EntityList *m_pEntityList;                             // 0010 - 0018
-            void *m_pSDSScriptMachineManager;                        // 0018 - 0020
-            void *m_pSDSLoadUnloadNotify;                            // 0020 - 0028
+            C_SDSScriptMachineManager *m_pSDSScriptMachineManager;   // 0018 - 0020
+            C_SDSLoadUnloadNotify *m_pSDSLoadUnloadNotify;           // 0020 - 0028
             void *m_pActorActionListenerRegistrator;                 // 0028 - 0030
             C_PlayerModelManager *m_pPlayerModelManager;             // 0030 - 0038
-            void *m_pScriptDataStorage;                              // 0038 - 0040
-            void *m_pPlayerVehicleStreamingTickedModule;             // 0040 - 0048
+            C_ScriptDataStorage *m_pScriptDataStorage;               // 0038 - 0040
+            C_TickedModule *m_pPlayerVehicleStreamingTickedModule;   // 0040 - 0048
             mafia::streaming::C_StreamingModule *m_pStreamingModule; // 0048 - 0050
-            void *m_pGlobalGameDataManager;                          // 0050 - 0058
+            ggd::C_GlobalGameDataManager *m_pGlobalGameDataManager;  // 0050 - 0058
 
           public:
             C_Game *GetGame() {
