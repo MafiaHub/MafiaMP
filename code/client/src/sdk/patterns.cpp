@@ -69,6 +69,10 @@ namespace SDK {
         uint8_t *C_GfxEnvironmentEffects_Bytes     = reinterpret_cast<uint8_t *>(C_GfxEnvironmentEffects_Addr);
         gPatterns.C_GfxEnvironmentEffects_Instance = reinterpret_cast<uint64_t>(C_GfxEnvironmentEffects_Bytes + *(int32_t *)(C_GfxEnvironmentEffects_Bytes + 3) + 7);
 
+        uint64_t C_GameGui2Module_Addr      = hook::get_opcode_address("E8 ? ? ? ? 41 8D 56 11");
+        uint8_t *C_GameGui2Module_Bytes     = reinterpret_cast<uint8_t *>(C_GameGui2Module_Addr);
+        gPatterns.C_GameGUI2Module_Instance = reinterpret_cast<uint64_t>(C_GameGui2Module_Bytes + *(int32_t *)(C_GameGui2Module_Bytes + 3) + 7);
+
         gPatterns.C_Matrix__SetDir2Addr = reinterpret_cast<uint64_t>(hook::pattern("40 53 48 83 EC ? F2 0F 10 02 48 8B D9 8B 42 ?").get_first());
         gPatterns.C_Matrix__SetDirAddr  = reinterpret_cast<uint64_t>(
             hook::pattern("40 53 48 83 EC ? 48 8B D9 E8 ? ? ? ? 33 C0 89 43 ? 89 43 ? 89 43 ? 48 83 C4 ? 5B C3 ? 40 53 48 83 EC ? 48 8B D9 48 8D 4C 24 ?").get_first());

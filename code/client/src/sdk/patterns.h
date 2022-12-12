@@ -53,6 +53,7 @@ namespace SDK {
         uint64_t I_Core__GetInstance              = 0x0;
         uint64_t C_MafiaFramework__Instance       = 0x0;
         uint64_t C_GfxEnvironmentEffects_Instance = 0x0;
+        uint64_t C_GameGUI2Module_Instance        = 0x0;
 
         uint64_t C_SceneObject__SetTransformAddr = 0x0;
 
