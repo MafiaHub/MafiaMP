@@ -12,9 +12,9 @@ namespace MafiaMP::Shared::RPC {
         int ammo;
 
       public:
-        void FromParameters(int weaponId, int ammo) {
-            this->weaponId = weaponId;
-            this->ammo     = ammo;
+        void FromParameters(int _weaponId, int _ammo) {
+            this->weaponId = _weaponId;
+            this->ammo     = _ammo;
         }
 
         int GetWeaponId() const {

@@ -7,6 +7,8 @@
 
 #include "shared/game_rpc/add_weapon.h"
 
+#include "scripting/module.h"
+
 namespace MafiaMP::Scripting {
     class Human final: public Framework::Integrations::Scripting::Entity {
       public:
@@ -28,6 +30,16 @@ namespace MafiaMP::Scripting {
 
         void Destruct(v8::Isolate *isolate) {
             isolate->ThrowException(v8::Exception::Error(v8::String::NewFromUtf8(isolate, "Human object can not be destroyed!").ToLocalChecked()));
+        }
+
+        static void EventPlayerConnected(v8::Isolate *isolate, flecs::entity e) {
+            auto playerObj = WrapHuman(isolate, e);
+            Framework::CoreModules::GetScriptingModule()->InvokeEvent("playerConnected", playerObj);
+        }
+
+        static void EventPlayerDisconnected(v8::Isolate *isolate, flecs::entity e) {
+            auto playerObj = WrapHuman(isolate, e);
+            Framework::CoreModules::GetScriptingModule()->InvokeEvent("playerDisconnected", playerObj);
         }
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {

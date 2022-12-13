@@ -10,6 +10,8 @@
 
 #include "vehicle.h"
 
+#include "core_modules.h"
+
 namespace MafiaMP::Scripting {
     class World final {
       public:
@@ -27,7 +29,7 @@ namespace MafiaMP::Scripting {
         }
 
         static void SetWeather(std::string weatherSetName) {
-            auto world = Framework::World::Engine::_worldRef;
+            auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
             auto weather             = world->get_mut<Core::Modules::Environment::Weather>();
             weather->_weatherSetName = weatherSetName;
@@ -35,7 +37,7 @@ namespace MafiaMP::Scripting {
         }
 
         static void SetDayTimeHours(float dayTimeHours) {
-            auto world = Framework::World::Engine::_worldRef;
+            auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
             auto weather           = world->get_mut<Core::Modules::Environment::Weather>();
             weather->_dayTimeHours = dayTimeHours;
