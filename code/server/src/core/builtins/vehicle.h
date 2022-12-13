@@ -4,7 +4,7 @@
 #include "scripting/engines/node/engine.h"
 #include "scripting/engines/node/sdk.h"
 #include "shared/modules/vehicle_sync.hpp"
-#include "shared/rpc/set_vehicledata.h"
+#include "shared/game_rpc/set_vehicledata.h"
 
 namespace MafiaMP::Scripting {
     class Vehicle final: public Framework::Integrations::Scripting::Entity {
