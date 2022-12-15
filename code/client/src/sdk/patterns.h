@@ -76,6 +76,8 @@ namespace SDK {
         uint64_t C_Ctx__BeginUpdateAddr = 0x0;
         uint64_t C_Ctx__EndUpdateAddr   = 0x0;
 
+        uint64_t I_VirtualFileSystemCache__GetInstance = 0x0;
+
         uint64_t C_CharacterController__ActivateHandler                           = 0x0;
         uint64_t C_CharacterController__DeactivateHandler_FromPlayerInput         = 0x0;
         uint64_t C_CharacterStateHandlerBaseLocomotion__Idle2MoveTransitionActive = 0x0;
