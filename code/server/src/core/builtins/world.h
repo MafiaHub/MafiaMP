@@ -10,20 +10,26 @@
 
 #include "vehicle.h"
 
+#include "core_modules.h"
+
 namespace MafiaMP::Scripting {
     class World final {
       public:
+        static v8::Local<v8::Object> WrapVehicle(v8::Isolate *isolate, flecs::entity e) {
+            return v8pp::class_<Scripting::Vehicle>::create_object(isolate, e.id());
+        }
+
         static v8::Local<v8::Object> CreateVehicle(v8::Isolate *isolate, std::string modelName) {
             auto e = MafiaMP::Core::Modules::Vehicle::Create(Server::_serverRef);
 
             auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelName = modelName;
 
-            return v8pp::class_<Scripting::Vehicle>::create_object(isolate, e.id());
+            return WrapVehicle(isolate, e);
         }
 
         static void SetWeather(std::string weatherSetName) {
-            auto world = Framework::World::Engine::_worldRef;
+            auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
             auto weather             = world->get_mut<Core::Modules::Environment::Weather>();
             weather->_weatherSetName = weatherSetName;
@@ -31,7 +37,7 @@ namespace MafiaMP::Scripting {
         }
 
         static void SetDayTimeHours(float dayTimeHours) {
-            auto world = Framework::World::Engine::_worldRef;
+            auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
             auto weather           = world->get_mut<Core::Modules::Environment::Weather>();
             weather->_dayTimeHours = dayTimeHours;

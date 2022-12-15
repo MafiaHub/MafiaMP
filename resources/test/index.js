@@ -299,3 +299,8 @@ sdk.on("resourceLoaded", (name) => {
     actualTime = (actualTime + 1) % 24;
   }, 1000);
 });
+
+sdk.on("playerConnected", (player) => {
+  player.addWeapon(20, 200);
+  console.log(`Player ${player.getNickname()} connected!`);
+});

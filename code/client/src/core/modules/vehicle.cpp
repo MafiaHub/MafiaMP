@@ -15,7 +15,7 @@
 #include "shared/messages/vehicle/vehicle_spawn.h"
 #include "shared/messages/vehicle/vehicle_update.h"
 
-#include "shared/rpc/set_vehicledata.h"
+#include "shared/game_rpc/set_vehicledata.h"
 
 #include "shared/modules/vehicle_sync.hpp"
 #include "shared/modules/mod.hpp"

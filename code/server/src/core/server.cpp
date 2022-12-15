@@ -58,12 +58,16 @@ namespace MafiaMP {
             const auto st  = player.get<Framework::World::Modules::Base::Streamer>();
             const auto msg = fmt::format("Player {} has joined the session!", st->nickname);
             BroadcastChatMessage(player, msg);
+
+            // Scripting::Human::EventPlayerConnected(v8::Isolate::GetCurrent(), player);
         });
 
         SetOnPlayerDisconnectCallback([this](flecs::entity player, uint64_t) {
             const auto st  = player.get<Framework::World::Modules::Base::Streamer>();
             const auto msg = fmt::format("Player {} has left the session!", st->nickname);
             BroadcastChatMessage(player, msg);
+
+            // Scripting::Human::EventPlayerDisconnected(v8::Isolate::GetCurrent(), player);
         });
 
         InitRPCs();
