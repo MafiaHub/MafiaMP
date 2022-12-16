@@ -118,8 +118,6 @@ namespace MafiaMP::Core {
             _entityFactory->Update();
         }
 
-        _devFeatures.Update();
-
         static bool isStyleInitialized = false;
         if (!isStyleInitialized) {
             PimpMyImGUI();
@@ -140,6 +138,7 @@ namespace MafiaMP::Core {
             const auto ping          = networkClient->GetPing();
 
             _console->Update();
+            _devFeatures.Update();
 
             if (_input->IsKeyPressed(FW_KEY_F8)) {
                 _console->Toggle();

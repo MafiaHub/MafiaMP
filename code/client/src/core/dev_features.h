@@ -9,14 +9,23 @@
 #pragma once
 
 #include "game/streaming/entity_tracking_info.h"
-#include <vector>
+
+#include <memory>
 #include <string>
+#include <vector>
+
+#include "ui/entity_browser.h"
+
 namespace MafiaMP::Core {
     class DevFeatures final {
       private:
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
 
+        bool _showEntityBrowser {false};
+        std::shared_ptr<UI::EntityBrowser> _entityBrowser {};
+
       public:
+        DevFeatures();
         void Init();
         void Update();
         void Shutdown();
@@ -30,5 +39,7 @@ namespace MafiaMP::Core {
         void CrashMe();
         void BreakMe();
         void CloseGame();
+
+        void ToggleEntityBrowser();
     };
 } // namespace MafiaMP::Core

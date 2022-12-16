@@ -5,6 +5,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/dev_features.cpp
     src/core/ui/console.cpp
     src/core/ui/chat.cpp
+    src/core/ui/entity_browser.cpp
     src/core/states/initialize.cpp
     src/core/states/menu.cpp
     src/core/states/session_connected.cpp
@@ -78,7 +79,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/c_ticked_module_manager.cpp
     src/sdk/c_time_budget_info.cpp
     src/sdk/patterns.cpp
-)
+ )
 
 add_library(MafiaMPClient SHARED ${MAFIAMP_CLIENT_FILES} ${MAFIAMP_SDK_FILES})
 target_include_directories(MafiaMPClient PRIVATE src)

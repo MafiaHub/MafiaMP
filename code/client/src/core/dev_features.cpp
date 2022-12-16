@@ -30,12 +30,19 @@
 #include "modules/human.h"
 
 namespace MafiaMP::Core {
+    DevFeatures::DevFeatures() {
+        _entityBrowser = std::make_shared<UI::EntityBrowser>();
+    }
+
     void DevFeatures::Init() {
         SetupCommands();
         SetupMenuBar();
     }
 
-    void DevFeatures::Update() {}
+    void DevFeatures::Update() {
+        if (_showEntityBrowser)
+            _entityBrowser->Update();
+    }
 
     void DevFeatures::Shutdown() {}
 
@@ -44,7 +51,9 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::DespawnAll() {
-        for (const auto &vehicle : _TEMP_vehicles) { gApplication->GetEntityFactory()->ReturnEntity(vehicle); }
+        for (const auto &vehicle : _TEMP_vehicles) {
+            gApplication->GetEntityFactory()->ReturnEntity(vehicle);
+        }
         _TEMP_vehicles.clear();
     }
 
@@ -60,6 +69,10 @@ namespace MafiaMP::Core {
         // very lazy game shutdown
         // don't try at home
         ExitProcess(0);
+    }
+
+    void DevFeatures::ToggleEntityBrowser() {
+        _showEntityBrowser = !_showEntityBrowser;
     }
 
     void DevFeatures::SpawnCar(std::string modelName) {
@@ -137,7 +150,9 @@ namespace MafiaMP::Core {
             [this](const cxxopts::ParseResult &result) {
                 std::string argsConcat;
                 cxxopts::PositionalList args = result.unmatched();
-                for (auto &arg : args) { argsConcat += arg + " "; }
+                for (auto &arg : args) {
+                    argsConcat += arg + " ";
+                }
                 Framework::Logging::GetLogger("Debug")->info(argsConcat);
             },
             "[args] - prints the arguments back");
@@ -145,7 +160,9 @@ namespace MafiaMP::Core {
             "help", {},
             [this](cxxopts::ParseResult &) {
                 std::stringstream ss;
-                for (const auto &name : gApplication->_commandProcessor->GetCommandNames()) { ss << fmt::format("{} {:>8}\n", name, gApplication->_commandProcessor->GetCommandInfo(name)->options->help()); }
+                for (const auto &name : gApplication->_commandProcessor->GetCommandNames()) {
+                    ss << fmt::format("{} {:>8}\n", name, gApplication->_commandProcessor->GetCommandInfo(name)->options->help());
+                }
                 Framework::Logging::GetLogger("Debug")->info("Available commands:\n{}", ss.str());
             },
             "prints all available commands");
@@ -219,6 +236,12 @@ namespace MafiaMP::Core {
                 }
             },
             "sends a chat message");
+        gApplication->_commandProcessor->RegisterCommand(
+            "showEntityBrowser", {},
+            [this](const cxxopts::ParseResult &result) {
+                ToggleEntityBrowser();
+            },
+            "toggles entity browser dialog");
     }
 
     void DevFeatures::SetupMenuBar() {
@@ -241,6 +264,12 @@ namespace MafiaMP::Core {
                 }
                 if (ImGui::MenuItem("Exit Game")) {
                     CloseGame();
+                }
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Editors")) {
+                if (ImGui::MenuItem("Entity Browser")) {
+                    ToggleEntityBrowser();
                 }
                 ImGui::EndMenu();
             }
