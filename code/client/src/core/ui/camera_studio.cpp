@@ -11,13 +11,13 @@
 #include <utils/hooking/hooking.h>
 
 // todo move to hooks
-typedef void(__fastcall *C_GameCameraMafia__LockTarget_t)(void *_this, void *targetSceneObject, float distance);
+typedef void(__fastcall *C_GameCameraMafia__LockTarget_t)(void *_this, void *targetSceneObject, void *targetSceneObject2, void *unk, float distance);
 C_GameCameraMafia__LockTarget_t C_GameCameraMafia__LockTarget_Original = nullptr;
 void *C_GameCameraPtr                                                  = nullptr;
 
-void __fastcall C_GameCameraMafia__LockTarget(void *_this, void *targetSceneObject, float distance) {
+void __fastcall C_GameCameraMafia__LockTarget(void *_this, void *targetSceneObject, void *targetSceneObject2, void *unk, float distance) {
     C_GameCameraPtr = _this;
-    C_GameCameraMafia__LockTarget_Original(_this, targetSceneObject, distance);
+    C_GameCameraMafia__LockTarget_Original(_this, targetSceneObject, targetSceneObject2, unk, distance);
 }
 
 static POINT GetMouseXY(VOID) {
@@ -26,24 +26,26 @@ static POINT GetMouseXY(VOID) {
     return newPos;
 }
 
-namespace MafiaMP::Core::UI {
-    CameraStudio::CameraStudio() {
-        // todo find a pattern
-        // MH_CreateHook((LPVOID)0x0000000142DE3870, (PBYTE)C_GameCameraMafia__LockTarget, reinterpret_cast<void **>(&C_GameCameraMafia__LockTarget_Original));
-        // MH_EnableHook(MH_ALL_HOOKS);
-    }
+static InitFunction init([]() {
+    auto C_GameCameraMafia__LockTargetAddr = reinterpret_cast<uint64_t>(hook::pattern("48 85 D2 0F 84 ? ? ? ? 48 8B C4 48 89 58 18").get_first());
+    MH_CreateHook((LPVOID)C_GameCameraMafia__LockTargetAddr, (PBYTE)C_GameCameraMafia__LockTarget, reinterpret_cast<void **>(&C_GameCameraMafia__LockTarget_Original));
+});
 
+namespace MafiaMP::Core::UI {
     void CameraStudio::Update() {
         ImGui::Begin("Camera studio");
         {
-            if (ImGui::Button("Free fly")) {
-                /*void *allocatedMemory = hook::this_call<void *>(0x000000014384FAD0, 0xA0);
-                _camera               = hook::call<SDK::ue::sys::core::C_SceneObject *>(0x0000000143293180, allocatedMemory);
+            if (ImGui::Button("Enable")) {
+                auto addr1            = hook::get_opcode_address("E8 ? ? ? ? 33 F6 EB 9F");
+                auto addr2            = hook::get_opcode_address("E8 ? ? ? ? 4C 8B E8 49 8B CD");
+                auto addr3            = hook::get_opcode_address("E8 ? ? ? ? 49 8B 4C 3F ?");
+                void *allocatedMemory = hook::this_call<void *>(addr1, 0xA0);
+                _camera               = hook::call<SDK::ue::sys::core::C_SceneObject *>(addr2, allocatedMemory);
 
                 // Allocate refCounter
-                uint16_t *refCounter = reinterpret_cast<uint16_t *>(hook::this_call<uint64_t>(0x140994930, (uint64_t)_camera));
+                uint16_t *refCounter = reinterpret_cast<uint16_t *>(hook::this_call<uint64_t>(addr3, (uint64_t)_camera));
 
-                // Set scene object ref counter
+                // // Set scene object ref counter
                 *(uint64_t *)(_camera + 0x58) = (uint64_t)refCounter;
 
                 auto activePlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
@@ -57,7 +59,7 @@ namespace MafiaMP::Core::UI {
                     _camera->SetTransform(currentTransform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
                 }
 
-                C_GameCameraMafia__LockTarget_Original(C_GameCameraPtr, _camera, 0.0f);*/
+                C_GameCameraMafia__LockTarget_Original(C_GameCameraPtr, _camera, 0, 0, 0.0f);
             }
         }
         ImGui::End();
@@ -116,7 +118,7 @@ namespace MafiaMP::Core::UI {
             if (streamingModule) {
                 auto result = streamingModule->RequestLoadAreasInRadius(currentPos, 100.0f, 8);
             }
-            C_GameCameraMafia__LockTarget_Original(C_GameCameraPtr, _camera, 0.0f);
+            C_GameCameraMafia__LockTarget_Original(C_GameCameraPtr, _camera, 0, 0, 0.0f);
         }
     }
 } // namespace MafiaMP::Core::UI

@@ -15,8 +15,6 @@ namespace MafiaMP::Core::UI {
         POINT _lastMousePos {};
 
       public:
-        CameraStudio();
-
         void Update();
     };
 } // namespace MafiaMP::Core::UI

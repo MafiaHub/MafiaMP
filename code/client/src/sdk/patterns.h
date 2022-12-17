@@ -57,6 +57,10 @@ namespace SDK {
 
         uint64_t C_SceneObject__SetTransformAddr = 0x0;
 
+        uint64_t renameme__SpawnObject  = 0x0;
+        uint64_t renameme__SpawnObject2 = 0x0;
+        uint64_t renameme__SpawnObject3 = 0x0;
+
         uint64_t C_Matrix__SetDir2Addr     = 0x0;
         uint64_t C_Matrix__SetDirAddr      = 0x0;
         uint64_t C_Matrix__SetDir3Addr     = 0x0;
@@ -203,15 +207,15 @@ namespace SDK {
 
         // C_HumanWeaponController
         uint64_t C_HumanWeaponController__DoWeaponSelectByItemId = 0x0;
-        uint64_t C_HumanWeaponController__GetRightHandWeaponID = 0x0;
-        uint64_t C_HumanWeaponController__GetShotPosDir        = 0x0;
-        uint64_t C_HumanWeaponController__IsThrownWeapon       = 0x0;
-        uint64_t C_HumanWeaponController__ResetScatterCoef     = 0x0;
-        uint64_t C_HumanWeaponController__SetAiming            = 0x0;
-        uint64_t C_HumanWeaponController__SetCoverFlag         = 0x0;
-        uint64_t C_HumanWeaponController__SetFirePressedFlag   = 0x0;
-        uint64_t C_HumanWeaponController__SetStickMove         = 0x0;
-        uint64_t C_HumanWeaponController__SetZoomFlag          = 0x0;
+        uint64_t C_HumanWeaponController__GetRightHandWeaponID   = 0x0;
+        uint64_t C_HumanWeaponController__GetShotPosDir          = 0x0;
+        uint64_t C_HumanWeaponController__IsThrownWeapon         = 0x0;
+        uint64_t C_HumanWeaponController__ResetScatterCoef       = 0x0;
+        uint64_t C_HumanWeaponController__SetAiming              = 0x0;
+        uint64_t C_HumanWeaponController__SetCoverFlag           = 0x0;
+        uint64_t C_HumanWeaponController__SetFirePressedFlag     = 0x0;
+        uint64_t C_HumanWeaponController__SetStickMove           = 0x0;
+        uint64_t C_HumanWeaponController__SetZoomFlag            = 0x0;
 
         // C_Navigation
         uint64_t C_Navigation__GetInstance           = 0x0;
@@ -231,10 +235,10 @@ namespace SDK {
         uint64_t C_GameFramework__IsSuspendedAddr = 0x0;
 
         // Lua
-        uint64_t Lua__pcallAddr = 0x0;
+        uint64_t Lua__pcallAddr      = 0x0;
         uint64_t Lua__loadbufferAddr = 0x0;
-        uint64_t Lua__tostringAddr = 0x0;
-        uint64_t Lua__isstringAddr = 0x0;
+        uint64_t Lua__tostringAddr   = 0x0;
+        uint64_t Lua__isstringAddr   = 0x0;
 
         static void InitPatterns();
     };

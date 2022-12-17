@@ -1,15 +1,15 @@
-#include <utils/safe_win32.h>
 #include "menu.h"
 #include "states.h"
+#include <utils/safe_win32.h>
 
 #include <utils/states/machine.h>
 
 #include <imgui/imgui.h>
 
-#include "../../game/helpers/controls.h"
 #include "../../game/helpers/camera.h"
-#include "../../sdk/mafia/framework/c_mafia_framework_interfaces.h"
+#include "../../game/helpers/controls.h"
 #include "../../sdk/mafia/framework/c_mafia_framework.h"
+#include "../../sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
 #include "../application.h"
 
@@ -27,8 +27,8 @@ namespace MafiaMP::Core::States {
     }
 
     bool InMenuState::OnEnter(Framework::Utils::States::Machine *) {
-        _shouldDisplayWidget = true;
-        _shouldProceedConnection = false;
+        _shouldDisplayWidget       = true;
+        _shouldProceedConnection   = false;
         _shouldProceedOfflineDebug = false;
 
         // Set camera
@@ -66,24 +66,25 @@ namespace MafiaMP::Core::States {
             ImGui::Text("Server IP: ");
             ImGui::SameLine();
             ImGui::InputText("##server_ip", serverIp, 32);
-            
+
             if (!isDiscordPresent) {
                 ImGui::Text("Nickname: ");
                 ImGui::SameLine();
                 ImGui::InputText("##nickname", nickname, 32);
-            } else {
+            }
+            else {
                 discord::User currUser {};
                 gApplication->GetPresence()->GetUserManager().GetCurrentUser(&currUser);
                 strcpy(nickname, currUser.GetUsername());
                 ImGui::Text("Nickname: %s (set via Discord)", nickname);
             }
-            
+
             if (ImGui::Button("Connect")) {
                 // Update the application state for further usage
                 Framework::Integrations::Client::CurrentState newApplicationState = MafiaMP::Core::gApplication->GetCurrentState();
-                newApplicationState._host = serverIp;
-                newApplicationState._port     = 27015; //TODO: fix this
-                newApplicationState._nickname = nickname;
+                newApplicationState._host                                         = serverIp;
+                newApplicationState._port                                         = 27015; // TODO: fix this
+                newApplicationState._nickname                                     = nickname;
                 MafiaMP::Core::gApplication->SetCurrentState(newApplicationState);
 
                 // Request transition to next state (session connection)
