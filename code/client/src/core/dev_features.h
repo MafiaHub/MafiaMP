@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include "ui/camera_studio.h"
 #include "ui/entity_browser.h"
 
 namespace MafiaMP::Core {
@@ -23,6 +24,9 @@ namespace MafiaMP::Core {
 
         bool _showEntityBrowser {false};
         std::shared_ptr<UI::EntityBrowser> _entityBrowser {};
+
+        bool _showCameraStudio {false};
+        std::shared_ptr<UI::CameraStudio> _cameraStudio {};
 
       public:
         DevFeatures();
@@ -41,5 +45,6 @@ namespace MafiaMP::Core {
         void CloseGame();
 
         void ToggleEntityBrowser();
+        void ToggleCameraStudio();
     };
 } // namespace MafiaMP::Core

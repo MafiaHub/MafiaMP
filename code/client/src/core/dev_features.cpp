@@ -32,6 +32,7 @@
 namespace MafiaMP::Core {
     DevFeatures::DevFeatures() {
         _entityBrowser = std::make_shared<UI::EntityBrowser>();
+        _cameraStudio  = std::make_shared<UI::CameraStudio>();
     }
 
     void DevFeatures::Init() {
@@ -42,6 +43,9 @@ namespace MafiaMP::Core {
     void DevFeatures::Update() {
         if (_showEntityBrowser)
             _entityBrowser->Update();
+
+        if (_showCameraStudio)
+            _cameraStudio->Update();
     }
 
     void DevFeatures::Shutdown() {}
@@ -73,6 +77,10 @@ namespace MafiaMP::Core {
 
     void DevFeatures::ToggleEntityBrowser() {
         _showEntityBrowser = !_showEntityBrowser;
+    }
+
+    void DevFeatures::ToggleCameraStudio() {
+        _showCameraStudio = !_showCameraStudio;
     }
 
     void DevFeatures::SpawnCar(std::string modelName) {
@@ -242,6 +250,12 @@ namespace MafiaMP::Core {
                 ToggleEntityBrowser();
             },
             "toggles entity browser dialog");
+        gApplication->_commandProcessor->RegisterCommand(
+            "showCameraStudio", {},
+            [this](const cxxopts::ParseResult &result) {
+                ToggleCameraStudio();
+            },
+            "toggles camera studio dialog");
     }
 
     void DevFeatures::SetupMenuBar() {
@@ -270,6 +284,9 @@ namespace MafiaMP::Core {
             if (ImGui::BeginMenu("Editors")) {
                 if (ImGui::MenuItem("Entity Browser")) {
                     ToggleEntityBrowser();
+                }
+                if (ImGui::MenuItem("Camera Studio")) {
+                    ToggleCameraStudio();
                 }
                 ImGui::EndMenu();
             }
