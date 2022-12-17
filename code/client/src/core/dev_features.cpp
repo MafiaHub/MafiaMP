@@ -48,6 +48,7 @@ namespace MafiaMP::Core {
             _cameraStudio->Update();
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F7)) {
+            gApplication->GetImGUI()->ShowCursor(!_showCameraStudio);
             MafiaMP::Game::Helpers::Controls::Lock(!_showCameraStudio);
             _showCameraStudio = !_showCameraStudio;
         }
