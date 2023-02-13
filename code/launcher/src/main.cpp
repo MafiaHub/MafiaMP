@@ -2,7 +2,7 @@
 
 #include <launcher/project.h>
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
+int main(void) {
     Framework::Launcher::ProjectConfiguration config;
     config.destinationDllName = L"MafiaMPClient.dll";
     config.executableName     = L"mafiadefinitiveedition.exe";
