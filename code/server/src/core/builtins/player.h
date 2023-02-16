@@ -25,7 +25,7 @@ namespace MafiaMP::Scripting {
         }
 
         void AddWeapon(int weaponId, int ammo) {
-            FW_SEND_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::AddWeapon, _ent, weaponId, ammo);
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::AddWeapon, _ent, weaponId, ammo);
         }
 
         void Destruct(v8::Isolate *isolate) {
