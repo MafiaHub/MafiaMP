@@ -106,6 +106,20 @@ bool C_HumanWeaponController_DoShot(void *pThis, void *unk, ue::sys::math::C_Vec
     return C_HumanWeaponController_DoShot_original(pThis, unk, pos1, pos2, unk1, unk2);
 }
 
+typedef bool(__fastcall *C_HumanInventory__CanFire_t)(void *);
+C_HumanInventory__CanFire_t C_HumanInventory__CanFire_original = nullptr;
+bool C_HumanInventory__CanFire(void* pThis) {
+    auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
+
+    // In case it's the local player, normal behavior
+    if (gameLocalPlayer->GetInventoryWrapper()->GetHumanInventory() == pThis) {
+        return C_HumanInventory__CanFire_original(pThis);
+    }
+
+    // If it's a remote ped, always allows to shot
+    return true;
+}
+
 static InitFunction init([]() {
     const auto addr1 = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 10 48 8B 88 ? ? ? ? C6 41 14 00");
     MH_CreateHook((LPVOID)addr1, (PBYTE)C_HumanWeaponController__SetAiming, reinterpret_cast<void **>(&C_HumanWeaponController__SetAiming_Original));
@@ -121,4 +135,7 @@ static InitFunction init([]() {
 
     const auto C_HumanWeaponController_Addr = hook::get_opcode_address("E8 ? ? ? ? 0F B6 D8 84 DB 0F 84 ? ? ? ?");
     MH_CreateHook((LPVOID)C_HumanWeaponController_Addr, (PBYTE)C_HumanWeaponController_DoShot, reinterpret_cast<void **>(&C_HumanWeaponController_DoShot_original));
+
+    const auto C_HumanInventory__CanFire_Addr = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 2E F6 83 ? ? ? ? ?");
+    MH_CreateHook((LPVOID)C_HumanInventory__CanFire_Addr, (PBYTE)C_HumanInventory__CanFire, reinterpret_cast<void **>(&C_HumanInventory__CanFire_original));
 });
