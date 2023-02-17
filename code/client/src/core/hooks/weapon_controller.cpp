@@ -112,7 +112,7 @@ bool C_HumanInventory__CanFire(void* pThis) {
     auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
 
     // In case it's the local player, normal behavior
-    if (gameLocalPlayer->GetInventoryWrapper()->GetHumanInventory() == pThis) {
+    if (gameLocalPlayer && gameLocalPlayer->GetInventoryWrapper()->GetHumanInventory() == pThis) {
         return C_HumanInventory__CanFire_original(pThis);
     }
 
