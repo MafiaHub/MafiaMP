@@ -100,6 +100,12 @@ bool C_HumanWeaponController__DoWeaponSelectByItemId(void *_this, unsigned int i
     return C_HumanWeaponController__DoWeaponSelectByItemId_Original(_this, itemId, unk1);
 }
 
+typedef bool(__fastcall *C_HumanWeaponController_DoShot_t)(void *, void *, ue::sys::math::C_Vector const *, ue::sys::math::C_Vector const *, bool, bool);
+C_HumanWeaponController_DoShot_t C_HumanWeaponController_DoShot_original = nullptr;
+bool C_HumanWeaponController_DoShot(void *pThis, void *unk, ue::sys::math::C_Vector const *pos1, ue::sys::math::C_Vector const *pos2, bool unk1, bool unk2){
+    return C_HumanWeaponController_DoShot_original(pThis, unk, pos1, pos2, unk1, unk2);
+}
+
 static InitFunction init([]() {
     const auto addr1 = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 10 48 8B 88 ? ? ? ? C6 41 14 00");
     MH_CreateHook((LPVOID)addr1, (PBYTE)C_HumanWeaponController__SetAiming, reinterpret_cast<void **>(&C_HumanWeaponController__SetAiming_Original));
@@ -112,4 +118,7 @@ static InitFunction init([]() {
 
     const auto addr4 = hook::pattern("48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40 48 8B 81 60").get_first();
     MH_CreateHook((LPVOID)addr4, (PBYTE)C_HumanWeaponController__DoWeaponSelectByItemId, reinterpret_cast<void **>(&C_HumanWeaponController__DoWeaponSelectByItemId_Original));
+
+    const auto C_HumanWeaponController_Addr = hook::get_opcode_address("E8 ? ? ? ? 0F B6 D8 84 DB 0F 84 ? ? ? ?");
+    MH_CreateHook((LPVOID)C_HumanWeaponController_Addr, (PBYTE)C_HumanWeaponController_DoShot, reinterpret_cast<void **>(&C_HumanWeaponController_DoShot_original));
 });

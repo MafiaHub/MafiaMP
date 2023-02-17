@@ -160,6 +160,14 @@ namespace MafiaMP::Core {
             },
             "crashes the game");
         gApplication->_commandProcessor->RegisterCommand(
+            "weapon", {},
+            [this](cxxopts::ParseResult&) {
+                auto localPlayer = SDK::GetGame()->GetActivePlayer();
+                localPlayer->GetInventoryWrapper()->AddWeapon(84, 50);
+            },
+            "Gives a random weapon to the player"
+        );
+        gApplication->_commandProcessor->RegisterCommand(
             "echo", {},
             [this](const cxxopts::ParseResult &result) {
                 std::string argsConcat;
