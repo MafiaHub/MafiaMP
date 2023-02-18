@@ -44,11 +44,6 @@ bool C_HumanWeaponController__SetAiming(void* _this, bool aiming) {
             updateData->weaponData.isAiming = aiming;
         }
     }
-    else if (const auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
-        const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-        aiming                = updateData->weaponData.isAiming;
-        Framework::Logging::GetLogger("WeaponController")->info("C_HumanWeaponController__SetAiming: {} {}", _this, aiming);
-    }
 
     return C_HumanWeaponController__SetAiming_Original(_this, aiming);
 }

@@ -422,7 +422,11 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            // todo change skin
+            if (e == gApplication->GetLocalPlayer()) {
+                Game::Helpers::Controls::PlayerChangeSpawnProfile(msg->GetSpawnProfile());
+            } else {
+                // todo remote ped
+            }
         });
     }
 

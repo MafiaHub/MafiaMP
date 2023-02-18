@@ -76,4 +76,23 @@ namespace MafiaMP::Game::Helpers {
 
         return playerSpawner->GetSpawnProfile();
     }
+
+    void Controls::PlayerChangeSpawnProfile(uint64_t spawnProfile) {
+        // TODO fixme
+        SDK::mafia::framework::C_MafiaFramework *mafiaFramework = SDK::mafia::framework::C_MafiaFramework::GetInstance();
+        if (!mafiaFramework) {
+            return;
+        }
+
+        SDK::mafia::framework::C_MafiaFrameworkInterfaces *mafiaFrameworkInterfaces = mafiaFramework->GetInterfaces();
+        if (!mafiaFrameworkInterfaces) {
+            return;
+        }
+        SDK::C_PlayerModelManager *playerModelManager = mafiaFrameworkInterfaces->GetPlayerModelManager();
+        if (!playerModelManager) {
+            return;
+        }
+
+        playerModelManager->SwitchSpawnProfile(spawnProfile);
+    }
 }
