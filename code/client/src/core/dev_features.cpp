@@ -27,6 +27,8 @@
 #include "shared/rpc/chat_message.h"
 #include "shared/rpc/spawn_car.h"
 
+#include "shared/game_rpc/human/human_changeskin.h"
+
 #include "modules/human.h"
 
 namespace MafiaMP::Core {
@@ -255,6 +257,18 @@ namespace MafiaMP::Core {
                     auto ammo = result["ammo"].as<int>();
                     Game::Helpers::Human::AddWeapon(human, wep, ammo);
                     Framework::Logging::GetLogger("test")->debug("Added wep {} with ammo {}", wep, ammo);
+                }
+            },
+            "sends a chat message");
+        gApplication->_commandProcessor->RegisterCommand(
+            "skin", {{"s,skin", "spawnprofile id", cxxopts::value<uint64_t>()->default_value("335218123840277515")}},
+            [this](const cxxopts::ParseResult &result) {
+                const auto human = Game::Helpers::Controls::GetLocalPlayer();
+                if (human) {
+                    const auto skinId = result["skin"].as<uint64_t>();
+                    Framework::Logging::GetLogger("test")->debug("send rpc to change skin to {}", skinId);
+
+                    FW_SEND_CLIENT_COMPONENT_GAME_RPC(Shared::RPC::HumanChangeSkin, gApplication->GetLocalPlayer(), skinId);
                 }
             },
             "sends a chat message");

@@ -11,13 +11,15 @@
 
 #include "shared/rpc/chat_message.h"
 #include "shared/rpc/environment.h"
-#include "shared/rpc/spawn_car.h"
+
 
 #include <fmt/format.h>
 
 // VERY UGLY
 extern std::vector<std::string> TEST_vehiclelist;
 
+#include "shared/game_rpc/human/human_changeskin.h"
+#include "shared/rpc/spawn_car.h"
 namespace MafiaMP {
 
     void Server::PostInit() {
@@ -128,6 +130,20 @@ namespace MafiaMP {
 
             auto frame       = carEnt.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelName = msg->GetModelName();
+        });
+
+        // test until we do it via nodejs builtins
+        net->RegisterGameRPC<Shared::RPC::HumanChangeSkin>([this](SLNet::RakNetGUID guid, Shared::RPC::HumanChangeSkin *msg) {
+            if (!msg->Valid())
+                return;
+
+            const auto ent = GetWorldEngine()->GetEntityByGUID(guid.g);
+            if (!ent.is_alive())
+                return;
+
+            auto frame = ent.get_mut<Framework::World::Modules::Base::Frame>();
+            frame->modelHash = msg->GetSpawnProfile();
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::HumanChangeSkin, ent, msg->GetSpawnProfile());
         });
     }
 } // namespace MafiaMP

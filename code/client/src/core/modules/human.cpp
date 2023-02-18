@@ -19,6 +19,7 @@
 
 #include "shared/game_rpc/human/human_shoot.h"
 #include "shared/game_rpc/human/human_reload.h"
+#include "shared/game_rpc/human/human_changeskin.h"
 
 #include "vehicle.h"
 #include <world/modules/base.hpp>
@@ -404,6 +405,23 @@ namespace MafiaMP::Core::Modules {
 
             const auto wepController = trackingData->human->GetHumanWeaponController();
             wepController->DoWeaponReloadInventory(msg->GetUnk0());
+        });
+
+        net->RegisterGameRPC<Shared::RPC::HumanChangeSkin>([app](SLNet::RakNetGUID guid, Shared::RPC::HumanChangeSkin *msg) {
+            if (!msg->Valid())
+                return;
+
+            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            if (!trackingData) {
+                return;
+            }
+
+            // todo change skin
         });
     }
 
