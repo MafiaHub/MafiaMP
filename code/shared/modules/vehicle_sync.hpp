@@ -8,6 +8,12 @@
 
 namespace MafiaMP::Shared::Modules {
     struct VehicleSync {
+        enum class LockState {
+            Unlocked,
+            Locked,
+            Breakable,
+        };
+
         struct UpdateData {
             glm::vec3 velocity{};
             glm::vec3 angularVelocity{};
@@ -17,6 +23,7 @@ namespace MafiaMP::Shared::Modules {
             float brake = 0.0f;
             float handbrake = 0.0f;
             float steer = 0.0f;
+            LockState locked = LockState::Unlocked;
         };
 
         VehicleSync(flecs::world& world) {

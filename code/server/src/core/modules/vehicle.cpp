@@ -74,7 +74,11 @@ namespace MafiaMP::Core::Modules {
         };
 
         es->modEvents.updateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            const auto trackingMetadata = e.get<Shared::Modules::VehicleSync::UpdateData>();
+            auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            const auto carData   = e.get<CarData>();
+
+            // replace sync fields with server-managed data
+            trackingMetadata->locked = carData->locked;
 
             Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
             vehicleUpdate.SetServerID(e.id());
