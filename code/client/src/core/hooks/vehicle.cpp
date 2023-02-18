@@ -1,5 +1,35 @@
+#include <MinHook.h>
+
 #include <utils/hooking/hook_function.h>
 #include <utils/hooking/hooking.h>
+
+#include <logging/logger.h>
+
+#include "../../sdk/entities/c_actor.h"
+
+typedef bool(__fastcall *C_CarActionEnter__TestActionInternal_t)(void *, SDK::C_Actor *, bool);
+C_CarActionEnter__TestActionInternal_t C_CarActionEnter__TestActionInternal_original = nullptr;
+bool C_CarActionEnter__TestActionInternal(void* pThis, SDK::C_Actor* actor, bool locationCheck) {
+    //TODO: process with entity flag matching
+    //TODO: allow for local debug cars
+    return false;
+}
+
+typedef bool(__fastcall *C_CarActionBreakIn__TestActionInternal_t)(void *, SDK::C_Actor *, bool);
+C_CarActionBreakIn__TestActionInternal_t C_CarActionBreakIn__TestActionInternal_original = nullptr;
+bool C_CarActionBreakIn__TestActionInternal(void *pThis, SDK::C_Actor *actor, bool locationCheck) {
+    // TODO: process with entity flag matching
+    // TODO: allow for local debug cars
+    return false;
+}
+
+typedef bool(__fastcall *C_CarActionLeave__TestAction_t)(void *, SDK::C_Actor *);
+C_CarActionLeave__TestAction_t C_CarActionLeave__TestAction_original = nullptr;
+bool C_CarActionLeave__TestAction(void *pThis, SDK::C_Actor *actor) {
+    // TODO: process with entity flag matching
+    // TODO: allow for local debug cars
+    return false;
+}
 
 static InitFunction init([]() {
     // These patches are disabled since we want vehicles in debug mode hihi
@@ -9,6 +39,15 @@ static InitFunction init([]() {
     // hook::return_function(human2CarWrapperStartDrivePattern);
 
     // Disable automated vehicle disable (engine, siren, beacon lights etc...) when player leaves it
-    const auto human2CarWrapperEndDrivePattern = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 08 48 8B 7C 24 ? ");
+    const auto human2CarWrapperEndDrivePattern = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 08 48 8B 7C 24 ?");
     // hook::return_function(human2CarWrapperEndDrivePattern);
+
+    const auto C_CarActionEnter__TestActionInternal_Addr = hook::pattern("40 53 55 57 41 54 41 55 48 83 EC 40 41 0F B6 F8").get_first();
+    MH_CreateHook((LPVOID)C_CarActionEnter__TestActionInternal_Addr, (PBYTE)C_CarActionEnter__TestActionInternal, reinterpret_cast<void **>(&C_CarActionEnter__TestActionInternal_original));
+
+    const auto C_CarActionBreakIn__TestActionBreakIn_Addr = hook::pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC 30 45 0F B6 F8").get_first();
+    MH_CreateHook((LPVOID)C_CarActionBreakIn__TestActionBreakIn_Addr, (PBYTE)C_CarActionBreakIn__TestActionInternal, reinterpret_cast<void **>(&C_CarActionBreakIn__TestActionInternal_original));
+
+    const auto C_CarActionLeave__TestAction_Addr = hook::pattern("40 53 48 83 EC 20 48 8B DA E8 ? ? ? ? 48 8B C8 4C 8B 00 41 FF 90 ? ? ? ? 48 3B D8 75 29 E8 ? ? ? ? 48 8B C8 48 8B 10 FF 92 ? ? ? ? 48 8B C8 BA ? ? ? ? E8 ? ? ? ? 84 C0 0F 94 C0 48 83 C4 20 5B C3 B0 01 48 83 C4 20 5B C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC 41 B0 01 E9 ? ? ? ? CC CC CC CC CC CC CC CC 48 89 5C 24 ? 48 89 6C 24 ?").get_first();
+    MH_CreateHook((LPVOID)C_CarActionLeave__TestAction_Addr, (PBYTE)C_CarActionLeave__TestAction, reinterpret_cast<void **>(&C_CarActionLeave__TestAction_original));
 });
