@@ -27,7 +27,6 @@ namespace MafiaMP::Shared::Modules {
             struct WeaponData {
                 // TODO
                 bool isAiming = false;
-                bool isFiring = false;
                 glm::vec3 aimPos {};
                 glm::vec3 aimDir {};
                 uint16_t currentWeaponId {};

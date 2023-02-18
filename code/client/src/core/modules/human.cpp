@@ -17,6 +17,8 @@
 #include "game/overrides/character_controller.h"
 #include "game/streaming/entity_tracking_info.h"
 
+#include "shared/game_rpc/human/human_shoot.h"
+
 #include "vehicle.h"
 #include <world/modules/base.hpp>
 
@@ -276,7 +278,6 @@ namespace MafiaMP::Core::Modules {
 
         // NOTE(DavoSK): we are doin those two inside hook, since it could fight with game
         wepController->SetAiming(updateData->weaponData.isAiming);
-        wepController->SetFirePressedFlag(updateData->weaponData.isFiring);
 
         if (wepController->GetRightHandWeaponID() != updateData->weaponData.currentWeaponId) {
             wepController->DoWeaponSelectByItemId(updateData->weaponData.currentWeaponId, true);
@@ -364,7 +365,32 @@ namespace MafiaMP::Core::Modules {
 
             // update actor data
         });
+
+        InitRPCs(app);
     }
+
+    void Human::InitRPCs(Application *app) {
+        const auto net = app->GetNetworkingEngine()->GetNetworkClient();
+
+        net->RegisterGameRPC<Shared::RPC::HumanShoot>([app](SLNet::RakNetGUID guid, Shared::RPC::HumanShoot *msg) {
+            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            if (!trackingData) {
+                return;
+            }
+
+            const auto wepController = trackingData->human->GetHumanWeaponController();
+            SDK::ue::sys::math::C_Vector dir, pos;
+            pos = {msg->GetAimPos().x, msg->GetAimPos().y, msg->GetAimPos().z};
+            dir = {msg->GetAimDir().x, msg->GetAimDir().y, msg->GetAimDir().z};
+            wepController->DoShot(nullptr, &pos, &dir, msg->GetUnk0(), msg->GetUnk1());
+        });
+    }
+
     void Human::UpdateTransform(flecs::entity e) {
         const auto trackingData = e.get<Core::Modules::Human::Tracking>();
         if (!trackingData || !trackingData->human) {
