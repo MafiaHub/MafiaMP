@@ -12,6 +12,7 @@ namespace MafiaMP::Game::Helpers {
         static SDK::C_Player2 *GetLocalPlayer();
         static void Lock(bool);
         static bool AreControlsLocked();
-        static uint64_t GetLocalPlayerSpawnProfile(); 
+        static uint64_t GetLocalPlayerSpawnProfile();
+        static void PlayerChangeSpawnProfile(uint64_t spawnProfile);
     };
 }
