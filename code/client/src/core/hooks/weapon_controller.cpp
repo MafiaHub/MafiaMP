@@ -152,6 +152,7 @@ bool C_HumanInventory__CanFire(void* pThis) {
 }
 
 static InitFunction init([]() {
+    // Hook the methods
     const auto addr1 = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 10 48 8B 88 ? ? ? ? C6 41 14 00");
     MH_CreateHook((LPVOID)addr1, (PBYTE)C_HumanWeaponController__SetAiming, reinterpret_cast<void **>(&C_HumanWeaponController__SetAiming_Original));
 
@@ -169,4 +170,8 @@ static InitFunction init([]() {
 
     const auto C_HumanInventory__CanFire_Addr = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 2E F6 83 ? ? ? ? ?");
     MH_CreateHook((LPVOID)C_HumanInventory__CanFire_Addr, (PBYTE)C_HumanInventory__CanFire, reinterpret_cast<void **>(&C_HumanInventory__CanFire_original));
+
+    // Disable game overriding remote peds aiming state
+    const auto C_CharacterStateHandlerAim__UpdateHumanFreqAI_Addr = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 48 8B 41 10");
+    hook::return_function(C_CharacterStateHandlerAim__UpdateHumanFreqAI_Addr);
 });
