@@ -18,6 +18,7 @@
 #include "game/streaming/entity_tracking_info.h"
 
 #include "shared/game_rpc/human/human_shoot.h"
+#include "shared/game_rpc/human/human_reload.h"
 
 #include "vehicle.h"
 #include <world/modules/base.hpp>
@@ -388,6 +389,21 @@ namespace MafiaMP::Core::Modules {
             pos = {msg->GetAimPos().x, msg->GetAimPos().y, msg->GetAimPos().z};
             dir = {msg->GetAimDir().x, msg->GetAimDir().y, msg->GetAimDir().z};
             wepController->DoShot(nullptr, &pos, &dir, msg->GetUnk0(), msg->GetUnk1());
+        });
+
+        net->RegisterGameRPC<Shared::RPC::HumanReload>([app](SLNet::RakNetGUID guid, Shared::RPC::HumanReload *msg) {
+            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            if (!trackingData) {
+                return;
+            }
+
+            const auto wepController = trackingData->human->GetHumanWeaponController();
+            wepController->DoWeaponReloadInventory(msg->GetUnk0());
         });
     }
 

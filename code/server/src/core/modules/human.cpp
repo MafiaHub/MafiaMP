@@ -10,6 +10,7 @@
 #include "vehicle.h"
 
 #include "shared/game_rpc/human/human_shoot.h"
+#include "shared/game_rpc/human/human_reload.h"
 
 #include <flecs/flecs.h>
 
@@ -116,6 +117,15 @@ namespace MafiaMP::Core::Modules {
             }
 
             FW_SEND_SERVER_COMPONENT_GAME_RPC_EXCEPT(Shared::RPC::HumanShoot, e, guid, msg->GetAimPos(), msg->GetAimDir(), msg->GetUnk0(), msg->GetUnk1());
+        });
+
+        net->RegisterGameRPC<Shared::RPC::HumanReload>([srv, net](SLNet::RakNetGUID guid, Shared::RPC::HumanReload *msg) {
+            const auto e = srv->GetEntityByGUID(guid.g);
+            if (!e.is_alive()) {
+                return;
+            }
+
+            FW_SEND_SERVER_COMPONENT_GAME_RPC_EXCEPT(Shared::RPC::HumanReload, e, guid, msg->GetUnk0());
         });
     }
 } // namespace MafiaMP::Core::Modules

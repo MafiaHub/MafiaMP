@@ -12,6 +12,7 @@
 
 #include <world/client.h>
 #include "shared/game_rpc/human/human_shoot.h"
+#include "shared/game_rpc/human/human_reload.h"
 
 #include <logging/logger.h>
 #include <flecs/flecs.h>
@@ -126,6 +127,14 @@ bool C_HumanWeaponController_DoShot(void *pThis, void *unk, ue::sys::math::C_Vec
 typedef void(__fastcall *C_HumanWeaponController__DoWeaponReloadInventory_t)(void *, int);
 C_HumanWeaponController__DoWeaponReloadInventory_t C_HumanWeaponController__DoWeaponReloadInventory_original = nullptr;
 void C_HumanWeaponController__DoWeaponReloadInventory(void *pThis, int unk) {
+    auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
+
+    // In case it's the local player, send an rpc
+    if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == pThis) {
+        const auto playerID = MafiaMP::Core::gApplication->GetLocalPlayer();
+        FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanReload, playerID, unk);
+    }
+
     C_HumanWeaponController__DoWeaponReloadInventory_original(pThis, unk);
 }
 

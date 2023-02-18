@@ -1,9 +1,6 @@
 #pragma once
 
 #include "src/networking/rpc/game_rpc.h"
-#include "shared/modules/vehicle_sync.hpp"
-
-#include <string>
 
 namespace MafiaMP::Shared::RPC {
     class HumanShoot final: public Framework::Networking::RPC::IGameRPC<HumanShoot> {
