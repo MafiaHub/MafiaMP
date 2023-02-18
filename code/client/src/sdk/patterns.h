@@ -216,6 +216,7 @@ namespace SDK {
         uint64_t C_HumanWeaponController__SetFirePressedFlag     = 0x0;
         uint64_t C_HumanWeaponController__SetStickMove           = 0x0;
         uint64_t C_HumanWeaponController__SetZoomFlag            = 0x0;
+        uint64_t C_HumanWeaponController__DoShot                 = 0x0;
 
         // C_Navigation
         uint64_t C_Navigation__GetInstance           = 0x0;

@@ -259,6 +259,7 @@ namespace SDK {
         gPatterns.C_HumanWeaponController__SetFirePressedFlag     = reinterpret_cast<uint64_t>(hook::get_pattern("84 D2 75 11 33 C0"));
         gPatterns.C_HumanWeaponController__SetStickMove           = reinterpret_cast<uint64_t>(hook::get_pattern("F2 0F 10 02 F2 0F 11 81 ? ? ? ? C3"));
         gPatterns.C_HumanWeaponController__SetZoomFlag            = hook::get_opcode_address("E8 ? ? ? ? F6 87 ? ? ? ? ? 49 8B CE");
+        gPatterns.C_HumanWeaponController__DoShot                 = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 2E F6 83 ? ? ? ? ?");
 
         // C_Navigation
         gPatterns.C_Navigation__GetInstance           = hook::get_opcode_address("E8 ? ? ? ? 49 8B 5E 60");

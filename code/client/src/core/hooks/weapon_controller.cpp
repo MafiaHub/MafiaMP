@@ -133,8 +133,7 @@ static InitFunction init([]() {
     const auto addr4 = hook::pattern("48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40 48 8B 81 60").get_first();
     MH_CreateHook((LPVOID)addr4, (PBYTE)C_HumanWeaponController__DoWeaponSelectByItemId, reinterpret_cast<void **>(&C_HumanWeaponController__DoWeaponSelectByItemId_Original));
 
-    const auto C_HumanWeaponController_Addr = hook::get_opcode_address("E8 ? ? ? ? 0F B6 D8 84 DB 0F 84 ? ? ? ?");
-    MH_CreateHook((LPVOID)C_HumanWeaponController_Addr, (PBYTE)C_HumanWeaponController_DoShot, reinterpret_cast<void **>(&C_HumanWeaponController_DoShot_original));
+    MH_CreateHook((LPVOID)gPatterns.C_HumanWeaponController__DoShot, (PBYTE)C_HumanWeaponController_DoShot, reinterpret_cast<void **>(&C_HumanWeaponController_DoShot_original));
 
     const auto C_HumanInventory__CanFire_Addr = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 2E F6 83 ? ? ? ? ?");
     MH_CreateHook((LPVOID)C_HumanInventory__CanFire_Addr, (PBYTE)C_HumanInventory__CanFire, reinterpret_cast<void **>(&C_HumanInventory__CanFire_original));

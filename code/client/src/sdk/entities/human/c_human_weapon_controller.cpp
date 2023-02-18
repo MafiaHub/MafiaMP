@@ -45,4 +45,8 @@ namespace SDK {
     void C_HumanWeaponController::SetZoomFlag(const bool bIsActive) {
         hook::this_call<void>(gPatterns.C_HumanWeaponController__SetZoomFlag, this, bIsActive);
     }
+
+    bool C_HumanWeaponController::DoShot(void* unk, ue::sys::math::C_Vector* vec1, ue::sys::math::C_Vector* vec2, bool unk1, bool unk2) {
+        return hook::this_call<bool>(gPatterns.C_HumanWeaponController__DoShot, this, unk, vec1, vec2, unk1, unk2);
+    }
 } // namespace SDK
