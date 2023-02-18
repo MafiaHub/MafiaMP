@@ -156,6 +156,18 @@ bool C_HumanInventory__CanFire(void* pThis) {
     return true;
 }
 
+typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimAllowed_t)(void *);
+C_CharacterStateHandlerAim__IsAimAllowed_t C_CharacterStateHandlerAim__IsAimAllowed_original = nullptr;
+bool C_CharacterStateHandlerAim__IsAimAllowed(void* pThis) {
+    return true;
+}
+
+typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimBlocked_t)(void *);
+C_CharacterStateHandlerAim__IsAimBlocked_t C_CharacterStateHandlerAim__IsAimBlocked_original = nullptr;
+bool C_CharacterStateHandlerAim__IsAimBlocked(void *pThis) {
+    return false;
+}
+
 static InitFunction init([]() {
     // Hook the methods
     const auto addr1 = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 10 48 8B 88 ? ? ? ? C6 41 14 00");
@@ -175,6 +187,12 @@ static InitFunction init([]() {
 
     const auto C_HumanInventory__CanFire_Addr = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 2E F6 83 ? ? ? ? ?");
     MH_CreateHook((LPVOID)C_HumanInventory__CanFire_Addr, (PBYTE)C_HumanInventory__CanFire, reinterpret_cast<void **>(&C_HumanInventory__CanFire_original));
+
+    const auto C_CharacterStateHandlerAim__IsAimBlocked_Addr = hook::pattern("48 83 EC 28 48 8B 51 28 80 7A 18 09").get_first();
+    MH_CreateHook((LPVOID)C_CharacterStateHandlerAim__IsAimBlocked_Addr, (PBYTE)C_CharacterStateHandlerAim__IsAimBlocked, reinterpret_cast<void **>(&C_CharacterStateHandlerAim__IsAimBlocked_original));
+
+    const auto C_CharacterStateHandlerAim__IsAimAllowed_Addr = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 31 48 8B 47 08");
+    MH_CreateHook((LPVOID)C_CharacterStateHandlerAim__IsAimAllowed_Addr, (PBYTE)C_CharacterStateHandlerAim__IsAimAllowed, reinterpret_cast<void **>(&C_CharacterStateHandlerAim__IsAimAllowed_original));
 
     // Disable game overriding remote peds aiming state
     const auto C_CharacterStateHandlerAim__UpdateHumanFreqAI_Addr = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 48 8B 41 10");
