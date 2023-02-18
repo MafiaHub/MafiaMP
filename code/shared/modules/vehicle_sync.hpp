@@ -19,11 +19,14 @@ namespace MafiaMP::Shared::Modules {
             glm::vec3 angularVelocity{};
             int gear = 0;
             bool horn = false;
+            bool siren = false;
+            bool beaconLights = false;
             float power = 0.0f;
             float brake = 0.0f;
             float handbrake = 0.0f;
             float steer = 0.0f;
             LockState locked = LockState::Unlocked;
+            SLNet::RakString licensePlate{};
         };
 
         VehicleSync(flecs::world& world) {

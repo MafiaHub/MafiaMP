@@ -28,6 +28,36 @@ namespace MafiaMP::Scripting {
             return carData->locked;
         }
 
+        void SetLicensePlate(std::string plate) {
+            auto carData = _ent.get_mut<Core::Modules::Vehicle::CarData>();
+            carData->licensePlate = plate;
+        }
+
+        std::string GetLicensePlate() {
+            auto carData = _ent.get_mut<Core::Modules::Vehicle::CarData>();
+            return carData->licensePlate;
+        }
+
+        void SetSiren(bool state) {
+            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            syncData->siren = state;
+        }
+
+        bool GetSiren() {
+            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            return syncData->siren;
+        }
+
+        void SetBeaconLights(bool state) {
+            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            syncData->beaconLights = state;
+        }
+
+        bool GetBeaconLights() {
+            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            return syncData->beaconLights;
+        }
+
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
             if (!rootModule) {
                 return;
@@ -35,8 +65,14 @@ namespace MafiaMP::Scripting {
 
             v8pp::class_<Vehicle> cls(isolate);
             cls.inherit<Framework::Integrations::Scripting::Entity>();
-            cls.function("lock", &Vehicle::Lock);
+            cls.function("setLockState", &Vehicle::Lock);
             cls.function("getLockState", &Vehicle::GetLockState);
+            cls.function("setLicensePlate", &Vehicle::SetLicensePlate);
+            cls.function("getLicensePlate", &Vehicle::GetLicensePlate);
+            cls.function("setSiren", &Vehicle::SetSiren);
+            cls.function("getSiren", &Vehicle::GetSiren);
+            cls.function("setBeaconLights", &Vehicle::SetBeaconLights);
+            cls.function("getBeaconLights", &Vehicle::GetBeaconLights);
             rootModule->class_("Vehicle", cls);
         }
     };
