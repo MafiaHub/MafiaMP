@@ -44,7 +44,7 @@ namespace MafiaMP::Core::States {
             }
 
             DrawCornerText(CORNER_RIGHT_TOP, "YOU ARE CONNECTED");
-            DrawCornerText(CORNER_RIGHT_TOP, "Press F9 to return to disconnect");
+            DrawCornerText(CORNER_RIGHT_TOP, "Press F9 to disconnect");
         });
 
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F9)) {
