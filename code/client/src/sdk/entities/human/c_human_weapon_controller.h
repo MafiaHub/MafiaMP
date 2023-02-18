@@ -24,6 +24,7 @@ namespace SDK {
         void SetFirePressedFlag(const bool);
 
         bool DoShot(void *, ue::sys::math::C_Vector *, ue::sys::math::C_Vector *, bool, bool);
+        bool DoWeaponReloadInventory(int);
 
         // TODO: Crashes, could it be that I don't have a gamepad? Maybe pattern is wrong?
         void SetStickMove(const ue::sys::math::C_Vector2 &);

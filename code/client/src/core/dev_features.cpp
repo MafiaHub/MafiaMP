@@ -163,7 +163,7 @@ namespace MafiaMP::Core {
             "weapon", {},
             [this](cxxopts::ParseResult&) {
                 auto localPlayer = SDK::GetGame()->GetActivePlayer();
-                localPlayer->GetInventoryWrapper()->AddWeapon(84, 50);
+                localPlayer->GetInventoryWrapper()->AddWeapon(84, 300);
             },
             "Gives a random weapon to the player"
         );

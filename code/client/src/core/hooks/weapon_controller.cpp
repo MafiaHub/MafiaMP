@@ -106,13 +106,19 @@ bool C_HumanWeaponController_DoShot(void *pThis, void *unk, ue::sys::math::C_Vec
     return C_HumanWeaponController_DoShot_original(pThis, unk, pos1, pos2, unk1, unk2);
 }
 
+typedef void(__fastcall *C_HumanWeaponController__DoWeaponReloadInventory_t)(void *, int);
+C_HumanWeaponController__DoWeaponReloadInventory_t C_HumanWeaponController__DoWeaponReloadInventory_original = nullptr;
+void C_HumanWeaponController__DoWeaponReloadInventory(void *pThis, int unk) {
+    C_HumanWeaponController__DoWeaponReloadInventory_original(pThis, unk);
+}
+
 typedef bool(__fastcall *C_HumanInventory__CanFire_t)(void *);
 C_HumanInventory__CanFire_t C_HumanInventory__CanFire_original = nullptr;
 bool C_HumanInventory__CanFire(void* pThis) {
     auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
 
     // In case it's the local player, normal behavior
-    if (gameLocalPlayer && gameLocalPlayer->GetInventoryWrapper()->GetHumanInventory() == pThis) {
+    if (gameLocalPlayer && gameLocalPlayer->GetInventoryWrapper() == pThis) {
         return C_HumanInventory__CanFire_original(pThis);
     }
 
@@ -134,6 +140,7 @@ static InitFunction init([]() {
     MH_CreateHook((LPVOID)addr4, (PBYTE)C_HumanWeaponController__DoWeaponSelectByItemId, reinterpret_cast<void **>(&C_HumanWeaponController__DoWeaponSelectByItemId_Original));
 
     MH_CreateHook((LPVOID)gPatterns.C_HumanWeaponController__DoShot, (PBYTE)C_HumanWeaponController_DoShot, reinterpret_cast<void **>(&C_HumanWeaponController_DoShot_original));
+    MH_CreateHook((LPVOID)gPatterns.C_HumanWeaponController__DoWeaponReloadInventory, (PBYTE)C_HumanWeaponController__DoWeaponReloadInventory, reinterpret_cast<void **>(&C_HumanWeaponController__DoWeaponReloadInventory_original));
 
     const auto C_HumanInventory__CanFire_Addr = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 2E F6 83 ? ? ? ? ?");
     MH_CreateHook((LPVOID)C_HumanInventory__CanFire_Addr, (PBYTE)C_HumanInventory__CanFire, reinterpret_cast<void **>(&C_HumanInventory__CanFire_original));

@@ -260,6 +260,9 @@ namespace SDK {
         gPatterns.C_HumanWeaponController__SetStickMove           = reinterpret_cast<uint64_t>(hook::get_pattern("F2 0F 10 02 F2 0F 11 81 ? ? ? ? C3"));
         gPatterns.C_HumanWeaponController__SetZoomFlag            = hook::get_opcode_address("E8 ? ? ? ? F6 87 ? ? ? ? ? 49 8B CE");
         gPatterns.C_HumanWeaponController__DoShot                 = hook::get_opcode_address("E8 ? ? ? ? 0F B6 D8 84 DB 0F 84 ? ? ? ?");
+        gPatterns.C_HumanWeaponController__DoWeaponReloadShowMagazine = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4F 08 4C 8B C6 BA ? ? ? ? E8 ? ? ? ? 45 33 F6");
+        gPatterns.C_HumanWeaponController__DoWeaponReloadDropMagazine = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 56 57 48 83 EC 60 B8 ? ? ? ?"));
+        gPatterns.C_HumanWeaponController__DoWeaponReloadInventory = reinterpret_cast<uint64_t>(hook::get_pattern("33 C0 44 8B C2 48 89 81 ? ? ? ?"));
 
         // C_Navigation
         gPatterns.C_Navigation__GetInstance           = hook::get_opcode_address("E8 ? ? ? ? 49 8B 5E 60");
