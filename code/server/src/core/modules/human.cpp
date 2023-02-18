@@ -9,6 +9,8 @@
 #include "shared/modules/human_sync.hpp"
 #include "vehicle.h"
 
+#include "shared/game_rpc/human/human_shoot.h"
+
 #include <flecs/flecs.h>
 
 namespace MafiaMP::Core::Modules {
@@ -101,6 +103,19 @@ namespace MafiaMP::Core::Modules {
             }
 
             *trackingMetadata = newData;
+        });
+
+        InitRPCs(srv, net);
+    }
+
+    void Human::InitRPCs(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
+        net->RegisterGameRPC<Shared::RPC::HumanShoot>([srv, net](SLNet::RakNetGUID guid, Shared::RPC::HumanShoot *msg) {
+            const auto e = srv->GetEntityByGUID(guid.g);
+            if (!e.is_alive()) {
+                return;
+            }
+
+            FW_SEND_SERVER_COMPONENT_GAME_RPC_EXCEPT(Shared::RPC::HumanShoot, e, guid, msg->GetAimPos(), msg->GetAimDir(), msg->GetUnk0(), msg->GetUnk1());
         });
     }
 } // namespace MafiaMP::Core::Modules

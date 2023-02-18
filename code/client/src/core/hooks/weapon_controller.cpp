@@ -10,6 +10,9 @@
 
 #include "game/helpers/controls.h"
 
+#include <world/client.h>
+#include "shared/game_rpc/human/human_shoot.h"
+
 #include <logging/logger.h>
 #include <flecs/flecs.h>
 #include <core/modules/human.h>
@@ -52,15 +55,15 @@ bool C_HumanWeaponController__SetFirePressedFlag(void *_this, bool firePressed) 
     auto gameLocalPlayer   = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
     if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
         if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
-            auto updateData                 = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-            updateData->weaponData.isFiring = firePressed;
+            // auto updateData                 = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            // updateData->weaponData.isFiring = firePressed;
         }
     } /*
     else if (const auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
         const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         firePressed           = updateData->weaponData.isFiring;
     }*/
-    
+
     return C_HumanWeaponController__SetFirePressedFlag_Original(_this, firePressed);
 }
 
@@ -68,7 +71,7 @@ typedef void(__fastcall *C_HumanWeaponController__GetShotPosDir_t)(void *, ue::s
 C_HumanWeaponController__GetShotPosDir_t C_HumanWeaponController__GetShotPosDir_Original = nullptr;
 void C_HumanWeaponController__GetShotPosDir(void *_this, ue::sys::math::C_Vector &pos, ue::sys::math::C_Vector &dir, float *distance) {
     C_HumanWeaponController__GetShotPosDir_Original(_this, pos, dir, distance);
-    
+
     if (!distance)
         return;
 
@@ -96,13 +99,27 @@ bool C_HumanWeaponController__DoWeaponSelectByItemId(void *_this, unsigned int i
             updateData->weaponData.currentWeaponId = uint16_t(itemId);
         }
     }
-    
+
     return C_HumanWeaponController__DoWeaponSelectByItemId_Original(_this, itemId, unk1);
 }
 
 typedef bool(__fastcall *C_HumanWeaponController_DoShot_t)(void *, void *, ue::sys::math::C_Vector const *, ue::sys::math::C_Vector const *, bool, bool);
 C_HumanWeaponController_DoShot_t C_HumanWeaponController_DoShot_original = nullptr;
 bool C_HumanWeaponController_DoShot(void *pThis, void *unk, ue::sys::math::C_Vector const *pos1, ue::sys::math::C_Vector const *pos2, bool unk1, bool unk2){
+    auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
+
+    // In case it's the local player, send an rpc
+    if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == pThis) {
+        const auto playerID = MafiaMP::Core::gApplication->GetLocalPlayer();
+        glm::vec3 pos;
+        if (pos1)
+            pos = {pos1->x, pos1->y, pos1->z};
+        glm::vec3 dir;
+        if (pos2)
+            dir = {pos2->x, pos2->y, pos2->z};
+        FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanShoot, playerID, pos, dir, unk1, unk2);
+    }
+
     return C_HumanWeaponController_DoShot_original(pThis, unk, pos1, pos2, unk1, unk2);
 }
 

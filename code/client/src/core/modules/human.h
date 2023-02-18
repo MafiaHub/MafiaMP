@@ -50,7 +50,10 @@ namespace MafiaMP::Core::Modules {
         static void SetupMessages(Application *app);
 
         static void UpdateTransform(flecs::entity);
-        
+
         static flecs::query<Tracking> findAllHumans;
+
+        private:
+        static void InitRPCs(Application *app);
     };
 } // namespace MafiaMP::Core::Modules
