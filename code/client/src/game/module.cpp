@@ -12,6 +12,8 @@
 
 #include <MinHook.h>
 
+#include "shared/version.h"
+
 namespace MafiaMP::Game {
     Globals gGlobals;
 
@@ -40,6 +42,9 @@ namespace MafiaMP::Game {
             opts.usePresence     = true;
             opts.useImGUI        = true;
             opts.rendererOptions = rendererOptions;
+
+            opts.gameName    = "Mafia: Definitive Edition";
+            opts.gameVersion = MafiaMP::Version::rel;
 
             Core::gApplication->Init(opts);
         }

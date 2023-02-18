@@ -1,5 +1,7 @@
 #include "core/server.h"
 
+#include "shared/version.h"
+
 int main(int argc, char **argv) {
     Framework::Integrations::Server::InstanceOptions opts;
     opts.bindHost      = "0.0.0.0";
@@ -10,6 +12,8 @@ int main(int argc, char **argv) {
     opts.maxPlayers    = 10;
     opts.modName       = "MafiaMP";
     opts.modSlug       = "mafiamp_server";
+    opts.gameName      = "Mafia: Definitive Edition";
+    opts.gameVersion   = MafiaMP::Version::rel;
     opts.modVersion    = "0.1.0";
     opts.bindPassword  = "";
     opts.enableSignals = true;
