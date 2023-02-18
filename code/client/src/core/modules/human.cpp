@@ -280,6 +280,7 @@ namespace MafiaMP::Core::Modules {
 
         // NOTE(DavoSK): we are doin those two inside hook, since it could fight with game
         wepController->SetAiming(updateData->weaponData.isAiming);
+        wepController->SetFirePressedFlag(updateData->weaponData.isFiring);
 
         if (wepController->GetRightHandWeaponID() != updateData->weaponData.currentWeaponId) {
             wepController->DoWeaponSelectByItemId(updateData->weaponData.currentWeaponId, true);

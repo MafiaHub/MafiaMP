@@ -18,6 +18,8 @@
 #include <flecs/flecs.h>
 #include <core/modules/human.h>
 
+#include <logging/logger.h>
+
 using namespace SDK;
 
 flecs::entity FindHumanByHumanWeaponController(void* C_HumanWeaponController) {
@@ -42,10 +44,11 @@ bool C_HumanWeaponController__SetAiming(void* _this, bool aiming) {
             updateData->weaponData.isAiming = aiming;
         }
     }
-    /*else if (const auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
+    else if (const auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
         const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         aiming                = updateData->weaponData.isAiming;
-    }*/
+        Framework::Logging::GetLogger("WeaponController")->info("C_HumanWeaponController__SetAiming: {} {}", _this, aiming);
+    }
 
     return C_HumanWeaponController__SetAiming_Original(_this, aiming);
 }
@@ -56,14 +59,14 @@ bool C_HumanWeaponController__SetFirePressedFlag(void *_this, bool firePressed) 
     auto gameLocalPlayer   = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
     if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
         if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
-            // auto updateData                 = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-            // updateData->weaponData.isFiring = firePressed;
+            auto updateData                 = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            updateData->weaponData.isFiring = firePressed;
         }
-    } /*
+    }
     else if (const auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
         const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         firePressed           = updateData->weaponData.isFiring;
-    }*/
+    }
 
     return C_HumanWeaponController__SetFirePressedFlag_Original(_this, firePressed);
 }
@@ -87,6 +90,7 @@ void C_HumanWeaponController__GetShotPosDir(void *_this, ue::sys::math::C_Vector
         const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         pos                   = {updateData->weaponData.aimPos.x, updateData->weaponData.aimPos.y, updateData->weaponData.aimPos.z};
         dir                   = {updateData->weaponData.aimDir.x, updateData->weaponData.aimDir.y, updateData->weaponData.aimDir.z};
+        Framework::Logging::GetLogger("MafiaMP")->info("C_HumanWeaponController__GetShotPosDir: {} {} {}", pos.x, pos.y, pos.z);
     }
 }
 
