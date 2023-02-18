@@ -277,14 +277,11 @@ namespace MafiaMP::Core::Modules {
 
         // weapon sync
         const auto wepController = trackingData->human->GetHumanWeaponController();
-
-        // NOTE(DavoSK): we are doin those two inside hook, since it could fight with game
-        wepController->SetAiming(updateData->weaponData.isAiming);
-        wepController->SetFirePressedFlag(updateData->weaponData.isFiring);
-
         if (wepController->GetRightHandWeaponID() != updateData->weaponData.currentWeaponId) {
             wepController->DoWeaponSelectByItemId(updateData->weaponData.currentWeaponId, true);
         }
+        wepController->SetAiming(updateData->weaponData.isAiming);
+        wepController->SetFirePressedFlag(updateData->weaponData.isFiring);
     }
 
     void Human::Remove(flecs::entity e) {
