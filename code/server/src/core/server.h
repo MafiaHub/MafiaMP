@@ -14,7 +14,7 @@ namespace MafiaMP {
 
         void PreShutdown() override;
 
-        void BroadcastChatMessage(flecs::entity ent, const std::string &msg);
+        void BroadcastChatMessage(const std::string &msg);
 
         void ModuleRegister(Framework::Scripting::Engines::SDKRegisterWrapper sdk) override;
 
