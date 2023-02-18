@@ -5,6 +5,8 @@
 
 #include <utils/states/machine.h>
 
+#include <external/imgui/widgets/corner_text.h>
+
 #include "core/application.h"
 
 namespace MafiaMP::Core::States {
@@ -35,10 +37,19 @@ namespace MafiaMP::Core::States {
 
     bool SessionConnectedState::OnUpdate(Framework::Utils::States::Machine *) {
         gApplication->GetImGUI()->PushWidget([]() {
-            if (!gApplication->GetDevConsole()->IsOpen()){
+            using namespace Framework::External::ImGUI::Widgets;
+
+            if (!gApplication->GetDevConsole()->IsOpen()) {
                 gApplication->GetChat()->Update();
             }
+
+            DrawCornerText(CORNER_RIGHT_TOP, "YOU ARE CONNECTED");
+            DrawCornerText(CORNER_RIGHT_TOP, "Press F9 to disconnect");
         });
+
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F9)) {
+            gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect();
+        }
         return false;
     }
 } // namespace MafiaMP::Core::States
