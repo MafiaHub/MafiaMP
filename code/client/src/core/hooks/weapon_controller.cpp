@@ -7,6 +7,9 @@
 #include "shared/modules/human_sync.hpp"
 #include "../../sdk/ue/sys/math/c_vector.h"
 #include "../../sdk/entities/c_player_2.h"
+#include "../../sdk/inventory/c_inventory_wrapper.h"
+#include "../../sdk/entities/human/c_human_weapon_controller.h"
+#include "../../sdk/ue/game/humainai/c_character_state_handler_aim.h"
 
 #include "game/helpers/controls.h"
 
@@ -22,7 +25,7 @@
 
 using namespace SDK;
 
-flecs::entity FindHumanByHumanWeaponController(void* C_HumanWeaponController) {
+flecs::entity FindHumanByHumanWeaponController(SDK::C_HumanWeaponController * C_HumanWeaponController) {
     flecs::entity foundPlayerEntity {};
     MafiaMP::Core::Modules::Human::findAllHumans.each([C_HumanWeaponController, &foundPlayerEntity](flecs::entity e, MafiaMP::Core::Modules::Human::Tracking &tracking) {
         if (tracking.human->GetHumanWeaponController() == C_HumanWeaponController) {
@@ -34,9 +37,9 @@ flecs::entity FindHumanByHumanWeaponController(void* C_HumanWeaponController) {
     return foundPlayerEntity;
 }
 
-typedef bool(__fastcall *C_HumanWeaponController__SetAiming_t)(void *, bool);
+typedef bool(__fastcall *C_HumanWeaponController__SetAiming_t)(SDK::C_HumanWeaponController *, bool);
 C_HumanWeaponController__SetAiming_t C_HumanWeaponController__SetAiming_Original = nullptr;
-bool C_HumanWeaponController__SetAiming(void* _this, bool aiming) {
+bool C_HumanWeaponController__SetAiming(SDK::C_HumanWeaponController *_this, bool aiming) {
     auto gameLocalPlayer   = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
     if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
         if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
@@ -44,13 +47,18 @@ bool C_HumanWeaponController__SetAiming(void* _this, bool aiming) {
             updateData->weaponData.isAiming = aiming;
         }
     }
+    else if (const auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
+        const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+        aiming           = updateData->weaponData.isAiming;
+        Framework::Logging::GetLogger("Hooks")->info("Remote ped aiming {}", aiming);
+    }
 
     return C_HumanWeaponController__SetAiming_Original(_this, aiming);
 }
 
-typedef bool(__fastcall *C_HumanWeaponController__SetFirePressedFlag_t)(void *, bool);
+typedef bool(__fastcall *C_HumanWeaponController__SetFirePressedFlag_t)(SDK::C_HumanWeaponController *, bool);
 C_HumanWeaponController__SetFirePressedFlag_t C_HumanWeaponController__SetFirePressedFlag_Original = nullptr;
-bool C_HumanWeaponController__SetFirePressedFlag(void *_this, bool firePressed) {
+bool C_HumanWeaponController__SetFirePressedFlag(SDK::C_HumanWeaponController *_this, bool firePressed) {
     auto gameLocalPlayer   = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
     if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
         if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
@@ -66,32 +74,29 @@ bool C_HumanWeaponController__SetFirePressedFlag(void *_this, bool firePressed) 
     return C_HumanWeaponController__SetFirePressedFlag_Original(_this, firePressed);
 }
 
-typedef void(__fastcall *C_HumanWeaponController__GetShotPosDir_t)(void *, ue::sys::math::C_Vector &, ue::sys::math::C_Vector &, float*);
+typedef void(__fastcall *C_HumanWeaponController__GetShotPosDir_t)(SDK::C_HumanWeaponController *, ue::sys::math::C_Vector &, ue::sys::math::C_Vector &, float *);
 C_HumanWeaponController__GetShotPosDir_t C_HumanWeaponController__GetShotPosDir_Original = nullptr;
-void C_HumanWeaponController__GetShotPosDir(void *_this, ue::sys::math::C_Vector &pos, ue::sys::math::C_Vector &dir, float *distance) {
-    C_HumanWeaponController__GetShotPosDir_Original(_this, pos, dir, distance);
-
-    if (!distance)
-        return;
-
+void C_HumanWeaponController__GetShotPosDir(SDK::C_HumanWeaponController *_this, ue::sys::math::C_Vector &pos, ue::sys::math::C_Vector &dir, float *distance) {
+    // In case it's the local player we just grab info and broadcast
     auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
     if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
         if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
+            C_HumanWeaponController__GetShotPosDir_Original(_this, pos, dir, distance);
             auto updateData               = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
             updateData->weaponData.aimPos = {pos.x, pos.y, pos.z};
             updateData->weaponData.aimDir = {dir.x, dir.y, dir.z};
         }
     } else if (auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
+        // But if it's the remote ped, we don't want to grab game info and we just set pointers to broadcasted data
         const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         pos                   = {updateData->weaponData.aimPos.x, updateData->weaponData.aimPos.y, updateData->weaponData.aimPos.z};
         dir                   = {updateData->weaponData.aimDir.x, updateData->weaponData.aimDir.y, updateData->weaponData.aimDir.z};
-        Framework::Logging::GetLogger("MafiaMP")->info("C_HumanWeaponController__GetShotPosDir: {} {} {}", pos.x, pos.y, pos.z);
     }
 }
 
 typedef bool(__fastcall *C_HumanWeaponController__DoWeaponSelectByItemId_t)(void*, unsigned int, bool);
 C_HumanWeaponController__DoWeaponSelectByItemId_t C_HumanWeaponController__DoWeaponSelectByItemId_Original = nullptr;
-bool C_HumanWeaponController__DoWeaponSelectByItemId(void *_this, unsigned int itemId, bool unk1) {
+bool C_HumanWeaponController__DoWeaponSelectByItemId(SDK::C_HumanWeaponController *_this, unsigned int itemId, bool unk1) {
     auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
     if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
         if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
@@ -103,9 +108,9 @@ bool C_HumanWeaponController__DoWeaponSelectByItemId(void *_this, unsigned int i
     return C_HumanWeaponController__DoWeaponSelectByItemId_Original(_this, itemId, unk1);
 }
 
-typedef bool(__fastcall *C_HumanWeaponController_DoShot_t)(void *, void *, ue::sys::math::C_Vector const *, ue::sys::math::C_Vector const *, bool, bool);
+typedef bool(__fastcall *C_HumanWeaponController_DoShot_t)(SDK::C_HumanWeaponController *, void *, ue::sys::math::C_Vector const *, ue::sys::math::C_Vector const *, bool, bool);
 C_HumanWeaponController_DoShot_t C_HumanWeaponController_DoShot_original = nullptr;
-bool C_HumanWeaponController_DoShot(void *pThis, void *unk, ue::sys::math::C_Vector const *pos1, ue::sys::math::C_Vector const *pos2, bool unk1, bool unk2){
+bool C_HumanWeaponController_DoShot(SDK::C_HumanWeaponController *pThis, void *unk, ue::sys::math::C_Vector const *pos1, ue::sys::math::C_Vector const *pos2, bool unk1, bool unk2) {
     auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
 
     // In case it's the local player, send an rpc
@@ -123,9 +128,9 @@ bool C_HumanWeaponController_DoShot(void *pThis, void *unk, ue::sys::math::C_Vec
     return C_HumanWeaponController_DoShot_original(pThis, unk, pos1, pos2, unk1, unk2);
 }
 
-typedef void(__fastcall *C_HumanWeaponController__DoWeaponReloadInventory_t)(void *, int);
+typedef void(__fastcall *C_HumanWeaponController__DoWeaponReloadInventory_t)(SDK::C_HumanWeaponController *, int);
 C_HumanWeaponController__DoWeaponReloadInventory_t C_HumanWeaponController__DoWeaponReloadInventory_original = nullptr;
-void C_HumanWeaponController__DoWeaponReloadInventory(void *pThis, int unk) {
+void C_HumanWeaponController__DoWeaponReloadInventory(SDK::C_HumanWeaponController *pThis, int unk) {
     auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
 
     // In case it's the local player, send an rpc
@@ -137,9 +142,9 @@ void C_HumanWeaponController__DoWeaponReloadInventory(void *pThis, int unk) {
     C_HumanWeaponController__DoWeaponReloadInventory_original(pThis, unk);
 }
 
-typedef bool(__fastcall *C_HumanInventory__CanFire_t)(void *);
+typedef bool(__fastcall *C_HumanInventory__CanFire_t)(SDK::C_InventoryWrapper *);
 C_HumanInventory__CanFire_t C_HumanInventory__CanFire_original = nullptr;
-bool C_HumanInventory__CanFire(void* pThis) {
+bool C_HumanInventory__CanFire(SDK::C_InventoryWrapper *pThis) {
     auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
 
     // In case it's the local player, normal behavior
@@ -151,15 +156,15 @@ bool C_HumanInventory__CanFire(void* pThis) {
     return true;
 }
 
-typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimAllowed_t)(void *);
+typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimAllowed_t)(SDK::ue::game::humanai::C_CharacterStateHandlerAim *);
 C_CharacterStateHandlerAim__IsAimAllowed_t C_CharacterStateHandlerAim__IsAimAllowed_original = nullptr;
-bool C_CharacterStateHandlerAim__IsAimAllowed(void* pThis) {
+bool C_CharacterStateHandlerAim__IsAimAllowed(SDK::ue::game::humanai::C_CharacterStateHandlerAim *pThis) {
     return true;
 }
 
-typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimBlocked_t)(void *);
+typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimBlocked_t)(SDK::ue::game::humanai::C_CharacterStateHandlerAim *);
 C_CharacterStateHandlerAim__IsAimBlocked_t C_CharacterStateHandlerAim__IsAimBlocked_original = nullptr;
-bool C_CharacterStateHandlerAim__IsAimBlocked(void *pThis) {
+bool C_CharacterStateHandlerAim__IsAimBlocked(SDK::ue::game::humanai::C_CharacterStateHandlerAim *pThis) {
     return false;
 }
 
@@ -169,7 +174,7 @@ static InitFunction init([]() {
     MH_CreateHook((LPVOID)addr1, (PBYTE)C_HumanWeaponController__SetAiming, reinterpret_cast<void **>(&C_HumanWeaponController__SetAiming_Original));
 
     const auto addr2 = hook::pattern("84 D2 75 11 33 C0").get_first();
-    MH_CreateHook((LPVOID)addr2, (PBYTE)C_HumanWeaponController__SetFirePressedFlag, reinterpret_cast<void **>(&C_HumanWeaponController__SetFirePressedFlag_Original));
+    // MH_CreateHook((LPVOID)addr2, (PBYTE)C_HumanWeaponController__SetFirePressedFlag, reinterpret_cast<void **>(&C_HumanWeaponController__SetFirePressedFlag_Original));
 
     const auto addr3 = hook::pattern("4C 8B DC 49 89 5B 08 49 89 73 10 49 89 7B 18 4D 89 73 20 55").get_first();
     MH_CreateHook((LPVOID)addr3, (PBYTE)C_HumanWeaponController__GetShotPosDir, reinterpret_cast<void **>(&C_HumanWeaponController__GetShotPosDir_Original));
@@ -191,5 +196,5 @@ static InitFunction init([]() {
 
     // Disable game overriding remote peds aiming state
     const auto C_CharacterStateHandlerAim__UpdateHumanFreqAI_Addr = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 48 8B 41 10");
-    hook::return_function(C_CharacterStateHandlerAim__UpdateHumanFreqAI_Addr);
+    // hook::return_function(C_CharacterStateHandlerAim__UpdateHumanFreqAI_Addr);
 });
