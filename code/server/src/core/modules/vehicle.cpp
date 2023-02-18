@@ -79,6 +79,7 @@ namespace MafiaMP::Core::Modules {
 
             // replace sync fields with server-managed data
             trackingMetadata->locked = carData->locked;
+            trackingMetadata->licensePlate = carData->licensePlate.c_str();
 
             Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
             vehicleUpdate.SetServerID(e.id());
