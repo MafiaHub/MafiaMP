@@ -6,8 +6,10 @@
 #include "shared/messages/vehicle/vehicle_despawn.h"
 #include "shared/messages/vehicle/vehicle_spawn.h"
 #include "shared/messages/vehicle/vehicle_update.h"
+#include "shared/messages/vehicle/vehicle_owner_update.h"
 #include "shared/modules/vehicle_sync.hpp"
 
+#include <stdio.h>
 #include <flecs/flecs.h>
 
 namespace MafiaMP::Core::Modules {
@@ -79,9 +81,23 @@ namespace MafiaMP::Core::Modules {
 
             // replace sync fields with server-managed data
             trackingMetadata->locked = carData->locked;
-            trackingMetadata->licensePlate = carData->licensePlate.c_str();
+            strcpy_s(trackingMetadata->licensePlate, sizeof(trackingMetadata->licensePlate), carData->licensePlate.c_str());
 
             Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
+            vehicleUpdate.SetServerID(e.id());
+            vehicleUpdate.SetData(*trackingMetadata);
+            net->Send(vehicleUpdate, guid);
+            return true;
+        };
+        es->modEvents.ownerUpdateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
+            auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            const auto carData    = e.get<CarData>();
+
+            // replace sync fields with server-managed data
+            trackingMetadata->locked = carData->locked;
+            strcpy_s(trackingMetadata->licensePlate, sizeof(trackingMetadata->licensePlate), carData->licensePlate.c_str());
+
+            Shared::Messages::Vehicle::VehicleOwnerUpdate vehicleUpdate {};
             vehicleUpdate.SetServerID(e.id());
             vehicleUpdate.SetData(*trackingMetadata);
             net->Send(vehicleUpdate, guid);

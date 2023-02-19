@@ -1,3 +1,4 @@
+#include <utils/safe_win32.h>
 #include <MinHook.h>
 
 #include <utils/hooking/hook_function.h>
@@ -5,30 +6,65 @@
 
 #include <logging/logger.h>
 
+#include "../modules/vehicle.h"
+#include "shared/modules/vehicle_sync.hpp"
+
 #include "../../sdk/entities/c_actor.h"
+
+class DummyActorOwner {
+  public:
+    char pad0[0xF8];
+    SDK::C_Vehicle *m_pVehicle;
+};
+
+DummyActorOwner* C_ActorAction__GetOwnerAsActor(void *pThis) {
+    return hook::this_call<DummyActorOwner*>(0x000000142341, pThis);
+}
 
 typedef bool(__fastcall *C_CarActionEnter__TestActionInternal_t)(void *, SDK::C_Actor *, bool);
 C_CarActionEnter__TestActionInternal_t C_CarActionEnter__TestActionInternal_original = nullptr;
 bool C_CarActionEnter__TestActionInternal(void* pThis, SDK::C_Actor* actor, bool locationCheck) {
-    //TODO: process with entity flag matching
-    //TODO: allow for local debug cars
-    return false;
+    const auto dummyActorOwner = C_ActorAction__GetOwnerAsActor(pThis);
+    const auto vehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntityByVehicle(dummyActorOwner->m_pVehicle);
+    if (!vehicle) {
+        return true;
+    }
+
+    const auto carData = vehicle.get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
+    if (!carData) {
+        return true;
+    }
+    return carData->locked == MafiaMP::Shared::Modules::VehicleSync::LockState::Unlocked;
 }
 
 typedef bool(__fastcall *C_CarActionBreakIn__TestActionInternal_t)(void *, SDK::C_Actor *, bool);
 C_CarActionBreakIn__TestActionInternal_t C_CarActionBreakIn__TestActionInternal_original = nullptr;
 bool C_CarActionBreakIn__TestActionInternal(void *pThis, SDK::C_Actor *actor, bool locationCheck) {
-    // TODO: process with entity flag matching
-    // TODO: allow for local debug cars
-    return false;
+    const auto vehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actor));
+    if (!vehicle) {
+        return true;
+    }
+
+    const auto carData = vehicle.get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
+    if (!carData) {
+        return true;
+    }
+    return carData->locked == MafiaMP::Shared::Modules::VehicleSync::LockState::Breakable;
 }
 
 typedef bool(__fastcall *C_CarActionLeave__TestAction_t)(void *, SDK::C_Actor *);
 C_CarActionLeave__TestAction_t C_CarActionLeave__TestAction_original = nullptr;
 bool C_CarActionLeave__TestAction(void *pThis, SDK::C_Actor *actor) {
-    // TODO: process with entity flag matching
-    // TODO: allow for local debug cars
-    return false;
+    const auto vehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actor));
+    if (!vehicle) {
+        return true;
+    }
+
+    const auto carData = vehicle.get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
+    if (!carData) {
+        return true;
+    }
+    return carData->locked == MafiaMP::Shared::Modules::VehicleSync::LockState::Unlocked;
 }
 
 static InitFunction init([]() {

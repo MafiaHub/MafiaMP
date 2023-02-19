@@ -14,6 +14,7 @@
 #include "shared/messages/vehicle/vehicle_despawn.h"
 #include "shared/messages/vehicle/vehicle_spawn.h"
 #include "shared/messages/vehicle/vehicle_update.h"
+#include "shared/messages/vehicle/vehicle_owner_update.h"
 
 #include "shared/game_rpc/set_vehicledata.h"
 
@@ -52,6 +53,8 @@ namespace MafiaMP::Core::Modules {
                     metadata.steer           = vehicle->GetSteer();
                     metadata.velocity        = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
                     metadata.angularVelocity = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
+                    metadata.siren           = vehicle->GetSiren();
+                    metadata.beaconLights    = vehicle->AreBeaconLightsOn();
                 }
             });
 
@@ -170,6 +173,25 @@ namespace MafiaMP::Core::Modules {
         vehicle->SetSteer(updateData->steer);
         vehicle->SetSpeed({updateData->velocity.x, updateData->velocity.y, updateData->velocity.z}, false, false);
         vehicle->SetAngularSpeed({updateData->angularVelocity.x, updateData->angularVelocity.y, updateData->angularVelocity.z}, false);
+        vehicle->SetSiren(updateData->siren);
+        vehicle->SetBeaconLightsOn(updateData->beaconLights);
+        if (!strcmp(vehicle->GetSPZText(), updateData->licensePlate)) {
+            vehicle->SetSPZText(updateData->licensePlate, true);
+        }
+    }
+
+    void Vehicle::SelfUpdate(flecs::entity e, MafiaMP::Shared::Modules::VehicleSync::UpdateData &updateData) {
+        const auto trackingData = e.get<Core::Modules::Vehicle::Tracking>();
+        if (!trackingData || !trackingData->car) {
+            return;
+        }
+
+        SDK::C_Vehicle *vehicle = trackingData->car->GetVehicle();
+        vehicle->SetSiren(updateData.siren);
+        vehicle->SetBeaconLightsOn(updateData.beaconLights);
+        if (!strcmp(vehicle->GetSPZText(), updateData.licensePlate)) {
+            vehicle->SetSPZText(updateData.licensePlate, true);
+        }
     }
 
     void Vehicle::Remove(flecs::entity e) {
@@ -213,6 +235,13 @@ namespace MafiaMP::Core::Modules {
             auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
             *updateData     = msg->GetData();
             Update(e);
+        });
+        net->RegisterMessage<Shared::Messages::Vehicle::VehicleOwnerUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_OWNER_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleOwnerUpdate *msg) {
+            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+            SelfUpdate(e, msg->GetData());
         });
 
         InitRPCs(app);
@@ -261,6 +290,16 @@ namespace MafiaMP::Core::Modules {
         flecs::entity carID {};
         _findAllVehicles.each([&carID, carPtr](flecs::entity e, Core::Modules::Vehicle::Tracking &trackingData) {
             if (trackingData.car == carPtr) {
+                const auto sid = e.get<Framework::World::Modules::Base::ServerID>();
+                carID          = flecs::entity(e.world(), sid->id);
+            }
+        });
+        return carID;
+    }
+    flecs::entity Vehicle::GetCarEntityByVehicle(SDK::C_Vehicle* vehiclePtr) {
+        flecs::entity carID {};
+        _findAllVehicles.each([&carID, vehiclePtr](flecs::entity e, Core::Modules::Vehicle::Tracking &trackingData) {
+            if (trackingData.car && trackingData.car->GetVehicle() && trackingData.car->GetVehicle() == vehiclePtr) {
                 const auto sid = e.get<Framework::World::Modules::Base::ServerID>();
                 carID          = flecs::entity(e.world(), sid->id);
             }

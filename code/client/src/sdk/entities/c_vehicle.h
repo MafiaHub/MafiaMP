@@ -97,6 +97,9 @@ namespace SDK {
         void SetDoorFree(int doorIdx, bool arg2, bool arg3);
         void SetGear(int gear);
         void SetBeaconLightsOn(bool on);
+        bool AreBeaconLightsOn() {
+            return false;
+        }
         void SetSearchLightsOn(bool on);
         void SetSpeedLimiter(bool on);
         void SetActive(bool active);

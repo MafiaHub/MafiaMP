@@ -6,6 +6,8 @@
 #include "sdk/entities/c_car.h"
 #include "sdk/c_game.h"
 
+#include "shared/modules/vehicle_sync.hpp"
+
 #include <utils/interpolator.h>
 
 #include "core/application.h"
@@ -28,6 +30,7 @@ namespace MafiaMP::Core::Modules {
         static void Create(flecs::entity e, std::string modelName);
 
         static void Update(flecs::entity e);
+        static void SelfUpdate(flecs::entity e, MafiaMP::Shared::Modules::VehicleSync::UpdateData &);
 
         static void Remove(flecs::entity e);
 
@@ -38,5 +41,6 @@ namespace MafiaMP::Core::Modules {
         static void UpdateTransform(flecs::entity e);
         
         static flecs::entity GetCarEntity(SDK::C_Car *carPtr);
+        static flecs::entity GetCarEntityByVehicle(SDK::C_Vehicle *vehiclePtr);
     };
 } // namespace MafiaMP::Core::Modules
