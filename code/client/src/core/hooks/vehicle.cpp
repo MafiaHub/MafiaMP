@@ -11,21 +11,15 @@
 
 #include "../../sdk/entities/c_actor.h"
 
-class DummyActorOwner {
-  public:
-    char pad0[0xF8];
-    SDK::C_Vehicle *m_pVehicle;
-};
-
-DummyActorOwner* C_ActorAction__GetOwnerAsActor(void *pThis) {
-    return hook::this_call<DummyActorOwner*>(0x000000142341, pThis);
+SDK::C_Actor* C_ActorAction__GetOwnerAsActor(void *pThis) {
+    return hook::this_call<SDK::C_Actor *>(0x0000001423434E0, pThis);
 }
 
 typedef bool(__fastcall *C_CarActionEnter__TestActionInternal_t)(void *, SDK::C_Actor *, bool);
 C_CarActionEnter__TestActionInternal_t C_CarActionEnter__TestActionInternal_original = nullptr;
 bool C_CarActionEnter__TestActionInternal(void* pThis, SDK::C_Actor* actor, bool locationCheck) {
-    const auto dummyActorOwner = C_ActorAction__GetOwnerAsActor(pThis);
-    const auto vehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntityByVehicle(dummyActorOwner->m_pVehicle);
+    const auto actionActor = C_ActorAction__GetOwnerAsActor(pThis);
+    const auto vehicle     = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actionActor));
     if (!vehicle) {
         return true;
     }
@@ -40,7 +34,8 @@ bool C_CarActionEnter__TestActionInternal(void* pThis, SDK::C_Actor* actor, bool
 typedef bool(__fastcall *C_CarActionBreakIn__TestActionInternal_t)(void *, SDK::C_Actor *, bool);
 C_CarActionBreakIn__TestActionInternal_t C_CarActionBreakIn__TestActionInternal_original = nullptr;
 bool C_CarActionBreakIn__TestActionInternal(void *pThis, SDK::C_Actor *actor, bool locationCheck) {
-    const auto vehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actor));
+    const auto actionActor = C_ActorAction__GetOwnerAsActor(pThis);
+    const auto vehicle     = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actionActor));
     if (!vehicle) {
         return true;
     }
@@ -55,7 +50,8 @@ bool C_CarActionBreakIn__TestActionInternal(void *pThis, SDK::C_Actor *actor, bo
 typedef bool(__fastcall *C_CarActionLeave__TestAction_t)(void *, SDK::C_Actor *);
 C_CarActionLeave__TestAction_t C_CarActionLeave__TestAction_original = nullptr;
 bool C_CarActionLeave__TestAction(void *pThis, SDK::C_Actor *actor) {
-    const auto vehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actor));
+    const auto actionActor = C_ActorAction__GetOwnerAsActor(pThis);
+    const auto vehicle     = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actionActor));
     if (!vehicle) {
         return true;
     }
