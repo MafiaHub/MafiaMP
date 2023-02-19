@@ -221,6 +221,9 @@ namespace SDK {
         uint64_t C_HumanWeaponController__DoWeaponReloadShowMagazine = 0x0;
         uint64_t C_HumanWeaponController__DoWeaponReloadInventory = 0x0;
 
+        uint64_t C_Human2__EnableShadows = 0x0;
+        uint64_t C_Human2__EnableHumanClothes = 0x0;
+
         // C_Navigation
         uint64_t C_Navigation__GetInstance           = 0x0;
         uint64_t C_Navigation__SetUserMark           = 0x0;

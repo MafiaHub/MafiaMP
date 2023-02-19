@@ -196,5 +196,8 @@ namespace SDK {
         virtual void SetInCutscene(bool)                                = 0;
         virtual bool ProcessNotificationCamera(short)                   = 0;
         virtual bool IsFollowingPath()                                  = 0;
+
+        void EnableShadows(bool);
+        void EnableHumanClothes();
     };
 } // namespace SDK

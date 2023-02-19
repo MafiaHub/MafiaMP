@@ -46,6 +46,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/entities/c_door.cpp
     src/sdk/entities/c_entity.cpp
     src/sdk/entities/c_entity_list.cpp
+    srC/sdk/entities/c_human2.cpp
     src/sdk/entities/c_player_2.cpp
     src/sdk/entities/c_vehicle.cpp
     src/sdk/inventory/c_inventory_wrapper.cpp

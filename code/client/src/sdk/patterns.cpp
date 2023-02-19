@@ -264,6 +264,10 @@ namespace SDK {
         gPatterns.C_HumanWeaponController__DoWeaponReloadDropMagazine = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 56 57 48 83 EC 60 B8 ? ? ? ?"));
         gPatterns.C_HumanWeaponController__DoWeaponReloadInventory = reinterpret_cast<uint64_t>(hook::get_pattern("33 C0 44 8B C2 48 89 81 ? ? ? ?"));
 
+        // C_Human2
+        gPatterns.C_Human2__EnableHumanClothes = hook::get_opcode_address("E8 ? ? ? ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 8B 7C 24 ? 48 83 C4 40 41 5E C3 CC CC 48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 54");
+        gPatterns.C_Human2__EnableShadows      = hook::get_opcode_address("E8 ? ? ? ? 80 7F 18 09 75 56");
+
         // C_Navigation
         gPatterns.C_Navigation__GetInstance           = hook::get_opcode_address("E8 ? ? ? ? 49 8B 5E 60");
         gPatterns.C_Navigation__SetUserMark           = hook::get_opcode_address("E8 ? ? ? ? 48 83 C4 ? C3 ? ? ? ? ? ? ? 48 89 5C 24 ? 57 48 83 EC ? 41 8B D8");
