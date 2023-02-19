@@ -16,6 +16,7 @@
 
 #include "ui/camera_studio.h"
 #include "ui/entity_browser.h"
+#include "ui/vehicle_debug.h"
 
 namespace MafiaMP::Core {
     class DevFeatures final {
@@ -27,6 +28,9 @@ namespace MafiaMP::Core {
 
         bool _showCameraStudio {false};
         std::shared_ptr<UI::CameraStudio> _cameraStudio {};
+
+        bool _showVehicledebug {false};
+        std::shared_ptr<UI::VehicleDebug> _vehicleDebug {};
 
       public:
         DevFeatures();
@@ -46,5 +50,6 @@ namespace MafiaMP::Core {
 
         void ToggleEntityBrowser();
         void ToggleCameraStudio();
+        void ToggleVehicleDebug();
     };
 } // namespace MafiaMP::Core

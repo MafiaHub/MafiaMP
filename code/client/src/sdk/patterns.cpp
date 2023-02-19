@@ -152,10 +152,10 @@ namespace SDK {
 
 #ifndef NONSTEAM_SUPPORT
         // TODO lol
-        // gPatterns.C_Car__Restore = hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? E9 ? ? ? ?");
+        gPatterns.C_Car__RestoreCar = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4B 10 0F 57 C9");
 #else
         //NOTE: todo
-        gPatterns.C_Car__Restore   = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4B 10 0F 57 C9");
+        gPatterns.C_Car__RestoreCar   = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4B 10 0F 57 C9");
 #endif
 
         // C_Motor

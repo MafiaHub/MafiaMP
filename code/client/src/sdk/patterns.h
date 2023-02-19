@@ -122,7 +122,7 @@ namespace SDK {
         uint64_t C_Car__SetTransparency   = 0x0;
         uint64_t C_Car__SetSpeed          = 0x0;
         uint64_t C_Car__PosefujZimuVShopu = 0x0;
-        uint64_t C_Car__Restore           = 0x0;
+        uint64_t C_Car__RestoreCar           = 0x0;
         uint64_t C_Car__SetSeatStatus     = 0x0;
         uint64_t C_Car__ExplodeCar        = 0x0;
         uint64_t C_Car__ExplodeCar_2      = 0x0;

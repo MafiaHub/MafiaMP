@@ -96,8 +96,8 @@ namespace SDK {
         hook::this_call<void>(gPatterns.C_Car__PosefujZimuVShopu, this, dirt);
     }
 
-    void C_Car::Restore(bool arg1, bool arg2, bool arg3) {
-        hook::this_call<void>(gPatterns.C_Car__Restore, this, arg1, arg2, arg3);
+    void C_Car::RestoreCar(){
+        hook::this_call<void>(gPatterns.C_Car__RestoreCar, this);
     }
 
     int C_Car::GetGear() {

@@ -43,11 +43,17 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::Update() {
-        if (_showEntityBrowser)
+        if (_showEntityBrowser) {
             _entityBrowser->Update();
+        }
 
-        if (_showCameraStudio)
+        if (_showCameraStudio) {
             _cameraStudio->Update();
+        }
+
+        if (_showVehicledebug) {
+            _vehicleDebug->Update();
+        }
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F7)) {
             gApplication->GetImGUI()->ShowCursor(!_showCameraStudio);
@@ -89,6 +95,10 @@ namespace MafiaMP::Core {
 
     void DevFeatures::ToggleCameraStudio() {
         _showCameraStudio = !_showCameraStudio;
+    }
+
+    void DevFeatures::ToggleVehicleDebug() {
+        _showVehicledebug = !_showVehicledebug;
     }
 
     void DevFeatures::SpawnCar(std::string modelName) {
@@ -204,16 +214,6 @@ namespace MafiaMP::Core {
             },
             "spawn a car of a given model");
         gApplication->_commandProcessor->RegisterCommand(
-            "explodeCar", {},
-            [this](const cxxopts::ParseResult &result) {
-                const auto localPlayer = Game::Helpers::Controls::GetLocalPlayer();
-                SDK::C_Car *currentCar = localPlayer ? reinterpret_cast<SDK::C_Car *>(localPlayer->GetOwner()) : nullptr;
-                if (currentCar) {
-                    currentCar->ExplodeCar();
-                }
-            },
-            "Explode the current used car");
-        gApplication->_commandProcessor->RegisterCommand(
             "lua", {{"c,command", "command to execute", cxxopts::value<std::string>()->default_value("")}, {"f,file", "file to execute", cxxopts::value<std::string>()->default_value("")}},
             [this](const cxxopts::ParseResult &result) {
                 std::string command = result["command"].as<std::string>();
@@ -325,6 +325,9 @@ namespace MafiaMP::Core {
                 }
                 if (ImGui::MenuItem("Camera Studio")) {
                     ToggleCameraStudio();
+                }
+                if (ImGui::MenuItem("Vehicle debug")) {
+                    ToggleVehicleDebug();
                 }
                 ImGui::EndMenu();
             }

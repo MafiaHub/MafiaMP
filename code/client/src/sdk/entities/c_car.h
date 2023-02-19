@@ -43,7 +43,7 @@ namespace SDK {
          * PosefujZimuVShopu - same function as SetVehicleDirt
          */
         void PosefujZimuVShopu(float dirt);
-        void Restore(bool arg1, bool arg2, bool arg3);
+        void RestoreCar();
 
         int GetGear();
         float GetDamage() const;
