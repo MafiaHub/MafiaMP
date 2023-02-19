@@ -55,6 +55,9 @@ namespace SDK {
         uint64_t C_GfxEnvironmentEffects_Instance = 0x0;
         uint64_t C_GameGUI2Module_Instance        = 0x0;
 
+        uint64_t C_PlayerTeleportModule__Instance = 0x0;
+        uint64_t C_PlayerTeleportModule__TeleportPlayer = 0x0;
+
         uint64_t C_SceneObject__SetTransformAddr = 0x0;
 
         uint64_t renameme__SpawnObject  = 0x0;
@@ -121,6 +124,8 @@ namespace SDK {
         uint64_t C_Car__PosefujZimuVShopu = 0x0;
         uint64_t C_Car__Restore           = 0x0;
         uint64_t C_Car__SetSeatStatus     = 0x0;
+        uint64_t C_Car__ExplodeCar        = 0x0;
+        uint64_t C_Car__ExplodeCar_2      = 0x0;
 
         // C_Motor
         uint64_t C_Motor__SetFuel = 0x0;

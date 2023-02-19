@@ -204,6 +204,16 @@ namespace MafiaMP::Core {
             },
             "spawn a car of a given model");
         gApplication->_commandProcessor->RegisterCommand(
+            "explodeCar", {},
+            [this](const cxxopts::ParseResult &result) {
+                const auto localPlayer = Game::Helpers::Controls::GetLocalPlayer();
+                SDK::C_Car *currentCar = localPlayer ? reinterpret_cast<SDK::C_Car *>(localPlayer->GetOwner()) : nullptr;
+                if (currentCar) {
+                    currentCar->ExplodeCar();
+                }
+            },
+            "Explode the current used car");
+        gApplication->_commandProcessor->RegisterCommand(
             "lua", {{"c,command", "command to execute", cxxopts::value<std::string>()->default_value("")}, {"f,file", "file to execute", cxxopts::value<std::string>()->default_value("")}},
             [this](const cxxopts::ParseResult &result) {
                 std::string command = result["command"].as<std::string>();

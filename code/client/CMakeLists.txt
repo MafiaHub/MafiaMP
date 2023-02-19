@@ -18,6 +18,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/camera.cpp
     src/core/hooks/character_controller.cpp
     src/core/hooks/fast_load.cpp
+    src/core/hooks/human.cpp
     src/core/hooks/game_director.cpp
     src/core/hooks/loading_screen.cpp
     src/core/hooks/mod_init.cpp
@@ -78,6 +79,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/c_game.cpp
     src/sdk/c_game_input_module.cpp
     src/sdk/c_ie.cpp
+    src/sdk/c_player_teleport_module.cpp
     src/sdk/c_ticked_module_manager.cpp
     src/sdk/c_time_budget_info.cpp
     src/sdk/patterns.cpp

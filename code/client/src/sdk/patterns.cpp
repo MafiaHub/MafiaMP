@@ -63,6 +63,12 @@ namespace SDK {
         uint8_t *C_MafiaFramework_Addr_Bytes = reinterpret_cast<uint8_t *>(C_MafiaFramework_Addr);
         gPatterns.C_MafiaFramework__Instance = reinterpret_cast<uint64_t>(C_MafiaFramework_Addr_Bytes + *(int32_t *)(C_MafiaFramework_Addr_Bytes + 3) + 7);
 
+        uint64_t C_PlayerTeleportModule_Addr       = hook::get_opcode_address("E8 ? ? ? ? 83 78 38 00 74 13") + 0xD;
+        uint8_t *C_PlayerTeleportModule_Addr_Bytes = reinterpret_cast<uint8_t *>(C_PlayerTeleportModule_Addr);
+        gPatterns.C_PlayerTeleportModule__Instance = reinterpret_cast<uint64_t>(C_PlayerTeleportModule_Addr_Bytes + *(int32_t *)(C_PlayerTeleportModule_Addr_Bytes + 3) + 7);
+
+        gPatterns.C_PlayerTeleportModule__TeleportPlayer = reinterpret_cast<uint64_t>(hook::pattern("40 56 48 83 EC 50 83 79 38 00").get_first());
+
         uint64_t C_GfxEnvironmentEffects_Addr      = reinterpret_cast<uint64_t>(hook::pattern("48 8B 05 ? ? ? ? 48 8B 40 28 48 8B 40 28").get_first());
         uint8_t *C_GfxEnvironmentEffects_Bytes     = reinterpret_cast<uint8_t *>(C_GfxEnvironmentEffects_Addr);
         gPatterns.C_GfxEnvironmentEffects_Instance = reinterpret_cast<uint64_t>(C_GfxEnvironmentEffects_Bytes + *(int32_t *)(C_GfxEnvironmentEffects_Bytes + 3) + 7);
@@ -135,6 +141,8 @@ namespace SDK {
         gPatterns.C_Car__SetTransparency = hook::get_opcode_address("E8 ? ? ? ? 4C 39 2D ? ? ? ?");
         gPatterns.C_Car__SetSpeed        = hook::get_opcode_address("E8 ? ? ? ? 48 8B 5C 24 ? 33 C0 48 83 C4 ? 5F C3 ? ? 48 83 EC ? 48 8B C2");
         gPatterns.C_Car__SetSeatStatus   = hook::get_opcode_address("E8 ? ? ? ? 45 85 F6 8B C5");
+        gPatterns.C_Car__ExplodeCar      = hook::get_opcode_address("E8 ? ? ? ? 48 8B 86 ? ? ? ? 45 33 E4 48 2B 86 ? ? ? ?");
+        gPatterns.C_Car__ExplodeCar_2    = reinterpret_cast<uint64_t>(hook::pattern("F3 0F 11 4C 24 ? 4C 8B DC 55").get_first());
 
 #ifndef NONSTEAM_SUPPORT
         gPatterns.C_Car__PosefujZimuVShopu = hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? 4C 8B 41 ?");

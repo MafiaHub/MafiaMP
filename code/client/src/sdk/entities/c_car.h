@@ -50,6 +50,9 @@ namespace SDK {
 
         bool SetSeatStatus(I_Human2 *, unsigned int, S_BaseSeat::E_BaseSeatStatus);
 
+        void ExplodeCar();
+        void ExplodeCar(float, bool);
+
         C_Vehicle *GetVehicle() {
             return reinterpret_cast<C_Vehicle *>((uintptr_t)this + 0xF8);
         }

@@ -107,4 +107,12 @@ namespace SDK {
         }
         return 0;
     }
+
+    void C_Car::ExplodeCar() {
+        hook::this_call(gPatterns.C_Car__ExplodeCar, this);
+    }
+
+    void C_Car::ExplodeCar(float unk1, bool unk2) {
+        hook::this_call(gPatterns.C_Car__ExplodeCar_2, this, unk1, unk2);
+    }
 } // namespace SDK
