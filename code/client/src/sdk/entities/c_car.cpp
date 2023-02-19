@@ -1,5 +1,6 @@
 #include "c_car.h"
 #include "c_vehicle.h"
+#include "c_human_2.h"
 
 #include <utils/hooking/hooking.h>
 #include "../patterns.h"
@@ -69,6 +70,10 @@ namespace SDK {
         if (C_Motor) {
             hook::this_call(gPatterns.C_Motor__SetFuel, C_Motor, fuel);
         }
+    }
+
+    bool C_Car::SetSeatStatus(I_Human2 *human, unsigned int seatID, S_BaseSeat::E_BaseSeatStatus status){
+        return hook::this_call<bool>(gPatterns.C_Car__SetSeatStatus, this, human, seatID, status);
     }
 
     float C_Car::GetActualFuel() const {

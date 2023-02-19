@@ -4,6 +4,14 @@
 
 namespace SDK {
     class C_Vehicle;
+    class I_Human2;
+
+    struct S_BaseSeat {
+        enum E_BaseSeatStatus {
+            EMPTY = 4
+        };
+    };
+
     class C_Car: public C_Actor {
       public:
         void Lock();
@@ -38,6 +46,8 @@ namespace SDK {
 
         int GetGear();
         float GetDamage() const;
+
+        bool SetSeatStatus(I_Human2 *, unsigned int, S_BaseSeat::E_BaseSeatStatus);
 
         C_Vehicle *GetVehicle() {
             return reinterpret_cast<C_Vehicle *>((uintptr_t)this + 0xF8);

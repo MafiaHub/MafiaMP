@@ -134,6 +134,7 @@ namespace SDK {
         gPatterns.C_Car__GetDamage       = hook::get_opcode_address("E8 ? ? ? ? 0F 57 C9 0F 2E C1 75 ? 0F 28 C1");
         gPatterns.C_Car__SetTransparency = hook::get_opcode_address("E8 ? ? ? ? 4C 39 2D ? ? ? ?");
         gPatterns.C_Car__SetSpeed        = hook::get_opcode_address("E8 ? ? ? ? 48 8B 5C 24 ? 33 C0 48 83 C4 ? 5F C3 ? ? 48 83 EC ? 48 8B C2");
+        gPatterns.C_Car__SetSeatStatus   = hook::get_opcode_address("E8 ? ? ? ? 45 85 F6 8B C5");
 
 #ifndef NONSTEAM_SUPPORT
         gPatterns.C_Car__PosefujZimuVShopu = hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? 4C 8B 41 ?");

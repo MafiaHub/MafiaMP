@@ -120,6 +120,7 @@ namespace SDK {
         uint64_t C_Car__SetSpeed          = 0x0;
         uint64_t C_Car__PosefujZimuVShopu = 0x0;
         uint64_t C_Car__Restore           = 0x0;
+        uint64_t C_Car__SetSeatStatus     = 0x0;
 
         // C_Motor
         uint64_t C_Motor__SetFuel = 0x0;

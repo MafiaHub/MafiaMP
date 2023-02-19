@@ -10,7 +10,9 @@
 #include "shared/modules/vehicle_sync.hpp"
 
 #include "../../sdk/entities/c_actor.h"
+#include "../../sdk/entities/c_car.h"
 #include "../../sdk/entities/c_human_2.h"
+#include "../../sdk/entities/c_vehicle.h"
 #include "../../sdk/wrappers/c_human_2_car_wrapper.h"
 
 SDK::C_Actor* C_ActorAction__GetOwnerAsActor(void *pThis) {
@@ -70,7 +72,9 @@ C_Human2CarWrapper__EndDrive_t C_Human2CarWrapper__EndDrive_original = nullptr;
 void C_Human2CarWrapper__EndDrive(SDK::C_Human2CarWrapper *pThis, SDK::C_Actor *pActor, bool unk, bool unk2) {
     const auto seatID = pThis->GetSeatID(pActor);
     if (seatID != 999) {
-        reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableShadows(1);
+        pThis->m_pUsedCar->GetVehicle()->SetBeaconLightsOn(true); // FUNNY FOR DEBUGGING
+        pThis->m_pUsedCar->SetSeatStatus(reinterpret_cast<SDK::I_Human2 *>(pActor), seatID, SDK::S_BaseSeat::E_BaseSeatStatus::EMPTY);
+        reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableShadows(true);
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableHumanClothes();
     }
 }
