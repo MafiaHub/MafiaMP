@@ -67,24 +67,31 @@ bool C_CarActionLeave__TestAction(void *pThis, SDK::C_Actor *actor) {
     return carData->locked == MafiaMP::Shared::Modules::VehicleSync::LockState::Unlocked;
 }
 
+typedef void(__fastcall *C_Human2CarWrapper__StartDrive_t)(SDK::C_Human2CarWrapper *, SDK::C_Actor *, bool);
+C_Human2CarWrapper__StartDrive_t C_Human2CarWrapper__StartDrive_original = nullptr;
+void C_Human2CarWrapper__StartDrive(SDK::C_Human2CarWrapper *pThis, SDK::C_Actor *pActor, bool unk) {
+    const auto seatID = pThis->GetSeatID(pActor);
+    if (seatID != 999) {
+        pThis->m_pUsedCar->SetSeatStatus(reinterpret_cast<SDK::I_Human2 *>(pActor), seatID, SDK::S_BaseSeat::E_BaseSeatStatus::OCCUPIED);
+        reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableShadows(false);
+        reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableHumanClothes();
+    }
+}
 typedef void(__fastcall *C_Human2CarWrapper__EndDrive_t)(SDK::C_Human2CarWrapper *, SDK::C_Actor *, bool, bool);
 C_Human2CarWrapper__EndDrive_t C_Human2CarWrapper__EndDrive_original = nullptr;
 void C_Human2CarWrapper__EndDrive(SDK::C_Human2CarWrapper *pThis, SDK::C_Actor *pActor, bool unk, bool unk2) {
     const auto seatID = pThis->GetSeatID(pActor);
     if (seatID != 999) {
-        pThis->m_pUsedCar->GetVehicle()->SetBeaconLightsOn(true); // FUNNY FOR DEBUGGING
         pThis->m_pUsedCar->SetSeatStatus(reinterpret_cast<SDK::I_Human2 *>(pActor), seatID, SDK::S_BaseSeat::E_BaseSeatStatus::EMPTY);
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableShadows(true);
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableHumanClothes();
     }
 }
 
-static InitFunction init([]() {
-    // These patches are disabled since we want vehicles in debug mode hihi
-    
+static InitFunction init([]() {    
     // Disable automated vehicle enable (engine, siren, beacon lights etc...) when player enter it
-    const auto human2CarWrapperStartDrivePattern = hook::pattern("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 57 48 83 EC 70 45 33 FF").get_first();
-    // hook::return_function(human2CarWrapperStartDrivePattern);
+    const auto C_Human2CarWrapper__StartDrive_Addr = hook::pattern("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 57 48 83 EC 70 45 33 FF").get_first();
+    MH_CreateHook((LPVOID)C_Human2CarWrapper__StartDrive_Addr, (PBYTE)C_Human2CarWrapper__StartDrive, reinterpret_cast<void **>(&C_Human2CarWrapper__StartDrive_original));
 
     // Hook the game EndDrive method so we can avoid it disabling the vehicle (engine, lights etc...)
     const auto C_Human2CarWrapper__EndDrive_Addr = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 08 48 8B 7C 24 ?");

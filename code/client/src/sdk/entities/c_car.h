@@ -8,6 +8,7 @@ namespace SDK {
 
     struct S_BaseSeat {
         enum E_BaseSeatStatus {
+            OCCUPIED = 3,
             EMPTY = 4
         };
     };
