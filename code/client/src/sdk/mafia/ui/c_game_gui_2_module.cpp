@@ -10,8 +10,8 @@ namespace SDK {
             hook::this_call<void>(hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 49 8B 97 ? ? ? ? 4C 8D 05 ? ? ? ?"), this, str, unk);
         }
 
-        int C_GameGUI2Module::SendMessageMovie(char const* title, char const* msg, ue::C_Variant* varArgs, unsigned int unk2) {
-            return hook::this_call<int>(hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 48 8D 5D 58"), this, title, msg, varArgs, unk2);
+        void C_GameGUI2Module::SendMessageMovie(char const* title, char const* msg, ue::C_Variant* varArgs, unsigned int unk2) {
+            hook::this_call(hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 48 8D 5D 58"), this, title, msg, varArgs, unk2);
         }
 
         C_GameGUI2Module *C_GameGUI2Module::GetInstance() {

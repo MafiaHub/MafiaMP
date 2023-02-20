@@ -73,6 +73,10 @@ namespace MafiaMP::Core {
             return _chat;
         }
 
+        std::shared_ptr<LuaVM> GetLuaVM() const {
+            return _luaVM;
+        }
+
         flecs::entity GetLocalPlayer() const {
             return _localPlayer;
         }

@@ -18,7 +18,7 @@ namespace SDK {
 
           public:
             void SendHUDSimpleBooleanMessage(char const *, bool);
-            int SendMessageMovie(char const *, char const *, ue::C_Variant *, unsigned int);
+            void SendMessageMovie(char const *, char const *, ue::C_Variant *, unsigned int);
 
             hud::C_HudController* GetHudController() {
                 return m_pHudController;

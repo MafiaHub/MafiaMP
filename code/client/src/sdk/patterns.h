@@ -58,6 +58,9 @@ namespace SDK {
         uint64_t C_PlayerTeleportModule__Instance = 0x0;
         uint64_t C_PlayerTeleportModule__TeleportPlayer = 0x0;
 
+        uint64_t I_GameDirector__GetInstance = 0x0;
+        uint64_t C_GameDirector__GetDistrict = 0x0;
+
         uint64_t C_SceneObject__SetTransformAddr = 0x0;
 
         uint64_t renameme__SpawnObject  = 0x0;

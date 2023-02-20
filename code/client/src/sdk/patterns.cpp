@@ -58,6 +58,9 @@ namespace SDK {
 
         gPatterns.I_VirtualFileSystemCache__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 41 0F B7 CF");
 
+        gPatterns.I_GameDirector__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 48 8B 57 18 84 DB");
+        gPatterns.C_GameDirector__GetDistrict = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 50 F2 0F 10 02").get_first());
+
         //NOTE: extract address from another function and its instruction
         uint64_t C_MafiaFramework_Addr       = hook::get_opcode_address("E8 ? ? ? ? E8 ? ? ? ? 48 8B C8 48 8B 10 FF 92 ? ? ? ? 33 D2 48 8B C8") + 0xD;
         uint8_t *C_MafiaFramework_Addr_Bytes = reinterpret_cast<uint8_t *>(C_MafiaFramework_Addr);

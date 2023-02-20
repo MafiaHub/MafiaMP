@@ -35,6 +35,7 @@ set(MAFIAMP_CLIENT_FILES
     src/game/helpers/game_input.cpp
     src/game/helpers/camera.cpp
     src/game/helpers/human.cpp
+    src/game/helpers/ui.cpp
     src/game/overrides/character_controller.cpp
     ${CMAKE_BINARY_DIR}/mafiamp_version.cpp
 )
@@ -52,6 +53,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/entities/c_player_2.cpp
     src/sdk/entities/c_vehicle.cpp
     src/sdk/inventory/c_inventory_wrapper.cpp
+    src/sdk/mafia/framework/c_game_director.cpp
     src/sdk/mafia/framework/c_mafia_framework.cpp
     src/sdk/mafia/streaming/c_actors_slot_wrapper.cpp
     src/sdk/mafia/streaming/c_slot_wrapper.cpp
