@@ -4,26 +4,55 @@
 
 #include "../../core/application.h"
 
+// These shit takes variadic arguments that we haven't reversed yet so w're forced to call it through lua
 namespace MafiaMP::Game::Helpers::UI {
-    const char *GetMessageZoneStr(MessageZone z) {
-        switch (z) {
-        case HUD: return "HUD";
-        default: return "UNKNOWN";
-        }
+    void DisplayBannerMessage(char const *title, char const *content) {
+        const auto command = fmt::format("game.hud:SendMessageMovie(\"HUD\", \"OnShowFreerideBanner\", \"{}\", \"{}\")", title, content);
+        Core::gApplication->GetLuaVM()->ExecuteString(command.c_str());
     }
 
-    const char *GetMessageTypeStr(MessageType t) {
-        switch (t) {
-        case FREERIDE_BANNER: return "OnShowFreerideBanner";
-        default: return "UNKNOWN";
-        }
+    void DisplayGenericMessage(char const *title, char const *content) {
+        const auto command = fmt::format("game.hud:SendMessageMovie(\"HUD\", \"OnShowGenericMessage\", \"{}\", \"{}\")", title, content);
+        Core::gApplication->GetLuaVM()->ExecuteString(command.c_str());
     }
 
-    // This shit takes variadic arguments that we haven't reversed yet so w're forced to call it through lua
-    void SendMessageMovie(MessageZone zone, MessageType type, char const *title, char const *content) {
-        const auto zoneStr = GetMessageZoneStr(zone);
-        const auto typeStr = GetMessageTypeStr(type);
-        const auto command = fmt::format("game.hud:SendMessageMovie(\"{}\", \"{}\", \"{}\", \"{}\")", zoneStr, typeStr, title, content);
+    void DisplayTitleCard(char const *title, char const *content) {
+        const auto command = fmt::format("game.hud:ShowTitleCard(\"{}\", \"{}\", true)", title, content);
+        Core::gApplication->GetLuaVM()->ExecuteString(command.c_str());
+    }
+
+    void DisplayNote(char const* title, char const* content) {
+        const auto command = fmt::format("game.hud:SendMessageMovie(\"HUD\", \"OnShowNote\", true, \"{}\", \"{}\")", title, content);
+        Core::gApplication->GetLuaVM()->ExecuteString(command.c_str());
+    }
+
+    void HideTitleCard() {
+        const auto command = fmt::format("game.hud:HideTitleCard()");
+        Core::gApplication->GetLuaVM()->ExecuteString(command.c_str());
+    }
+
+    void ToggleLoadSpinner(bool toggle) {
+        const auto command = fmt::format("game.hud:ToggleSaveLoadSpinner({})", toggle);
+        Core::gApplication->GetLuaVM()->ExecuteString(command.c_str());
+    }
+
+    void ShowNotification(char const *title, char const *content, int color) {
+        const auto command = fmt::format("game.hud:SendMessageMovie(\"HUD\", \"OnShowFreerideNotification\", \"{}\", \"{}\", \"{}\")", title, content, color);
+        Core::gApplication->GetLuaVM()->ExecuteString(command.c_str());
+    }
+
+    void HideNotification() {
+        const auto command = fmt::format("game.hud:SendMessageMovie(\"HUD\", \"OnHideFreerideNotification\")");
+        Core::gApplication->GetLuaVM()->ExecuteString(command.c_str());
+    }
+
+    void DisplayMissionExit(char const *title, char const *content, int time) {
+        const auto command = fmt::format("game.hud:ShowMissionExit(\"{}\", \"{}\", {})", title, content, time);
+        Core::gApplication->GetLuaVM()->ExecuteString(command.c_str());
+    }
+
+    void StartCountdown(int time) {
+        const auto command = fmt::format("game.hud:StartCountDown({})", time);
         Core::gApplication->GetLuaVM()->ExecuteString(command.c_str());
     }
 }

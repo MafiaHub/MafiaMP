@@ -4,10 +4,19 @@
 
 namespace MafiaMP::Game::Helpers { 
     namespace UI{
-        enum MessageZone : uint8_t { HUD };
+        void DisplayBannerMessage(char const *, char const *);
+        void DisplayGenericMessage(char const *, char const *);
+        void DisplayTitleCard(char const *, char const *);
+        void DisplayMissionExit(char const *, char const *, int);
+        void DisplayNote(char const *, char const *);
 
-        enum MessageType : uint8_t { FREERIDE_BANNER };
+        void HideTitleCard();
+        void HideNotification();
 
-        void SendMessageMovie(MessageZone, MessageType, char const *, char const *);
+        void ToggleLoadSpinner(bool);
+
+        void ShowNotification(char const *, char const *, int);
+
+        void StartCountdown(int);
     };
 } // namespace MafiaMP::Game::Helpers
