@@ -32,6 +32,7 @@ namespace MafiaMP::Core {
         flecs::entity _localPlayer;
         DevFeatures _devFeatures;
         float _tickInterval = 0.01667f;
+        int _controlsLocked = 0;
 
       public:
         bool PostInit() override;

@@ -248,7 +248,10 @@ namespace MafiaMP::Core {
     }
 
     void Application::LockControls(bool lock) {
-        if (lock) {
+        if (lock) _controlsLocked++;
+        else _controlsLocked = std::max(--_controlsLocked, 0);
+
+        if (_controlsLocked) {
             // Lock game controls
             Game::Helpers::Controls::Lock(true);
 
