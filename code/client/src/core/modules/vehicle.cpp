@@ -290,8 +290,7 @@ namespace MafiaMP::Core::Modules {
         flecs::entity carID {};
         _findAllVehicles.each([&carID, carPtr](flecs::entity e, Core::Modules::Vehicle::Tracking &trackingData) {
             if (trackingData.car == carPtr) {
-                const auto sid = e.get<Framework::World::Modules::Base::ServerID>();
-                carID          = flecs::entity(e.world(), sid->id);
+                carID = e;
             }
         });
         return carID;
@@ -300,8 +299,7 @@ namespace MafiaMP::Core::Modules {
         flecs::entity carID {};
         _findAllVehicles.each([&carID, vehiclePtr](flecs::entity e, Core::Modules::Vehicle::Tracking &trackingData) {
             if (trackingData.car && trackingData.car->GetVehicle() && trackingData.car->GetVehicle() == vehiclePtr) {
-                const auto sid = e.get<Framework::World::Modules::Base::ServerID>();
-                carID          = flecs::entity(e.world(), sid->id);
+                carID = e;
             }
         });
         return carID;

@@ -98,11 +98,11 @@ static InitFunction init([]() {
     MH_CreateHook((LPVOID)C_Human2CarWrapper__EndDrive_Addr, (PBYTE)C_Human2CarWrapper__EndDrive, reinterpret_cast<void **>(&C_Human2CarWrapper__EndDrive_original));
 
     const auto C_CarActionEnter__TestActionInternal_Addr = hook::pattern("40 53 55 57 41 54 41 55 48 83 EC 40 41 0F B6 F8").get_first();
-    // MH_CreateHook((LPVOID)C_CarActionEnter__TestActionInternal_Addr, (PBYTE)C_CarActionEnter__TestActionInternal, reinterpret_cast<void **>(&C_CarActionEnter__TestActionInternal_original));
+    MH_CreateHook((LPVOID)C_CarActionEnter__TestActionInternal_Addr, (PBYTE)C_CarActionEnter__TestActionInternal, reinterpret_cast<void **>(&C_CarActionEnter__TestActionInternal_original));
 
     const auto C_CarActionBreakIn__TestActionBreakIn_Addr = hook::pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC 30 45 0F B6 F8").get_first();
-    // MH_CreateHook((LPVOID)C_CarActionBreakIn__TestActionBreakIn_Addr, (PBYTE)C_CarActionBreakIn__TestActionInternal, reinterpret_cast<void **>(&C_CarActionBreakIn__TestActionInternal_original));
+    MH_CreateHook((LPVOID)C_CarActionBreakIn__TestActionBreakIn_Addr, (PBYTE)C_CarActionBreakIn__TestActionInternal, reinterpret_cast<void **>(&C_CarActionBreakIn__TestActionInternal_original));
 
     const auto C_CarActionLeave__TestAction_Addr = hook::pattern("40 53 48 83 EC 20 48 8B DA E8 ? ? ? ? 48 8B C8 4C 8B 00 41 FF 90 ? ? ? ? 48 3B D8 75 29 E8 ? ? ? ? 48 8B C8 48 8B 10 FF 92 ? ? ? ? 48 8B C8 BA ? ? ? ? E8 ? ? ? ? 84 C0 0F 94 C0 48 83 C4 20 5B C3 B0 01 48 83 C4 20 5B C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC 41 B0 01 E9 ? ? ? ? CC CC CC CC CC CC CC CC 48 89 5C 24 ? 48 89 6C 24 ?").get_first();
-    //MH_CreateHook((LPVOID)C_CarActionLeave__TestAction_Addr, (PBYTE)C_CarActionLeave__TestAction, reinterpret_cast<void **>(&C_CarActionLeave__TestAction_original));
+    MH_CreateHook((LPVOID)C_CarActionLeave__TestAction_Addr, (PBYTE)C_CarActionLeave__TestAction, reinterpret_cast<void **>(&C_CarActionLeave__TestAction_original));
 });
