@@ -79,6 +79,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/wrappers/c_human_2_car_wrapper.cpp
     src/sdk/c_game.cpp
     src/sdk/c_game_input_module.cpp
+    src/sdk/c_game_traffic_module.cpp
     src/sdk/c_ie.cpp
     src/sdk/c_player_teleport_module.cpp
     src/sdk/c_ticked_module_manager.cpp

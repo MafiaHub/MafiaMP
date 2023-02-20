@@ -294,6 +294,9 @@ namespace SDK {
         // C_GameFramework
         gPatterns.C_GameFramework__IsSuspendedAddr = reinterpret_cast<uint64_t>(hook::pattern("80 39 ? 74 ? 80 79 ? ?").get_first());
 
+        // C_GameTrafficModule
+        gPatterns.C_GameTrafficModule__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 80 7E 07 00");
+
         // Lua
         gPatterns.Lua__pcallAddr      = hook::get_opcode_address("E8 ? ? ? ? 85 FF 78 2B");
         gPatterns.Lua__loadbufferAddr = hook::get_opcode_address("E8 ? ? ? ? 85 C0 74 2F 48 8B 47 48");
