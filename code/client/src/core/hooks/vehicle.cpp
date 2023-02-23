@@ -67,6 +67,20 @@ bool C_CarActionLeave__TestAction(void *pThis, SDK::C_Actor *actor) {
     return carData->locked == MafiaMP::Shared::Modules::VehicleSync::LockState::Unlocked;
 }
 
+bool C_CarActionOpenCloseX__TestAction(void* pThis, SDK::C_Actor* actor) {
+    const auto actionActor = C_ActorAction__GetOwnerAsActor(pThis);
+    const auto vehicle     = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actionActor));
+    if (!vehicle) {
+        return true;
+    }
+
+    const auto carData = vehicle.get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
+    if (!carData) {
+        return true;
+    }
+    return carData->locked == MafiaMP::Shared::Modules::VehicleSync::LockState::Unlocked;
+}
+
 typedef void(__fastcall *C_Human2CarWrapper__StartDrive_t)(SDK::C_Human2CarWrapper *, SDK::C_Actor *, bool);
 C_Human2CarWrapper__StartDrive_t C_Human2CarWrapper__StartDrive_original = nullptr;
 void C_Human2CarWrapper__StartDrive(SDK::C_Human2CarWrapper *pThis, SDK::C_Actor *pActor, bool unk) {
@@ -85,6 +99,9 @@ void C_Human2CarWrapper__EndDrive(SDK::C_Human2CarWrapper *pThis, SDK::C_Actor *
         pThis->m_pUsedCar->SetSeatStatus(reinterpret_cast<SDK::I_Human2 *>(pActor), seatID, SDK::S_BaseSeat::E_BaseSeatStatus::EMPTY);
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableShadows(true);
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableHumanClothes();
+    }
+    if (pThis->m_pUsedCar != nullptr) {
+        pThis->m_pUsedCar->GetVehicle()->SetHandbrake(1.0, true);
     }
 }
 
