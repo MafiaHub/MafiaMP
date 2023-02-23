@@ -9,7 +9,11 @@
 #include "shared/messages/vehicle/vehicle_owner_update.h"
 #include "shared/modules/vehicle_sync.hpp"
 
+#include <utils/safe_string.h>
+
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h> 
 #include <flecs/flecs.h>
 
 namespace MafiaMP::Core::Modules {
@@ -81,7 +85,7 @@ namespace MafiaMP::Core::Modules {
 
             // replace sync fields with server-managed data
             trackingMetadata->locked = carData->locked;
-            strcpy_s(trackingMetadata->licensePlate, sizeof(trackingMetadata->licensePlate), carData->licensePlate.c_str());
+            Framework::Utils::fw_strlcpy(trackingMetadata->licensePlate, carData->licensePlate.c_str(), sizeof(trackingMetadata->licensePlate));
 
             Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
             vehicleUpdate.SetServerID(e.id());
@@ -95,7 +99,7 @@ namespace MafiaMP::Core::Modules {
 
             // replace sync fields with server-managed data
             trackingMetadata->locked = carData->locked;
-            strcpy_s(trackingMetadata->licensePlate, sizeof(trackingMetadata->licensePlate), carData->licensePlate.c_str());
+            Framework::Utils::fw_strlcpy(trackingMetadata->licensePlate, carData->licensePlate.c_str(), sizeof(trackingMetadata->licensePlate));
 
             Shared::Messages::Vehicle::VehicleOwnerUpdate vehicleUpdate {};
             vehicleUpdate.SetServerID(e.id());
