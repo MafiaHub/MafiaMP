@@ -5,6 +5,8 @@
 
 #include "hud/c_hud_controller.h"
 
+#include "support/c_fader.h"
+
 #include "../../ue/c_variant.h"
 
 #include <cstdint>
@@ -15,6 +17,8 @@ namespace SDK {
           public:
             char pad0[0x218];                               // 0000 - 0218
             hud::C_HudController *m_pHudController;         // 0218 - 0220
+            char pad1[0x1E0];                               // 0220 - 0400
+            support::C_Fader *m_pFader;                     // 0400 - 0408
 
           public:
             void SendHUDSimpleBooleanMessage(char const *, bool);
@@ -22,6 +26,10 @@ namespace SDK {
 
             hud::C_HudController* GetHudController() {
                 return m_pHudController;
+            }
+
+            support::C_Fader* GetFader() {
+                return m_pFader;
             }
 
             mafia::ui::menu::C_MenuBase *GetMenuBase() {

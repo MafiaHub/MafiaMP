@@ -300,6 +300,10 @@ namespace SDK {
         // C_GameTrafficModule
         gPatterns.C_GameTrafficModule__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 80 7E 07 00");
 
+        // C_Fader
+        gPatterns.C_Fader__FadeIn = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4D 67 48 8B 9C 24 ? ? ? ?");
+        gPatterns.C_Fader__FadeOut = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4C 24 ? 0F 28 74 24 ? 48 85 C9 74 1E");
+
         // Lua
         gPatterns.Lua__pcallAddr      = hook::get_opcode_address("E8 ? ? ? ? 85 FF 78 2B");
         gPatterns.Lua__loadbufferAddr = hook::get_opcode_address("E8 ? ? ? ? 85 C0 74 2F 48 8B 47 48");

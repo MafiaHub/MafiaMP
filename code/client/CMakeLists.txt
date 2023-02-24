@@ -60,6 +60,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/mafia/streaming/c_streaming_module.cpp
     src/sdk/mafia/ui/menu/c_save_menu.cpp
     src/sdk/mafia/ui/navigation/c_navigation.cpp
+    src/sdk/mafia/ui/support/c_fader.cpp
     src/sdk/mafia/ui/c_game_gui_2_module.cpp
     src/sdk/ue/game/anim/c_wanim_playback_manager.cpp
     src/sdk/ue/game/camera/c_camera.cpp
