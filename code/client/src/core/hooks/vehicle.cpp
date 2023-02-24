@@ -67,6 +67,22 @@ bool C_CarActionLeave__TestAction(void *pThis, SDK::C_Actor *actor) {
     return carData->locked == MafiaMP::Shared::Modules::VehicleSync::LockState::Unlocked;
 }
 
+typedef bool(__fastcall *C_CarActionBailOut__TestAction_t)(void *, SDK::C_Actor *);
+C_CarActionBailOut__TestAction_t C_CarActionBailOut__TestAction_original = nullptr;
+bool C_CarActionBailOut__TestAction(void* pThis, SDK::C_Actor* pActor) {
+    const auto actionActor = C_ActorAction__GetOwnerAsActor(pThis);
+    const auto vehicle     = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actionActor));
+    if (!vehicle) {
+        return true;
+    }
+
+    const auto carData = vehicle.get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
+    if (!carData) {
+        return true;
+    }
+    return carData->locked == MafiaMP::Shared::Modules::VehicleSync::LockState::Unlocked;
+}
+
 bool C_CarActionOpenCloseX__TestAction(void* pThis, SDK::C_Actor* actor) {
     const auto actionActor = C_ActorAction__GetOwnerAsActor(pThis);
     const auto vehicle     = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actionActor));
@@ -122,4 +138,7 @@ static InitFunction init([]() {
 
     const auto C_CarActionLeave__TestAction_Addr = hook::pattern("40 53 48 83 EC 20 48 8B DA E8 ? ? ? ? 48 8B C8 4C 8B 00 41 FF 90 ? ? ? ? 48 3B D8 75 29 E8 ? ? ? ? 48 8B C8 48 8B 10 FF 92 ? ? ? ? 48 8B C8 BA ? ? ? ? E8 ? ? ? ? 84 C0 0F 94 C0 48 83 C4 20 5B C3 B0 01 48 83 C4 20 5B C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC 41 B0 01 E9 ? ? ? ? CC CC CC CC CC CC CC CC 48 89 5C 24 ? 48 89 6C 24 ?").get_first();
     MH_CreateHook((LPVOID)C_CarActionLeave__TestAction_Addr, (PBYTE)C_CarActionLeave__TestAction, reinterpret_cast<void **>(&C_CarActionLeave__TestAction_original));
+
+    const auto C_CarActionBailOut__TestAction_Addr = hook::pattern("40 53 48 83 EC 20 48 8B DA E8 ? ? ? ? 48 8B C8 4C 8B 00 41 FF 90 ? ? ? ? 48 3B D8 75 2A").get_first();
+    MH_CreateHook((LPVOID)C_CarActionBailOut__TestAction_Addr, (PBYTE)C_CarActionBailOut__TestAction, reinterpret_cast<void **>(&C_CarActionBailOut__TestAction_original));
 });
