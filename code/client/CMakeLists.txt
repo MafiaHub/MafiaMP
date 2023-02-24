@@ -69,6 +69,9 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/game/humainai/c_character_controller.cpp
     src/sdk/ue/game/humainai/c_character_state_handler.cpp
     src/sdk/ue/game/human/c_behavior_character.cpp
+    src/sdk/ue/game/shotmanager/c_explosion.cpp
+    src/sdk/ue/game/shotmanager/c_fire.cpp
+    src/sdk/ue/game/shotmanager/c_shot_manager.cpp
     src/sdk/ue/game/traffic/c_human_spawner.cpp
     src/sdk/ue/game/traffic/c_profile_spawner.cpp
     src/sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.cpp

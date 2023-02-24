@@ -305,6 +305,17 @@ namespace SDK {
         gPatterns.C_Fader__FadeOut = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4C 24 ? 0F 28 74 24 ? 48 85 C9 74 1E");
         gPatterns.C_Fader__Reset   = reinterpret_cast<uint64_t>(hook::pattern("48 83 EC 38 80 B9 ? ? ? ? ? 74 34").get_first());
 
+        // C_ShotManager
+        gPatterns.C_ShotManager__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 49 8B 4D 18 48 8B F8");
+        gPatterns.C_ShotManager__CreateExplosion = hook::get_opcode_address("E9 ? ? ? ? 0F 8E 25 0A 50 01");
+        gPatterns.C_ShotManager__CreateFire      = hook::get_opcode_address("E8 ? ? ? ? 48 8D 4D 88 89 87 ? ? ? ?");
+
+        // C_Fire
+        gPatterns.C_Fire__Clear = hook::get_opcode_address("E8 ? ? ? ? 66 03 DD 75 E7");
+
+        // C_Explosion
+        gPatterns.C_Explosion__Clear = hook::get_opcode_address("E8 ? ? ? ? 66 03 DD 75 E5");
+
         // Lua
         gPatterns.Lua__pcallAddr      = hook::get_opcode_address("E8 ? ? ? ? 85 FF 78 2B");
         gPatterns.Lua__loadbufferAddr = hook::get_opcode_address("E8 ? ? ? ? 85 C0 74 2F 48 8B 47 48");

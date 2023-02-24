@@ -258,6 +258,17 @@ namespace SDK {
         uint64_t C_Fader__FadeOut = 0x0;
         uint64_t C_Fader__Reset   = 0x0;
 
+        // C_ShotManager
+        uint64_t C_ShotManager__GetInstance = 0x0;
+        uint64_t C_ShotManager__CreateExplosion = 0x0;
+        uint64_t C_ShotManager__CreateFire      = 0x0;
+
+        // C_Fire
+        uint64_t C_Fire__Clear = 0x0;
+
+        // C_Explosion
+        uint64_t C_Explosion__Clear = 0x0;
+
         // Lua
         uint64_t Lua__pcallAddr      = 0x0;
         uint64_t Lua__loadbufferAddr = 0x0;

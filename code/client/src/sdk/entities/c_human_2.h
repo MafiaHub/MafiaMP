@@ -62,8 +62,8 @@ namespace SDK {
         char pad10[0x34];                                                       // 0350 - 0384
         float m_fTransparency;                                                  // 0384 - 0388
         char pad11[0x10];                                                       // 0388 - 0398
-        void *m_pLastGroundEntity;                                              // 0398 - 03A0
-        void *m_pInteractedEntity;                                              // 03A0 - 03A8
+        C_Entity *m_pLastGroundEntity;                                          // 0398 - 03A0
+        C_Entity *m_pInteractedEntity;                                          // 03A0 - 03A8
         char pad12[0xD0];                                                       // 03A8 - 0478
         ue::game::humanai::C_CharacterController *m_pCharacterController;       // 0478 - 0480
         char pad13[0x18];                                                       // 0480 - 0498
