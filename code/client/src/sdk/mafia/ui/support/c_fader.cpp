@@ -10,6 +10,10 @@ namespace SDK {
     }
 
     void mafia::ui::support::C_Fader::FadeOut(float unk1, char const *unk2, bool unk3) {
-        hook::this_call(gPatterns.C_Fader__FadeOut, unk1, unk2, unk3);
+        hook::this_call(gPatterns.C_Fader__FadeOut, this, unk1, unk2, unk3);
+    }
+
+    void mafia::ui::support::C_Fader::Reset() {
+        hook::this_call(gPatterns.C_Fader__Reset, this);
     }
 }

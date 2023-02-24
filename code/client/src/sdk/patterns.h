@@ -256,6 +256,7 @@ namespace SDK {
         // C_Fader
         uint64_t C_Fader__FadeIn = 0x0;
         uint64_t C_Fader__FadeOut = 0x0;
+        uint64_t C_Fader__Reset   = 0x0;
 
         // Lua
         uint64_t Lua__pcallAddr      = 0x0;
