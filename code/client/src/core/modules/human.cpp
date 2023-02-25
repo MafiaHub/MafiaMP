@@ -11,6 +11,7 @@
 #include "sdk/entities/human/c_human_script.h"
 #include "sdk/entities/human/c_human_weapon_controller.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
+#include "sdk/c_player_teleport_module.h"
 
 #include "game/helpers/controls.h"
 #include "game/helpers/human.h"
@@ -253,8 +254,8 @@ namespace MafiaMP::Core::Modules {
 
         // Update basic data
         const auto tr = e.get<Framework::World::Modules::Base::Transform>();
-        auto interp   = e.get_mut<Interpolated>();
-        if (interp) {
+        if (e.get<Interpolated>()) {
+            auto interp   = e.get_mut<Interpolated>();
             const auto humanPos = trackingData->human->GetPos();
             const auto humanRot = trackingData->human->GetRot();
             interp->interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
@@ -457,15 +458,15 @@ namespace MafiaMP::Core::Modules {
 
         // Update basic data
         const auto tr = e.get<Framework::World::Modules::Base::Transform>();
-        auto interp   = e.get_mut<Interpolated>();
-        if (interp) {
+        if (e.get<Interpolated>()) {
+            auto interp   = e.get_mut<Interpolated>();
             // todo reset lerp
             const auto humanPos = trackingData->human->GetPos();
             const auto humanRot = trackingData->human->GetRot();
             interp->interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
             interp->interpolator.GetRotation()->SetTargetValue({humanRot.w, humanRot.x, humanRot.y, humanRot.z}, tr->rot, MafiaMP::Core::gApplication->GetTickInterval());
         }
-        else {
+        else if (gApplication->GetLocalPlayer() != e.id()) {
             SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
             SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
             SDK::ue::sys::math::C_Matrix transform = {};
@@ -473,6 +474,18 @@ namespace MafiaMP::Core::Modules {
             transform.SetRot(newRot);
             transform.SetPos(newPos);
             trackingData->human->SetTransform(transform);
+        } else {
+            SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
+            SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
+            SDK::ue::sys::math::C_Matrix transform = {};
+            transform.Identity();
+            transform.SetRot(newRot);
+            transform.SetPos(newPos);
+            trackingData->human->SetTransform(transform);
+            // Create a dummy sync object
+            uint64_t syncObject;
+
+            //SDK::C_PlayerTeleportModule::GetInstance()->TeleportPlayer(&syncObject, newPos, {}, false, true, false);
         }
     }
 } // namespace MafiaMP::Core::Modules

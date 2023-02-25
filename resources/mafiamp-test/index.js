@@ -302,6 +302,7 @@ sdk.on("resourceLoaded", (name) => {
 
 sdk.on("playerConnected", (player) => {
   player.addWeapon(20, 200);
+  player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
   console.log(`Player ${player.getNickname()} connected!`);
 });
 
@@ -310,7 +311,7 @@ sdk.on("playerDied", (player) => {
 
     // Respawn the player
     player.setHealth(100.0);
-    player.setPosition(sdk.Vector3(-934.0, -228.859, 5.004));
+    player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
 });
 
 sdk.on("chatMessage", (player, message) => {
@@ -321,6 +322,9 @@ sdk.on("chatMessage", (player, message) => {
 sdk.on("chatCommand", (player, message, command, args) => {
     console.log(`Player ${player.getNickname()} used: ${command}`);
 
+    if (command === "home") {
+        player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
+    }
     if (command === "foo") {
         sdk.broadcastMessage(`Player ${player.getNickname()} used /foo!`);
     } else if (command === "showArgs") {
