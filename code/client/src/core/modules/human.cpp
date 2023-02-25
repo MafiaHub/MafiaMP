@@ -20,6 +20,7 @@
 #include "shared/game_rpc/human/human_shoot.h"
 #include "shared/game_rpc/human/human_reload.h"
 #include "shared/game_rpc/human/human_changeskin.h"
+#include "shared/game_rpc/human/human_setprops.h"
 
 #include "vehicle.h"
 #include <world/modules/base.hpp>
@@ -423,6 +424,27 @@ namespace MafiaMP::Core::Modules {
                 Game::Helpers::Controls::PlayerChangeSpawnProfile(msg->GetSpawnProfile());
             } else {
                 // todo remote ped
+            }
+        });
+
+        net->RegisterGameRPC<Shared::RPC::HumanSetProps>([app](SLNet::RakNetGUID guid, Shared::RPC::HumanSetProps *msg) {
+            if (!msg->Valid())
+                return;
+
+            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            if (!trackingData && trackingData->human) {
+                return;
+            }
+
+            const auto setHealth = msg->GetHealth();
+
+            if (setHealth.HasValue()) {
+                Game::Helpers::Human::SetHealthPercent(trackingData->human, setHealth());
             }
         });
     }

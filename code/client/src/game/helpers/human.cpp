@@ -14,6 +14,11 @@ namespace MafiaMP::Game::Helpers {
         return (uint8_t)glm::clamp(fHealth / fHealthMax, 0.0f, 100.0f);
     }
 
+    void Human::SetHealthPercent(SDK::C_Human2 *human, float health){
+        float fHealthMax = human->GetHumanScript()->GetHealthMax();
+        return human->GetHumanScript()->SetHealth(glm::clamp(health * fHealthMax, 0.0f, fHealthMax));
+    }
+
     bool Human::PutIntoCar(MafiaMP::Game::Overrides::CharacterController *charController, SDK::C_Car *car, int seat, bool force) {
         if (!car) return false;
         SDK::C_Actor *act = *(SDK::C_Actor **)((uintptr_t)car + 0xA8);

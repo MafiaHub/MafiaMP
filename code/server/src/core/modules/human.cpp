@@ -9,8 +9,11 @@
 #include "shared/modules/human_sync.hpp"
 #include "vehicle.h"
 
+#include "core/builtins/player.h"
+
 #include "shared/game_rpc/human/human_shoot.h"
 #include "shared/game_rpc/human/human_reload.h"
+#include "shared/game_rpc/human/human_death.h"
 
 #include <flecs/flecs.h>
 
@@ -126,6 +129,15 @@ namespace MafiaMP::Core::Modules {
             }
 
             FW_SEND_SERVER_COMPONENT_GAME_RPC_EXCEPT(Shared::RPC::HumanReload, e, guid, msg->GetUnk0());
+        });
+
+        net->RegisterGameRPC<Shared::RPC::HumanDeath>([srv, net](SLNet::RakNetGUID guid, Shared::RPC::HumanDeath *msg) {
+            const auto e = srv->GetEntityByGUID(guid.g);
+            if (!e.is_alive()) {
+                return;
+            }
+
+            Scripting::Human::EventPlayerDied(e);
         });
     }
 } // namespace MafiaMP::Core::Modules

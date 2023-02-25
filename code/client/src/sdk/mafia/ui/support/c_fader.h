@@ -3,6 +3,7 @@
 namespace SDK {
     namespace mafia::ui::support {
         class C_Fader {
+          public:
             void FadeIn(float, char const *, bool);
             void FadeOut(float, char const *, bool);
             void Reset();

@@ -305,6 +305,14 @@ sdk.on("playerConnected", (player) => {
   console.log(`Player ${player.getNickname()} connected!`);
 });
 
+sdk.on("playerDied", (player) => {
+    console.log(`Player ${player.getNickname()} died!`);
+
+    // Respawn the player
+    player.setHealth(100.0);
+    player.setPosition(sdk.Vector3(-934.0, -228.859, 5.004));
+});
+
 sdk.on("chatMessage", (player, message) => {
     console.log(`Player ${player.getNickname()} said: ${message}`);
     sdk.broadcastMessage(`<${player.getNickname()}>: ${message}`);
