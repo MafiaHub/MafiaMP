@@ -1,11 +1,13 @@
 #pragma once
 
+#include "../../../ue/c_cnt_ptr.h"
+
 namespace SDK {
     namespace mafia::ui::support {
         class C_Fader {
           public:
-            void FadeIn(float, char const *, bool);
-            void FadeOut(float, char const *, bool);
+            void FadeIn(ue::C_CntPtr<uintptr_t> &, float, char const *, bool);
+            void FadeOut(ue::C_CntPtr<uintptr_t> &, float, char const *, bool);
             void Reset();
         };
     }; // namespace mafia::ui::support

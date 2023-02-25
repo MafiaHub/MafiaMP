@@ -18,12 +18,16 @@
 
 #include <logging/logger.h>
 #include "sdk/mafia/ui/c_game_gui_2_module.h"
+
 typedef void(__fastcall *C_Human2__SetupDeath_t)(SDK::C_Human2 *_this, void*);
 C_Human2__SetupDeath_t C_Human2__SetupDeath_original = nullptr;
 void __fastcall C_Human2__SetupDeath(SDK::C_Human2 *pThis, void *entityMsgDamage) {
     // Is the local player ?
     if (pThis == MafiaMP::Game::Helpers::Controls::GetLocalPlayer()) {
         Framework::Logging::GetLogger("Hooks")->debug("LocalPlayer just died");
+
+        SDK::ue::C_CntPtr<uintptr_t> syncObject;
+        SDK::mafia::ui::GetGameGui2Module()->GetFader()->FadeIn(syncObject, 0.5, "DeathScreen", true);
 
         // If the local player is in a car, we just get him out first
         SDK::C_Car *currentCar = pThis ? (SDK::C_Car *)pThis->GetOwner() : nullptr;
