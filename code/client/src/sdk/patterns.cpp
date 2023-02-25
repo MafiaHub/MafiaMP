@@ -307,7 +307,7 @@ namespace SDK {
 
         // C_ShotManager
         gPatterns.C_ShotManager__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 49 8B 4D 18 48 8B F8");
-        // gPatterns.C_Shot Manager__CreateExplosion = hook::get_opcode_address("E9 ? ? ? ? 0F 8E 25 0A 50 01");
+        gPatterns.C_ShotManager__CreateExplosion = hook::get_opcode_address("E8 ? ? ? ? C6 83 ? ? ? ? ? 48 85 F6");
         gPatterns.C_ShotManager__CreateFire      = hook::get_opcode_address("E8 ? ? ? ? 48 8D 4D 88 89 87 ? ? ? ?");
 
         // C_Fire
