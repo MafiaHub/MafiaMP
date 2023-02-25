@@ -16,7 +16,7 @@ int64_t C_Camera__ModeChangeImmediate(void* _this, int mode, void* data, bool un
 }
 
 int64_t C_Camera__SendCommand(void* _this, unsigned int mode, void*unk1, void*unk2) {
-    Framework::Logging::GetLogger("Hooks")->debug("[Camera::SendCommand]: id {}, unk1 {:p}, unk2 {:p}", mode, fmt::ptr(unk1), fmt::ptr(unk2));
+    // Framework::Logging::GetLogger("Hooks")->debug("[Camera::SendCommand]: id {}, unk1 {:p}, unk2 {:p}", mode, fmt::ptr(unk1), fmt::ptr(unk2));
     return C_Camera__SendCommand_original(_this, mode, unk1, unk2);
 }
 

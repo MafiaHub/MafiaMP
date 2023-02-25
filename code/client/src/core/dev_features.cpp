@@ -302,6 +302,12 @@ namespace MafiaMP::Core {
                 if (ImGui::MenuItem("Spawn car", "F1")) {
                     SpawnCar();
                 }
+                if (ImGui::MenuItem("Spawn 50 cars", "F1")) {
+                    for (size_t i = 0; i < 50; i++)
+                    {
+                        SpawnCar();
+                    }
+                }
                 if (ImGui::MenuItem("Despawn all", "F3")) {
                     DespawnAll();
                 }
