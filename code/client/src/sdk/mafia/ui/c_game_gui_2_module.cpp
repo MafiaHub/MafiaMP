@@ -19,7 +19,7 @@ namespace SDK {
         }
 
         C_GameGUI2Module *GetGameGui2Module() {
-            return hook::this_call<C_GameGUI2Module *>(hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 40 80 F6 01"));
+            return hook::call<C_GameGUI2Module *>(hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 40 80 F6 01"));
         }
     } // namespace mafia::ui
 }
