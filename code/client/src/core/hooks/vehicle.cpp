@@ -32,6 +32,9 @@ bool C_CarActionEnter__TestActionInternal(void* pThis, SDK::C_Actor* actor, bool
     if (!carData) {
         return true;
     }
+
+    // TODO: check for seat occupancy status
+
     return carData->locked == MafiaMP::Shared::Modules::VehicleSync::LockState::Unlocked;
 }
 
@@ -48,6 +51,9 @@ bool C_CarActionBreakIn__TestActionInternal(void *pThis, SDK::C_Actor *actor, bo
     if (!carData) {
         return true;
     }
+
+    // TODO: check for seat occupancy status
+
     return carData->locked == MafiaMP::Shared::Modules::VehicleSync::LockState::Breakable;
 }
 

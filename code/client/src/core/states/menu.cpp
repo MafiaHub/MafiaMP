@@ -32,7 +32,7 @@ namespace MafiaMP::Core::States {
         _shouldProceedOfflineDebug = false;
 
         // Set camera
-        Game::Helpers::Camera::SetPos({450.43698, -646.01941, 58.132675}, {-399.2962, -594.75391, 37.324718}, true);
+        Game::Helpers::Camera::SetPos({-986.40686, -304.061798, 2.292042}, {-985.365356, -336.348083, 2.892426}, true);
 
         // Lock game controls
         Game::Helpers::Controls::Lock(true);

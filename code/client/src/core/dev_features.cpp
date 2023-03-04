@@ -18,6 +18,11 @@
 #include "sdk/entities/c_player_2.h"
 #include "sdk/entities/c_vehicle.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
+#include "sdk/c_game_traffic_module.h"
+#include "sdk/mafia/framework/c_game_director.h"
+#include "sdk/mafia/ui/c_game_gui_2_module.h"
+
+#include "game/helpers/ui.h"
 
 #include "external/imgui/widgets/corner_text.h"
 
@@ -59,6 +64,18 @@ namespace MafiaMP::Core {
             gApplication->GetImGUI()->ShowCursor(!_showCameraStudio);
             MafiaMP::Game::Helpers::Controls::Lock(!_showCameraStudio);
             _showCameraStudio = !_showCameraStudio;
+        }
+
+        if (gApplication->_input->IsKeyPressed(FW_KEY_F1)) {
+            const auto human = Game::Helpers::Controls::GetLocalPlayer();
+            if (human) {
+                const auto districtHashName = SDK::mafia::framework::director::C_GameDirector::GetInstance()->GetDistrict(human->GetPos());
+                const auto result           = *districtHashName;
+            }
+        }
+
+        if (gApplication->_input->IsKeyPressed(FW_KEY_F2)) {
+            MafiaMP::Game::Helpers::UI::DisplayBannerMessage("test", "test2");
         }
     }
 
@@ -131,6 +148,7 @@ namespace MafiaMP::Core {
                     transform.SetRot(newRot);
                     transform.SetPos(newPos);
                     car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
+                    car->GetVehicle()->SetSPZText("DEBUG", true);
                 }
             };
 
@@ -166,9 +184,9 @@ namespace MafiaMP::Core {
             },
             "Testing command");
         gApplication->_commandProcessor->RegisterCommand(
-            "crash", {},
+            "test", {},
             [this](cxxopts::ParseResult &) {
-                CrashMe();
+
             },
             "crashes the game");
         gApplication->_commandProcessor->RegisterCommand(
