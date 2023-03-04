@@ -36,11 +36,6 @@ void __fastcall C_Human2__SetupDeath(SDK::C_Human2 *pThis, void *entityMsgDamage
             pThis->GetCharacterController()->TriggerActorAction(someActor, SDK::E_AA_LEAVE_CAR, 0, true, false);
         }
 
-        // TODO: improve me
-        SDK::ue::C_CntPtr<uintptr_t> syncObject2;
-        SDK::ue::sys::math::C_Vector pos = {-989.397, -289.772, 2.805};
-        SDK::GetPlayerTeleportModule()->TeleportPlayer(syncObject2, pos, pos, true, true, true, false);
-
         FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanDeath, MafiaMP::Core::gApplication->GetLocalPlayer());
         return;
     }

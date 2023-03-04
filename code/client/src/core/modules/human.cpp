@@ -481,11 +481,10 @@ namespace MafiaMP::Core::Modules {
             transform.Identity();
             transform.SetRot(newRot);
             transform.SetPos(newPos);
-            trackingData->human->SetTransform(transform);
-            // Create a dummy sync object
-            uint64_t syncObject;
 
-            //SDK::C_PlayerTeleportModule::GetInstance()->TeleportPlayer(&syncObject, newPos, {}, false, true, false);
+            SDK::ue::C_CntPtr<uintptr_t> syncObject2;
+            SDK::GetPlayerTeleportModule()->TeleportPlayer(syncObject2, newPos, newPos, true, true, true, false);
+            trackingData->human->SetTransform(transform);
         }
     }
 } // namespace MafiaMP::Core::Modules
