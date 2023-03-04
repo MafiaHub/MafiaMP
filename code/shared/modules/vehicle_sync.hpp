@@ -26,7 +26,7 @@ namespace MafiaMP::Shared::Modules {
             float handbrake = 0.0f;
             float steer = 0.0f;
             LockState locked = LockState::Unlocked;
-            char licensePlate[9] = "";
+            char licensePlate[7] = "";
         };
 
         VehicleSync(flecs::world& world) {
