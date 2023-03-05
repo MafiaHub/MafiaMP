@@ -83,7 +83,7 @@ namespace SDK {
       public:
         static C_SlotManager *GetInstance() {
             //NOTE: pattern here :)
-            return *reinterpret_cast<C_SlotManager **>(0x000000014634F1B8);
+            return *reinterpret_cast<C_SlotManager **>(0x00000014635BF58);
         }
     };
 } // namespace SDK
