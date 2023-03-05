@@ -22,6 +22,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/hud.cpp
     src/core/hooks/human.cpp
     src/core/hooks/game_director.cpp
+    src/core/hooks/game_stats.cpp
     src/core/hooks/loading_screen.cpp
     src/core/hooks/mod_init.cpp
     src/core/hooks/render_device.cpp
