@@ -33,6 +33,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/modules/vehicle.cpp
     src/core/modules/human.cpp
     src/game/module.cpp
+    src/game/entities/factory.cpp
     src/game/streaming/entity_factory.cpp
     src/game/helpers/controls.cpp
     src/game/helpers/game_input.cpp
@@ -86,6 +87,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/sys/math/c_vector.cpp
     src/sdk/ue/c_string.cpp
     src/sdk/wrappers/c_human_2_car_wrapper.cpp
+    src/sdk/c_entity_factory.cpp
     src/sdk/c_game.cpp
     src/sdk/c_game_input_module.cpp
     src/sdk/c_game_traffic_module.cpp

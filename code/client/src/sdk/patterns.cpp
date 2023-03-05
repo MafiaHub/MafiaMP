@@ -17,6 +17,9 @@ namespace SDK {
 
         gPatterns.C_EntityList__GetEntityList = hook::get_opcode_address("E8 ? ? ? ? 8B 53 40 48 8B C8");
 
+        gPatterns.C_EntityFactory__CreateEntity = hook::get_opcode_address("E8 ? ? ? ? 48 89 46 10 48 8B 4E 10");
+        gPatterns.C_EntityFactory__RegisterEntity = reinterpret_cast<uint64_t>(hook::pattern("48 83 EC 58 4C 8B C1").get_first());
+
         gPatterns.C_PlayerModelManager__IsPlayerLoaded          = reinterpret_cast<uint64_t>(hook::pattern("48 8B 49 28 48 85 C9 75 03 ").get_first());
         gPatterns.C_PlayerModelManager__SwitchPlayerProfileAddr = hook::get_opcode_address("E8 ? ? ? ? 48 8B C3 48 83 C4 20 5B C3 48 8B 41 48");
 
