@@ -2,6 +2,7 @@
 
 #include "../ue/sys/math/c_matrix.h"
 #include "../ue/sys/math/c_quat.h"
+#include "../ue/sys/core/c_frame.h"
 #include "c_entity.h"
 
 #include <cstdint>
@@ -19,7 +20,7 @@ namespace SDK {
         virtual ue::sys::math::C_Quat GetRot(void)                                                                                        = 0;
         virtual ue::sys::math::C_Vector GetScale(void)                                                                                    = 0;
         virtual void GetBodyPartPos(unsigned int, ue::sys::math::C_Vector &)                                                              = 0;
-        virtual void *GetFrame(void)                                                                                                      = 0;
+        virtual ue::sys::core::C_Frame *GetFrame(void)                                                                                    = 0;
         virtual void GameLoadPRS(/*ue::sys::utils::C_BitStream**/ void *) = 0;
         virtual ue::sys::math::C_Vector GetCameraPoint(void)                                                                              = 0;
         virtual void __UNK_VIRTUAL_FN_352()                                                                                               = 0;

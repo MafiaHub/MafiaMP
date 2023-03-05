@@ -17,6 +17,7 @@ namespace SDK {
 
         gPatterns.C_EntityList__GetEntityList = hook::get_opcode_address("E8 ? ? ? ? 8B 53 40 48 8B C8");
 
+        gPatterns.C_EntityFactory__ComputeHash    = reinterpret_cast<uint64_t>(hook::pattern("0F B6 11 33 C0 84 D2 74 2C").get_first());
         gPatterns.C_EntityFactory__CreateEntity = hook::get_opcode_address("E8 ? ? ? ? 48 89 46 10 48 8B 4E 10");
         gPatterns.C_EntityFactory__RegisterEntity = reinterpret_cast<uint64_t>(hook::pattern("48 83 EC 58 4C 8B C1").get_first());
 

@@ -43,6 +43,7 @@ namespace MafiaMP::Core {
         void SetupMenuBar();
         void Disconnect();
         void DespawnAll();
+        void SpawnCrashObject();
         void SpawnCar(std::string modelName = "shubert_e_six_p");
         void CrashMe();
         void BreakMe();

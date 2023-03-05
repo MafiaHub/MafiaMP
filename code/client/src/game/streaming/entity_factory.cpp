@@ -46,6 +46,22 @@ namespace MafiaMP::Game::Streaming {
         return nullptr;
     }
 
+    static SDK::mafia::streaming::C_ActorsSlotWrapper* CreateCrashObjectSpawner(const std::string& modelName) {
+        auto slotWrapper = new SDK::mafia::streaming::C_ActorsSlotWrapper(SDK::E_EntityType::E_ENTITY_CRASH_OBJECT, 1, 0, modelName.c_str(), true);
+        if (slotWrapper) {
+            bool unk = true;
+            slotWrapper->ConnectToQuota("Misc", SDK::streammap::flags::E_CITY_CRASH, _I32_MAX);
+            if (slotWrapper->LoadData(std::string("/sds/city_crash/lh_city_crash.sds").c_str(), nullptr, 2, modelName.c_str(), &unk, true)) {
+                return slotWrapper;
+            }
+            else {
+                slotWrapper->DisconnectFromQuota();
+                delete slotWrapper;
+            }
+        }
+        return nullptr;
+    }
+
     static EntitySpawnerState EntitySpawnerProcessLoad(SDK::mafia::streaming::C_ActorsSlotWrapper *slotWrapper) {
         switch (slotWrapper->GetActorsState()) {
         case SDK::mafia::streaming::C_ActorsSlotWrapper::E_ASS_CREATING: {
@@ -89,15 +105,21 @@ namespace MafiaMP::Game::Streaming {
 
     EntityFactory::EntityFactory()
         : _humanFactory(&CreateHumanSpawner, &HumanSpawnerProcessLoad, &SpawnHuman, &ReturnHumanToSpawner, &DestroyHumanSpawner)
+        , _crashObjectFactory(&CreateCrashObjectSpawner, &EntitySpawnerProcessLoad, &SpawnEntity, &ReturnEntityToSpawner, &DestroyEntitySpawner)
         , _vehicleFactory(&CreateVehicleSpawner, &EntitySpawnerProcessLoad, &SpawnEntity, &ReturnEntityToSpawner, &DestroyEntitySpawner) {}
 
     void EntityFactory::Update() {
         _humanFactory.Update();
+        _crashObjectFactory.Update();
         _vehicleFactory.Update();
     }
 
     EntityTrackingInfo *EntityFactory::RequestHuman(SDK::ue::sys::utils::C_HashName spawnProfile) {
         return _humanFactory.Request(SDK::E_EntityType::E_ENTITY_HUMAN, spawnProfile);
+    }
+
+    EntityTrackingInfo* EntityFactory::RequestCrashObject(std::string modelName) {
+        return _crashObjectFactory.Request(SDK::E_EntityType::E_ENTITY_CRASH_OBJECT, modelName);
     }
 
     EntityTrackingInfo *EntityFactory::RequestVehicle(std::string modelName) {
@@ -111,15 +133,21 @@ namespace MafiaMP::Game::Streaming {
             break;
         }
         case SDK::E_EntityType::E_ENTITY_CAR:
-        case SDK::E_EntityType::E_ENTITY_BOAT: {
+        case SDK::E_EntityType::E_ENTITY_BOAT:{
             _vehicleFactory.Return(infos);
+            break;
+        }
+
+        case SDK::E_EntityType::E_ENTITY_CRASH_OBJECT: {
+            _crashObjectFactory.Return(infos);
             break;
         }
         }
     }
 
     void EntityFactory::ReturnAll() {
-        _vehicleFactory.ReturnAll();
         _humanFactory.ReturnAll();
+        _crashObjectFactory.ReturnAll();
+        _vehicleFactory.ReturnAll();
     }
 } // namespace MafiaMP::Game::Streaming

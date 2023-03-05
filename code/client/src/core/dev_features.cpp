@@ -16,6 +16,7 @@
 #include "game/streaming/entity_factory.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
+#include "sdk/entities/c_crash_obj.h"
 #include "sdk/entities/c_vehicle.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 #include "sdk/c_game_traffic_module.h"
@@ -75,7 +76,7 @@ namespace MafiaMP::Core {
         }
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F2)) {
-            MafiaMP::Game::Helpers::UI::DisplayBannerMessage("test", "test2");
+            SpawnCrashObject();
         }
     }
 
@@ -116,6 +117,46 @@ namespace MafiaMP::Core {
 
     void DevFeatures::ToggleVehicleDebug() {
         _showVehicledebug = !_showVehicledebug;
+    }
+
+    void DevFeatures::SpawnCrashObject() {
+        auto info = Core::gApplication->GetEntityFactory()->RequestCrashObject("lh_city_stairs_module_a_v1");
+
+        const auto OnCrashObjRequestFinished = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
+            if (success) {
+                auto crashObj = reinterpret_cast<SDK::C_CrashObj *>(info->GetEntity());
+                if (!crashObj) {
+                    return;
+                }
+                crashObj->GameInit();
+                crashObj->Activate();
+
+                auto localPlayer = SDK::GetGame()->GetActivePlayer();
+
+                SDK::ue::sys::math::C_Vector newPos    = localPlayer->GetPos();
+                SDK::ue::sys::math::C_Quat newRot      = localPlayer->GetRot();
+                SDK::ue::sys::math::C_Matrix transform = {};
+                transform.Identity();
+                transform.SetRot(newRot);
+                transform.SetPos(newPos);
+                crashObj->SetTransform(transform);
+            }
+        };
+
+        const auto OnCrashObjReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
+            if (!info) {
+                return;
+            }
+            auto crashObj = reinterpret_cast<SDK::C_CrashObj *>(info->GetEntity());
+            if (wasCreated && crashObj) {
+                crashObj->Deactivate();
+                crashObj->GameDone();
+                crashObj->Release();
+            }
+        };
+
+        info->SetRequestFinishCallback(OnCrashObjRequestFinished);
+        info->SetReturnCallback(OnCrashObjReturned);
     }
 
     void DevFeatures::SpawnCar(std::string modelName) {
@@ -231,6 +272,12 @@ namespace MafiaMP::Core {
                 SpawnCar(modelName);
             },
             "spawn a car of a given model");
+        gApplication->_commandProcessor->RegisterCommand(
+            "spawnCrashObject", {},
+            [this](const cxxopts::ParseResult &result) {
+                SpawnCrashObject();
+            },
+            "spawn a crash object");
         gApplication->_commandProcessor->RegisterCommand(
             "lua", {{"c,command", "command to execute", cxxopts::value<std::string>()->default_value("")}, {"f,file", "file to execute", cxxopts::value<std::string>()->default_value("")}},
             [this](const cxxopts::ParseResult &result) {

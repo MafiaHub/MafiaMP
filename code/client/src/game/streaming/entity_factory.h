@@ -12,12 +12,14 @@
 namespace MafiaMP::Game::Streaming {
     class EntityFactory {
       private:
+        EntityTypeFactory<std::string, SDK::mafia::streaming::C_ActorsSlotWrapper> _crashObjectFactory;
         EntityTypeFactory<SDK::ue::sys::utils::C_HashName, SDK::ue::game::traffic::C_HumanSpawner> _humanFactory;
         EntityTypeFactory<std::string, SDK::mafia::streaming::C_ActorsSlotWrapper> _vehicleFactory;
 
       public:
         EntityFactory();
 
+        EntityTrackingInfo *RequestCrashObject(std::string);
         EntityTrackingInfo *RequestHuman(SDK::ue::sys::utils::C_HashName);
         EntityTrackingInfo *RequestVehicle(std::string);
 

@@ -21,6 +21,7 @@ namespace SDK {
         uint64_t C_EntityList__GetEntityList = 0x0;
 
         uint64_t C_EntityFactory__CreateEntity = 0x0;
+        uint64_t C_EntityFactory__ComputeHash    = 0x0;
         uint64_t C_EntityFactory__RegisterEntity = 0x0;
 
         uint64_t C_PlayerModelManager__IsPlayerLoaded          = 0x0;
