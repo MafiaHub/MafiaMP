@@ -42,6 +42,15 @@ namespace SDK {
             uint8_t m_Unk136[24];
             unsigned int m_Slot;
             uint8_t m_Unk164[12];
+
+          public:
+            ue::sys::utils::C_HashName GetName() {
+                  return m_Name;
+            }
+
+            ue::C_String* GetLoadedSDS() {
+                  return m_LoadedSDS;
+            }
         };
     } // namespace mafia::streaming
     static_assert(sizeof(mafia::streaming::C_Slot) == 176, "Wrong size: mafia::streaming::C_Slot");

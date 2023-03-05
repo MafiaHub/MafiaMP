@@ -55,9 +55,14 @@ namespace SDK {
 
         class C_SlotWrapperBase: public I_SlotWrapper {
           protected:
-            int m_Lock;
-            int m_Unk12;
-            C_Slot *m_pSlot;
+            int m_Lock;                     // 0008 - 000C
+            int m_Unk12;                    // 000C - 0010
+            C_Slot *m_pSlot;                // 0010 - 0018
+
+            public:
+                C_Slot* GetSlot() {
+                return m_pSlot;
+            }
         };
 
         class C_SlotWrapper: public C_SlotWrapperBase {

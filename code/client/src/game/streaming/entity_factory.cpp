@@ -51,7 +51,7 @@ namespace MafiaMP::Game::Streaming {
         if (slotWrapper) {
             bool unk = true;
             slotWrapper->ConnectToQuota("Misc", SDK::streammap::flags::E_CITY_CRASH, _I32_MAX);
-            if (slotWrapper->LoadData(std::string("/sds/city_crash/lh_city_crash.sds").c_str(), nullptr, 2, modelName.c_str(), &unk, true)) {
+            if (slotWrapper->LoadData(std::string("/sds/city_crash/lh_city_crash.sds").c_str(), nullptr, 2, "MafiaMP_CrashObject", &unk, true)) {
                 return slotWrapper;
             }
             else {
