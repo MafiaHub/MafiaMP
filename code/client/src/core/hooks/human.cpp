@@ -48,4 +48,8 @@ static InitFunction init([]() {
     // Hook the local player death so we can actually respawn it without the blue screen of the death
     const auto C_Human2__SetupDeath_addr = hook::pattern("48 8B C4 55 56 41 56 48 8D 68 ? 48 81 EC ? ? ? ? C7 45 ? ? ? ? ?").get_first();
     MH_CreateHook((LPVOID)C_Human2__SetupDeath_addr, (PBYTE)C_Human2__SetupDeath, reinterpret_cast<void **>(&C_Human2__SetupDeath_original));
+
+    // Make sure C_AICommand_AimAt::C_AICommand_AimAt always try to use position and not entity
+    // TODO make it pattern based
+    hook::nop(0x0000001427DC07C, 0x4F);
 });
