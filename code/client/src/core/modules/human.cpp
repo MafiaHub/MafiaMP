@@ -62,6 +62,7 @@ namespace MafiaMP::Core::Modules {
                     metadata._isStalking           = charController->IsStalkMove();
                     metadata._isSprinting          = charController->IsSprinting();
                     metadata._sprintSpeed          = charController->GetSprintMoveSpeed();
+                    metadata.weaponData.isAiming   = tracking.human->GetHumanWeaponController()->IsAiming();
 
                     // Current state-specific sync data
                     switch (metadata._charStateHandlerType) {
