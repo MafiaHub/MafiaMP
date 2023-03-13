@@ -105,6 +105,10 @@ namespace SDK {
         uint64_t C_HumanScript__GetOnVehicle  = 0x0;
         uint64_t C_HumanScript__GetOffVehicle = 0x0;
         uint64_t C_HumanScript__SetHealth     = 0x0;
+        uint64_t C_HumanScript__ScrAim   = 0x0;
+        uint64_t C_HumanScript__ScrAimAt = 0x0;
+        uint64_t C_HumanScript__ScrAttack     = 0x0;
+        uint64_t C_HumanScript__SetStealthMove = 0x0;
 
         // C_Quat
         uint64_t C_Quat__SetDir = 0x0;

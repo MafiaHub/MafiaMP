@@ -116,6 +116,10 @@ namespace SDK {
         gPatterns.C_HumanScript__GetOnVehicle  = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4C 24 ? 48 8B 5C 24 ? 48 85 C9 74 ? 83 69 ? ? 75 ? 48 8B 01 FF 50 ? 48 8B 06");
         gPatterns.C_HumanScript__GetOffVehicle = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 ? 83 69 ? ? 75 ? 48 8B 01 FF 50 ? 48 8B 8B ? ? ? ? 4C 8D 05 ? ? ? ?");
         gPatterns.C_HumanScript__SetHealth     = reinterpret_cast<uint64_t>(hook::pattern("48 83 EC ? 48 8B 09 0F 29 74 24 ?").get_first());
+        gPatterns.C_HumanScript__ScrAim        = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 ? 55 56 57 48 8B EC 48 83 EC 20 48 8B DA 48 8B F9 48 8B 0D ? ? ? ? 48 8D 55 20 41 0F B6 F0").get_first());
+        gPatterns.C_HumanScript__ScrAimAt = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 ? 48 89 74 24 ? 55 57 41 56 48 8B EC 48 83 EC 30 48 8B DA").get_first());
+        gPatterns.C_HumanScript__ScrAttack     = reinterpret_cast<uint64_t>(hook::pattern("48 85 D2 0F 84 ? ? ? ? 55 56 41 56").get_first());
+        gPatterns.C_HumanScript__SetStealthMove = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 ? 57 48 83 EC 60 48 8B F9 0F B6 DA").get_first());
 
         // C_Quat
         gPatterns.C_Quat__SetDir = hook::get_opcode_address("E8 ? ? ? ? F3 44 0F 59 5D ?");

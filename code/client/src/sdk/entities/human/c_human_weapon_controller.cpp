@@ -30,6 +30,10 @@ namespace SDK {
         hook::this_call<void>(gPatterns.C_HumanWeaponController__SetAiming, this, bIsActive);
     }
 
+    bool C_HumanWeaponController::IsAiming() {
+        return (*(BYTE *)(this + 892) & 1) != 0;
+    }
+
     void C_HumanWeaponController::SetCoverFlag(const bool bIsActive) {
         hook::this_call<void>(gPatterns.C_HumanWeaponController__SetCoverFlag, this, bIsActive);
     }

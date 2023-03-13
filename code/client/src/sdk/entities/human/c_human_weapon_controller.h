@@ -5,6 +5,7 @@
 #include "../../ue/sys/math/c_vector.h"
 
 namespace SDK {
+    class C_Entity;
     class C_HumanWeaponController {
       public:
         bool DoWeaponSelectByItemId(unsigned int, bool);
@@ -18,6 +19,7 @@ namespace SDK {
         void ResetScatterCoef();
 
         void SetAiming(const bool);
+        bool IsAiming();
 
         void SetCoverFlag(const bool);
 

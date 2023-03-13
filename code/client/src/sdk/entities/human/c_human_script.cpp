@@ -59,4 +59,17 @@ namespace SDK {
     void C_HumanScript::GetOffVehicle(ue::C_CntPtr<uintptr_t> &outSyncObject, C_Actor *arg1, bool arg2, bool arg3) {
         (*(void(__thiscall *)(C_HumanScript *, ue::C_CntPtr<uintptr_t> &, C_Actor *, bool, bool))gPatterns.C_HumanScript__GetOffVehicle)(this, outSyncObject, arg1, arg2, arg3);
     }
+
+    void C_HumanScript::ScrAim(ue::C_CntPtr<uintptr_t> &syncObject, bool aiming) {
+        hook::this_call(gPatterns.C_HumanScript__ScrAim, this, syncObject, aiming);
+    }
+    void C_HumanScript::ScrAimAt(ue::C_CntPtr<uintptr_t> &syncObject, C_Entity *ent, ue::sys::math::C_Vector const &pos, bool smooth) {
+        hook::this_call(gPatterns.C_HumanScript__ScrAimAt, this, syncObject, ent, pos, smooth);
+    }
+    void C_HumanScript::ScrAttack(C_Entity *ent) {
+        hook::this_call(gPatterns.C_HumanScript__ScrAttack, this, ent);
+    }
+    void C_HumanScript::SetStealthMove(bool move) {
+        hook::this_call(gPatterns.C_HumanScript__SetStealthMove, this, move);
+    }
 }
