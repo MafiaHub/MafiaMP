@@ -156,28 +156,16 @@ bool C_HumanInventory__CanFire(SDK::C_InventoryWrapper *pThis) {
     return true;
 }
 
-typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimAllowed_t)(SDK::ue::game::humanai::C_CharacterStateHandlerAim *);
-C_CharacterStateHandlerAim__IsAimAllowed_t C_CharacterStateHandlerAim__IsAimAllowed_original = nullptr;
-bool C_CharacterStateHandlerAim__IsAimAllowed(SDK::ue::game::humanai::C_CharacterStateHandlerAim *pThis) {
-    return true;
-}
-
-typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimBlocked_t)(SDK::ue::game::humanai::C_CharacterStateHandlerAim *);
-C_CharacterStateHandlerAim__IsAimBlocked_t C_CharacterStateHandlerAim__IsAimBlocked_original = nullptr;
-bool C_CharacterStateHandlerAim__IsAimBlocked(SDK::ue::game::humanai::C_CharacterStateHandlerAim *pThis) {
-    return false;
-}
-
 static InitFunction init([]() {
     // Hook the methods
     const auto addr1 = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 10 48 8B 88 ? ? ? ? C6 41 14 00");
-    MH_CreateHook((LPVOID)addr1, (PBYTE)C_HumanWeaponController__SetAiming, reinterpret_cast<void **>(&C_HumanWeaponController__SetAiming_Original));
+    // MH_CreateHook((LPVOID)addr1, (PBYTE)C_HumanWeaponController__SetAiming, reinterpret_cast<void **>(&C_HumanWeaponController__SetAiming_Original));
 
     const auto addr2 = hook::pattern("84 D2 75 11 33 C0").get_first();
     // MH_CreateHook((LPVOID)addr2, (PBYTE)C_HumanWeaponController__SetFirePressedFlag, reinterpret_cast<void **>(&C_HumanWeaponController__SetFirePressedFlag_Original));
 
     const auto addr3 = hook::pattern("4C 8B DC 49 89 5B 08 49 89 73 10 49 89 7B 18 4D 89 73 20 55").get_first();
-    MH_CreateHook((LPVOID)addr3, (PBYTE)C_HumanWeaponController__GetShotPosDir, reinterpret_cast<void **>(&C_HumanWeaponController__GetShotPosDir_Original));
+    // MH_CreateHook((LPVOID)addr3, (PBYTE)C_HumanWeaponController__GetShotPosDir, reinterpret_cast<void **>(&C_HumanWeaponController__GetShotPosDir_Original));
 
     const auto addr4 = hook::pattern("48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40 48 8B 81 60").get_first();
     MH_CreateHook((LPVOID)addr4, (PBYTE)C_HumanWeaponController__DoWeaponSelectByItemId, reinterpret_cast<void **>(&C_HumanWeaponController__DoWeaponSelectByItemId_Original));
@@ -187,14 +175,4 @@ static InitFunction init([]() {
 
     const auto C_HumanInventory__CanFire_Addr = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 2E F6 83 ? ? ? ? ?");
     MH_CreateHook((LPVOID)C_HumanInventory__CanFire_Addr, (PBYTE)C_HumanInventory__CanFire, reinterpret_cast<void **>(&C_HumanInventory__CanFire_original));
-
-    const auto C_CharacterStateHandlerAim__IsAimBlocked_Addr = hook::pattern("48 83 EC 28 48 8B 51 28 80 7A 18 09").get_first();
-    MH_CreateHook((LPVOID)C_CharacterStateHandlerAim__IsAimBlocked_Addr, (PBYTE)C_CharacterStateHandlerAim__IsAimBlocked, reinterpret_cast<void **>(&C_CharacterStateHandlerAim__IsAimBlocked_original));
-
-    const auto C_CharacterStateHandlerAim__IsAimAllowed_Addr = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 31 48 8B 47 08");
-    MH_CreateHook((LPVOID)C_CharacterStateHandlerAim__IsAimAllowed_Addr, (PBYTE)C_CharacterStateHandlerAim__IsAimAllowed, reinterpret_cast<void **>(&C_CharacterStateHandlerAim__IsAimAllowed_original));
-
-    // Disable game overriding remote peds aiming state
-    const auto C_CharacterStateHandlerAim__UpdateHumanFreqAI_Addr = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 48 8B 41 10");
-    // hook::return_function(C_CharacterStateHandlerAim__UpdateHumanFreqAI_Addr);
 });
