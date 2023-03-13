@@ -176,23 +176,19 @@ bool __fastcall C_CharacterStateHandlerMove__IsSprinting(SDK::ue::game::humanai:
 typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimAllowed_t)(void *);
 C_CharacterStateHandlerAim__IsAimAllowed_t C_CharacterStateHandlerAim__IsAimAllowed_original = nullptr;
 bool __fastcall C_CharacterStateHandlerAim__IsAimAllowed(SDK::ue::game::humanai::C_CharacterStateHandler *pAimHandler) {
-    SDK::C_Human2 *pCharacter = pAimHandler->GetCharacter();
-    if (SDK::GetGame()->GetActivePlayer() != pCharacter) {
-        return true;
-    }
-    else
-        return C_CharacterStateHandlerAim__IsAimAllowed_original(pAimHandler);
+    return true;
 }
 
 typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimBlocked_t)(void *);
 C_CharacterStateHandlerAim__IsAimBlocked_t C_CharacterStateHandlerAim__IsAimBlocked_original = nullptr;
 bool __fastcall C_CharacterStateHandlerAim__IsAimBlocked(SDK::ue::game::humanai::C_CharacterStateHandler *pAimHandler) {
-    SDK::C_Human2 *pCharacter = pAimHandler->GetCharacter();
-    if (SDK::GetGame()->GetActivePlayer() != pCharacter) {
-        return false;
-    }
-    else
-        return C_CharacterStateHandlerAim__IsAimBlocked_original(pAimHandler);
+    return false;
+}
+
+typedef bool(__fastcall *C_CharacterLocomotionController__IsFreeFire_t)(void *);
+C_CharacterLocomotionController__IsFreeFire_t C_CharacterLocomotionController__IsFreeFire_original = nullptr;
+bool C_CharacterLocomotionController__IsFreeFire(void* pThis) {
+    return true;
 }
 
 static InitFunction init([]() {
@@ -234,6 +230,9 @@ static InitFunction init([]() {
 
     const auto C_CharacterController__ConvertStickIntensityAddr = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 10 0F 28 D8");
     MH_CreateHook((LPVOID)C_CharacterController__ConvertStickIntensityAddr, (PBYTE)C_CharacterController__ConvertStickIntensity, reinterpret_cast<void **>(&C_CharacterController__ConvertStickIntensity_Original));
+
+    const auto C_CharacterLocomotionController__IsFreeFire_Addr = hook::get_opcode_address("E8 ? ? ? ? 88 47 79");
+    MH_CreateHook((LPVOID)C_CharacterLocomotionController__IsFreeFire_Addr, (PBYTE)C_CharacterLocomotionController__IsFreeFire, reinterpret_cast<void **>(&C_CharacterLocomotionController__IsFreeFire_original));
 
     const auto C_CharacterStateHandlerAim__IsAimBlocked_Addr = hook::pattern("48 83 EC 28 48 8B 51 28 80 7A 18 09").get_first();
     MH_CreateHook((LPVOID)C_CharacterStateHandlerAim__IsAimBlocked_Addr, (PBYTE)C_CharacterStateHandlerAim__IsAimBlocked, reinterpret_cast<void **>(&C_CharacterStateHandlerAim__IsAimBlocked_original));

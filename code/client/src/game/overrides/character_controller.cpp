@@ -111,10 +111,10 @@ namespace MafiaMP::Game::Overrides {
         }
 
         if (!SDK::ue::game::humanai::C_CharacterStateHandler::IsVehicleStateHandlerType(_desiredHandlerType)) {
+            // If the character is actually falling, we block the game trying to override anything
             if (m_pCurrentStateHandler->GetStateHandlerType() == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_FALL) {
                 uintptr_t _840 = *(uintptr_t *)(((uintptr_t)m_pCharacter) + 840);
                 if (*(uint8_t *)(*(uintptr_t *)(_840 + 664) + 300) & 1 && !*(uint8_t *)(((uintptr_t)m_pCharacter) + 505)) {
-                    // do not try spamming desired state if character is falling
                     return;
                 }
             }
