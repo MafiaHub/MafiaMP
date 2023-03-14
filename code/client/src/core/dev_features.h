@@ -18,10 +18,13 @@
 #include "ui/entity_browser.h"
 #include "ui/vehicle_debug.h"
 
+#include "sdk/entities/c_human_2.h"
+
 namespace MafiaMP::Core {
     class DevFeatures final {
       private:
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
+        Game::Streaming::EntityTrackingInfo *_TEMP_HUMAN = nullptr;
 
         bool _showEntityBrowser {false};
         std::shared_ptr<UI::EntityBrowser> _entityBrowser {};

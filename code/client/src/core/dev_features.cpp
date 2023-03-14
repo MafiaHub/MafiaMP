@@ -18,6 +18,7 @@
 #include "sdk/entities/c_player_2.h"
 #include "sdk/entities/c_crash_obj.h"
 #include "sdk/entities/c_vehicle.h"
+#include "sdk/entities/human/c_human_script.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 #include "sdk/c_game_traffic_module.h"
 #include "sdk/mafia/framework/c_game_director.h"
@@ -77,6 +78,84 @@ namespace MafiaMP::Core {
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F2)) {
             SpawnCrashObject();
+        }
+
+        if (gApplication->_input->IsKeyPressed(FW_KEY_F3)) {
+            // If human is already created, delete it first
+            if (_TEMP_HUMAN) {
+                gApplication->GetEntityFactory()->ReturnEntity(_TEMP_HUMAN);
+                _TEMP_HUMAN = nullptr;
+            }
+
+            // Otherwise always proceed with creation
+            _TEMP_HUMAN = Core::gApplication->GetEntityFactory()->RequestHuman(10029431515544697714);
+
+            const auto OnHumanRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
+                CreateNetCharacterController = false;
+                if (success) {
+                    auto human = reinterpret_cast<SDK::C_Human2 *>(info->GetEntity());
+                    if (!human) {
+                        return;
+                    }
+                    human->GameInit();
+                    human->Activate();
+
+                    const auto ent                         = info->GetNetworkEntity();
+                    auto localPlayer                       = SDK::GetGame()->GetActivePlayer();
+
+                    SDK::ue::sys::math::C_Vector newPos    = localPlayer->GetPos();
+                    SDK::ue::sys::math::C_Quat newRot      = localPlayer->GetRot();
+                    SDK::ue::sys::math::C_Matrix transform = {};
+                    transform.Identity();
+                    transform.SetRot(newRot);
+                    transform.SetPos(newPos);
+                    human->SetTransform(transform);
+
+                    // TODO(DavoSK): remove
+                    Game::Helpers::Human::AddWeapon(human, 85, 200);
+                    Game::Helpers::Human::AddWeapon(human, 3, 200);
+                    Game::Helpers::Human::AddWeapon(human, 13, 200);
+                    human->GetHumanWeaponController()->DoWeaponSelectByItemId(85, true);
+                }
+            };
+
+            const auto OnHumanReturned = [](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
+                if (!info) {
+                    return;
+                }
+                auto human = reinterpret_cast<SDK::C_Human2 *>(info->GetEntity());
+                if (wasCreated && human) {
+                    human->Deactivate();
+                    human->GameDone();
+                    human->Release();
+                }
+            };
+
+            // setup tracking callbacks
+            _TEMP_HUMAN->SetBeforeSpawnCallback([&](Game::Streaming::EntityTrackingInfo *) {
+                CreateNetCharacterController = true;
+            });
+            _TEMP_HUMAN->SetRequestFinishCallback(OnHumanRequestFinish);
+            _TEMP_HUMAN->SetReturnCallback(OnHumanReturned);
+        }
+
+        if (gApplication->_input->IsKeyPressed(FW_KEY_F4)) {
+            if (!_TEMP_HUMAN) {
+                return;
+            }
+
+            const auto human = reinterpret_cast<SDK::C_Human2 *>(_TEMP_HUMAN->GetEntity());
+
+            auto localPlayer = SDK::GetGame()->GetActivePlayer();
+
+            SDK::ue::sys::math::C_Vector newPos = localPlayer->GetPos();
+
+            SDK::ue::C_CntPtr<uintptr_t> syncObject2;
+            SDK::C_Entity *ent = reinterpret_cast<SDK::C_Entity *>(localPlayer);
+            human->GetHumanScript()->ScrAim(syncObject2, !human->GetHumanWeaponController()->IsAiming());
+            // human->GetHumanScript()->ScrAimAt(syncObject2, ent, newPos, !human->GetHumanWeaponController()->IsAiming());
+
+            Framework::Logging::GetLogger("Playground")->debug("Aiming : {}", human->GetHumanWeaponController()->IsAiming());
         }
     }
 
