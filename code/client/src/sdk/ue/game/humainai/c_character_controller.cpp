@@ -12,9 +12,7 @@ namespace SDK {
             if (m_pCurrentStateHandler) {
                 return m_pCurrentStateHandler->GetStateHandlerType();
             }
-            else {
-                return C_CharacterStateHandler::E_SHT_NONE;
-            }
+            return C_CharacterStateHandler::E_SHT_NONE;
         }
 
         C_CharacterStateHandler *C_CharacterController::GetHandlerByType(C_CharacterStateHandler::E_State_Handler_Type type) {
@@ -54,10 +52,10 @@ namespace SDK {
         }
 
         bool C_CharacterController::AreControlsLocked() const {
-            if (m_pCharacter->GetType() == E_EntityType::E_ENTITY_PLAYER)
+            if (m_pCharacter->GetType() == E_EntityType::E_ENTITY_PLAYER) {
                 return (*(uint32_t *)(m_pUnk456 + 64) >> 19) & 1;
-            else
-                return false;
+            }
+            return false;
         }
 
         void C_CharacterController::LockControls(bool, bool, const char *) {
@@ -89,8 +87,9 @@ namespace SDK {
         void C_CharacterController::SetHumanMoveMode(E_HumanMoveMode mode, bool clearUnkFlagIfSprint) {
             *(E_HumanMoveMode *)(m_pUnk456 + 100) = mode;
 
-            if (mode == E_HumanMoveMode::E_HMM_SPRINT && clearUnkFlagIfSprint)
+            if (mode == E_HumanMoveMode::E_HMM_SPRINT && clearUnkFlagIfSprint) {
                 *(uint32_t *)(m_pUnk456 + 64) &= 0xEFFFFFFF;
+            }
         }
 
         bool C_CharacterController::IsStalkMove() {

@@ -5,6 +5,7 @@
 #include "c_character_state_handler.h"
 
 #include "c_character_state_handler_aim.h"
+#include "c_character_state_handler_car.h"
 #include "c_character_state_handler_move.h"
 #include "c_character_state_handler_weapon.h"
 
@@ -97,22 +98,6 @@ namespace SDK {
         E_AA_CAR_TURRET_MOUNT           = 0x43,
         E_AA_REVIVE                     = 0x44,
     };
-
-    class C_Human2CarWrapper;
-
-    namespace ue::game::humanai {
-        class C_CharacterStateHandlerCar: public C_CharacterStateHandler {
-          public:
-            /*E_CAR_STATE*/ int GetCarState() const {
-                return *(int *)(((uintptr_t)this) + 420);
-            }
-
-            C_Human2CarWrapper *GetHuman2CarWrapper() {
-                ue::C_RefPtr<C_Human2CarWrapper> *refptr = (ue::C_RefPtr<C_Human2CarWrapper> *)(((uintptr_t)this) + 384);
-                return refptr->ptr;
-            }
-        };
-    } // namespace ue::game::humanai
 
     namespace ue::game::humanai {
         class I_CharacterController {
