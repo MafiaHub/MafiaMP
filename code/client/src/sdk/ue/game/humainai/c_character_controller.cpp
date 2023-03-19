@@ -1,5 +1,7 @@
 #include "c_character_controller.h"
 
+#include "c_character_state_handler_base_locomotion.h"
+
 #include <utils/hooking/hooking.h>
 #include "../../../entities/c_player_2.h"
 #include "../../../patterns.h"

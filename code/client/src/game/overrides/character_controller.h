@@ -3,6 +3,8 @@
 #include "../../sdk/entities/c_human_2.h"
 #include "../../sdk/ue/game/humainai/c_character_controller.h"
 #include "../../sdk/ue/game/humainai/c_character_state_handler.h"
+#include "../../sdk/ue/game/humainai/c_character_state_handler_base_locomotion.h"
+#include "../../sdk/ue/game/humainai/c_character_state_handler_move.h"
 
 extern thread_local bool CreateNetCharacterController;
 

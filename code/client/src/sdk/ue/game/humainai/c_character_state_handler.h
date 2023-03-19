@@ -82,35 +82,34 @@ namespace SDK {
             virtual bool ReqPlayerInputDeactivate(ue::game::humanai::S_PlayerControllerInput *, /*ue::game::humanai::S_PlayerState**/ void *) = 0;
             virtual void PreUpdatePlayerInput(float)                                                                                          = 0;
             virtual void UpdatePlayerInput(ue::game::humanai::S_PlayerControllerInput *, /*ue::game::humanai::S_PlayerState**/ void *);
-            virtual void OnCharacterControllerActivated()                                                                                    = 0;
-            virtual void OnCharacterControllerDeactivated()                                                                                  = 0;
-            virtual void ProcessRootMotion(ue::sys::math::C_Matrix const &, ue::sys::math::C_Matrix &, float)                                = 0;
-            virtual void ProcessRootMotionWithDocking(ue::sys::math::C_Matrix const &, ue::sys::math::C_Matrix &, float)                     = 0;
-            virtual void ReportRootMotion(ue::sys::math::C_Matrix const &, ue::sys::math::C_Matrix const &, float)                           = 0;
-            virtual void OnSetPosFeedBack(ue::sys::math::C_Vector const &, ue::sys::math::C_Vector const &)                                  = 0;
-            virtual bool CanEnterAimZoom()                                                                                                   = 0;
-            virtual bool CanEnterAimZoomModeScope()                                                                                          = 0;
-            virtual bool CanFire()                                                                                                           = 0;
-            virtual bool ShouldEnterAimZoomModeScope()                                                                                       = 0;
-            virtual bool CanThrowGrenade()                                                                                                   = 0;
-            virtual bool CanStartBlindFire()                                                                                                 = 0;
-            virtual void OnEnterAimZoom()                                                                                                    = 0;
-            virtual void OnExitAimZoom()                                                                                                     = 0;
-            virtual void OnEnterTakedown()                                                                                                   = 0;
-            virtual void OnExitTakedown()                                                                                                    = 0;
-            virtual void OnStartBlindFire()                                                                                                  = 0;
-            virtual void OnUpdateBlindFire(float)                                                                                            = 0;
-            virtual void OnStopBlindFire()                                                                                                   = 0;
-            virtual void OnInterruptible(ue::game::anim::S_WAnimStateHandle const &, unsigned int)                                                   = 0;
-            virtual void OnCameraModeChangeRequest(ue::game::anim::S_WAnimStateHandle const &, ue::sys::utils::C_HashName const &, bool)     = 0;
-            virtual void OnCameraModeChangeRestore(ue::game::anim::S_WAnimStateHandle const &, bool)                                         = 0;
-            virtual void OnCameraFOVChange(ue::game::anim::S_WAnimStateHandle const &, float, float)                                         = 0;
-            virtual void OnCameraInterruptible(ue::game::anim::S_WAnimStateHandle const &, bool, float)                                      = 0;
-            virtual void OnCameraLookAt(ue::game::anim::S_WAnimStateHandle const &, /*ue::game::human::E_MeleeHumanType*/ int, ue::sys::utils::C_HashName const &,
-                                        ue::sys::utils::C_HashName const &, float, float)                                                    = 0;
-            virtual void OnCameraFollow(ue::game::anim::S_WAnimStateHandle const &, ue::sys::utils::C_HashName const &, float, float, float) = 0;
-            virtual void OnCameraStopFollowLookAt(ue::game::anim::S_WAnimStateHandle const &)                                                = 0;
-            virtual void OnCameraShake(ue::game::anim::S_WAnimStateHandle const &, ue::sys::utils::C_HashName const &, float)                = 0;
+            virtual void OnCharacterControllerActivated()                                                                                                                                                            = 0;
+            virtual void OnCharacterControllerDeactivated()                                                                                                                                                          = 0;
+            virtual void ProcessRootMotion(ue::sys::math::C_Matrix const &, ue::sys::math::C_Matrix &, float)                                                                                                        = 0;
+            virtual void ProcessRootMotionWithDocking(ue::sys::math::C_Matrix const &, ue::sys::math::C_Matrix &, float)                                                                                             = 0;
+            virtual void ReportRootMotion(ue::sys::math::C_Matrix const &, ue::sys::math::C_Matrix const &, float)                                                                                                   = 0;
+            virtual void OnSetPosFeedBack(ue::sys::math::C_Vector const &, ue::sys::math::C_Vector const &)                                                                                                          = 0;
+            virtual bool CanEnterAimZoom()                                                                                                                                                                           = 0;
+            virtual bool CanEnterAimZoomModeScope()                                                                                                                                                                  = 0;
+            virtual bool CanFire()                                                                                                                                                                                   = 0;
+            virtual bool ShouldEnterAimZoomModeScope()                                                                                                                                                               = 0;
+            virtual bool CanThrowGrenade()                                                                                                                                                                           = 0;
+            virtual bool CanStartBlindFire()                                                                                                                                                                         = 0;
+            virtual void OnEnterAimZoom()                                                                                                                                                                            = 0;
+            virtual void OnExitAimZoom()                                                                                                                                                                             = 0;
+            virtual void OnEnterTakedown()                                                                                                                                                                           = 0;
+            virtual void OnExitTakedown()                                                                                                                                                                            = 0;
+            virtual void OnStartBlindFire()                                                                                                                                                                          = 0;
+            virtual void OnUpdateBlindFire(float)                                                                                                                                                                    = 0;
+            virtual void OnStopBlindFire()                                                                                                                                                                           = 0;
+            virtual void OnInterruptible(ue::game::anim::S_WAnimStateHandle const &, unsigned int)                                                                                                                   = 0;
+            virtual void OnCameraModeChangeRequest(ue::game::anim::S_WAnimStateHandle const &, ue::sys::utils::C_HashName const &, bool)                                                                             = 0;
+            virtual void OnCameraModeChangeRestore(ue::game::anim::S_WAnimStateHandle const &, bool)                                                                                                                 = 0;
+            virtual void OnCameraFOVChange(ue::game::anim::S_WAnimStateHandle const &, float, float)                                                                                                                 = 0;
+            virtual void OnCameraInterruptible(ue::game::anim::S_WAnimStateHandle const &, bool, float)                                                                                                              = 0;
+            virtual void OnCameraLookAt(ue::game::anim::S_WAnimStateHandle const &, /*ue::game::human::E_MeleeHumanType*/ int, ue::sys::utils::C_HashName const &, ue::sys::utils::C_HashName const &, float, float) = 0;
+            virtual void OnCameraFollow(ue::game::anim::S_WAnimStateHandle const &, ue::sys::utils::C_HashName const &, float, float, float)                                                                         = 0;
+            virtual void OnCameraStopFollowLookAt(ue::game::anim::S_WAnimStateHandle const &)                                                                                                                        = 0;
+            virtual void OnCameraShake(ue::game::anim::S_WAnimStateHandle const &, ue::sys::utils::C_HashName const &, float)                                                                                        = 0;
 
           public:
             ue::game::human::C_BehaviorCharacter *GetBehaviorCharacter() const {
@@ -140,18 +139,6 @@ namespace SDK {
             void SetCurrentAnimationHandle(ue::game::anim::S_WAnimStateHandle &&handle) {
                 m_CurrentAnimationHandle = handle;
             }
-        };
-
-        class C_CharacterStateHandlerBaseLocomotion: public C_CharacterStateHandler {
-          public:
-            bool Idle2MoveTransitionActive(ue::game::anim::S_WAnimStateHandle const *) const;
-            static void AddRemoveSprintDescriptor(C_CharacterController *, bool sprinting);
-        };
-
-        class C_CharacterStateHandlerMove: public C_CharacterStateHandlerBaseLocomotion {
-          public:
-            bool IsSprinting() const;
-            bool SharpTurnTransitionActive();
         };
     } // namespace ue::game::humanai
 }
