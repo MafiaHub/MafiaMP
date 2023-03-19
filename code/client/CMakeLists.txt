@@ -26,6 +26,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/loading_screen.cpp
     src/core/hooks/mod_init.cpp
     src/core/hooks/navigation.cpp
+    src/core/hooks/player.cpp
     src/core/hooks/render_device.cpp
     src/core/hooks/slot_wrapper.cpp
     src/core/hooks/traffic.cpp

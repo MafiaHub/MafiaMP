@@ -4,6 +4,8 @@
 
 #include "scoped_entity_type_faker.h"
 
+#include <logging/logger.h>
+
 namespace MafiaMP::Game::Overrides {
     uintptr_t CharacterController::_vfTables[2]            = {0, 0};
     static uintptr_t C_CharacterController__DestructorAddr  = 0;
@@ -160,8 +162,7 @@ namespace MafiaMP::Game::Overrides {
             if (depthInWater > 0.0f) {
                 pMoveHandler->GetBehaviorCharacter()->SetWAnimVariable(21, depthInWater * 100.0f);
             }
-        }
-        else {
+        } else {
             SetSprinting(false);
         }
     }

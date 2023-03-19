@@ -171,6 +171,9 @@ namespace SDK {
             C_Human2 *GetCharacter() {
                 return m_pCharacter;
             }
+            C_CharacterStateHandlerAim* GetAimHandler() {
+                return m_pAimStateHandler;
+            }
             C_CharacterStateHandlerCar *GetCarHandler() {
                 return m_pCarStateHandler;
             }
