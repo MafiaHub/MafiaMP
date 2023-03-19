@@ -111,6 +111,8 @@ namespace SDK {
         gPatterns.C_WAnimPlaybackManager__PlayState                                = hook::get_opcode_address("E8 ? ? ? ? 4C 39 7F 50");
         gPatterns.C_BehaviorCharacter__SetWAnimVariable_float                      = hook::get_opcode_address("E9 ? ? ? ? 83 FA 20");
         gPatterns.C_CharacterController__TriggerActorActionById                    = hook::get_opcode_address("E8 ? ? ? ? 45 0F 2F 87 ? ? ? ?");
+        gPatterns.C_CharacterStateHandlerAim__SwappingWeapon                       = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 82");
+        gPatterns.C_CharacterStateHandlerAim__UpdateAimAnimation                   = hook::get_opcode_address("E8 ? ? ? ? F3 0F 10 43 ? 48 8D 55 07");
 
         // C_HumanScript
         gPatterns.C_HumanScript__GetOnVehicle  = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4C 24 ? 48 8B 5C 24 ? 48 85 C9 74 ? 83 69 ? ? 75 ? 48 8B 01 FF 50 ? 48 8B 06");

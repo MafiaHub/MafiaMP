@@ -100,6 +100,8 @@ namespace SDK {
         uint64_t C_WAnimPlaybackManager__PlayState                                = 0x0;
         uint64_t C_BehaviorCharacter__SetWAnimVariable_float                      = 0x0;
         uint64_t C_CharacterController__TriggerActorActionById                    = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateAimAnimation                   = 0x0;
+        uint64_t C_CharacterStateHandlerAim__SwappingWeapon                       = 0x0;
 
         // C_HumanScript
         uint64_t C_HumanScript__GetOnVehicle  = 0x0;

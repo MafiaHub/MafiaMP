@@ -4,6 +4,10 @@
 #include "../../../entities/c_actor.h"
 #include "c_character_state_handler.h"
 
+#include "c_character_state_handler_aim.h"
+#include "c_character_state_handler_move.h"
+#include "c_character_state_handler_weapon.h"
+
 namespace SDK {
     class C_Human2;
 
@@ -128,37 +132,37 @@ namespace SDK {
           protected:
             C_Human2 *m_pCharacter;
             uint8_t m_pad24[64];
-            C_CharacterStateHandler *m_pMoveStateHandler;
-            C_CharacterStateHandler *m_pStandStateHandler;
-            C_CharacterStateHandler *m_pMoveStandStateHandler;
-            C_CharacterStateHandler *m_pCoverStateHandler;
-            C_CharacterStateHandler *m_pClimbStateHandler;
-            C_CharacterStateHandler *m_pActionAIStateHandler;
-            C_CharacterStateHandler *m_pInvestigateStateHandler;
-            C_CharacterStateHandler *m_pMeleeStateHandler;
-            C_CharacterStateHandler *m_pLockPullStateHandler;
-            C_CharacterStateHandler *m_pTurretStateHandler;
-            C_CharacterStateHandler *m_pPlayAnimStateHandler;
-            C_CharacterStateHandler *m_pDeathStateHandler;
-            C_CharacterStateHandlerCar *m_pCarStateHandler;
-            C_CharacterStateHandler *m_pBoatStateHandler;
-            C_CharacterStateHandler *m_pTrainStateHandler;
-            C_CharacterStateHandler *m_pMotorcycleStateHandler;
-            C_CharacterStateHandler *m_pAwarenessStateHandler;
-            C_CharacterStateHandler *m_pInjuryStateHandler;
-            C_CharacterStateHandler *m_pSpeechStateHandler;
-            C_CharacterStateHandler *m_pSwimStateHandler;
-            C_CharacterStateHandler *m_pPreviewStateHandler;
-            C_CharacterStateHandler *m_pFallStateHandler;
-            C_CharacterStateHandler *m_pCurrentStateHandler;
-            C_CharacterStateHandler *m_pWeaponStateHandler;
-            C_CharacterStateHandler *m_pGrenadeStateHandler;
-            C_CharacterStateHandler *m_pAimStateHandler;
-            C_CharacterStateHandler *m_pPlayOverlayAnimStateHandler;
-            C_CharacterStateHandler *m_pLookAtStateHandler;
-            C_CharacterStateHandler *m_pDownedStateHandler;
-            C_CharacterStateHandler *m_pPlayerReactionStateHandler;
-            C_CharacterStateHandler *m_pActionOverlayStateHandler;
+            C_CharacterStateHandlerMove     *m_pMoveStateHandler;
+            C_CharacterStateHandler         *m_pStandStateHandler;
+            C_CharacterStateHandler         *m_pMoveStandStateHandler;
+            C_CharacterStateHandler         *m_pCoverStateHandler;
+            C_CharacterStateHandler         *m_pClimbStateHandler;
+            C_CharacterStateHandler         *m_pActionAIStateHandler;
+            C_CharacterStateHandler         *m_pInvestigateStateHandler;
+            C_CharacterStateHandler         *m_pMeleeStateHandler;
+            C_CharacterStateHandler         *m_pLockPullStateHandler;
+            C_CharacterStateHandler         *m_pTurretStateHandler;
+            C_CharacterStateHandler         *m_pPlayAnimStateHandler;
+            C_CharacterStateHandler         *m_pDeathStateHandler;
+            C_CharacterStateHandlerCar      *m_pCarStateHandler;
+            C_CharacterStateHandler         *m_pBoatStateHandler;
+            C_CharacterStateHandler         *m_pTrainStateHandler;
+            C_CharacterStateHandler         *m_pMotorcycleStateHandler;
+            C_CharacterStateHandler         *m_pAwarenessStateHandler;
+            C_CharacterStateHandler         *m_pInjuryStateHandler;
+            C_CharacterStateHandler         *m_pSpeechStateHandler;
+            C_CharacterStateHandler         *m_pSwimStateHandler;
+            C_CharacterStateHandler         *m_pPreviewStateHandler;
+            C_CharacterStateHandler         *m_pFallStateHandler;
+            C_CharacterStateHandler         *m_pCurrentStateHandler;
+            C_CharacterStateHandlerWeapon   *m_pWeaponStateHandler;
+            C_CharacterStateHandler         *m_pGrenadeStateHandler;
+            C_CharacterStateHandlerAim      *m_pAimStateHandler;
+            C_CharacterStateHandler         *m_pPlayOverlayAnimStateHandler;
+            C_CharacterStateHandler         *m_pLookAtStateHandler;
+            C_CharacterStateHandler         *m_pDownedStateHandler;
+            C_CharacterStateHandler         *m_pPlayerReactionStateHandler;
+            C_CharacterStateHandler         *m_pActionOverlayStateHandler;
             uintptr_t m_pCharacterLocomotionController;
             uint8_t m_pad344[96];
             S_PlayerControllerInput *m_pPlayerControllerInput;

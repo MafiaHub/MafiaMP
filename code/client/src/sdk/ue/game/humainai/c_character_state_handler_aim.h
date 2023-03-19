@@ -5,6 +5,10 @@
 namespace SDK {
     namespace ue::game::humanai {
         class C_CharacterStateHandlerAim : public C_CharacterStateHandler {
+          public:
+            bool SwappingWeapon();
+            
+            bool UpdateAimAnimation();
         };
     }
 }

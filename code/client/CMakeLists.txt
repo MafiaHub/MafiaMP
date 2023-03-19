@@ -74,8 +74,10 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/game/camera/c_cm_player_alternate.cpp
     src/sdk/ue/game/humainai/c_character_controller.cpp
     src/sdk/ue/game/humainai/c_character_state_handler.cpp
+    src/sdk/ue/game/humainai/c_character_state_handler_aim.cpp
     src/sdk/ue/game/humainai/c_character_state_handler_base_locomotion.cpp
     src/sdk/ue/game/humainai/c_character_state_handler_move.cpp
+    src/sdk/ue/game/humainai/c_character_state_handler_weapon.cpp
     src/sdk/ue/game/human/c_behavior_character.cpp
     src/sdk/ue/game/shotmanager/c_explosion.cpp
     src/sdk/ue/game/shotmanager/c_fire.cpp
