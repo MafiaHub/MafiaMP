@@ -14,7 +14,7 @@ namespace MafiaMP::Core::Hooks {
 
         public:
             MafiaMPVFS() = default;
-            ~MafiaMPVFS() = delete;
+            // ~MafiaMPVFS() = delete;
 
             static void Install();
     };
