@@ -32,6 +32,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/traffic.cpp
     src/core/hooks/translocator.cpp
     src/core/hooks/vehicle.cpp
+    src/core/hooks/vfs.cpp
     src/core/hooks/weapon_controller.cpp
     src/core/modules/vehicle.cpp
     src/core/modules/human.cpp
