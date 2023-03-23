@@ -8,6 +8,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/ui/camera_studio.cpp
     src/core/ui/entity_browser.cpp
     src/core/ui/vehicle_debug.cpp
+    src/core/ui/web.cpp
     src/core/states/initialize.cpp
     src/core/states/menu.cpp
     src/core/states/session_connected.cpp

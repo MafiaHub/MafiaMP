@@ -62,6 +62,11 @@ namespace MafiaMP::Core {
         _input            = std::make_shared<MafiaMP::Game::GameInput>();
         _console          = std::make_shared<UI::MafiaConsole>(_commandProcessor, _input);
         _chat             = std::make_shared<UI::Chat>();
+        _web              = std::make_shared<UI::Web>();
+        
+        if (_web) {
+            _web->Init();
+        }
 
         _chat->SetOnMessageSentCallback([this](const std::string &msg) {
             const auto net = gApplication->GetNetworkingEngine()->GetNetworkClient();
@@ -159,6 +164,20 @@ namespace MafiaMP::Core {
 
         if (_input) {
             _input->Update();
+        }
+
+        if (_web) {
+            _web->Update();
+        }
+
+        if (GetAsyncKeyState(VK_F6) & 0x1) {
+            _web->CreateView("test", 500, 500, "https://youtube.fr");
+        }
+    }
+
+    void Application::PostRender() {
+        if (_web) {
+            _web->Render();
         }
     }
 
