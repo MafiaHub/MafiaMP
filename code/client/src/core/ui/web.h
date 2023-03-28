@@ -5,15 +5,16 @@
 #include <string>
 #include <unordered_map>
 
+#include <wrl/client.h>
 #include <d3d11.h>
 
 namespace MafiaMP::Core::UI {
     class Web {
       private:
-        ID3D11Device *_device;
-        ID3D11DeviceContext *_context;
-        ID3D11Texture2D *_texture;
-        ID3D11ShaderResourceView *_textureView;
+        Microsoft::WRL::ComPtr<ID3D11Device> _device;
+        Microsoft::WRL::ComPtr<ID3D11DeviceContext> _context;
+        Microsoft::WRL::ComPtr<ID3D11Texture2D> _texture;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _textureView;
 
       protected:
         ultralight::RefPtr<ultralight::Renderer> _renderer;

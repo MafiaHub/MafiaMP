@@ -23,7 +23,7 @@ namespace MafiaMP::Core::UI {
         _context = renderDevice->_context;
 
         if (!_device || !_context) {
-            Framework::Logging::GetLogger("UI")->error("Failed to grab game render device or context ({} {})", fmt::ptr(_device), fmt::ptr(_context));
+            Framework::Logging::GetLogger("UI")->error("Failed to grab game render device or context ({} {})", fmt::ptr(_device.Get()), fmt::ptr(_context.Get()));
             return false;
         }
 
@@ -84,34 +84,44 @@ namespace MafiaMP::Core::UI {
     }
 
     void Web::CopyPixelsToTexture(void *pixels, uint32_t width, uint32_t height, uint32_t stride) {
-        if (!_texture) {
-            D3D11_TEXTURE2D_DESC textDesc;
-            textDesc.Width     = width;
-            textDesc.Height    = height;
-            textDesc.MipLevels = textDesc.ArraySize = 1;
-            textDesc.Format                         = DXGI_FORMAT_B8G8R8A8_UNORM;
-            textDesc.SampleDesc.Count               = 1;
-            textDesc.SampleDesc.Quality             = 0;
-            textDesc.Usage                          = D3D11_USAGE_DYNAMIC;
-            textDesc.BindFlags                      = D3D11_BIND_SHADER_RESOURCE;
-            textDesc.CPUAccessFlags                 = D3D11_CPU_ACCESS_WRITE;
-            textDesc.MiscFlags                      = 0;
+        D3D11_TEXTURE2D_DESC textDesc;
+        textDesc.Width     = width;
+        textDesc.Height    = height;
+        textDesc.MipLevels = textDesc.ArraySize = 1;
+        textDesc.Format                         = DXGI_FORMAT_B8G8R8A8_UNORM;
+        textDesc.SampleDesc.Count               = 1;
+        textDesc.SampleDesc.Quality             = 0;
+        textDesc.Usage                          = D3D11_USAGE_DYNAMIC;
+        textDesc.BindFlags                      = D3D11_BIND_SHADER_RESOURCE;
+        textDesc.CPUAccessFlags                 = D3D11_CPU_ACCESS_WRITE;
+        textDesc.MiscFlags                      = 0;
 
-            HRESULT result = _device->CreateTexture2D(&textDesc, nullptr, &_texture);
-            if (FAILED(result)) {
-                Framework::Logging::GetLogger("UI")->error("Failed to create 2D Texture");
-                return;
-            }
+        HRESULT result = _device->CreateTexture2D(&textDesc, nullptr, _texture.ReleaseAndGetAddressOf());
+        if (FAILED(result)) {
+            Framework::Logging::GetLogger("UI")->error("Failed to create 2D Texture");
+            return;
         }
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC sharedResourceViewDesc = {};
+        sharedResourceViewDesc.Format                          = textDesc.Format;
+        sharedResourceViewDesc.ViewDimension                   = D3D11_SRV_DIMENSION_TEXTURE2D;
+        sharedResourceViewDesc.Texture2D.MipLevels             = 1;
+
+        if (FAILED(_device->CreateShaderResourceView(_texture.Get(), &sharedResourceViewDesc, _textureView.ReleaseAndGetAddressOf())))
+            return;
 
         D3D11_MAPPED_SUBRESOURCE mappedResource;
-        const auto result = _context->Map(_texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        const auto mapResult = _context->Map(_texture.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 
-        if (SUCCEEDED(result)) {
+        if (SUCCEEDED(mapResult)) {
             const auto pDest = static_cast<uint8_t *>(mappedResource.pData);
             std::memcpy(pDest, pixels, width * height * 4);
+            _context->Unmap(_texture.Get(), 0);
         }
-        _context->Unmap(_texture, 0);
+        else {
+            _context.Reset();
+            _texture.Reset();
+        }
     }
 
     void Web::CopyBitmapToTexture(ultralight::RefPtr<ultralight::Bitmap> bitmap) {
