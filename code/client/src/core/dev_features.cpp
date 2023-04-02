@@ -21,7 +21,7 @@
 #include "sdk/entities/human/c_human_script.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 #include "sdk/c_game_traffic_module.h"
-#include "sdk/mafia/framework/c_game_director.h"
+#include "sdk/mafia/framework/director/c_game_director.h"
 #include "sdk/mafia/ui/c_game_gui_2_module.h"
 
 #include "game/helpers/ui.h"
