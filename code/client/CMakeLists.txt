@@ -30,6 +30,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/player.cpp
     src/core/hooks/render_device.cpp
     src/core/hooks/slot_wrapper.cpp
+    src/core/hooks/tables.cpp
     src/core/hooks/traffic.cpp
     src/core/hooks/translocator.cpp
     src/core/hooks/vehicle.cpp
@@ -91,6 +92,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/gfx/environmenteffects/c_weather_manager_2.cpp
     src/sdk/ue/sys/core/c_scene_object.cpp
     src/sdk/ue/sys/core/i_core.cpp
+    src/sdk/ue/sys/core/c_object_spawner.cpp
     src/sdk/ue/sys/math/c_matrix.cpp
     src/sdk/ue/sys/math/c_quat.cpp
     src/sdk/ue/sys/math/c_vector.cpp
