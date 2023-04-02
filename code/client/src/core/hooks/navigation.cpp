@@ -1,22 +1,24 @@
+#include <utils/safe_win32.h>
 #include <MinHook.h>
 #include <utils/hooking/hook_function.h>
 #include <utils/hooking/hooking.h>
 
 #include <logging/logger.h>
 
-class C_DistrictDefinition {
+#include "../application.h"
+#include "../../sdk/mafia/framework/director/c_game_director.h"
 
-};
+typedef int64_t(__fastcall *C_Navigation__OnDistrictChange_t)(void *, SDK::mafia::framework::director::I_GameDirector::C_DistrictDefinition const &);
+C_Navigation__OnDistrictChange_t C_Navigation__OnDistrictChange_original = nullptr;
 
-typedef bool(__fastcall *S_ScriptDistrictChangeListener__OnDistrictChange_t)(void *, C_DistrictDefinition const &);
-S_ScriptDistrictChangeListener__OnDistrictChange_t S_ScriptDistrictChangeListener__OnDistrictChange_original = nullptr;
-
-bool S_ScriptDistrictChangeListener__OnDistrictChange(void *pThis, C_DistrictDefinition const &def) {
-    Framework::Logging::GetLogger("Hooks")->debug("OnDistrictChange {}", fmt::ptr(&def));
-    return S_ScriptDistrictChangeListener__OnDistrictChange_original(pThis, def);
+int64_t C_Navigation__OnDistrictChange(void *pThis, SDK::mafia::framework::director::I_GameDirector::C_DistrictDefinition const &def) {
+    if (MafiaMP::Core::gApplication && MafiaMP::Core::gApplication->IsInitialized()) {
+        MafiaMP::Core::gApplication->SetLastDistrictID(def.districtID);
+    }
+    return C_Navigation__OnDistrictChange_original(pThis, def);
 }
 
 static InitFunction init([]() {
-    const auto S_ScriptDistrictChangeListener__OnDistrictChange_Addr = reinterpret_cast<uint64_t>(hook::pattern("48 83 EC 68 0F 10 02").get_first());
-    MH_CreateHook((LPVOID)S_ScriptDistrictChangeListener__OnDistrictChange_Addr, (PBYTE)S_ScriptDistrictChangeListener__OnDistrictChange, reinterpret_cast<void **>(&S_ScriptDistrictChangeListener__OnDistrictChange_original));
+    const auto C_Navigation__OnDistrictChange_Addr = hook::get_pattern<uint64_t>("40 53 57 48 83 EC 28 8B 02");
+    MH_CreateHook((LPVOID)C_Navigation__OnDistrictChange_Addr, (PBYTE)C_Navigation__OnDistrictChange, reinterpret_cast<void **>(&C_Navigation__OnDistrictChange_original));
 });

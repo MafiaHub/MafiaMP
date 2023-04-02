@@ -36,6 +36,9 @@ namespace MafiaMP::Core {
         float _tickInterval = 0.01667f;
         int _controlsLocked = 0;
 
+      private:
+        int64_t _lastDistrictID = 0;
+
       public:
         bool PostInit() override;
         bool PreShutdown() override;
@@ -85,6 +88,14 @@ namespace MafiaMP::Core {
         }
 
         uint64_t GetLocalPlayerID();
+
+        int64_t GetLastDistrictID() const {
+            return _lastDistrictID;
+        }
+
+        void SetLastDistrictID(int64_t id) {
+            _lastDistrictID = id;
+        }
     };
 
     extern std::unique_ptr<Application> gApplication;
