@@ -5,6 +5,7 @@
 #include <utils/safe_win32.h>
 
 #include "../game/streaming/entity_factory.h"
+#include "../game/helpers/districts.h"
 
 #include "luavm.h"
 #include "ui/chat.h"
@@ -37,7 +38,7 @@ namespace MafiaMP::Core {
         int _controlsLocked = 0;
 
       private:
-        int64_t _lastDistrictID = 0;
+        Game::Helpers::Districts _lastDistrictID = Game::Helpers::Districts::UNSPECIFIED;
 
       public:
         bool PostInit() override;
@@ -89,11 +90,11 @@ namespace MafiaMP::Core {
 
         uint64_t GetLocalPlayerID();
 
-        int64_t GetLastDistrictID() const {
+        Game::Helpers::Districts GetLastDistrictID() const {
             return _lastDistrictID;
         }
 
-        void SetLastDistrictID(int64_t id) {
+        void SetLastDistrictID(Game::Helpers::Districts id) {
             _lastDistrictID = id;
         }
     };
