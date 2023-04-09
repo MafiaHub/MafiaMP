@@ -1,36 +1,34 @@
 #pragma once
 #include <utils/safe_win32.h>
-#include <ultralight/Ultralight.h>
 
 #include <string>
 #include <unordered_map>
+#include <mutex>
 
-#include <wrl/client.h>
-#include <d3d11.h>
+#include "cef/application.h"
+#include "cef/frame.h"
+#include "cef/scheme_handler.h"
 
 namespace MafiaMP::Core::UI {
     class Web {
       private:
-        Microsoft::WRL::ComPtr<ID3D11Device> _device;
-        Microsoft::WRL::ComPtr<ID3D11DeviceContext> _context;
-        Microsoft::WRL::ComPtr<ID3D11Texture2D> _texture;
-        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _textureView;
-
-      protected:
-        ultralight::RefPtr<ultralight::Renderer> _renderer;
-        std::unordered_map<std::string, ultralight::RefPtr<ultralight::View>> _views;
-
+        CefRefPtr<CEF::Application> _app;
+        CefRefPtr<CEF::SchemeHandlerFactory> _schemeHandler;
+        
+        std::list<std::shared_ptr<CEF::Frame>> _frames;
+        std::mutex _frameMutex;
       public:
         bool Init();
-        bool CreateView(std::string name, int width, int height, std::string url);
-        bool ToggleViewFocus(std::string name);
+        bool Shutdown();
+
+        bool CheckRequiredFiles();
+
+        std::shared_ptr<CEF::Frame> AddFrame(const CEF::FrameInfo &info);
+        bool RemoveFrame(std::shared_ptr<CEF::Frame> frame);
+
+        void InvokeEvent(const std::string &, const std::string &);
 
         void Update();
         void Render();
-
-      private:
-        void CopyBitmapToTexture(ultralight::RefPtr<ultralight::Bitmap>);
-        void CopyPixelsToTexture(void *pixels, uint32_t width, uint32_t height, uint32_t stride);
-        void ConvertPixelsToARGB(uint8_t *pixels, uint32_t width, uint32_t height, uint32_t stride);
     };
 }

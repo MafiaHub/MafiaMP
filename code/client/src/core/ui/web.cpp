@@ -1,168 +1,128 @@
 #include "web.h"
 
-#include <AppCore/Platform.h>
 #include <logging/logger.h>
+#include <utils/path.h>
+#include <utils/string_utils.h>
 
 #include "../../game/module.h"
 
+#include <vector>
+#include <string>
+
+#include <cppfs/fs.h>
+#include <cppfs/FileHandle.h>
+
 namespace MafiaMP::Core::UI {
     bool Web::Init() {
-        // Prepare the configuration object
-        ultralight::Config config;
-        config.resource_path = "./resources/";
-        config.use_gpu_renderer = false;
-        config.device_scale = 1.0;
-
-        // Create our GPU driver
-        const auto renderDevice = Game::gGlobals.renderDevice;
-        if (!renderDevice) {
-            Framework::Logging::GetLogger("UI")->error("Failed to grab game render device");
-            return false;
-        }
-        _device = renderDevice->_device;
-        _context = renderDevice->_context;
-
-        if (!_device || !_context) {
-            Framework::Logging::GetLogger("UI")->error("Failed to grab game render device or context ({} {})", fmt::ptr(_device.Get()), fmt::ptr(_context.Get()));
+        // Make sure we have all the required files
+        if (!CheckRequiredFiles()) {
             return false;
         }
 
-        // Configure the platform via the singleton
-        ultralight::Platform::instance().set_config(config);
-        ultralight::Platform::instance().set_font_loader(ultralight::GetPlatformFontLoader());
-        ultralight::Platform::instance().set_file_system(ultralight::GetPlatformFileSystem("."));
-        ultralight::Platform::instance().set_logger(ultralight::GetDefaultLogger("ultralight.log"));
+        // CEF App
+        const CefMainArgs args(GetModuleHandleW(nullptr));
+        _app = new CEF::Application(*this);
 
-        // Create our renderer
-        _renderer = ultralight::Renderer::Create();
-        if (!_renderer || !_renderer.get()) {
-            Framework::Logging::GetLogger("UI")->error("Failed to create renderer");
+        // CEF Process
+        const int32_t exitCode = CefExecuteProcess(args, _app, nullptr);
+        if (exitCode >= 0) {
+            MessageBoxW(nullptr, L"libcef: CefExecuteProcess failed!", L"Mafia Multiplayer", MB_ICONERROR);
+            ExitProcess(0);
+        }
+
+        // CEF Settings
+        CefSettings settings;
+        settings.no_sandbox                   = true;
+        settings.multi_threaded_message_loop  = true;
+        settings.windowless_rendering_enabled = true;
+        settings.windowless_rendering_enabled = true;
+
+        // Logging (Debug Build)
+        settings.log_severity          = cef_log_severity_t::LOGSEVERITY_DEBUG;
+        settings.remote_debugging_port = 8384;
+
+        // Cef Paths
+        const auto currentPath = Framework::Utils::GetAbsolutePathW(L"");
+        CefString(&settings.log_file).FromWString(Framework::Utils::GetAbsolutePathW(L"logs\\CEF.log"));
+        CefString(&settings.cache_path).FromWString(Framework::Utils::GetAbsolutePathW(L"cef\\cache"));
+        CefString(&settings.framework_dir_path).FromWString(currentPath);
+        CefString(&settings.root_cache_path).FromWString(Framework::Utils::GetAbsolutePathW(L"cache"));
+        CefString(&settings.resources_dir_path).FromWString(currentPath);
+        CefString(&settings.locales_dir_path).FromWString(Framework::Utils::GetAbsolutePathW(L"locales"));
+        CefString(&settings.user_data_path).FromWString(Framework::Utils::GetAbsolutePathW(L"cef\\userdata"));
+        CefString(&settings.browser_subprocess_path).FromWString(Framework::Utils::GetAbsolutePathW(L"MafiaMPClientWorker.exe"));
+
+        // Initialize CEF
+        if (!CefInitialize(args, settings, _app, nullptr)) {
+            MessageBoxW(nullptr, L"libcef: CefInitialize failed!", L"Mafia Multiplayer", MB_ICONERROR);
             return false;
         }
 
+        // Mount our custom scheme handler
+        _schemeHandler = new CEF::SchemeHandlerFactory();
+        CefRegisterSchemeHandlerFactory("mafiamp", "", _schemeHandler);
         return true;
     }
 
-    bool Web::CreateView(std::string name, int width, int height, std::string url) {
-        ultralight::RefPtr<ultralight::View> view = _renderer->CreateView(width, height, false, nullptr);
-        if (!view || !view.get()) {
-            Framework::Logging::GetLogger("UI")->error("Failed to create view");
-            return false;
-        }
+    bool Web::Shutdown() {
+        // Clear our frames
+        std::lock_guard<std::mutex> lock(_frameMutex);
+        _frames.clear();
 
-        view->LoadURL(ultralight::String(url.c_str()));
-        view->Focus();
-
-        _views.emplace(name, view);
-        Framework::Logging::GetLogger("UI")->debug("Created view {}", name.c_str());
+        // Shutdown CEF
+        CefShutdown();
         return true;
     }
 
-    bool Web::ToggleViewFocus(std::string name) {
-        const auto view = _views[name];
-        if (!view || !view.get()) {
-            Framework::Logging::GetLogger("UI")->error("Failed to find view");
-            return false;
-        }
-
-        if (view->HasFocus()) {
-            view->Unfocus();
-        }
-        else {
-            view->Focus();
-        }
-        return true;
-    }
-
-    void Web::ConvertPixelsToARGB(uint8_t *pixels, uint32_t width, uint32_t height, uint32_t stride) {
-        for (uint32_t y = 0; y < height; y++) {
-            for (uint32_t x = 0; x < width; x++) {
-                uint8_t *pixel = pixels + (y * stride) + (x * 4);
-                std::swap(pixel[0], pixel[2]);
+    bool Web::CheckRequiredFiles() {
+        std::vector<std::string> filenames = {"resources.pak", "chrome_100_percent.pak", "chrome_200_percent.pak", "icudtl.dat", "locales"};
+        for (const auto &filename : filenames) {
+            cppfs::FileHandle fh = cppfs::fs::open(Framework::Utils::GetAbsolutePathA(filename));
+            if (!fh.exists()) {
+                Framework::Logging::GetLogger("CEF")->critical("Required file or directory {} does not exists. Cannot init CEF", filename.c_str());
+                return false;
             }
         }
+        return true;
     }
 
-    void Web::CopyPixelsToTexture(void *pixels, uint32_t width, uint32_t height, uint32_t stride) {
-        D3D11_TEXTURE2D_DESC textDesc;
-        textDesc.Width     = width;
-        textDesc.Height    = height;
-        textDesc.MipLevels = textDesc.ArraySize = 1;
-        textDesc.Format                         = DXGI_FORMAT_B8G8R8A8_UNORM;
-        textDesc.SampleDesc.Count               = 1;
-        textDesc.SampleDesc.Quality             = 0;
-        textDesc.Usage                          = D3D11_USAGE_DYNAMIC;
-        textDesc.BindFlags                      = D3D11_BIND_SHADER_RESOURCE;
-        textDesc.CPUAccessFlags                 = D3D11_CPU_ACCESS_WRITE;
-        textDesc.MiscFlags                      = 0;
-
-        HRESULT result = _device->CreateTexture2D(&textDesc, nullptr, _texture.ReleaseAndGetAddressOf());
-        if (FAILED(result)) {
-            Framework::Logging::GetLogger("UI")->error("Failed to create 2D Texture");
-            return;
+    std::shared_ptr<CEF::Frame> Web::AddFrame(const CEF::FrameInfo &info) {
+        // Make sure our frame is valid
+        if (info.sizeX == 0 || info.sizeY == 0 || !info.url.length()) {
+            Framework::Logging::GetLogger("CEF")->error("Failed to create frame due to invalid size or url ({} / {} {})", info.sizeX, info.sizeY, info.url);
+            return nullptr;
         }
 
-        D3D11_SHADER_RESOURCE_VIEW_DESC sharedResourceViewDesc = {};
-        sharedResourceViewDesc.Format                          = textDesc.Format;
-        sharedResourceViewDesc.ViewDimension                   = D3D11_SRV_DIMENSION_TEXTURE2D;
-        sharedResourceViewDesc.Texture2D.MipLevels             = 1;
-
-        if (FAILED(_device->CreateShaderResourceView(_texture.Get(), &sharedResourceViewDesc, _textureView.ReleaseAndGetAddressOf())))
-            return;
-
-        D3D11_MAPPED_SUBRESOURCE mappedResource;
-        const auto mapResult = _context->Map(_texture.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-
-        if (SUCCEEDED(mapResult)) {
-            const auto pDest = static_cast<uint8_t *>(mappedResource.pData);
-            std::memcpy(pDest, pixels, width * height * 4);
-            _context->Unmap(_texture.Get(), 0);
+        // Create a new frame instance and initialize it
+        auto frame = std::make_shared<CEF::Frame>(info);
+        if (!frame->Initialize()) {
+            return nullptr;
         }
-        else {
-            _context.Reset();
-            _texture.Reset();
-        }
+
+        // Add our frame to local manager
+         std::lock_guard<std::mutex> lock(_frameMutex);
+        _frames.push_back(frame);
+        return frame;
     }
 
-    void Web::CopyBitmapToTexture(ultralight::RefPtr<ultralight::Bitmap> bitmap) {
-        void *pixels = bitmap->LockPixels();
+    bool Web::RemoveFrame(std::shared_ptr<CEF::Frame> frame) {
+        // Find the frame by its pointer
+        std::lock_guard<std::mutex> lock(_frameMutex);
+        auto it = find(_frames.begin(), _frames.end(), frame);
 
-        uint32_t width  = bitmap->width();
-        uint32_t height = bitmap->height();
-        uint32_t stride = bitmap->row_bytes();
-
-        CopyPixelsToTexture(pixels, width, height, stride);
-
-        bitmap->UnlockPixels();
-    }
-
-    void Web::Update() {
-        if (!_renderer || !_renderer.get()) {
-            return;
+        // If found, erase
+        if (it != _frames.end()) {
+            _frames.erase(it);
+            return true;
         }
 
-        _renderer->Update();
+        return false;
     }
 
     void Web::Render() {
-        if (!_renderer || !_renderer.get()) {
-            return;
-        }
-
-        _renderer->Render();
-
-        for (auto view : _views) {
-            // Acquire the bitmap surface
-            ultralight::BitmapSurface *surface = (ultralight::BitmapSurface *)(view.second->surface());
-
-            // Check if the surface is dirty (pixels changed)
-            if (!surface->dirty_bounds().IsEmpty()) {
-                // Copy the bitmap to our GPU texture
-                CopyBitmapToTexture(surface->bitmap());
-
-                // Mark the surface as clean
-                surface->ClearDirtyBounds();
-            }
+        std::lock_guard<std::mutex> lock(_frameMutex);
+        for (auto &frame : _frames) {
+            frame->Render();
         }
     }
 }
