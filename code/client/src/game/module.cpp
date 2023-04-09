@@ -32,8 +32,8 @@ namespace MafiaMP::Game {
             rendererOptions.platform = Framework::Graphics::PlatformBackend::PLATFORM_WIN32;
 
             // fill out renderer info
-            rendererOptions.d3d11.device = gGlobals.renderDevice->_device;
-            rendererOptions.d3d11.deviceContext = gGlobals.renderDevice->_context;
+            rendererOptions.d3d11.device = gGlobals.renderDevice->GetDevice();
+            rendererOptions.d3d11.deviceContext = gGlobals.renderDevice->GetImmediateContext();
             rendererOptions.windowHandle = gGlobals.window;
 
             Framework::Integrations::Client::InstanceOptions opts;
