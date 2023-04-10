@@ -278,12 +278,18 @@ namespace MafiaMP::Core::Modules {
         const auto hmm = updateData->_moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(updateData->_moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
         trackingData->charController->SetMoveStateOverride(hmm, updateData->_isSprinting, updateData->_sprintSpeed);
 
-        // weapon sync
+        // Weapon inventory sync
         const auto wepController = trackingData->human->GetHumanWeaponController();
         if (wepController->GetRightHandWeaponID() != updateData->weaponData.currentWeaponId) {
             wepController->DoWeaponSelectByItemId(updateData->weaponData.currentWeaponId, true);
         }
+
+        // Aiming state sync
+        SDK::ue::C_CntPtr<uintptr_t> syncObject2;
+        trackingData->human->GetHumanScript()->ScrAim(syncObject2, updateData->weaponData.isAiming);
         wepController->SetAiming(updateData->weaponData.isAiming);
+
+        // Shooting state sync
         wepController->SetFirePressedFlag(updateData->weaponData.isFiring);
     }
 
