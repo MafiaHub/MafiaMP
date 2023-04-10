@@ -17,15 +17,15 @@ namespace SDK {
     }
 
     const char* C_StreamMap::GetGame() {
-        return hook::this_call<const char *>(gPatterns.C_StreamMap__GetGame, this);
+        return m_sGameName;
     }
 
     const char* C_StreamMap::GetMission() {
-        return hook::this_call<const char *>(gPatterns.C_StreamMap__GetMission, this);
+        return m_sMissionName;
     }
 
     const char* C_StreamMap::GetPart() {
-        return hook::this_call<const char *>(gPatterns.C_StreamMap__GetPart, this);
+        return m_sPartName;
     }
 
     void C_StreamMap::OpenGame(const char* game) {
