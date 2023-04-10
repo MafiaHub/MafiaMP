@@ -285,6 +285,17 @@ namespace SDK {
         uint64_t Lua__tostringAddr   = 0x0;
         uint64_t Lua__isstringAddr   = 0x0;
 
+        // C_StreamMap
+        uint64_t C_StreamMap__CloseGame = 0x0;
+        uint64_t C_StreamMap__CloseMission = 0x0;
+        uint64_t C_StreamMap__ClosePart    = 0x0;
+        uint64_t C_StreamMap__GetGame      = 0x0;
+        uint64_t C_StreamMap__GetMission   = 0x0;
+        uint64_t C_StreamMap__GetPart      = 0x0;
+        uint64_t C_StreamMap__OpenGame     = 0x0;
+        uint64_t C_StreamMap__OpenMission  = 0x0;
+        uint64_t C_StreamMap__OpenPart     = 0x0;
+
         static void InitPatterns();
     };
 

@@ -5,6 +5,8 @@
 
 #include "../../game/module.h"
 
+#include <Inc/SimpleMath.h>
+
 namespace MafiaMP::Core::UI {
     bool Web::Init() {
         // Prepare the configuration object
@@ -19,13 +21,17 @@ namespace MafiaMP::Core::UI {
             Framework::Logging::GetLogger("UI")->error("Failed to grab game render device");
             return false;
         }
-        _device = renderDevice->_device;
-        _context = renderDevice->_context;
+        _device = renderDevice->GetDevice();
+        _context = renderDevice->GetImmediateContext();
+        _immediateContext = renderDevice->GetImmediateContext();
 
-        if (!_device || !_context) {
+        if (!_device || !_context || !_immediateContext) {
             Framework::Logging::GetLogger("UI")->error("Failed to grab game render device or context ({} {})", fmt::ptr(_device.Get()), fmt::ptr(_context.Get()));
             return false;
         }
+
+        _spriteBatch = std::make_unique<DirectX::SpriteBatch>(_immediateContext.Get());
+        _states      = std::make_unique<DirectX::CommonStates>(_device.Get());
 
         // Configure the platform via the singleton
         ultralight::Platform::instance().set_config(config);
@@ -37,6 +43,40 @@ namespace MafiaMP::Core::UI {
         _renderer = ultralight::Renderer::Create();
         if (!_renderer || !_renderer.get()) {
             Framework::Logging::GetLogger("UI")->error("Failed to create renderer");
+            return false;
+        }
+
+        Framework::Logging::GetLogger("UI")->debug("Web Renderer initialized");
+
+        return true;
+    }
+
+    bool Web::CreateTexture(uint32_t width, uint32_t height) {
+        D3D11_TEXTURE2D_DESC textDesc;
+        textDesc.Width     = width;
+        textDesc.Height    = height;
+        textDesc.MipLevels = textDesc.ArraySize = 1;
+        textDesc.Format                         = DXGI_FORMAT_B8G8R8A8_UNORM;
+        textDesc.SampleDesc.Count               = 1;
+        textDesc.SampleDesc.Quality             = 0;
+        textDesc.Usage                          = D3D11_USAGE_DYNAMIC;
+        textDesc.BindFlags                      = D3D11_BIND_SHADER_RESOURCE;
+        textDesc.CPUAccessFlags                 = D3D11_CPU_ACCESS_WRITE;
+        textDesc.MiscFlags                      = 0;
+
+        HRESULT result = _device->CreateTexture2D(&textDesc, nullptr, _texture.ReleaseAndGetAddressOf());
+        if (FAILED(result)) {
+            Framework::Logging::GetLogger("UI")->error("Failed to create 2D Texture");
+            return false;
+        }
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC sharedResourceViewDesc = {};
+        sharedResourceViewDesc.Format                          = textDesc.Format;
+        sharedResourceViewDesc.ViewDimension                   = D3D11_SRV_DIMENSION_TEXTURE2D;
+        sharedResourceViewDesc.Texture2D.MipLevels             = 1;
+
+        if (FAILED(_device->CreateShaderResourceView(_texture.Get(), &sharedResourceViewDesc, _textureView.ReleaseAndGetAddressOf()))) {
+            Framework::Logging::GetLogger("UI")->error("Failed to create shader resource view");
             return false;
         }
 
@@ -84,44 +124,35 @@ namespace MafiaMP::Core::UI {
     }
 
     void Web::CopyPixelsToTexture(void *pixels, uint32_t width, uint32_t height, uint32_t stride) {
-        D3D11_TEXTURE2D_DESC textDesc;
-        textDesc.Width     = width;
-        textDesc.Height    = height;
-        textDesc.MipLevels = textDesc.ArraySize = 1;
-        textDesc.Format                         = DXGI_FORMAT_B8G8R8A8_UNORM;
-        textDesc.SampleDesc.Count               = 1;
-        textDesc.SampleDesc.Quality             = 0;
-        textDesc.Usage                          = D3D11_USAGE_DYNAMIC;
-        textDesc.BindFlags                      = D3D11_BIND_SHADER_RESOURCE;
-        textDesc.CPUAccessFlags                 = D3D11_CPU_ACCESS_WRITE;
-        textDesc.MiscFlags                      = 0;
-
-        HRESULT result = _device->CreateTexture2D(&textDesc, nullptr, _texture.ReleaseAndGetAddressOf());
-        if (FAILED(result)) {
-            Framework::Logging::GetLogger("UI")->error("Failed to create 2D Texture");
-            return;
+        if (!_texture || !_textureView) {
+            if (!CreateTexture(width, height)) {
+                __debugbreak();
+            }
         }
 
-        D3D11_SHADER_RESOURCE_VIEW_DESC sharedResourceViewDesc = {};
-        sharedResourceViewDesc.Format                          = textDesc.Format;
-        sharedResourceViewDesc.ViewDimension                   = D3D11_SRV_DIMENSION_TEXTURE2D;
-        sharedResourceViewDesc.Texture2D.MipLevels             = 1;
-
-        if (FAILED(_device->CreateShaderResourceView(_texture.Get(), &sharedResourceViewDesc, _textureView.ReleaseAndGetAddressOf())))
-            return;
-
+        // Paint to the texture
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         const auto mapResult = _context->Map(_texture.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-
-        if (SUCCEEDED(mapResult)) {
-            const auto pDest = static_cast<uint8_t *>(mappedResource.pData);
-            std::memcpy(pDest, pixels, width * height * 4);
-            _context->Unmap(_texture.Get(), 0);
-        }
-        else {
+        if (!SUCCEEDED(mapResult)) {
             _context.Reset();
             _texture.Reset();
+            return;
         }
+        const auto pDest = static_cast<uint8_t *>(mappedResource.pData);
+        std::memcpy(pDest, pixels, width * height * 4);
+        _context->Unmap(_texture.Get(), 0);
+
+        // Process command lists
+        Microsoft::WRL::ComPtr<ID3D11CommandList> commandsList;
+        const auto result = _context->FinishCommandList(FALSE, &commandsList);
+
+        if (result == S_OK && commandsList) {
+            _immediateContext->ExecuteCommandList(commandsList.Get(), TRUE);
+        }
+
+        _spriteBatch->Begin(DirectX::SpriteSortMode_Deferred, _states->NonPremultiplied());
+        _spriteBatch->Draw(_textureView.Get(), DirectX::SimpleMath::Vector2(0.f, 0.f), nullptr, DirectX::Colors::White, 0.f);
+        _spriteBatch->End();
     }
 
     void Web::CopyBitmapToTexture(ultralight::RefPtr<ultralight::Bitmap> bitmap) {

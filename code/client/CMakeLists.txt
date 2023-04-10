@@ -30,6 +30,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/player.cpp
     src/core/hooks/render_device.cpp
     src/core/hooks/slot_wrapper.cpp
+    src/core/hooks/stream_map.cpp
     src/core/hooks/tables.cpp
     src/core/hooks/traffic.cpp
     src/core/hooks/translocator.cpp
@@ -104,6 +105,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/c_game_traffic_module.cpp
     src/sdk/c_ie.cpp
     src/sdk/c_player_teleport_module.cpp
+    src/sdk/c_stream_map.cpp
     src/sdk/c_ticked_module_manager.cpp
     src/sdk/c_time_budget_info.cpp
     src/sdk/patterns.cpp
@@ -111,7 +113,7 @@ set(MAFIAMP_SDK_FILES
 
 add_library(MafiaMPClient SHARED ${MAFIAMP_CLIENT_FILES} ${MAFIAMP_SDK_FILES})
 target_include_directories(MafiaMPClient PRIVATE src)
-target_link_libraries(MafiaMPClient Framework FrameworkClient shlwapi Lua54)
+target_link_libraries(MafiaMPClient Framework FrameworkClient shlwapi Lua54 Ultralight DirectXTK)
 target_link_options(MafiaMPClient PRIVATE /SAFESEH:NO /MANIFEST:NO)
 
 add_custom_command(TARGET MafiaMPClient POST_BUILD
