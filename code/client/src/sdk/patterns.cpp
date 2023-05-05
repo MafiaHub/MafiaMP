@@ -292,9 +292,19 @@ namespace SDK {
 
         // C_Navigation
         gPatterns.C_Navigation__GetInstance           = hook::get_opcode_address("E8 ? ? ? ? 49 8B 5E 60");
+        gPatterns.C_Navigation__EnableGPSCustomPath   = hook::get_opcode_address("E8 ? ? ? ? 4D 85 F6 0F 84 ? ? ? ? 4D 2B E6");
         gPatterns.C_Navigation__SetUserMark           = hook::get_opcode_address("E8 ? ? ? ? 48 83 C4 ? C3 ? ? ? ? ? ? ? 48 89 5C 24 ? 57 48 83 EC ? 41 8B D8");
+        gPatterns.C_Navigation__RegisterHumanPlayer   = hook::get_opcode_address("E8 ? ? ? ? 48 83 C6 10 49 3B F7");
+        gPatterns.C_Navigation__RegisterHumanPolice   = reinterpret_cast<uint64_t>(hook::pattern("48 83 EC 38 45 33 C9 C6 44 24 ? ?").get_first());
         gPatterns.C_Navigation__RegisterVehicleCommon = hook::get_opcode_address("E8 ? ? ? ? 89 87 ? ? ? ? 48 8B CF E8 ? ? ? ?");
+        gPatterns.C_Navigation__RegisterVehicleMoto       = hook::get_opcode_address("E8 ? ? ? ? 48 8B 74 24 ? 48 8B 5C 24 ? 48 83 C4 20 5F C3 8B 48 04");
         gPatterns.C_Navigation__RegisterVehicleEntity = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 49 8B F0 48 8B DA 48 8B E9"));
+        gPatterns.C_Navigation__RegisterVehiclePolice     = hook::get_opcode_address("E8 ? ? ? ? 48 81 8E ? ? ? ? ? ? ? ? 89 86 ? ? ? ?");
+        gPatterns.C_Navigation__RegisterVehiclePoliceBoat = hook::get_opcode_address("E8 ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 48 09 87 ? ? ? ? 48 8B 5C 24 ?");
+        gPatterns.C_Navigation__RegisterVehiclePoliceMoto = hook::get_opcode_address("E8 ? ? ? ? 89 86 ? ? ? ? C6 86 ? ? ? ? ? 48 8B 5C 24 ?");
+        gPatterns.C_Navigation__RegisterVehicleTaxi   = hook::get_opcode_address("E8 ? ? ? ? 48 89 77 38 33 F6");
+        gPatterns.C_Navigation__UnregisterId              = hook::get_opcode_address("E8 ? ? ? ? 39 BE ? ? ? ? 75 0A");
+        gPatterns.C_Navigation__UnregisterHuman           = hook::get_opcode_address("E8 ? ? ? ? 8B 05 ? ? ? ? 48 8B 7C 24 ?");
         gPatterns.C_Navigation__UnregisterVehicle     = hook::get_opcode_address("E8 ? ? ? ? 44 38 B6 ? ? ? ? 74 1B");
 
         // init
