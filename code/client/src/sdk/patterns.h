@@ -245,9 +245,19 @@ namespace SDK {
 
         // C_Navigation
         uint64_t C_Navigation__GetInstance           = 0x0;
+        uint64_t C_Navigation__EnableGPSCustomPath   = 0x0;
         uint64_t C_Navigation__SetUserMark           = 0x0;
+        uint64_t C_Navigation__RegisterHumanPlayer   = 0x0;
+        uint64_t C_Navigation__RegisterHumanPolice   = 0x0;
         uint64_t C_Navigation__RegisterVehicleCommon = 0x0;
+        uint64_t C_Navigation__RegisterVehicleMoto       = 0x0;
         uint64_t C_Navigation__RegisterVehicleEntity = 0x0;
+        uint64_t C_Navigation__RegisterVehiclePolice     = 0x0;
+        uint64_t C_Navigation__RegisterVehiclePoliceBoat = 0x0;
+        uint64_t C_Navigation__RegisterVehiclePoliceMoto = 0x0;
+        uint64_t C_Navigation__RegisterVehicleTaxi   = 0x0;
+        uint64_t C_Navigation__UnregisterId              = 0x0;
+        uint64_t C_Navigation__UnregisterHuman           = 0x0;
         uint64_t C_Navigation__UnregisterVehicle     = 0x0;
 
         // init
