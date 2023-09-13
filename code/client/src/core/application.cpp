@@ -171,7 +171,7 @@ namespace MafiaMP::Core {
         }
 
         if (GetAsyncKeyState(VK_F6) & 0x1) {
-            _web->CreateView("test", 500, 500, "https://youtube.fr");
+            // _web->CreateView("test", 500, 500, "https://youtube.fr");
         }
     }
 

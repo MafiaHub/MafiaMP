@@ -113,7 +113,7 @@ set(MAFIAMP_SDK_FILES
 
 add_library(MafiaMPClient SHARED ${MAFIAMP_CLIENT_FILES} ${MAFIAMP_SDK_FILES})
 target_include_directories(MafiaMPClient PRIVATE src)
-target_link_libraries(MafiaMPClient Framework FrameworkClient shlwapi Lua54 Ultralight DirectXTK)
+target_link_libraries(MafiaMPClient Framework FrameworkClient shlwapi Lua54 DirectXTK)
 target_link_options(MafiaMPClient PRIVATE /SAFESEH:NO /MANIFEST:NO)
 
 add_custom_command(TARGET MafiaMPClient POST_BUILD
