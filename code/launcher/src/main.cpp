@@ -9,6 +9,8 @@ int main(void) {
     config.name               = "MafiaMP";
     config.platform           = Framework::Launcher::ProjectPlatform::STEAM;
     config.steamAppId         = 1030840;
+    config.verifyGameIntegrity = true;
+    config.supportedGameVersions = {3168979183};
 
 #ifdef FW_DEBUG
     config.allocateDeveloperConsole = true;
