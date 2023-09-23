@@ -171,7 +171,13 @@ namespace MafiaMP::Core {
         }
 
         if (GetAsyncKeyState(VK_F6) & 0x1) {
-            // _web->CreateView("test", 500, 500, "https://youtube.fr");
+            UI::CEF::FrameInfo info;
+
+            info.sizeX = 600;
+            info.sizeY = 450;
+            info.url   = "https://google.fr";
+
+            _web->AddFrame(info);
         }
     }
 
