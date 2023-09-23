@@ -8,9 +8,8 @@ namespace MafiaMP::Core::UI::CEF {
     }
 
     void Application::OnBeforeCommandLineProcessing(const CefString &, CefRefPtr<CefCommandLine> cmdl) {
-        cmdl->AppendSwitch("enable-experimental-web-platform-features");
-        cmdl->AppendSwitch("transparent-painting-enabled");
-        cmdl->AppendSwitch("off-screen-rendering-enabled");
+        cmdl->AppendSwitch("allow-file-access-from-files");
+        cmdl->AppendSwitch("allow-universal-access-from-files");
     }
 
     void Application::InvokeEvent(const std::string &name, const std::string &data) {
