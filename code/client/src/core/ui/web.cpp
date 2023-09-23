@@ -35,7 +35,6 @@ namespace MafiaMP::Core::UI {
         settings.no_sandbox                   = true;
         settings.multi_threaded_message_loop  = true;
         settings.windowless_rendering_enabled = true;
-        settings.windowless_rendering_enabled = true;
 
         // Logging (Debug Build)
         settings.log_severity          = cef_log_severity_t::LOGSEVERITY_DEBUG;
