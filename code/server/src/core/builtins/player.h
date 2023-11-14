@@ -46,24 +46,21 @@ namespace MafiaMP::Scripting {
         }
 
         static void EventPlayerDied(flecs::entity e) {
-            // TODO: fix me
-            /*auto nodeResource = reinterpret_cast<Framework::Scripting::Engines::Node::Engine *>(resource);
-            auto playerObj = WrapHuman(nodeResource, e);
-            nodeResource->InvokeEvent("playerDied", playerObj);*/
+            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
+            auto playerObj = WrapHuman(engine, e);
+            engine->InvokeEvent("playerDied", playerObj);
         }
 
         static void EventPlayerConnected(flecs::entity e) {
-            // TODO: fix me
-            /*auto nodeResource = reinterpret_cast<Framework::Scripting::Engines::Node::Resource *>(resource);
-            auto playerObj = WrapHuman(nodeResource, e);
-            nodeResource->InvokeEvent("playerConnected", playerObj);*/
+            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
+            auto playerObj = WrapHuman(engine, e);
+            engine->InvokeEvent("playerConnected", playerObj);
         }
 
         static void EventPlayerDisconnected(flecs::entity e) {
-            // TODO: fix me
-            /*auto nodeResource = reinterpret_cast<Framework::Scripting::Engines::Node::Resource *>(resource);
-            auto playerObj = WrapHuman(nodeResource, e);
-            nodeResource->InvokeEvent("playerDisconnected", playerObj);*/
+            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
+            auto playerObj = WrapHuman(engine, e);
+            engine->InvokeEvent("playerDisconnected", playerObj);
         }
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
