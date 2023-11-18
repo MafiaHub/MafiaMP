@@ -15,9 +15,9 @@ namespace MafiaMP::Scripting {
       public:
         Human(flecs::entity_t ent): Entity(ent) {}
 
-        static v8::Local<v8::Object> WrapHuman(Framework::Scripting::Engines::Node::Resource *res, flecs::entity e) {
-            V8_RESOURCE_LOCK(res);
-            return v8pp::class_<Scripting::Human>::create_object(res->GetIsolate(), e.id());
+        static v8::Local<v8::Object> WrapHuman(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e) {
+            V8_RESOURCE_LOCK(engine);
+            return v8pp::class_<Scripting::Human>::create_object(engine->GetIsolate(), e.id());
         }
 
         std::string ToString() const override {
@@ -46,27 +46,21 @@ namespace MafiaMP::Scripting {
         }
 
         static void EventPlayerDied(flecs::entity e) {
-            Framework::CoreModules::GetScriptingModule()->ForEachResource([&](Framework::Scripting::Engines::IResource *resource) {
-                auto nodeResource = reinterpret_cast<Framework::Scripting::Engines::Node::Resource *>(resource);
-                auto playerObj = WrapHuman(nodeResource, e);
-                nodeResource->InvokeEvent("playerDied", playerObj);
-            });
+            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
+            auto playerObj = WrapHuman(engine, e);
+            engine->InvokeEvent("playerDied", playerObj);
         }
 
         static void EventPlayerConnected(flecs::entity e) {
-            Framework::CoreModules::GetScriptingModule()->ForEachResource([&](Framework::Scripting::Engines::IResource *resource) {
-                auto nodeResource = reinterpret_cast<Framework::Scripting::Engines::Node::Resource *>(resource);
-                auto playerObj = WrapHuman(nodeResource, e);
-                nodeResource->InvokeEvent("playerConnected", playerObj);
-            });
+            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
+            auto playerObj = WrapHuman(engine, e);
+            engine->InvokeEvent("playerConnected", playerObj);
         }
 
         static void EventPlayerDisconnected(flecs::entity e) {
-            Framework::CoreModules::GetScriptingModule()->ForEachResource([&](Framework::Scripting::Engines::IResource *resource) {
-                auto nodeResource = reinterpret_cast<Framework::Scripting::Engines::Node::Resource *>(resource);
-                auto playerObj = WrapHuman(nodeResource, e);
-                nodeResource->InvokeEvent("playerDisconnected", playerObj);
-            });
+            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
+            auto playerObj = WrapHuman(engine, e);
+            engine->InvokeEvent("playerDisconnected", playerObj);
         }
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {

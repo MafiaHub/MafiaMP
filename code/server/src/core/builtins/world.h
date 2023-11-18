@@ -62,17 +62,13 @@ namespace MafiaMP::Scripting {
         }
 
         static void OnChatMessage(flecs::entity e, std::string message) {
-            Framework::CoreModules::GetScriptingModule()->ForEachResource([&](Framework::Scripting::Engines::IResource *resource) {
-                auto nodeResource = reinterpret_cast<Framework::Scripting::Engines::Node::Resource *>(resource);
-                nodeResource->InvokeEvent("chatMessage", Human::WrapHuman(nodeResource, e), message);
-            });
+            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
+            engine->InvokeEvent("chatMessage", Human::WrapHuman(engine, e), message);
         }
 
         static void OnChatCommand(flecs::entity e, std::string message, std::string command, std::vector<std::string> args) {
-            Framework::CoreModules::GetScriptingModule()->ForEachResource([&](Framework::Scripting::Engines::IResource *resource) {
-                auto nodeResource = reinterpret_cast<Framework::Scripting::Engines::Node::Resource *>(resource);
-                nodeResource->InvokeEvent("chatCommand", Human::WrapHuman(nodeResource, e), message, command, args);
-            });
+            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
+            engine->InvokeEvent("chatCommand", Human::WrapHuman(engine, e), message, command, args);
         }
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
