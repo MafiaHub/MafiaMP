@@ -48,12 +48,11 @@ namespace MafiaMP::Core::UI {
         CefString(&settings.framework_dir_path).FromWString(currentPath);
         CefString(&settings.resources_dir_path).FromWString(currentPath);
         CefString(&settings.locales_dir_path).FromWString(Framework::Utils::GetAbsolutePathW(L"locales"));
-        CefString(&settings.user_data_path).FromWString(Framework::Utils::GetAbsolutePathW(L"cef\\userdata"));
         CefString(&settings.browser_subprocess_path).FromWString(Framework::Utils::GetAbsolutePathW(L"MafiaMPClientWorker.exe"));
 
         // Initialize CEF
         if (!CefInitialize(args, settings, _app, nullptr)) {
-            MessageBoxW(nullptr, L"libcef: CefInitialize failed!", L"Mafia Multiplayer", MB_ICONERROR);
+            MessageBoxW(nullptr, L"Unable to initialize the CEF subprocess", L"Mafia Multiplayer", MB_ICONERROR);
             return false;
         }
 
