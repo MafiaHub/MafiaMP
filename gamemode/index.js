@@ -279,7 +279,7 @@ const weatherSets = [
   "mm_210_gallery_cp_050",
 ];
 
-sdk.on("resourceLoaded", (name) => {
+sdk.on("gamemodeLoaded", () => {
   // Spawn vehicles
   for (const veh of vehicleSpawns) {
     const car = sdk.World.createVehicle(veh.modelName);
