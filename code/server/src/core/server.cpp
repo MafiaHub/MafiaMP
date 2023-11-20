@@ -12,12 +12,9 @@
 #include "shared/rpc/chat_message.h"
 #include "shared/rpc/environment.h"
 
-
-#include <fmt/format.h>
-
 #include "shared/game_rpc/human/human_changeskin.h"
- namespace MafiaMP {
 
+ namespace MafiaMP {
     void Server::PostInit() {
         _serverRef = this;
         InitNetworkingMessages();
@@ -52,19 +49,10 @@
             const auto weather = GetWorldEngine()->GetWorld()->get<Core::Modules::Environment::Weather>();
             FW_SEND_COMPONENT_RPC_TO(Shared::RPC::SetEnvironment, SLNet::RakNetGUID(guid), SLNet::RakString(weather->_weatherSetName.c_str()), weather->_dayTimeHours);
 
-            // Broadcast chat message
-            const auto st  = player.get<Framework::World::Modules::Base::Streamer>();
-            const auto msg = fmt::format("Player {} has joined the session!", st->nickname);
-            BroadcastChatMessage(msg);
-
             Scripting::Human::EventPlayerConnected(player);
         });
 
         SetOnPlayerDisconnectCallback([this](flecs::entity player, uint64_t) {
-            const auto st  = player.get<Framework::World::Modules::Base::Streamer>();
-            const auto msg = fmt::format("Player {} has left the session!", st->nickname);
-            BroadcastChatMessage(msg);
-
             Scripting::Human::EventPlayerDisconnected(player);
         });
 
@@ -84,9 +72,6 @@
         MafiaMP::Scripting::Builtins::Register(nodeSDK->GetIsolate(), nodeSDK->GetModule());
     }
 
-    void Server::BroadcastChatMessage(const std::string &msg) {
-        FW_SEND_COMPONENT_RPC(Shared::RPC::ChatMessage, msg);
-    }
     void Server::InitRPCs() {
         const auto net = GetNetworkingEngine()->GetNetworkServer();
         net->RegisterRPC<Shared::RPC::ChatMessage>([this](SLNet::RakNetGUID guid, Shared::RPC::ChatMessage *chatMessage) {

@@ -14,8 +14,6 @@ namespace MafiaMP {
 
         void PreShutdown() override;
 
-        void BroadcastChatMessage(const std::string &msg);
-
         void ModuleRegister(Framework::Scripting::Engines::SDKRegisterWrapper sdk) override;
 
         void InitRPCs();

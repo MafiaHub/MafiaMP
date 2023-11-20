@@ -12,17 +12,19 @@
 namespace MafiaMP::Scripting {
     class Chat final {
       public:
-        static void SendChatMessage(std::string message, Human *human) {
+        static void SendToPlayer(Human *human, std::string message) {
             if (human) {
                 const auto ent = human->GetHandle();
                 const auto str   = ent.get<Framework::World::Modules::Base::Streamer>();
+
                 if (!str)
                     return;
+
                 FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(str->guid), message);
             }
         }
 
-        static void BroadcastMessage(std::string message) {
+        static void SendToAll(std::string message) {
             FW_SEND_COMPONENT_RPC(Shared::RPC::ChatMessage, message);
         }
 
@@ -37,8 +39,10 @@ namespace MafiaMP::Scripting {
         }
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
-            rootModule->function("sendChatMessage", &Chat::SendChatMessage);
-            rootModule->function("broadcastMessage", &Chat::BroadcastMessage);
+            v8pp::module chat(isolate);
+            chat.function("sendToPlayer", &Chat::SendToPlayer);
+            chat.function("sendToAll", &Chat::SendToAll);
+            rootModule->submodule("Chat", chat);
         }
     };
 } // namespace MafiaMP::Scripting

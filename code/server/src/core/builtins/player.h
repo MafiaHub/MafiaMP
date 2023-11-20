@@ -7,6 +7,7 @@
 
 #include "shared/game_rpc/human/human_setprops.h"
 #include "shared/game_rpc/add_weapon.h"
+#include "shared/rpc/chat_message.h"
 
 #include "scripting/module.h"
 
@@ -26,8 +27,21 @@ namespace MafiaMP::Scripting {
             return ss.str();
         }
 
+        void Destruct(v8::Isolate *isolate) {
+            isolate->ThrowException(v8::Exception::Error(v8::String::NewFromUtf8(isolate, "Human object can not be destroyed!").ToLocalChecked()));
+        }
+
         void AddWeapon(int weaponId, int ammo) {
             FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::AddWeapon, _ent, weaponId, ammo);
+        }
+
+        void SendChat(std::string message) {
+            const auto str = _ent.get<Framework::World::Modules::Base::Streamer>();
+            FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(str->guid), message);
+        }
+
+        static void SendChatToAll(std::string message) {
+            FW_SEND_COMPONENT_RPC(Shared::RPC::ChatMessage, message);
         }
 
         void SetHealth(float health) {
@@ -39,10 +53,6 @@ namespace MafiaMP::Scripting {
         float GetHealth() const {
             auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
             return h->_healthPercent;
-        }
-
-        void Destruct(v8::Isolate *isolate) {
-            isolate->ThrowException(v8::Exception::Error(v8::String::NewFromUtf8(isolate, "Human object can not be destroyed!").ToLocalChecked()));
         }
 
         static void EventPlayerDied(flecs::entity e) {
@@ -70,10 +80,12 @@ namespace MafiaMP::Scripting {
 
             v8pp::class_<Human> cls(isolate);
             cls.inherit<Framework::Integrations::Scripting::Entity>();
+            cls.function("destruct", &Human::Destruct);
             cls.function("addWeapon", &Human::AddWeapon);
             cls.function("setHealth", &Human::SetHealth);
             cls.function("getHealth", &Human::GetHealth);
-            cls.function("destruct", &Human::Destruct);
+            cls.function("sendChat", &Human::SendChat);
+            cls.function("sendChatToAll", &Human::SendChatToAll);
             rootModule->class_("Human", cls);
         }
     };

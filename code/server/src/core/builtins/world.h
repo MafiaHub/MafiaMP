@@ -45,13 +45,13 @@ namespace MafiaMP::Scripting {
         }
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
-            // Create the environment namespace
+            // Create the environment module
             v8pp::module environment(isolate);
             environment.function("setWeather", &World::SetWeather);
             environment.function("setDayTimeHours", &World::SetDayTimeHours);
             rootModule->submodule("Environment", environment);
 
-            // Create the vehicle namespace
+            // Create the world module
             v8pp::module world(isolate);
             world.function("createVehicle", &World::CreateVehicle);
             rootModule->submodule("World", world);
