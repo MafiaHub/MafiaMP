@@ -317,11 +317,6 @@ sdk.on("playerConnected", (player) => {
 sdk.on("playerDisconnected", (player) => {
     console.log(`[GAMEMODE] Player ${player.getNickname()} disconnected!`);
     player.sendChatToAll(`[SERVER] ${player.getNickname()} has left the session!`);
-
-    // player.addWeapon(20, 200); // TODO: Not working yet
-    player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
-    player.sendChat(`[SERVER] Welcome ${player.getNickname()}!`)
-
 });
 
 sdk.on("playerDied", (player) => {
