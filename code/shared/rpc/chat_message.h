@@ -35,4 +35,4 @@ namespace MafiaMP::Shared::RPC {
             return _text.C_String();
         }
     };
-} // namespace MafiaMP::Shared::Messages::Human
+} // namespace MafiaMP::Shared::RPC
