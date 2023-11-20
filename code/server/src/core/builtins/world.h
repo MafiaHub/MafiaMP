@@ -8,10 +8,7 @@
 
 #include "../../shared/rpc/environment.h"
 
-#include "shared/rpc/chat_message.h"
-
 #include "vehicle.h"
-#include "player.h"
 
 #include "core_modules.h"
 
@@ -47,30 +44,6 @@ namespace MafiaMP::Scripting {
             FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, {}, weather->_dayTimeHours);
         }
 
-        static void SendChatMessage(std::string message, Human *human) {
-            if (human) {
-                const auto ent = human->GetHandle();
-                const auto str   = ent.get<Framework::World::Modules::Base::Streamer>();
-                if (!str)
-                    return;
-                FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(str->guid), message);
-            }
-        }
-
-        static void BroadcastMessage(std::string message) {
-            FW_SEND_COMPONENT_RPC(Shared::RPC::ChatMessage, message);
-        }
-
-        static void OnChatMessage(flecs::entity e, std::string message) {
-            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
-            engine->InvokeEvent("chatMessage", Human::WrapHuman(engine, e), message);
-        }
-
-        static void OnChatCommand(flecs::entity e, std::string message, std::string command, std::vector<std::string> args) {
-            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
-            engine->InvokeEvent("chatCommand", Human::WrapHuman(engine, e), message, command, args);
-        }
-
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
             // Create the environment namespace
             v8pp::module environment(isolate);
@@ -82,9 +55,6 @@ namespace MafiaMP::Scripting {
             v8pp::module world(isolate);
             world.function("createVehicle", &World::CreateVehicle);
             rootModule->submodule("World", world);
-
-            rootModule->function("sendChatMessage", &World::SendChatMessage);
-            rootModule->function("broadcastMessage", &World::BroadcastMessage);
         }
     };
 } // namespace MafiaMP::Scripting

@@ -107,14 +107,10 @@
                 while (iss >> arg) {
                     args.push_back(arg);
                 }
-                Scripting::World::OnChatCommand(ent, text, command, args);
+                Scripting::Chat::EventChatCommand(ent, text, command, args);
             } else {
-                Scripting::World::OnChatMessage(ent, text);
+                Scripting::Chat::EventChatMessage(ent, text);
             }
-
-            // const auto st  = ent.get<Framework::World::Modules::Base::Streamer>();
-            // const auto msg = fmt::format("{}: {}", st->nickname, chatMessage->GetText());
-            // BroadcastChatMessage(ent, msg);
         });
 
         // test until we do it via nodejs builtins
