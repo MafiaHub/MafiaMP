@@ -118,6 +118,10 @@ namespace MafiaMP::Core::UI {
     }
 
     void Web::Render() {
+        if (!_app || !_app.get()) {
+            return;
+        }
+
         std::lock_guard<std::mutex> lock(_frameMutex);
         for (auto &frame : _frames) {
             frame->Render();

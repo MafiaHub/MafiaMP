@@ -21,10 +21,9 @@ namespace MafiaMP::Core::UI::CEF {
         CefBrowserSettings settings;
         settings.javascript_close_windows    = STATE_DISABLED;
         settings.javascript_access_clipboard = STATE_DISABLED;
-        settings.windowless_frame_rate       = 30;
+        settings.windowless_frame_rate       = 240;
         settings.webgl                       = STATE_ENABLED;
         settings.local_storage               = STATE_ENABLED;
-        settings.windowless_frame_rate       = 30;
 
         // Create our render handler
         _renderHandler = new RenderHandler(*this);
