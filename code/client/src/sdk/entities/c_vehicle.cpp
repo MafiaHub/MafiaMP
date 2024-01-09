@@ -148,17 +148,15 @@ namespace SDK {
     void C_Vehicle::EnableRadio(bool enable) {
 
         // NB: Need to shift to (I assume to a radio) interface
-        const uint64_t ThisAddress = reinterpret_cast<uint64_t>(this);
-        void *ShiftedThis = reinterpret_cast<void *>(ThisAddress + 0x268);
-        hook::this_call(gPatterns.C_Vehicle__EnableRadio, this, enable);
+        void* shiftedThis = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(this) + 0x268);
+        hook::this_call(gPatterns.C_Vehicle__EnableRadio, shiftedThis, enable);
     }
 
     void C_Vehicle::TurnRadioOn(bool on) {
 
          // NB: Need to shift to (I assume to a radio) interface
-        const uint64_t ThisAddress = reinterpret_cast<uint64_t>(this);
-        void* ShiftedThis = reinterpret_cast<void*>(ThisAddress + 0x268);
-        hook::this_call(gPatterns.C_Vehicle__TurnRadioOn, ShiftedThis, on);
+        void* shiftedThis = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(this) + 0x268);
+        hook::this_call(gPatterns.C_Vehicle__TurnRadioOn, shiftedThis, on);
     }
 
      uint32_t C_Vehicle::GetRadioStation() {
@@ -172,9 +170,8 @@ namespace SDK {
         // In IDA, see C_GameMusicModule::SelectStation and C_AvailableStations::GetStationById
 
         // NB: Need to shift to (I assume to a radio) interface
-        const uint64_t ThisAddress = reinterpret_cast<uint64_t>(this);
-        void* ShiftedThis = reinterpret_cast<void*>(ThisAddress + 0x268);
-        hook::this_call(gPatterns.C_Vehicle__ChangeRadioStation, ShiftedThis, stationSelection);
+        void* shiftedThis = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(this) + 0x268);
+        hook::this_call(gPatterns.C_Vehicle__ChangeRadioStation, shiftedThis, stationSelection);
     }
 
 } // namespace SDK
