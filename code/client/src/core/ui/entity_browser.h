@@ -28,5 +28,8 @@ namespace MafiaMP::Core::UI {
         char _entityFilter[100] = "";
 
         void InitialiseEntityTypes();
+
+        enum class StreamFilter { NONE, STREAMED, OWNED };
+        StreamFilter _streamFilter = StreamFilter::NONE;
     };
 } // namespace MafiaMP::Core::UI

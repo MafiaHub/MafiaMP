@@ -426,6 +426,14 @@ namespace MafiaMP::Core {
                 }
             },
             "sends a chat message");
+        /*gApplication->_commandProcessor->RegisterCommand(
+            "camFPV", {},
+            [this](const cxxopts::ParseResult &result) {
+                static bool fpvOn = false;
+                fpvOn = !fpvOn;
+                MafiaMP::Game::Helpers::Camera::SetFPV(fpvOn);
+            },
+            "toggles camera first person view");*/
         gApplication->_commandProcessor->RegisterCommand(
             "showEntityBrowser", {},
             [this](const cxxopts::ParseResult &result) {

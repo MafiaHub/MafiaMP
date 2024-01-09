@@ -89,6 +89,7 @@ namespace MafiaMP::Core {
         }
 
         uint64_t GetLocalPlayerID();
+        uint64_t GetLocalPlayerOwnerID();
 
         Game::Helpers::Districts GetLastDistrictID() const {
             return _lastDistrictID;
