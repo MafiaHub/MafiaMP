@@ -3,6 +3,7 @@
 #include "../ue/sys/math/c_matrix.h"
 #include "../ue/sys/math/c_vector.h"
 
+#include "../ue/game/audio/radio/c_radio_sound.h"
 #include "../ue/sys/core/c_scene_object.h"
 
 #include <cstdint>
@@ -104,9 +105,12 @@ namespace SDK {
         void SetSpeedLimiter(bool on);
         void SetActive(bool active);
         bool IsActive(int arg1 = 0);
+        void Damage(bool arg1);
+
+        bool IsRadioOn();
+        uint32_t GetRadioStation();
         void EnableRadio(bool enable);
         void TurnRadioOn(bool on);
-        void Damage(bool arg1);
 
       private:
 #ifdef NONSTEAM_SUPPORT
@@ -138,5 +142,7 @@ namespace SDK {
         char pad_0C60[8];
         float m_fDirtLevel; // 0x0C60 - 0x0C64
         float m_fRustLevel; // 0x0C64 - 0x0C68
+        char pad_00X0[0x890];
+        SDK::ue::game::audio::radio::C_RadioSound *m_RadioSound = nullptr; // 0x14F8 (NB: IDA says 0x1290 is the offset... yet the game says 0x14F8?
     };
 } // namespace SDK

@@ -137,6 +137,18 @@ namespace SDK {
         return hook::this_call<bool>(gPatterns.C_Vehicle__IsActive, this, arg1);
     }
 
+    void C_Vehicle::Damage(bool arg1) {
+        hook::this_call(gPatterns.C_Vehicle__Damage, this, arg1);
+    }
+
+    bool C_Vehicle::IsRadioOn() {
+        return (m_RadioSound && m_RadioSound->m_iStationID != 0);
+    }
+
+    uint32_t C_Vehicle::GetRadioStation() {
+        return m_RadioSound ? m_RadioSound->GetCurrentStation() : 5; // (5 == E_RADIO_LAST)
+    }
+
     void C_Vehicle::EnableRadio(bool enable) {
         hook::this_call(gPatterns.C_Vehicle__EnableRadio, this, enable);
     }
@@ -145,7 +157,4 @@ namespace SDK {
         hook::this_call(gPatterns.C_Vehicle__TurnRadioOn, this, on);
     }
 
-    void C_Vehicle::Damage(bool arg1) {
-        hook::this_call(gPatterns.C_Vehicle__Damage, this, arg1);
-    }
-}
+} // namespace SDK
