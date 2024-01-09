@@ -206,6 +206,7 @@ namespace SDK {
         gPatterns.C_Vehicle__SetSteer           = hook::get_opcode_address("E8 ? ? ? ? 45 33 C9 44 89 A7 ? ? ? ?");
         gPatterns.C_Vehicle__SetHorn            = hook::get_opcode_address("E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01 FF 50 ? 8B F0");
         gPatterns.C_Vehicle__TurnRadioOn        = reinterpret_cast<uint64_t>(hook::pattern("48 83 B9 ? ? ? ? ? 44 0F B6 CA").get_first());
+        gPatterns.C_Vehicle__ChangeRadioStation = reinterpret_cast<uint64_t>(hook::pattern("40 57 48 83 EC 20 48 83 B9 90 12 00 00 00").get_first());
         gPatterns.C_Vehicle__DamageBreaks       = reinterpret_cast<uint64_t>(hook::pattern("40 53 48 83 EC ? 48 8B 01 48 8B D9 0F 29 7C 24 ? 0F 28 F9 FF 50 ? 84 C0 74 ? 48 8B 5B ? 4C 8D 44 24 ? 0F 29 74 24 ? 48 8D 54 "
                                                                                                  "24 ? 0F 57 F6 C7 44 24 ? ? ? ? ? C7 44 24 ? ? ? ? ? 48 8D 8B ? ? ? ? E8 ? ? ? ? F3 0F 10 0D ? ? ? ? 0F 28 C7 F3 0F 5C C1 0F "
                                                                                                  "2F C6 73 ? 0F 28 CF 0F 28 C1 0F 57 05 ? ? ? ? 0F 2F C6 73 ? 0F 28 F1 F3 0F 59 35 ? ? ? ? 48 8D 8B ? ? ? ? F3 0F 10 54 24 ?")

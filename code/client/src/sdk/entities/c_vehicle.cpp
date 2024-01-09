@@ -145,16 +145,36 @@ namespace SDK {
         return (m_RadioSound && m_RadioSound->m_iStationID != 0);
     }
 
-    uint32_t C_Vehicle::GetRadioStation() {
-        return m_RadioSound ? m_RadioSound->GetCurrentStation() : 5; // (5 == E_RADIO_LAST)
-    }
-
     void C_Vehicle::EnableRadio(bool enable) {
+
+        // NB: Need to shift to (I assume to a radio) interface
+        const uint64_t ThisAddress = reinterpret_cast<uint64_t>(this);
+        void *ShiftedThis = reinterpret_cast<void *>(ThisAddress + 0x268);
         hook::this_call(gPatterns.C_Vehicle__EnableRadio, this, enable);
     }
 
     void C_Vehicle::TurnRadioOn(bool on) {
-        hook::this_call(gPatterns.C_Vehicle__TurnRadioOn, this, on);
+
+         // NB: Need to shift to (I assume to a radio) interface
+        const uint64_t ThisAddress = reinterpret_cast<uint64_t>(this);
+        void* ShiftedThis = reinterpret_cast<void*>(ThisAddress + 0x268);
+        hook::this_call(gPatterns.C_Vehicle__TurnRadioOn, ShiftedThis, on);
+    }
+
+     uint32_t C_Vehicle::GetRadioStation() {
+        constexpr uint32_t RADIO_LAST = 5;
+        return m_RadioSound ? m_RadioSound->GetCurrentStation() : RADIO_LAST;
+     }
+
+    void C_Vehicle::ChangeRadioStation(uint32_t stationSelection) {
+
+        // NB: Internally selects radio using E_RadioStationSelection.
+        // In IDA, see C_GameMusicModule::SelectStation and C_AvailableStations::GetStationById
+
+        // NB: Need to shift to (I assume to a radio) interface
+        const uint64_t ThisAddress = reinterpret_cast<uint64_t>(this);
+        void* ShiftedThis = reinterpret_cast<void*>(ThisAddress + 0x268);
+        hook::this_call(gPatterns.C_Vehicle__ChangeRadioStation, ShiftedThis, stationSelection);
     }
 
 } // namespace SDK

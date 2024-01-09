@@ -108,9 +108,10 @@ namespace SDK {
         void Damage(bool arg1);
 
         bool IsRadioOn();
-        uint32_t GetRadioStation();
         void EnableRadio(bool enable);
         void TurnRadioOn(bool on);
+        uint32_t GetRadioStation();
+        void ChangeRadioStation(uint32_t stationSelection);
 
       private:
 #ifdef NONSTEAM_SUPPORT
@@ -118,6 +119,9 @@ namespace SDK {
 #else
         char pad_0000[1036];
 #endif
+
+        // 0x268 is VTABLE for radio interface
+
         ue::sys::math::C_Vector m_Velocity;        // 0x040C
         ue::sys::math::C_Vector m_AngularVelocity; // 0x0418
         char pad_0424[1444];                       // 0x0424

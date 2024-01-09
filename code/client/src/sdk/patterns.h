@@ -164,6 +164,7 @@ namespace SDK {
         uint64_t C_Vehicle__SetSteer           = 0x0;
         uint64_t C_Vehicle__SetHorn            = 0x0;
         uint64_t C_Vehicle__TurnRadioOn        = 0x0;
+        uint64_t C_Vehicle__ChangeRadioStation = 0x0;
         uint64_t C_Vehicle__DamageBreaks       = 0x0;
         uint64_t C_Vehicle__SetDoorFree        = 0x0;
         uint64_t C_Vehicle__SetSpeed           = 0x0;

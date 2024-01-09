@@ -140,6 +140,11 @@ namespace MafiaMP::Core::UI {
             if (ImGui::Button("Toggle Radio")) {
                 currentVehicle->TurnRadioOn(!currentVehicle->IsRadioOn());
             }
+
+            if (ImGui::Button("Change Radio")) {
+                const uint32_t currentStation = currentVehicle->GetRadioStation();
+                currentVehicle->ChangeRadioStation(currentStation == 1 ? 0 : 1);
+            }
         }
     }
 }; // namespace MafiaMP::Core::UI
