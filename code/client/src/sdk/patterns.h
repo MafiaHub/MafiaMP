@@ -307,6 +307,13 @@ namespace SDK {
         uint64_t C_StreamMap__OpenMission  = 0x0;
         uint64_t C_StreamMap__OpenPart     = 0x0;
 
+        // C_DatabaseSystem
+        uint64_t C_DatabaseSystem__GetDatabase = 0x0;
+
+        // C_SysODB
+        uint64_t C_SysODB__GetInstance = 0x0;
+
+
         static void InitPatterns();
     };
 

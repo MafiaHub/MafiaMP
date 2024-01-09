@@ -98,6 +98,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/sys/math/c_matrix.cpp
     src/sdk/ue/sys/math/c_quat.cpp
     src/sdk/ue/sys/math/c_vector.cpp
+    src/sdk/ue/sys/sodb/c_database_system.cpp
     src/sdk/ue/c_string.cpp
     src/sdk/wrappers/c_human_2_car_wrapper.cpp
     src/sdk/c_entity_factory.cpp

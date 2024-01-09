@@ -361,5 +361,12 @@ namespace SDK {
         gPatterns.C_StreamMap__GetGame = reinterpret_cast<uint64_t>(hook::pattern("48 8B 41 10 48 85 C0 48 0F 44 05 ? ? ? ? C3 48 8B 81 ? ? ? ?").get_first());
         gPatterns.C_StreamMap__GetMission = reinterpret_cast<uint64_t>(hook::pattern("48 8B 41 18 48 85 C0 48 0F 44 05 ? ? ? ? C3 48 8B 41 20").get_first());
         gPatterns.C_StreamMap__GetPart    = reinterpret_cast<uint64_t>(hook::pattern("48 8B 41 20 48 85 C0 48 0F 44 05 ? ? ? ? C3 40 53").get_first());
-    }
+
+        // C_DatabaseSystem
+        gPatterns.C_DatabaseSystem__GetDatabase =
+            reinterpret_cast<uint64_t>(hook::pattern("4C 8B 51 08 4D 8B C2 49 8B 42 08 80 78 19 00 75 1B 4C 8B 0A 4C 39 48 20 73 06 48 8B 40 10 EB 06 4C 8B C0 48 8B 00 80 78 19 00 74 E8 4D 3B C2 74 09 49 8B 40 20 48 39 02 73 03 4D 8B C2 4D 3B C2 74 05").get_first());
+   
+        // C_SysODB
+        gPatterns.C_SysODB__GetInstance = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 41 B8 6F 50 30 4C");
+ }
 }; // namespace SDK
