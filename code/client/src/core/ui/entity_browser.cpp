@@ -30,7 +30,7 @@ namespace MafiaMP::Core::UI {
         ImGui::Begin("Entity Browser");
         {
             if (ImGui::Button("Select all")) {
-                for (size_t i = 0; i < 66; i++) _checkedTypes[i] = true;
+                for (size_t i = 0; i < (sizeof(_checkedTypes) / sizeof(_checkedTypes[0])); i++) _checkedTypes[i] = true;
 
                 for (auto &[entityType, entityName] : _allTypes) {
                     if (std::find(_filterList.begin(), _filterList.end(), entityType) == _filterList.end())
@@ -64,7 +64,7 @@ namespace MafiaMP::Core::UI {
 
             ImGui::NewLine();
 
-            const char *streamFilterNames[]         = {"None", "Streamed", "Owned"};
+            static const char *streamFilterNames[]  = {"None", "Streamed", "Owned"};
             static const char *selectedStreamFilter = streamFilterNames[0];
 
             if (ImGui::BeginCombo("Streamable filter", selectedStreamFilter))
@@ -103,6 +103,8 @@ namespace MafiaMP::Core::UI {
                     if (std::find(_filterList.begin(), _filterList.end(), sceneObjectType) == _filterList.end())
                         continue;
 
+                    const auto _filterIter = _allTypes.find(sceneObjectType);
+
                     auto sceneObject = *(SDK::ue::sys::core::C_SceneObject **)((uint64_t)entity + 0x0A8);
 
                     if (!sceneObject)
@@ -140,7 +142,7 @@ namespace MafiaMP::Core::UI {
                             continue;
                     }
 
-                    auto sceneObjectName = std::string(std::to_string(i) + " " + std::string(sceneObject->GetName()->c_str()) + " " + std::to_string((unsigned int)entity->GetType()));
+                    auto sceneObjectName = fmt::format("{} {} {} ({})", i, sceneObject->GetName()->c_str(), _filterIter->second, entity->GetType());
                     if (ImGui::Selectable(sceneObjectName.c_str(), _selectedIndex == i)) {
                         _selectedIndex = i;
                     }

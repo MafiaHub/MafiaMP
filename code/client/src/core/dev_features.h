@@ -17,6 +17,7 @@
 #include "ui/camera_studio.h"
 #include "ui/entity_browser.h"
 #include "ui/vehicle_debug.h"
+#include "ui/network_stats.h"
 
 #include "sdk/entities/c_human_2.h"
 
@@ -34,6 +35,9 @@ namespace MafiaMP::Core {
 
         bool _showVehicledebug {false};
         std::shared_ptr<UI::VehicleDebug> _vehicleDebug {};
+
+        bool _showNetworkStats {false};
+        std::shared_ptr<UI::NetworkStats> _networkStats {};
 
       public:
         DevFeatures();
@@ -55,5 +59,6 @@ namespace MafiaMP::Core {
         void ToggleEntityBrowser();
         void ToggleCameraStudio();
         void ToggleVehicleDebug();
+        void ToggleNetworkStats();
     };
 } // namespace MafiaMP::Core

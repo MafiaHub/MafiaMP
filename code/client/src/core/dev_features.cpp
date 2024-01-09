@@ -42,6 +42,7 @@ namespace MafiaMP::Core {
     DevFeatures::DevFeatures() {
         _entityBrowser = std::make_shared<UI::EntityBrowser>();
         _cameraStudio  = std::make_shared<UI::CameraStudio>();
+        _networkStats  = std::make_shared<UI::NetworkStats>();
     }
 
     void DevFeatures::Init() {
@@ -62,6 +63,10 @@ namespace MafiaMP::Core {
             _vehicleDebug->Update();
         }
 
+        if (_showNetworkStats) {
+            _networkStats->Update();
+        }
+
         if (gApplication->_input->IsKeyPressed(FW_KEY_F7)) {
             gApplication->GetImGUI()->ShowCursor(!_showCameraStudio);
             MafiaMP::Game::Helpers::Controls::Lock(!_showCameraStudio);
@@ -78,6 +83,14 @@ namespace MafiaMP::Core {
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F2)) {
             SpawnCrashObject();
+        }
+
+        if (gApplication->_input->IsKeyPressed(FW_KEY_F11)) {
+            ToggleEntityBrowser();
+        }
+
+        if (gApplication->_input->IsKeyPressed(FW_KEY_F10)) {
+            ToggleNetworkStats();
         }
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F3)) {
@@ -196,6 +209,10 @@ namespace MafiaMP::Core {
 
     void DevFeatures::ToggleVehicleDebug() {
         _showVehicledebug = !_showVehicledebug;
+    }
+
+    void DevFeatures::ToggleNetworkStats() {
+        _showNetworkStats = !_showNetworkStats;
     }
 
     void DevFeatures::SpawnCrashObject() {
@@ -446,6 +463,12 @@ namespace MafiaMP::Core {
                 ToggleCameraStudio();
             },
             "toggles camera studio dialog");
+        gApplication->_commandProcessor->RegisterCommand(
+            "showNetworkStats", {},
+            [this](const cxxopts::ParseResult &result) {
+                ToggleNetworkStats();
+            },
+            "toggles network stats dialog");
     }
 
     void DevFeatures::SetupMenuBar() {
@@ -478,7 +501,7 @@ namespace MafiaMP::Core {
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Editors")) {
-                if (ImGui::MenuItem("Entity Browser")) {
+                if (ImGui::MenuItem("Entity Browser", "F11")) {
                     ToggleEntityBrowser();
                 }
                 if (ImGui::MenuItem("Camera Studio")) {
@@ -486,6 +509,9 @@ namespace MafiaMP::Core {
                 }
                 if (ImGui::MenuItem("Vehicle debug")) {
                     ToggleVehicleDebug();
+                }
+                if (ImGui::MenuItem("Network stats", "F10")) {
+                    ToggleNetworkStats();
                 }
                 ImGui::EndMenu();
             }
