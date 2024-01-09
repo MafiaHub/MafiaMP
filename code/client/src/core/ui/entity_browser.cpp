@@ -30,7 +30,7 @@ namespace MafiaMP::Core::UI {
         ImGui::Begin("Entity Browser");
         {
             if (ImGui::Button("Select all")) {
-                for (size_t i = 0; i < 66; i++) _checkedTypes[i] = true;
+                for (size_t i = 0; i < (sizeof(_checkedTypes) / sizeof(_checkedTypes[0])); i++) _checkedTypes[i] = true;
 
                 for (auto &[entityType, entityName] : _allTypes) {
                     if (std::find(_filterList.begin(), _filterList.end(), entityType) == _filterList.end())
@@ -64,7 +64,7 @@ namespace MafiaMP::Core::UI {
 
             ImGui::NewLine();
 
-            const char *streamFilterNames[]         = {"None", "Streamed", "Owned"};
+            static const char *streamFilterNames[]  = {"None", "Streamed", "Owned"};
             static const char *selectedStreamFilter = streamFilterNames[0];
 
             if (ImGui::BeginCombo("Streamable filter", selectedStreamFilter))
