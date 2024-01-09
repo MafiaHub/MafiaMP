@@ -35,7 +35,7 @@ namespace MafiaMP::Core::UI {
 
                 const auto peer   = net->GetPeer();
                 const auto stats  = peer->GetStatistics(peer->GetSystemAddressFromIndex(0), nullptr);
-                ::memset(_stats, 0, 8192);
+                ::memset(_stats, 0, sizeof(_stats));
                 SLNet::StatisticsToString(stats, _stats, 2);
             }
 
