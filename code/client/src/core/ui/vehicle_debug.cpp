@@ -115,6 +115,12 @@ namespace MafiaMP::Core::UI {
             ImGui::Text("Brake's damage: %f\n", brake);
             ImGui::Text("Handbrake's damage: %f\n", handbrake);
 
+            ImGui::Text("Radio State: %s", currentVehicle->IsRadioOn() ? "On" : "Off");
+            ImGui::Text("Radio Station: %u", currentVehicle->GetRadioStation());
+
+            ImGui::Text("Car Ptr: %p", currentCar);
+            ImGui::Text("Vehicle Ptr: %p", currentVehicle);
+
             if (ImGui::Button("Restore")) {
                 currentCar->RestoreCar();
             }
@@ -129,6 +135,15 @@ namespace MafiaMP::Core::UI {
 
             if (ImGui::Button("UnlockEntryPoints")) {
                 currentCar->UnlockEntryPoints();
+            }
+
+            if (ImGui::Button("Toggle Radio")) {
+                currentVehicle->TurnRadioOn(!currentVehicle->IsRadioOn());
+            }
+
+            if (ImGui::Button("Change Radio")) {
+                const uint32_t currentStation = currentVehicle->GetRadioStation();
+                currentVehicle->ChangeRadioStation(currentStation == 1 ? 0 : 1);
             }
         }
     }
