@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/safe_win32.h"
+#include <utils/time.h>
 
 namespace MafiaMP::Core::UI {
     class NetworkStats final {
@@ -8,5 +9,9 @@ namespace MafiaMP::Core::UI {
         NetworkStats();
 
         void Update();
+
+    private:
+        int64_t _nextStatsUpdate = 0;
+        char _stats[8192]        = {0};
     };
 } // namespace MafiaMP::Core::UI

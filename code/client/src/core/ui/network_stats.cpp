@@ -30,11 +30,16 @@ namespace MafiaMP::Core::UI {
                 return;
             }
 
-            const auto peer = net->GetPeer();
-            const auto stats   = peer->GetStatistics(peer->GetSystemAddressFromIndex(0), nullptr);
-            char buffer[8192] = {0};
-            SLNet::StatisticsToString(stats, buffer, 2);
-            ImGui::Text("%s", buffer);
+            if (_nextStatsUpdate < Framework::Utils::Time::GetTime()) {
+                _nextStatsUpdate = Framework::Utils::Time::GetTime() + 500;
+
+                const auto peer   = net->GetPeer();
+                const auto stats  = peer->GetStatistics(peer->GetSystemAddressFromIndex(0), nullptr);
+                ::memset(_stats, 0, 8192);
+                SLNet::StatisticsToString(stats, _stats, 2);
+            }
+
+            ImGui::Text("%s", _stats);
         }
         ImGui::End();
     }
