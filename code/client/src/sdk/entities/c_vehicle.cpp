@@ -142,7 +142,7 @@ namespace SDK {
     }
 
     bool C_Vehicle::IsRadioOn() {
-        return (m_RadioSound && m_RadioSound->m_iStationID != 0);
+        return (m_RadioSound && m_RadioSound->IsRadioOn());
     }
 
     void C_Vehicle::EnableRadio(bool enable) {
