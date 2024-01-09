@@ -1,10 +1,16 @@
 #include "entity_browser.h"
+#include "../application.h"
+
 #include <external/imgui/wrapper.h>
 #include <imgui.h>
 
 #include <sdk/entities/c_entity_list.h>
 #include <sdk/entities/c_player_2.h>
+#include <sdk/entities/c_human_2.h>
+#include <sdk/entities/c_car.h>
 
+#include "core/modules/vehicle.h"
+#include "core/modules/human.h"
 #include "game/helpers/controls.h"
 
 namespace MafiaMP::Core::UI {
@@ -58,6 +64,26 @@ namespace MafiaMP::Core::UI {
 
             ImGui::NewLine();
 
+            const char *streamFilterNames[]         = {"None", "Streamed", "Owned"};
+            static const char *selectedStreamFilter = streamFilterNames[0];
+
+            if (ImGui::BeginCombo("Streamable filter", selectedStreamFilter))
+            {
+                for (int n = 0; n < IM_ARRAYSIZE(streamFilterNames); n++) {
+                    bool is_selected = (selectedStreamFilter == streamFilterNames[n]);
+                    if (ImGui::Selectable(streamFilterNames[n], is_selected)) {
+                        selectedStreamFilter = streamFilterNames[n];
+                        _streamFilter        = static_cast<StreamFilter>(n);
+                    }
+
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+            ImGui::NewLine();
+
             ImGui::DragFloat("Range from player filter", &_entityRange, 2.0f, 0.0f, 10000.0f, "%.3f", 1.0f);
             ImGui::InputText("##entityfilter", _entityFilter, 100);
             ImGui::SameLine();
@@ -90,6 +116,29 @@ namespace MafiaMP::Core::UI {
 
                     if (_entityRange > 0.0f && actor->GetPos().dist(localPlayer->GetPos()) >= _entityRange)
                         continue;
+
+                    if (_streamFilter != StreamFilter::NONE) {
+                        flecs::entity e {};
+
+                        // TODO: better way to detect streamables
+
+                        if (sceneObjectType == SDK::E_EntityType::E_ENTITY_CAR) {
+                            const auto veh = reinterpret_cast<SDK::C_Car* >(entity);
+                            
+                            e = Core::Modules::Vehicle::GetCarEntity(veh);
+                        }
+                        else if (sceneObjectType == SDK::E_EntityType::E_ENTITY_HUMAN /*|| sceneObjectType == SDK::E_EntityType::E_ENTITY_PLAYER*/) {
+                            const auto human = reinterpret_cast<SDK::C_Human2 *>(entity);
+
+                            e = Core::Modules::Human::GetHumanEntity(human);
+                        }
+
+                        if (!e.is_valid() || !e.is_alive())
+                            continue;
+
+                        if (_streamFilter == StreamFilter::OWNED && !Framework::World::Engine::IsEntityOwner(e, gApplication->GetLocalPlayerOwnerID()))
+                            continue;
+                    }
 
                     auto sceneObjectName = std::string(std::to_string(i) + " " + std::string(sceneObject->GetName()->c_str()) + " " + std::to_string((unsigned int)entity->GetType()));
                     if (ImGui::Selectable(sceneObjectName.c_str(), _selectedIndex == i)) {

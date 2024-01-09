@@ -53,6 +53,8 @@ namespace MafiaMP::Core::Modules {
 
         static flecs::query<Tracking> findAllHumans;
 
+        static flecs::entity GetHumanEntity(SDK::C_Human2 *ptr);
+
         private:
         static void InitRPCs(Application *app);
     };

@@ -294,6 +294,14 @@ namespace MafiaMP::Core {
         return sid->id;
     }
 
+    uint64_t Application::GetLocalPlayerOwnerID() {
+        if (!_localPlayer)
+            return 0;
+
+        const auto str = _localPlayer.get<Framework::World::Modules::Base::Streamable>();
+        return str->owner;
+    }
+
     void Application::InitRPCs() {
         const auto net = GetNetworkingEngine()->GetNetworkClient();
 

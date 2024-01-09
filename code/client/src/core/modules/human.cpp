@@ -494,4 +494,16 @@ namespace MafiaMP::Core::Modules {
             trackingData->human->SetTransform(transform);
         }
     }
+
+    flecs::entity Human::GetHumanEntity(SDK::C_Human2* ptr) {
+        flecs::entity foundPlayerEntity {};
+        findAllHumans.each([ptr, &foundPlayerEntity](flecs::entity e, Human::Tracking &tracking) {
+            if (tracking.human == ptr) {
+                foundPlayerEntity = e;
+                return;
+            }
+        });
+
+        return foundPlayerEntity;
+    }
 } // namespace MafiaMP::Core::Modules
