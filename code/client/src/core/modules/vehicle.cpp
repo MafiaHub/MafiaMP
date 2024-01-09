@@ -55,6 +55,7 @@ namespace MafiaMP::Core::Modules {
                     metadata.angularVelocity = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
                     metadata.siren           = vehicle->GetSiren();
                     metadata.beaconLights    = vehicle->AreBeaconLightsOn();
+                    metadata.radioId         = vehicle->IsRadioOn() ? vehicle->GetRadioStation() : -1;
                 }
             });
 
@@ -178,6 +179,11 @@ namespace MafiaMP::Core::Modules {
         if (!strcmp(vehicle->GetSPZText(), updateData->licensePlate)) {
             vehicle->SetSPZText(updateData->licensePlate, true);
         }
+        bool isRadioOn = updateData->radioId != -1;
+        if (isRadioOn != vehicle->IsRadioOn()) 
+            vehicle->TurnRadioOn(isRadioOn);
+        if (updateData->radioId != -1 && vehicle->GetRadioStation() != updateData->radioId)
+            vehicle->ChangeRadioStation(updateData->radioId);
     }
 
     void Vehicle::SelfUpdate(flecs::entity e, MafiaMP::Shared::Modules::VehicleSync::UpdateData &updateData) {
