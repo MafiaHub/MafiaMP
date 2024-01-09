@@ -12,14 +12,15 @@
 #include <world/modules/base.hpp>
 
 #include "shared/messages/vehicle/vehicle_despawn.h"
+#include "shared/messages/vehicle/vehicle_owner_update.h"
 #include "shared/messages/vehicle/vehicle_spawn.h"
 #include "shared/messages/vehicle/vehicle_update.h"
-#include "shared/messages/vehicle/vehicle_owner_update.h"
 
 #include "shared/game_rpc/set_vehicledata.h"
+#include "shared/game_rpc/tune_radio.h"
 
-#include "shared/modules/vehicle_sync.hpp"
 #include "shared/modules/mod.hpp"
+#include "shared/modules/vehicle_sync.hpp"
 
 namespace MafiaMP::Core::Modules {
     flecs::query<Vehicle::Tracking> Vehicle::_findAllVehicles {};
@@ -55,6 +56,7 @@ namespace MafiaMP::Core::Modules {
                     metadata.angularVelocity = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
                     metadata.siren           = vehicle->GetSiren();
                     metadata.beaconLights    = vehicle->AreBeaconLightsOn();
+                    metadata.radioId         = vehicle->IsRadioOn() ? vehicle->GetRadioStation() : -1;
                 }
             });
 
@@ -178,6 +180,11 @@ namespace MafiaMP::Core::Modules {
         if (!strcmp(vehicle->GetSPZText(), updateData->licensePlate)) {
             vehicle->SetSPZText(updateData->licensePlate, true);
         }
+        bool isRadioOn = updateData->radioId != -1;
+        if (isRadioOn != vehicle->IsRadioOn())
+            vehicle->TurnRadioOn(isRadioOn);
+        if (updateData->radioId != -1 && vehicle->GetRadioStation() != updateData->radioId)
+            vehicle->ChangeRadioStation(updateData->radioId);
     }
 
     void Vehicle::SelfUpdate(flecs::entity e, MafiaMP::Shared::Modules::VehicleSync::UpdateData &updateData) {
@@ -260,6 +267,18 @@ namespace MafiaMP::Core::Modules {
             *updateData     = msg->GetData();
             Update(e);
         });
+
+        net->RegisterGameRPC<Shared::RPC::TuneRadio>([app](SLNet::RakNetGUID guid, Shared::RPC::TuneRadio *msg) {
+            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            // TODO: figure out a better way to do partial state updates
+            auto updateData     = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            updateData->radioId = msg->GetRadioID();
+            Update(e);
+        });
     }
 
     void Vehicle::UpdateTransform(flecs::entity e) {
@@ -295,7 +314,7 @@ namespace MafiaMP::Core::Modules {
         });
         return carID;
     }
-    flecs::entity Vehicle::GetCarEntityByVehicle(SDK::C_Vehicle* vehiclePtr) {
+    flecs::entity Vehicle::GetCarEntityByVehicle(SDK::C_Vehicle *vehiclePtr) {
         flecs::entity carID {};
         _findAllVehicles.each([&carID, vehiclePtr](flecs::entity e, Core::Modules::Vehicle::Tracking &trackingData) {
             if (trackingData.car && trackingData.car->GetVehicle() && trackingData.car->GetVehicle() == vehiclePtr) {

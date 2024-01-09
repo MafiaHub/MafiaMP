@@ -6,6 +6,7 @@
 #include "shared/modules/vehicle_sync.hpp"
 #include "core/modules/vehicle.h"
 #include "shared/game_rpc/set_vehicledata.h"
+#include "shared/game_rpc/tune_radio.h"
 
 namespace MafiaMP::Scripting {
     class Vehicle final: public Framework::Integrations::Scripting::Entity {
@@ -48,6 +49,19 @@ namespace MafiaMP::Scripting {
             return syncData->siren;
         }
 
+        bool IsRadioOn() {
+            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            return syncData->radioId != -1;
+        }
+
+        void ChangeRadioStation(int id) {
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::TuneRadio, _ent, id);
+        }
+
+        void TurnOffRadio() {
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::TuneRadio, _ent, -1);
+        }
+
         void SetBeaconLights(bool state) {
             auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
             syncData->beaconLights = state;
@@ -71,6 +85,9 @@ namespace MafiaMP::Scripting {
             cls.function("getLicensePlate", &Vehicle::GetLicensePlate);
             cls.function("setSiren", &Vehicle::SetSiren);
             cls.function("getSiren", &Vehicle::GetSiren);
+            cls.function("isRadioOn", &Vehicle::IsRadioOn);
+            cls.function("changeRadioStation", &Vehicle::ChangeRadioStation);
+            cls.function("turnOffRadio", &Vehicle::TurnOffRadio);
             cls.function("setBeaconLights", &Vehicle::SetBeaconLights);
             cls.function("getBeaconLights", &Vehicle::GetBeaconLights);
             rootModule->class_("Vehicle", cls);
