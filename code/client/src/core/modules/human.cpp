@@ -449,7 +449,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            const auto setHealth = msg->GetHealth();
+            const auto setHealth = msg->health;
 
             if (setHealth.HasValue()) {
                 Game::Helpers::Human::SetHealthPercent(trackingData->human, setHealth());

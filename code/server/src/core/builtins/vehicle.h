@@ -6,7 +6,7 @@
 #include "shared/modules/vehicle_sync.hpp"
 #include "core/modules/vehicle.h"
 #include "shared/game_rpc/set_vehicledata.h"
-#include "shared/game_rpc/tune_radio.h"
+#include "shared/game_rpc/vehicle/vehicle_setprops.h"
 
 namespace MafiaMP::Scripting {
     class Vehicle final: public Framework::Integrations::Scripting::Entity {
@@ -55,11 +55,15 @@ namespace MafiaMP::Scripting {
         }
 
         void ChangeRadioStation(int id) {
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::TuneRadio, _ent, id);
+            MafiaMP::Shared::RPC::VehicleSetProps msg{};
+            msg.radioId = id;
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
         void TurnOffRadio() {
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::TuneRadio, _ent, -1);
+            MafiaMP::Shared::RPC::VehicleSetProps msg {};
+            msg.radioId = -1;
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
         void SetBeaconLights(bool state) {

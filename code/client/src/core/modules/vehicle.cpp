@@ -17,7 +17,7 @@
 #include "shared/messages/vehicle/vehicle_update.h"
 
 #include "shared/game_rpc/set_vehicledata.h"
-#include "shared/game_rpc/tune_radio.h"
+#include "shared/game_rpc/vehicle/vehicle_setprops.h"
 
 #include "shared/modules/mod.hpp"
 #include "shared/modules/vehicle_sync.hpp"
@@ -268,15 +268,19 @@ namespace MafiaMP::Core::Modules {
             Update(e);
         });
 
-        net->RegisterGameRPC<Shared::RPC::TuneRadio>([app](SLNet::RakNetGUID guid, Shared::RPC::TuneRadio *msg) {
+        net->RegisterGameRPC<Shared::RPC::VehicleSetProps>([app](SLNet::RakNetGUID guid, Shared::RPC::VehicleSetProps *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
             }
 
-            // TODO: figure out a better way to do partial state updates
             auto updateData     = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            updateData->radioId = msg->GetRadioID();
+
+            const auto radioId = msg->GetRadioID();
+
+            if (radioId.HasValue())
+                updateData->radioId = radioId();
+
             Update(e);
         });
     }
