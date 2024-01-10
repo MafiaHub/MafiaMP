@@ -289,7 +289,7 @@ namespace MafiaMP::Core::Modules {
                 updateData->siren = siren();
 
             if (licensePlate.HasValue()) {
-                const auto plate = licensePlate.RefValue();
+                const auto plate = licensePlate().C_String();
                 ::memcpy(updateData->licensePlate, plate, strlen(plate));
             }
 
