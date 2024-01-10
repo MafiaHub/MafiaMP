@@ -64,11 +64,11 @@ namespace MafiaMP::Scripting {
             return syncData->radioState;
         }
 
-        void SetRadioEnabled() {
+        void SetRadioEnabled(bool state) {
             auto carData     = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            carData->radioId = -1;
+            carData->radioState = state;
             MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.radioId = -1;
+            msg.radioState = state;
             FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
