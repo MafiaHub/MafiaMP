@@ -29,5 +29,15 @@ namespace SDK {
             E_VTFF_VISIBLE_CARGO_SPACE        = 0x200000,
             E_VTFF_SINGLE_SEATER              = 0x400000,
         };
+
+        enum class E_VehicleRaceClass : uint32_t { 
+            E_VRC_NONE, 
+            E_VRC_EXOTIC,
+            E_VRC_SPORT,
+            E_VRC_STREET,
+            E_VRC_STANDARD,
+            E_VRC_UTILITY 
+        };
+
     } // namespace mafia::tables::vehicle
 } // namespace SDK
