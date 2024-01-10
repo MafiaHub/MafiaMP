@@ -182,10 +182,9 @@ namespace MafiaMP::Core::Modules {
         if (strcmp(vehicle->GetSPZText(), updateData->licensePlate)) {
             vehicle->SetSPZText(updateData->licensePlate, true);
         }
-        bool isRadioOn = updateData->radioId != -1;
-        if (isRadioOn != vehicle->IsRadioOn())
-            vehicle->TurnRadioOn(isRadioOn);
-        if (updateData->radioId != -1 && vehicle->GetRadioStation() != updateData->radioId)
+        if (updateData->radioState != vehicle->IsRadioOn())
+            vehicle->TurnRadioOn(updateData->radioState);
+        if (vehicle->GetRadioStation() != updateData->radioId)
             vehicle->ChangeRadioStation(updateData->radioId);
     }
 
@@ -270,11 +269,15 @@ namespace MafiaMP::Core::Modules {
 
             auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
+            const auto radioState   = msg->radioState;
             const auto radioId      = msg->radioId;
             const auto locked       = msg->locked;
             const auto beaconLights = msg->beaconLights;
             const auto siren        = msg->siren;
             const auto licensePlate = msg->licensePlate;
+
+            if (radioState.HasValue())
+                updateData->radioState = radioState();
 
             if (radioId.HasValue())
                 updateData->radioId = radioId();

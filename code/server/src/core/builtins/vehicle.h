@@ -59,24 +59,29 @@ namespace MafiaMP::Scripting {
             return syncData->siren;
         }
 
-        bool IsRadioOn() {
+        bool GetRadioEnabled() {
             auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return syncData->radioId != -1;
+            return syncData->radioState;
         }
 
-        void ChangeRadioStation(int id) {
+        void SetRadioEnabled() {
+            auto carData     = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            carData->radioId = -1;
+            MafiaMP::Shared::RPC::VehicleSetProps msg {};
+            msg.radioId = -1;
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        }
+
+        int GetRadioStation() {
+            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            return syncData->radioId;
+        }
+
+        void SetRadioStation(int id) {
             auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
             carData->radioId = id;
             MafiaMP::Shared::RPC::VehicleSetProps msg{};
             msg.radioId = id;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
-
-        void TurnOffRadio() {
-            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            carData->radioId = -1;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.radioId = -1;
             FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
@@ -106,9 +111,10 @@ namespace MafiaMP::Scripting {
             cls.function("getLicensePlate", &Vehicle::GetLicensePlate);
             cls.function("setSiren", &Vehicle::SetSiren);
             cls.function("getSiren", &Vehicle::GetSiren);
-            cls.function("isRadioOn", &Vehicle::IsRadioOn);
-            cls.function("changeRadioStation", &Vehicle::ChangeRadioStation);
-            cls.function("turnOffRadio", &Vehicle::TurnOffRadio);
+            cls.function("getRadioEnabled", &Vehicle::GetRadioEnabled);
+            cls.function("setRadioEnabled", &Vehicle::SetRadioEnabled);
+            cls.function("setRadioStation", &Vehicle::SetRadioStation);
+            cls.function("getRadioStation", &Vehicle::GetRadioStation);
             cls.function("setBeaconLights", &Vehicle::SetBeaconLights);
             cls.function("getBeaconLights", &Vehicle::GetBeaconLights);
             rootModule->class_("Vehicle", cls);

@@ -7,13 +7,15 @@
 namespace MafiaMP::Shared::RPC {
     class VehicleSetProps final: public Framework::Networking::RPC::IGameRPC<VehicleSetProps> {
       public:
-        Framework::Utils::Optional<int> radioId; // -1 == turn radio off
+        Framework::Utils::Optional<bool> radioState;
+        Framework::Utils::Optional<int> radioId;
         Framework::Utils::Optional<Modules::VehicleSync::LockState> locked;
         Framework::Utils::Optional<bool> beaconLights;
         Framework::Utils::Optional<bool> siren;
         Framework::Utils::Optional<SLNet::RakString> licensePlate;
 
         void FromParameters(VehicleSetProps props) {
+            this->radioState   = props.radioState;
             this->radioId      = props.radioId;
             this->locked       = props.locked;
             this->beaconLights = props.beaconLights;
@@ -22,7 +24,7 @@ namespace MafiaMP::Shared::RPC {
         }
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
-            radioId.Serialize(bs, write);
+            radioState.Serialize(bs, write);
             radioId.Serialize(bs, write);
             locked.Serialize(bs, write);
             beaconLights.Serialize(bs, write);

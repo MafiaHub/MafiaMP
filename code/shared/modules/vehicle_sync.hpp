@@ -27,7 +27,8 @@ namespace MafiaMP::Shared::Modules {
             float steer          = 0.0f;
             LockState locked     = LockState::Unlocked;
             char licensePlate[7] = "";
-            int radioId          = -1;
+            bool radioState      = 0;
+            int radioId          = 0;
         };
 
         VehicleSync(flecs::world &world) {
