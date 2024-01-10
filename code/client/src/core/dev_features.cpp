@@ -330,10 +330,17 @@ namespace MafiaMP::Core {
 
         using namespace SDK::mafia::framework;
         const C_VehiclesDatabase::TItemAccessorConst &carByIndex = vehiclesDB.m_Ptr->GetVehicleByIndex(randomIndex);
-        if (const S_VehiclesTableItem* vehicle = carByIndex.Get()) // dud index
+        if (const S_VehiclesTableItem* vehicle = carByIndex.Get())
         {
+            if (vehicle->m_ID == 0)
+            {
+                // dud index, nothing to spawn
+                return;
+            }
+
             const char *modelName = &vehicle->m_ModelName[0];
 
+            // TODO(Greavesy): bit wise utilities, probably included in the public API of S_VehiclesTableItem
             constexpr uint32_t TVF_CAR = (uint32_t)SDK::mafia::traffic::E_TrafficVehicleFlags::E_TVF_CAR;
             if (((uint32_t)vehicle->m_VehicleFlags & TVF_CAR) != TVF_CAR) {
 
@@ -561,22 +568,6 @@ namespace MafiaMP::Core {
                 }
                 if (ImGui::MenuItem("Network stats", "F10")) {
                     ToggleNetworkStats();
-                }
-                if (ImGui::MenuItem("Database Test")) {
-                    SDK::mafia::framework::C_MafiaDBs *mafiaDB = SDK::mafia::framework::GetMafiaDBs();
-                    auto vehiclesDB = mafiaDB->GetVehiclesDatabase();
-                    const uint32_t NumVehicles                          = vehiclesDB.m_Ptr->GetVehiclesCount();
-                    
-                    using namespace SDK::mafia::framework;
-                    using namespace SDK::ue::sys::utils;
-
-                    const C_VehiclesDatabase::TItemAccessorConst& carByIndex = vehiclesDB.m_Ptr->GetVehicleByIndex(1);
-                    const C_VehiclesDatabase::TItemAccessorConst &carByID    = vehiclesDB.m_Ptr->GetVehicleByID(1);
-
-                    const uint64_t carHash = C_HashName::ComputeHash("bolt_truck");
-                    const C_VehiclesDatabase::TItemAccessorConst &carByHash = vehiclesDB.m_Ptr->GetVehicleByModel(carHash);
-
-                    int z = 0;
                 }
 
                 ImGui::EndMenu();
