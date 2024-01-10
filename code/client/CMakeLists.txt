@@ -33,7 +33,6 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/slot_wrapper.cpp
     src/core/hooks/stream_map.cpp
     src/core/hooks/tables.cpp
-    src/core/hooks/traffic.cpp
     src/core/hooks/translocator.cpp
     src/core/hooks/vehicle.cpp
     src/core/hooks/vfs.cpp

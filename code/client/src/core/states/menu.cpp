@@ -31,6 +31,14 @@ namespace MafiaMP::Core::States {
         _shouldProceedConnection   = false;
         _shouldProceedOfflineDebug = false;
 
+        // Disable traffic and NPCs
+        gApplication->GetLuaVM()->ExecuteString("game.traffic:SetEnableAmbientTrafficSpawning(false)");
+        gApplication->GetLuaVM()->ExecuteString("game.traffic:SetMaxHumanElements(0)");
+        gApplication->GetLuaVM()->ExecuteString("game.traffic:SetTrainDensity(0)");
+
+        // Disable police
+        gApplication->GetLuaVM()->ExecuteString("game.police:Disable()");
+
         // Set camera
         Game::Helpers::Camera::SetPos({-986.40686, -304.061798, 2.292042}, {-985.365356, -336.348083, 2.892426}, true);
 
