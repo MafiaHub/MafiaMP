@@ -57,21 +57,21 @@ namespace MafiaMP::Scripting {
         }
 
         static void EventPlayerDied(flecs::entity e) {
-            const auto engine = MafiaMP::Server::_nodeEngine;
+            const auto engine = MafiaMP::Server::GetNodeEngine();
             V8_RESOURCE_LOCK(engine);
             auto playerObj = WrapHuman(engine, e);
             engine->InvokeEvent("playerDied", playerObj);
         }
 
         static void EventPlayerConnected(flecs::entity e) {
-            const auto engine = MafiaMP::Server::_nodeEngine;
+            const auto engine = MafiaMP::Server::GetNodeEngine();
             V8_RESOURCE_LOCK(engine);
             auto playerObj = WrapHuman(engine, e);
             engine->InvokeEvent("playerConnected", playerObj);
         }
 
         static void EventPlayerDisconnected(flecs::entity e) {
-            const auto engine = MafiaMP::Server::_nodeEngine;
+            const auto engine = MafiaMP::Server::GetNodeEngine();
             V8_RESOURCE_LOCK(engine);
             auto playerObj = WrapHuman(engine, e);
             engine->InvokeEvent("playerDisconnected", playerObj);
