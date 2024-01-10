@@ -46,17 +46,17 @@ namespace MafiaMP::Scripting {
             return carData->licensePlate;
         }
 
-        void SetSiren(bool state) {
+        void SetSirenEnabled(bool state) {
             auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            carData->siren = state;
+            carData->sirenState = state;
             MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.siren = state;
+            msg.sirenState = state;
             FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
-        bool GetSiren() {
+        bool GetSirenEnabled() {
             auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return syncData->siren;
+            return syncData->sirenState;
         }
 
         bool GetRadioEnabled() {
@@ -85,17 +85,17 @@ namespace MafiaMP::Scripting {
             FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
-        void SetBeaconLights(bool state) {
+        void SetBeaconLightsEnabled(bool state) {
             auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            carData->beaconLights = state;
+            carData->beaconLightsState = state;
             MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.beaconLights = state;
+            msg.beaconLightsState = state;
             FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
-        bool GetBeaconLights() {
+        bool GetBeaconLightsEnabled() {
             auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return syncData->beaconLights;
+            return syncData->beaconLightsState;
         }
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
@@ -109,14 +109,14 @@ namespace MafiaMP::Scripting {
             cls.function("getLockState", &Vehicle::GetLockState);
             cls.function("setLicensePlate", &Vehicle::SetLicensePlate);
             cls.function("getLicensePlate", &Vehicle::GetLicensePlate);
-            cls.function("setSiren", &Vehicle::SetSiren);
-            cls.function("getSiren", &Vehicle::GetSiren);
+            cls.function("setSirenEnabled", &Vehicle::SetSirenEnabled);
+            cls.function("getSirenEnabled", &Vehicle::GetSirenEnabled);
             cls.function("getRadioEnabled", &Vehicle::GetRadioEnabled);
             cls.function("setRadioEnabled", &Vehicle::SetRadioEnabled);
             cls.function("setRadioStation", &Vehicle::SetRadioStation);
             cls.function("getRadioStation", &Vehicle::GetRadioStation);
-            cls.function("setBeaconLights", &Vehicle::SetBeaconLights);
-            cls.function("getBeaconLights", &Vehicle::GetBeaconLights);
+            cls.function("setBeaconLightsEnabled", &Vehicle::SetBeaconLightsEnabled);
+            cls.function("getBeaconLightsEnabled", &Vehicle::GetBeaconLightsEnabled);
             rootModule->class_("Vehicle", cls);
         }
     };

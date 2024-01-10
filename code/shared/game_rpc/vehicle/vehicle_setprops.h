@@ -10,25 +10,25 @@ namespace MafiaMP::Shared::RPC {
         Framework::Utils::Optional<bool> radioState;
         Framework::Utils::Optional<int> radioId;
         Framework::Utils::Optional<Modules::VehicleSync::LockState> locked;
-        Framework::Utils::Optional<bool> beaconLights;
-        Framework::Utils::Optional<bool> siren;
+        Framework::Utils::Optional<bool> beaconLightsState;
+        Framework::Utils::Optional<bool> sirenState;
         Framework::Utils::Optional<SLNet::RakString> licensePlate;
 
         void FromParameters(VehicleSetProps props) {
-            this->radioState   = props.radioState;
-            this->radioId      = props.radioId;
-            this->locked       = props.locked;
-            this->beaconLights = props.beaconLights;
-            this->siren        = props.siren;
-            this->licensePlate = props.licensePlate;
+            this->radioState        = props.radioState;
+            this->radioId           = props.radioId;
+            this->locked            = props.locked;
+            this->beaconLightsState = props.beaconLightsState;
+            this->sirenState        = props.sirenState;
+            this->licensePlate      = props.licensePlate;
         }
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
             radioState.Serialize(bs, write);
             radioId.Serialize(bs, write);
             locked.Serialize(bs, write);
-            beaconLights.Serialize(bs, write);
-            siren.Serialize(bs, write);
+            beaconLightsState.Serialize(bs, write);
+            sirenState.Serialize(bs, write);
             licensePlate.Serialize(bs, write);
         }
 
