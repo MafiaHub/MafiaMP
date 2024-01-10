@@ -49,10 +49,6 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::Init() {
-        
-        // for 'spawn random car' feature
-        std::srand(time(NULL));
-
         SetupCommands();
         SetupMenuBar();
     }
@@ -326,6 +322,7 @@ namespace MafiaMP::Core {
             return;
         }
 
+        // TODO(Greavesy): May not be 'random' if our application does not use srand, but not important as only debug feature
         const uint32_t randomIndex = rand() % vehiclesDB.m_Ptr->GetVehiclesCount();
 
         using namespace SDK::mafia::framework;
