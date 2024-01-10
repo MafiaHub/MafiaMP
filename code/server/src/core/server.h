@@ -2,11 +2,13 @@
 
 #include <integrations/server/instance.h>
 
+#include <scripting/engines/node/engine.h>
+
 namespace MafiaMP {
     class Server: public Framework::Integrations::Server::Instance {
       private:
         void InitNetworkingMessages();
-
+        
       public:
         void PostInit() override;
 
@@ -19,5 +21,6 @@ namespace MafiaMP {
         void InitRPCs();
 
         static inline Server *_serverRef = nullptr;
+        static inline Framework::Scripting::Engines::Node::Engine *_nodeEngine;
     };
 } // namespace MafiaMP

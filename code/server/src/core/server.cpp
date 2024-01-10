@@ -14,7 +14,7 @@
 
 #include "shared/game_rpc/human/human_changeskin.h"
 
- namespace MafiaMP {
+namespace MafiaMP {
     void Server::PostInit() {
         _serverRef = this;
         InitNetworkingMessages();
@@ -68,6 +68,8 @@
         if (sdk.GetKind() != Framework::Scripting::ENGINE_NODE)
             return;
 
+        _nodeEngine = sdk.GetNodeEngine();
+
         const auto nodeSDK = sdk.GetNodeSDK();
         MafiaMP::Scripting::Builtins::Register(nodeSDK->GetIsolate(), nodeSDK->GetModule());
     }
@@ -93,7 +95,8 @@
                     args.push_back(arg);
                 }
                 Scripting::Chat::EventChatCommand(ent, text, command, args);
-            } else {
+            }
+            else {
                 Scripting::Chat::EventChatMessage(ent, text);
             }
         });
@@ -107,7 +110,7 @@
             if (!ent.is_alive())
                 return;
 
-            auto frame = ent.get_mut<Framework::World::Modules::Base::Frame>();
+            auto frame       = ent.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelHash = msg->GetSpawnProfile();
             FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::HumanChangeSkin, ent, msg->GetSpawnProfile());
         });

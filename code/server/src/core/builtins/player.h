@@ -17,7 +17,6 @@ namespace MafiaMP::Scripting {
         Human(flecs::entity_t ent): Entity(ent) {}
 
         static v8::Local<v8::Object> WrapHuman(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e) {
-            V8_RESOURCE_LOCK(engine);
             return v8pp::class_<Scripting::Human>::create_object(engine->GetIsolate(), e.id());
         }
 
@@ -58,19 +57,22 @@ namespace MafiaMP::Scripting {
         }
 
         static void EventPlayerDied(flecs::entity e) {
-            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
+            const auto engine = MafiaMP::Server::_nodeEngine;
+            V8_RESOURCE_LOCK(engine);
             auto playerObj = WrapHuman(engine, e);
             engine->InvokeEvent("playerDied", playerObj);
         }
 
         static void EventPlayerConnected(flecs::entity e) {
-            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
+            const auto engine = MafiaMP::Server::_nodeEngine;
+            V8_RESOURCE_LOCK(engine);
             auto playerObj = WrapHuman(engine, e);
             engine->InvokeEvent("playerConnected", playerObj);
         }
 
         static void EventPlayerDisconnected(flecs::entity e) {
-            auto engine = reinterpret_cast<Framework::Scripting::Engines::Node::Engine*>(Framework::CoreModules::GetScriptingModule()->GetEngine());
+            const auto engine = MafiaMP::Server::_nodeEngine;
+            V8_RESOURCE_LOCK(engine);
             auto playerObj = WrapHuman(engine, e);
             engine->InvokeEvent("playerDisconnected", playerObj);
         }
