@@ -122,6 +122,8 @@ namespace MafiaMP::Core::Modules {
                     peer->Send(vehicleUpdate, guid);
                     return true;
                 };
+
+                Update(ent);
             }
         };
 
@@ -177,7 +179,7 @@ namespace MafiaMP::Core::Modules {
         vehicle->SetAngularSpeed({updateData->angularVelocity.x, updateData->angularVelocity.y, updateData->angularVelocity.z}, false);
         vehicle->SetSiren(updateData->siren);
         vehicle->SetBeaconLightsOn(updateData->beaconLights);
-        if (!strcmp(vehicle->GetSPZText(), updateData->licensePlate)) {
+        if (strcmp(vehicle->GetSPZText(), updateData->licensePlate)) {
             vehicle->SetSPZText(updateData->licensePlate, true);
         }
         bool isRadioOn = updateData->radioId != -1;
@@ -188,17 +190,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Vehicle::SelfUpdate(flecs::entity e, MafiaMP::Shared::Modules::VehicleSync::UpdateData &updateData) {
-        const auto trackingData = e.get<Core::Modules::Vehicle::Tracking>();
-        if (!trackingData || !trackingData->car) {
-            return;
-        }
-
-        SDK::C_Vehicle *vehicle = trackingData->car->GetVehicle();
-        vehicle->SetSiren(updateData.siren);
-        vehicle->SetBeaconLightsOn(updateData.beaconLights);
-        if (!strcmp(vehicle->GetSPZText(), updateData.licensePlate)) {
-            vehicle->SetSPZText(updateData.licensePlate, true);
-        }
+        // TODO: deprecate in favor of RPCs
     }
 
     void Vehicle::Remove(flecs::entity e) {
@@ -223,7 +215,8 @@ namespace MafiaMP::Core::Modules {
             Create(e, msg->GetModelName());
 
             // Setup other components
-            e.add<Shared::Modules::VehicleSync::UpdateData>();
+            auto vehicleData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            *vehicleData     = msg->GetSpawnData();
         });
         net->RegisterMessage<Shared::Messages::Vehicle::VehicleDespawn>(Shared::Messages::ModMessages::MOD_VEHICLE_DESPAWN, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleDespawn *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
@@ -243,13 +236,14 @@ namespace MafiaMP::Core::Modules {
             *updateData     = msg->GetData();
             Update(e);
         });
-        net->RegisterMessage<Shared::Messages::Vehicle::VehicleOwnerUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_OWNER_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleOwnerUpdate *msg) {
+        // TODO: deprecate in favor of RPCs
+        /*net->RegisterMessage<Shared::Messages::Vehicle::VehicleOwnerUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_OWNER_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleOwnerUpdate *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
             }
             SelfUpdate(e, msg->GetData());
-        });
+        });*/
 
         InitRPCs(app);
     }
@@ -274,12 +268,30 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto updateData     = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-            const auto radioId = msg->GetRadioID();
+            const auto radioId      = msg->radioId;
+            const auto locked       = msg->locked;
+            const auto beaconLights = msg->beaconLights;
+            const auto siren        = msg->siren;
+            const auto licensePlate = msg->licensePlate;
 
             if (radioId.HasValue())
                 updateData->radioId = radioId();
+
+            if (locked.HasValue())
+                updateData->locked = locked();
+
+            if (beaconLights.HasValue())
+                updateData->beaconLights = beaconLights();
+
+            if (siren.HasValue())
+                updateData->siren = siren();
+
+            if (licensePlate.HasValue()) {
+                const auto plate = licensePlate.RefValue();
+                ::memcpy(updateData->licensePlate, plate, strlen(plate));
+            }
 
             Update(e);
         });

@@ -64,8 +64,9 @@ namespace MafiaMP::Core::Modules {
 
         es->modEvents.spawnProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             const auto frame = e.get<Framework::World::Modules::Base::Frame>();
+            auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
             Shared::Messages::Vehicle::VehicleSpawn vehicleSpawn;
-            vehicleSpawn.FromParameters(frame->modelName.c_str());
+            vehicleSpawn.FromParameters(frame->modelName.c_str(), *trackingMetadata);
             vehicleSpawn.SetServerID(e.id());
             net->Send(vehicleSpawn, guid);
             // todo other stuff
@@ -81,11 +82,6 @@ namespace MafiaMP::Core::Modules {
 
         es->modEvents.updateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            const auto carData   = e.get<CarData>();
-
-            // replace sync fields with server-managed data
-            trackingMetadata->locked = carData->locked;
-            Framework::Utils::fw_strlcpy(trackingMetadata->licensePlate, carData->licensePlate.c_str(), sizeof(trackingMetadata->licensePlate));
 
             Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
             vehicleUpdate.SetServerID(e.id());
@@ -93,20 +89,17 @@ namespace MafiaMP::Core::Modules {
             net->Send(vehicleUpdate, guid);
             return true;
         };
-        es->modEvents.ownerUpdateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            const auto carData    = e.get<CarData>();
 
-            // replace sync fields with server-managed data
-            trackingMetadata->locked = carData->locked;
-            Framework::Utils::fw_strlcpy(trackingMetadata->licensePlate, carData->licensePlate.c_str(), sizeof(trackingMetadata->licensePlate));
+        // TODO: deprecate in favor of RPCs
+        /*es->modEvents.ownerUpdateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
+            auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
             Shared::Messages::Vehicle::VehicleOwnerUpdate vehicleUpdate {};
             vehicleUpdate.SetServerID(e.id());
             vehicleUpdate.SetData(*trackingMetadata);
             net->Send(vehicleUpdate, guid);
             return true;
-        };
+        };*/
 
         return e;
     }

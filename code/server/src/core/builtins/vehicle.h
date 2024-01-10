@@ -5,6 +5,7 @@
 #include "scripting/engines/node/sdk.h"
 #include "shared/modules/vehicle_sync.hpp"
 #include "core/modules/vehicle.h"
+#include "core/modules/vehicle.h"
 #include "shared/game_rpc/set_vehicledata.h"
 #include "shared/game_rpc/vehicle/vehicle_setprops.h"
 
@@ -20,28 +21,37 @@ namespace MafiaMP::Scripting {
         }
 
         void Lock(Shared::Modules::VehicleSync::LockState state) {
-            auto carData = _ent.get_mut<Core::Modules::Vehicle::CarData>();
+            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
             carData->locked = state;
+            MafiaMP::Shared::RPC::VehicleSetProps msg {};
+            msg.locked = state;
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
         Shared::Modules::VehicleSync::LockState GetLockState() {
-            auto carData = _ent.get_mut<Core::Modules::Vehicle::CarData>();
+            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
             return carData->locked;
         }
 
         void SetLicensePlate(std::string plate) {
-            auto carData = _ent.get_mut<Core::Modules::Vehicle::CarData>();
-            carData->licensePlate = plate;
+            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            ::memcpy(carData->licensePlate, plate.c_str(), std::min(sizeof(carData->licensePlate), plate.length()));
+            MafiaMP::Shared::RPC::VehicleSetProps msg {};
+            msg.licensePlate = plate.c_str();
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
         std::string GetLicensePlate() {
-            auto carData = _ent.get_mut<Core::Modules::Vehicle::CarData>();
+            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
             return carData->licensePlate;
         }
 
         void SetSiren(bool state) {
-            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            syncData->siren = state;
+            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            carData->siren = state;
+            MafiaMP::Shared::RPC::VehicleSetProps msg {};
+            msg.siren = state;
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
         bool GetSiren() {
@@ -55,20 +65,27 @@ namespace MafiaMP::Scripting {
         }
 
         void ChangeRadioStation(int id) {
+            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            carData->radioId = id;
             MafiaMP::Shared::RPC::VehicleSetProps msg{};
             msg.radioId = id;
             FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
         void TurnOffRadio() {
+            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            carData->radioId = -1;
             MafiaMP::Shared::RPC::VehicleSetProps msg {};
             msg.radioId = -1;
             FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
         void SetBeaconLights(bool state) {
-            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            syncData->beaconLights = state;
+            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            carData->beaconLights = state;
+            MafiaMP::Shared::RPC::VehicleSetProps msg {};
+            msg.beaconLights = state;
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
         bool GetBeaconLights() {

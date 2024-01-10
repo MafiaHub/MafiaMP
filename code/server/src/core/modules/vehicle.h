@@ -8,10 +8,9 @@
 namespace MafiaMP::Core::Modules {
     class Vehicle {
       public:
+        // server only data
         struct CarData {
             uint64_t seats[4]{};
-            Shared::Modules::VehicleSync::LockState locked = Shared::Modules::VehicleSync::LockState::Unlocked;
-            std::string licensePlate = "M1-MP";
         };
 
         Vehicle(flecs::world &world);

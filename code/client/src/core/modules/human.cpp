@@ -168,6 +168,8 @@ namespace MafiaMP::Core::Modules {
                 Game::Helpers::Human::AddWeapon(human, 85, 200);
                 Game::Helpers::Human::AddWeapon(human, 3, 200);
                 Game::Helpers::Human::AddWeapon(human, 13, 200);
+                
+                Update(ent);
             }
         };
 
