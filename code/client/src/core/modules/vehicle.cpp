@@ -17,7 +17,7 @@
 #include "shared/messages/vehicle/vehicle_update.h"
 
 #include "shared/game_rpc/set_vehicledata.h"
-#include "shared/game_rpc/tune_radio.h"
+#include "shared/game_rpc/vehicle/vehicle_setprops.h"
 
 #include "shared/modules/mod.hpp"
 #include "shared/modules/vehicle_sync.hpp"
@@ -56,7 +56,8 @@ namespace MafiaMP::Core::Modules {
                     metadata.angularVelocity = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
                     metadata.siren           = vehicle->GetSiren();
                     metadata.beaconLights    = vehicle->AreBeaconLightsOn();
-                    metadata.radioId         = vehicle->IsRadioOn() ? vehicle->GetRadioStation() : -1;
+                    metadata.radioId         = vehicle->GetRadioStation();
+                    metadata.radioState      = vehicle->IsRadioOn();
                 }
             });
 
@@ -122,6 +123,8 @@ namespace MafiaMP::Core::Modules {
                     peer->Send(vehicleUpdate, guid);
                     return true;
                 };
+
+                Update(ent);
             }
         };
 
@@ -177,28 +180,17 @@ namespace MafiaMP::Core::Modules {
         vehicle->SetAngularSpeed({updateData->angularVelocity.x, updateData->angularVelocity.y, updateData->angularVelocity.z}, false);
         vehicle->SetSiren(updateData->siren);
         vehicle->SetBeaconLightsOn(updateData->beaconLights);
-        if (!strcmp(vehicle->GetSPZText(), updateData->licensePlate)) {
+        if (strcmp(vehicle->GetSPZText(), updateData->licensePlate)) {
             vehicle->SetSPZText(updateData->licensePlate, true);
         }
-        bool isRadioOn = updateData->radioId != -1;
-        if (isRadioOn != vehicle->IsRadioOn())
-            vehicle->TurnRadioOn(isRadioOn);
-        if (updateData->radioId != -1 && vehicle->GetRadioStation() != updateData->radioId)
+        if (updateData->radioState != vehicle->IsRadioOn())
+            vehicle->TurnRadioOn(updateData->radioState);
+        if (vehicle->GetRadioStation() != updateData->radioId)
             vehicle->ChangeRadioStation(updateData->radioId);
     }
 
     void Vehicle::SelfUpdate(flecs::entity e, MafiaMP::Shared::Modules::VehicleSync::UpdateData &updateData) {
-        const auto trackingData = e.get<Core::Modules::Vehicle::Tracking>();
-        if (!trackingData || !trackingData->car) {
-            return;
-        }
-
-        SDK::C_Vehicle *vehicle = trackingData->car->GetVehicle();
-        vehicle->SetSiren(updateData.siren);
-        vehicle->SetBeaconLightsOn(updateData.beaconLights);
-        if (!strcmp(vehicle->GetSPZText(), updateData.licensePlate)) {
-            vehicle->SetSPZText(updateData.licensePlate, true);
-        }
+        // TODO: deprecate in favor of RPCs
     }
 
     void Vehicle::Remove(flecs::entity e) {
@@ -223,7 +215,8 @@ namespace MafiaMP::Core::Modules {
             Create(e, msg->GetModelName());
 
             // Setup other components
-            e.add<Shared::Modules::VehicleSync::UpdateData>();
+            auto vehicleData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            *vehicleData     = msg->GetSpawnData();
         });
         net->RegisterMessage<Shared::Messages::Vehicle::VehicleDespawn>(Shared::Messages::ModMessages::MOD_VEHICLE_DESPAWN, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleDespawn *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
@@ -243,13 +236,14 @@ namespace MafiaMP::Core::Modules {
             *updateData     = msg->GetData();
             Update(e);
         });
-        net->RegisterMessage<Shared::Messages::Vehicle::VehicleOwnerUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_OWNER_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleOwnerUpdate *msg) {
+        // TODO: deprecate in favor of RPCs
+        /*net->RegisterMessage<Shared::Messages::Vehicle::VehicleOwnerUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_OWNER_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleOwnerUpdate *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
             }
             SelfUpdate(e, msg->GetData());
-        });
+        });*/
 
         InitRPCs(app);
     }
@@ -268,15 +262,41 @@ namespace MafiaMP::Core::Modules {
             Update(e);
         });
 
-        net->RegisterGameRPC<Shared::RPC::TuneRadio>([app](SLNet::RakNetGUID guid, Shared::RPC::TuneRadio *msg) {
+        net->RegisterGameRPC<Shared::RPC::VehicleSetProps>([app](SLNet::RakNetGUID guid, Shared::RPC::VehicleSetProps *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
             }
 
-            // TODO: figure out a better way to do partial state updates
-            auto updateData     = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            updateData->radioId = msg->GetRadioID();
+            auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+
+            const auto radioState   = msg->radioState;
+            const auto radioId      = msg->radioId;
+            const auto locked       = msg->locked;
+            const auto beaconLights = msg->beaconLights;
+            const auto siren        = msg->siren;
+            const auto licensePlate = msg->licensePlate;
+
+            if (radioState.HasValue())
+                updateData->radioState = radioState();
+
+            if (radioId.HasValue())
+                updateData->radioId = radioId();
+
+            if (locked.HasValue())
+                updateData->locked = locked();
+
+            if (beaconLights.HasValue())
+                updateData->beaconLights = beaconLights();
+
+            if (siren.HasValue())
+                updateData->siren = siren();
+
+            if (licensePlate.HasValue()) {
+                const auto plate = licensePlate().C_String();
+                ::memcpy(updateData->licensePlate, plate, strlen(plate));
+            }
+
             Update(e);
         });
     }

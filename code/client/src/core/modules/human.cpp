@@ -168,6 +168,8 @@ namespace MafiaMP::Core::Modules {
                 Game::Helpers::Human::AddWeapon(human, 85, 200);
                 Game::Helpers::Human::AddWeapon(human, 3, 200);
                 Game::Helpers::Human::AddWeapon(human, 13, 200);
+                
+                Update(ent);
             }
         };
 
@@ -449,7 +451,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            const auto setHealth = msg->GetHealth();
+            const auto setHealth = msg->health;
 
             if (setHealth.HasValue()) {
                 Game::Helpers::Human::SetHealthPercent(trackingData->human, setHealth());

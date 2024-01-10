@@ -47,7 +47,9 @@ namespace MafiaMP::Scripting {
         void SetHealth(float health) {
             auto h = _ent.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
             h->_healthPercent = health;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanSetProps, _ent, health);
+            MafiaMP::Shared::RPC::HumanSetProps msg {};
+            msg.health = health;
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanSetProps, _ent, msg);
         }
 
         float GetHealth() const {
