@@ -11,6 +11,6 @@ namespace SDK {
             E_RADIO_POLICE,
             E_RADIO_RANDOM,
             E_RADIO_LAST,
-        }
+        };
     } // namespace mafia::tables::vehicle
 } // namespace SDK
