@@ -56,7 +56,8 @@ namespace MafiaMP::Core::Modules {
                     metadata.angularVelocity = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
                     metadata.siren           = vehicle->GetSiren();
                     metadata.beaconLights    = vehicle->AreBeaconLightsOn();
-                    metadata.radioId         = vehicle->IsRadioOn() ? vehicle->GetRadioStation() : -1;
+                    metadata.radioId         = vehicle->GetRadioStation();
+                    metadata.radioState      = vehicle->IsRadioOn();
                 }
             });
 
