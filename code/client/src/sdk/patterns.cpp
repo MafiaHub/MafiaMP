@@ -361,5 +361,21 @@ namespace SDK {
         gPatterns.C_StreamMap__GetGame = reinterpret_cast<uint64_t>(hook::pattern("48 8B 41 10 48 85 C0 48 0F 44 05 ? ? ? ? C3 48 8B 81 ? ? ? ?").get_first());
         gPatterns.C_StreamMap__GetMission = reinterpret_cast<uint64_t>(hook::pattern("48 8B 41 18 48 85 C0 48 0F 44 05 ? ? ? ? C3 48 8B 41 20").get_first());
         gPatterns.C_StreamMap__GetPart    = reinterpret_cast<uint64_t>(hook::pattern("48 8B 41 20 48 85 C0 48 0F 44 05 ? ? ? ? C3 40 53").get_first());
-    }
+
+        // C_DatabaseSystem
+        gPatterns.C_DatabaseSystem__GetDatabase =
+            reinterpret_cast<uint64_t>(hook::pattern("4C 8B 51 08 4D 8B C2 49 8B 42 08 80 78 19 00 75 1B 4C 8B 0A 4C 39 48 20 73 06 48 8B 40 10 EB 06 4C 8B C0 48 8B 00 80 78 19 00 74 E8 4D 3B C2 74 09 49 8B 40 20 48 39 02 73 03 4D 8B C2 4D 3B C2 74 05").get_first());
+   
+        // C_MafiaDBS
+        gPatterns.C_MafiaDBS__GetVehiclesDatabase = reinterpret_cast<uint64_t>(hook::pattern("40 53 48 83 EC 20 48 8B DA 41 B8 06 00 00 00").get_first());
+
+        // C_SysODB
+        gPatterns.C_SysODB__GetInstance = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 41 B8 6F 50 30 4C");
+
+        // C_VehiclesDatabase
+        gPatterns.C_VehiclesDatabase__GetVehiclesCount = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 48 8B 4D 30 8B F8");
+        gPatterns.C_VehiclesDatabase__GetVehicleByID   = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B 41 30 33 FF 41 8B D8 48 8B F2 48 8B E9 39 78 18 76 79").get_first());
+        gPatterns.C_VehiclesDatabase__GetVehicleByIndex = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 41 56 48 83 EC 20 48 8B 41 30 33 DB 41 8B F8 4C 8B F2 48 8B F1 39 58 18 76 34 0F 1F 80 00 00 00 00 8B D3 48 8B C8 E8 ? ? ? ? 33 D2 48 8B C8 4C 8B 00 41 FF 50 ? 4C 8B C0 8B 48 04 3B F9 72 2D 48 8B 46 30 2B F9 FF C3 3B 58 18 72 D3 49 C7 06 00 00 00 00 48 8B 5C 24 30 49 8B C6 48 8B 74 24 38 48 8B 7C 24 40 48 83 C4 20 41 5E C3 49 63 10 8B C7 48 69 C0 F0 00 00 00").get_first());
+        gPatterns.C_VehiclesDatabase__GetVehicleByModel = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 55 41 56 41 57 48 83 EC 20 48 8B 41").get_first());
+ }
 }; // namespace SDK

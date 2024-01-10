@@ -8,7 +8,7 @@ namespace SDK {
         class C_WeakPtr {
           public:
             uintptr_t unk;
-            uintptr_t unk2;
+            T* m_Ptr = nullptr;
             uintptr_t unk3;
             uintptr_t unk4;
             uint8_t paaddd[32];

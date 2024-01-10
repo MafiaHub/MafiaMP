@@ -37,6 +37,9 @@
 #include "shared/game_rpc/human/human_changeskin.h"
 
 #include "modules/human.h"
+#include "../sdk/ue/sys/sodb/c_sys_odb.h"
+#include "../sdk/mafia/framework/c_vehicles_database.h"
+#include "../sdk/mafia/framework/c_mafia_dbs.h"
 
 namespace MafiaMP::Core {
     DevFeatures::DevFeatures() {
@@ -306,6 +309,48 @@ namespace MafiaMP::Core {
         }
     }
 
+    void DevFeatures::SpawnRandomCar() {
+        auto mafiaDB = SDK::mafia::framework::GetMafiaDBs();
+        if (!mafiaDB)
+        {
+            return;
+        }
+
+        auto vehiclesDB = mafiaDB->GetVehiclesDatabase();
+        if (!vehiclesDB.m_Ptr)
+        {
+            return;
+        }
+
+        // TODO(Greavesy): May not be 'random' if our application does not use srand, but not important as only debug feature
+        const uint32_t randomIndex = rand() % vehiclesDB.m_Ptr->GetVehiclesCount();
+
+        using namespace SDK::mafia::framework;
+        const C_VehiclesDatabase::TItemAccessorConst &carByIndex = vehiclesDB.m_Ptr->GetVehicleByIndex(randomIndex);
+        if (const S_VehiclesTableItem* vehicle = carByIndex.Get())
+        {
+            if (vehicle->m_ID == 0)
+            {
+                // dud index, nothing to spawn
+                return;
+            }
+
+            const char *modelName = &vehicle->m_ModelName[0];
+
+            // TODO(Greavesy): bit wise utilities, probably included in the public API of S_VehiclesTableItem
+            constexpr uint32_t TVF_CAR = (uint32_t)SDK::mafia::traffic::E_TrafficVehicleFlags::E_TVF_CAR;
+            if (((uint32_t)vehicle->m_VehicleFlags & TVF_CAR) != TVF_CAR) {
+
+                Framework::Logging::GetLogger("Debug")->info("Skipping {}, not E_TVF_CAR", modelName);
+                return;
+            }
+            
+            SpawnCar(modelName);
+
+            Framework::Logging::GetLogger("Debug")->info("Spawned {}", modelName);
+        }
+    }
+
     void DevFeatures::SetupCommands() {
         gApplication->_commandProcessor->RegisterCommand(
             "test", {{"a,aargument", "Test argument 1", cxxopts::value<std::string>()}, {"b,bargument", "Test argument 2", cxxopts::value<int>()}},
@@ -483,6 +528,14 @@ namespace MafiaMP::Core {
                         SpawnCar();
                     }
                 }
+                if (ImGui::MenuItem("Spawn random car")) {
+                    SpawnRandomCar();
+                }
+                if (ImGui::MenuItem("Spawn 50 random cars")) {
+                    for (size_t i = 0; i < 50; i++) {
+                        SpawnRandomCar();
+                    }
+                }
                 if (ImGui::MenuItem("Despawn all", "F3")) {
                     DespawnAll();
                 }
@@ -513,6 +566,7 @@ namespace MafiaMP::Core {
                 if (ImGui::MenuItem("Network stats", "F10")) {
                     ToggleNetworkStats();
                 }
+
                 ImGui::EndMenu();
             }
         });
