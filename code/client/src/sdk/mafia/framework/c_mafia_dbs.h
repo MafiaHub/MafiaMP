@@ -1,8 +1,11 @@
 #pragma once
 
-#include <utils/hooking/hooking.h>
+#include "c_vehicles_database.h"
 
-#include "../../ue/sys/sodb/c_sys_odb.h"
+#include "sdk/ue/c_weak_ptr.h"
+#include "sdk/ue/sys/sodb/c_sys_odb.h"
+
+#include <utils/hooking/hooking.h>
 
 namespace SDK {
     namespace mafia::framework {
@@ -12,6 +15,8 @@ namespace SDK {
                 const auto pattern = hook::get_opcode_address("E8 ? ? ? ? 48 8B F8 49 8B C7");
                 hook::this_call(pattern, this, odb);
             }
+
+            ue::C_WeakPtr<mafia::framework::C_VehiclesDatabase> GetVehiclesDatabase();
         };
 
         static C_MafiaDBs *GetMafiaDBs() {

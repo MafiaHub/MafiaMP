@@ -37,6 +37,9 @@
 #include "shared/game_rpc/human/human_changeskin.h"
 
 #include "modules/human.h"
+#include "../sdk/ue/sys/sodb/c_sys_odb.h"
+#include "../sdk/mafia/framework/c_vehicles_database.h"
+#include "../sdk/mafia/framework/c_mafia_dbs.h"
 
 namespace MafiaMP::Core {
     DevFeatures::DevFeatures() {
@@ -46,6 +49,10 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::Init() {
+        
+        // for 'spawn random car' feature
+        std::srand(time(NULL));
+
         SetupCommands();
         SetupMenuBar();
     }
@@ -306,6 +313,40 @@ namespace MafiaMP::Core {
         }
     }
 
+    void DevFeatures::SpawnRandomCar() {
+        auto mafiaDB = SDK::mafia::framework::GetMafiaDBs();
+        if (!mafiaDB)
+        {
+            return;
+        }
+
+        auto vehiclesDB = mafiaDB->GetVehiclesDatabase();
+        if (!vehiclesDB.m_Ptr)
+        {
+            return;
+        }
+
+        const uint32_t randomIndex = rand() % vehiclesDB.m_Ptr->GetVehiclesCount();
+
+        using namespace SDK::mafia::framework;
+        const C_VehiclesDatabase::TItemAccessorConst &carByIndex = vehiclesDB.m_Ptr->GetVehicleByIndex(randomIndex);
+        if (const S_VehiclesTableItem* vehicle = carByIndex.Get()) // dud index
+        {
+            const char *modelName = &vehicle->m_ModelName[0];
+
+            constexpr uint32_t TVF_CAR = (uint32_t)SDK::mafia::traffic::E_TrafficVehicleFlags::E_TVF_CAR;
+            if (((uint32_t)vehicle->m_VehicleFlags & TVF_CAR) != TVF_CAR) {
+
+                Framework::Logging::GetLogger("Debug")->info("Skipping {}, not E_TVF_CAR", modelName);
+                return;
+            }
+            
+            SpawnCar(modelName);
+
+            Framework::Logging::GetLogger("Debug")->info("Spawned {}", modelName);
+        }
+    }
+
     void DevFeatures::SetupCommands() {
         gApplication->_commandProcessor->RegisterCommand(
             "test", {{"a,aargument", "Test argument 1", cxxopts::value<std::string>()}, {"b,bargument", "Test argument 2", cxxopts::value<int>()}},
@@ -483,6 +524,14 @@ namespace MafiaMP::Core {
                         SpawnCar();
                     }
                 }
+                if (ImGui::MenuItem("Spawn random car")) {
+                    SpawnRandomCar();
+                }
+                if (ImGui::MenuItem("Spawn 50 random cars")) {
+                    for (size_t i = 0; i < 50; i++) {
+                        SpawnRandomCar();
+                    }
+                }
                 if (ImGui::MenuItem("Despawn all", "F3")) {
                     DespawnAll();
                 }
@@ -513,6 +562,23 @@ namespace MafiaMP::Core {
                 if (ImGui::MenuItem("Network stats", "F10")) {
                     ToggleNetworkStats();
                 }
+                if (ImGui::MenuItem("Database Test")) {
+                    SDK::mafia::framework::C_MafiaDBs *mafiaDB = SDK::mafia::framework::GetMafiaDBs();
+                    auto vehiclesDB = mafiaDB->GetVehiclesDatabase();
+                    const uint32_t NumVehicles                          = vehiclesDB.m_Ptr->GetVehiclesCount();
+                    
+                    using namespace SDK::mafia::framework;
+                    using namespace SDK::ue::sys::utils;
+
+                    const C_VehiclesDatabase::TItemAccessorConst& carByIndex = vehiclesDB.m_Ptr->GetVehicleByIndex(1);
+                    const C_VehiclesDatabase::TItemAccessorConst &carByID    = vehiclesDB.m_Ptr->GetVehicleByID(1);
+
+                    const uint64_t carHash = C_HashName::ComputeHash("bolt_truck");
+                    const C_VehiclesDatabase::TItemAccessorConst &carByHash = vehiclesDB.m_Ptr->GetVehicleByModel(carHash);
+
+                    int z = 0;
+                }
+
                 ImGui::EndMenu();
             }
         });

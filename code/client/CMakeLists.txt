@@ -66,7 +66,9 @@ set(MAFIAMP_SDK_FILES
     src/sdk/entities/c_vehicle.cpp
     src/sdk/inventory/c_inventory_wrapper.cpp
     src/sdk/mafia/framework/director/c_game_director.cpp
+    src/sdk/mafia/framework/c_mafia_dbs.cpp
     src/sdk/mafia/framework/c_mafia_framework.cpp
+    src/sdk/mafia/framework/c_vehicles_database.cpp
     src/sdk/mafia/streaming/c_actors_slot_wrapper.cpp
     src/sdk/mafia/streaming/c_slot_wrapper.cpp
     src/sdk/mafia/streaming/c_streaming_module.cpp
