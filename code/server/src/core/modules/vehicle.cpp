@@ -3,6 +3,8 @@
 #include "networking/network_peer.h"
 #include "world/modules/base.hpp"
 
+#include "world/modules/base.hpp"
+
 #include "shared/messages/vehicle/vehicle_despawn.h"
 #include "shared/messages/vehicle/vehicle_spawn.h"
 #include "shared/messages/vehicle/vehicle_update.h"
@@ -43,6 +45,7 @@ namespace MafiaMP::Core::Modules {
 
         e.add<Shared::Modules::VehicleSync::UpdateData>();
         e.add<CarData>();
+        e.add<Framework::World::Modules::Base::RemovedOnGameModeReload>();
 
         auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
 
