@@ -4,6 +4,8 @@
 #include "sdk/mafia/tables/vehicle/vehicle_defines.h"
 #include "sdk/mafia/traffic/traffic_defines.h"
 
+#include <utils/bitops.h>
+
 #include <stdint.h>
 
 namespace SDK {
@@ -11,24 +13,20 @@ namespace SDK {
         struct S_VehiclesTableItem {
           public:
 
-            bool HasCommonFlags(const mafia::traffic::E_TrafficVehicleFlags flags) const {
-                const uint32_t flags_as_int = (uint32_t)flags;
-                return ((uint32_t)m_VehicleFlags & flags_as_int) == flags_as_int;
+            bool HasCommonFlags(const mafia::traffic::E_TrafficCommonFlags flags) const {
+                return BIT_HAS((uint32_t)m_CommonFlags, (uint32_t)flags);
             }
 
             bool HasVehicleFlags(const mafia::traffic::E_TrafficVehicleFlags flags) const {
-                const uint32_t flags_as_int = (uint32_t)flags;
-                return ((uint32_t)m_VehicleFlags & flags_as_int) == flags_as_int;
+                return BIT_HAS((uint32_t)m_VehicleFlags, (uint32_t)flags);
             }
 
             bool HasVehicleLookFlags(const mafia::traffic::E_TrafficVehicleLookFlags flags) const {
-                const uint32_t flags_as_int = (uint32_t)flags;
-                return ((uint32_t)m_VehicleFlags & flags_as_int) == flags_as_int;
+                return BIT_HAS((uint32_t)m_VehicleLookFlags, (uint32_t)flags);
             }
 
             bool HasVehicleFunctionFlags(const mafia::tables::vehicle::E_VehiclesTableFunctionFlags flags) const {
-                const uint32_t flags_as_int = (uint32_t)flags;
-                return ((uint32_t)m_VehicleFlags & flags_as_int) == flags_as_int;
+                return BIT_HAS((uint32_t)m_VehicleFunctionFlags, (uint32_t)flags);
             }
 
             // Accessors for all properties within the table item;

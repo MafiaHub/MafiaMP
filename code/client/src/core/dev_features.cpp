@@ -310,13 +310,13 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::SpawnRandomCar() {
-        auto mafiaDB = SDK::mafia::framework::GetMafiaDBs();
+        const auto mafiaDB = SDK::mafia::framework::GetMafiaDBs();
         if (!mafiaDB)
         {
             return;
         }
 
-        auto vehiclesDB = mafiaDB->GetVehiclesDatabase();
+        const auto vehiclesDB = mafiaDB->GetVehiclesDatabase();
         if (!vehiclesDB.IsValid())
         {
             return;
@@ -326,8 +326,8 @@ namespace MafiaMP::Core {
         const uint32_t randomIndex = rand() % vehiclesDB->GetVehiclesCount();
 
         using namespace SDK::mafia::framework;
-        const C_VehiclesDatabase::TItemAccessorConst &carByIndex = vehiclesDB->GetVehicleByIndex(randomIndex);
-        if (const auto* vehicle = carByIndex.Get())
+        const C_VehiclesDatabase::TItemAccessorConst &selectedCar = vehiclesDB->GetVehicleByIndex(randomIndex);
+        if (const auto* vehicle = selectedCar.Get())
         {
             const auto vehicleID = vehicle->GetID();
             if (vehicle->GetID() == 0)
