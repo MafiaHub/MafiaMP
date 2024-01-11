@@ -7,29 +7,29 @@
 namespace MafiaMP::Shared::RPC {
     class VehicleSetProps final: public Framework::Networking::RPC::IGameRPC<VehicleSetProps> {
       public:
-        Framework::Utils::Optional<bool> radioState;
-        Framework::Utils::Optional<int> radioId;
-        Framework::Utils::Optional<Modules::VehicleSync::LockState> locked;
-        Framework::Utils::Optional<bool> beaconLights;
-        Framework::Utils::Optional<bool> siren;
+        Framework::Utils::Optional<bool> beaconLightsState;
         Framework::Utils::Optional<SLNet::RakString> licensePlate;
+        Framework::Utils::Optional<Modules::VehicleSync::LockState> locked;
+        Framework::Utils::Optional<int> radioId;
+        Framework::Utils::Optional<bool> radioState;
+        Framework::Utils::Optional<bool> sirenState;
 
         void FromParameters(VehicleSetProps props) {
-            this->radioState   = props.radioState;
-            this->radioId      = props.radioId;
-            this->locked       = props.locked;
-            this->beaconLights = props.beaconLights;
-            this->siren        = props.siren;
-            this->licensePlate = props.licensePlate;
+            this->beaconLightsState = props.beaconLightsState;
+            this->licensePlate      = props.licensePlate;
+            this->locked            = props.locked;
+            this->radioId           = props.radioId;
+            this->radioState        = props.radioState;
+            this->sirenState        = props.sirenState;
         }
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
-            radioState.Serialize(bs, write);
-            radioId.Serialize(bs, write);
-            locked.Serialize(bs, write);
-            beaconLights.Serialize(bs, write);
-            siren.Serialize(bs, write);
+            beaconLightsState.Serialize(bs, write);
             licensePlate.Serialize(bs, write);
+            locked.Serialize(bs, write);
+            radioId.Serialize(bs, write);
+            radioState.Serialize(bs, write);
+            sirenState.Serialize(bs, write);
         }
 
         bool Valid() const override {

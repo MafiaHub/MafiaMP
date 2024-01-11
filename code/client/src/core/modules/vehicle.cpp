@@ -46,18 +46,18 @@ namespace MafiaMP::Core::Modules {
                     tr.pos                                              = {carPos.x, carPos.y, carPos.z};
                     tr.rot                                              = {carRot.w, carRot.x, carRot.y, carRot.z};
 
-                    metadata.gear            = car->GetGear();
-                    metadata.horn            = vehicle->GetHorn();
-                    metadata.power           = vehicle->GetPower();
-                    metadata.brake           = vehicle->GetBrake();
-                    metadata.handbrake       = vehicle->GetHandbrake();
-                    metadata.steer           = vehicle->GetSteer();
-                    metadata.velocity        = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
-                    metadata.angularVelocity = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
-                    metadata.siren           = vehicle->GetSiren();
-                    metadata.beaconLights    = vehicle->AreBeaconLightsOn();
-                    metadata.radioId         = vehicle->GetRadioStation();
-                    metadata.radioState      = vehicle->IsRadioOn();
+                    metadata.angularVelocity   = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
+                    metadata.beaconLightsState = vehicle->AreBeaconLightsOn();
+                    metadata.brake             = vehicle->GetBrake();
+                    metadata.gear              = car->GetGear();
+                    metadata.handbrake         = vehicle->GetHandbrake();
+                    metadata.hornState         = vehicle->GetHorn();
+                    metadata.power             = vehicle->GetPower();
+                    metadata.radioId           = vehicle->GetRadioStation();
+                    metadata.radioState        = vehicle->IsRadioOn();
+                    metadata.sirenState        = vehicle->GetSiren();
+                    metadata.steer             = vehicle->GetSteer();
+                    metadata.velocity          = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
                 }
             });
 
@@ -171,15 +171,15 @@ namespace MafiaMP::Core::Modules {
         auto updateData         = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
         SDK::C_Vehicle *vehicle = trackingData->car->GetVehicle();
         vehicle->SetGear(updateData->gear);
-        vehicle->SetHorn(updateData->horn);
+        vehicle->SetHorn(updateData->hornState);
         vehicle->SetPower(updateData->power);
         vehicle->SetBrake(updateData->brake, false);
         vehicle->SetHandbrake(updateData->handbrake, false);
         vehicle->SetSteer(updateData->steer);
         vehicle->SetSpeed({updateData->velocity.x, updateData->velocity.y, updateData->velocity.z}, false, false);
         vehicle->SetAngularSpeed({updateData->angularVelocity.x, updateData->angularVelocity.y, updateData->angularVelocity.z}, false);
-        vehicle->SetSiren(updateData->siren);
-        vehicle->SetBeaconLightsOn(updateData->beaconLights);
+        vehicle->SetSiren(updateData->sirenState);
+        vehicle->SetBeaconLightsOn(updateData->beaconLightsState);
         if (strcmp(vehicle->GetSPZText(), updateData->licensePlate)) {
             vehicle->SetSPZText(updateData->licensePlate, true);
         }
@@ -270,12 +270,12 @@ namespace MafiaMP::Core::Modules {
 
             auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-            const auto radioState   = msg->radioState;
-            const auto radioId      = msg->radioId;
-            const auto locked       = msg->locked;
-            const auto beaconLights = msg->beaconLights;
-            const auto siren        = msg->siren;
-            const auto licensePlate = msg->licensePlate;
+            const auto radioState        = msg->radioState;
+            const auto radioId           = msg->radioId;
+            const auto locked            = msg->locked;
+            const auto beaconLightsState = msg->beaconLightsState;
+            const auto sirenState        = msg->sirenState;
+            const auto licensePlate      = msg->licensePlate;
 
             if (radioState.HasValue())
                 updateData->radioState = radioState();
@@ -286,11 +286,11 @@ namespace MafiaMP::Core::Modules {
             if (locked.HasValue())
                 updateData->locked = locked();
 
-            if (beaconLights.HasValue())
-                updateData->beaconLights = beaconLights();
+            if (beaconLightsState.HasValue())
+                updateData->beaconLightsState = beaconLightsState();
 
-            if (siren.HasValue())
-                updateData->siren = siren();
+            if (sirenState.HasValue())
+                updateData->sirenState = sirenState();
 
             if (licensePlate.HasValue()) {
                 const auto plate = licensePlate().C_String();
