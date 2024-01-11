@@ -17,18 +17,18 @@ namespace MafiaMP::Shared::Modules {
         struct UpdateData {
             glm::vec3 velocity {};
             glm::vec3 angularVelocity {};
-            int gear               = 0;
-            bool hornState         = false;
-            bool sirenState        = false;
             bool beaconLightsState = false;
-            float power            = 0.0f;
             float brake            = 0.0f;
+            int gear               = 0;
             float handbrake        = 0.0f;
-            float steer            = 0.0f;
-            LockState locked       = LockState::Unlocked;
+            bool hornState         = false;
             char licensePlate[7]   = "";
-            bool radioState        = 0;
+            LockState locked       = LockState::Unlocked;
+            float power            = 0.0f;
             int radioId            = 0;
+            bool radioState        = 0;
+            bool sirenState        = false;
+            float steer            = 0.0f;
         };
 
         VehicleSync(flecs::world &world) {

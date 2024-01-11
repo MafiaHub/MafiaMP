@@ -46,18 +46,18 @@ namespace MafiaMP::Core::Modules {
                     tr.pos                                              = {carPos.x, carPos.y, carPos.z};
                     tr.rot                                              = {carRot.w, carRot.x, carRot.y, carRot.z};
 
+                    metadata.angularVelocity   = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
+                    metadata.beaconLightsState = vehicle->AreBeaconLightsOn();
+                    metadata.brake             = vehicle->GetBrake();
                     metadata.gear              = car->GetGear();
+                    metadata.handbrake         = vehicle->GetHandbrake();
                     metadata.hornState         = vehicle->GetHorn();
                     metadata.power             = vehicle->GetPower();
-                    metadata.brake             = vehicle->GetBrake();
-                    metadata.handbrake         = vehicle->GetHandbrake();
-                    metadata.steer             = vehicle->GetSteer();
-                    metadata.velocity          = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
-                    metadata.angularVelocity   = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
-                    metadata.sirenState        = vehicle->GetSiren();
-                    metadata.beaconLightsState = vehicle->AreBeaconLightsOn();
                     metadata.radioId           = vehicle->GetRadioStation();
                     metadata.radioState        = vehicle->IsRadioOn();
+                    metadata.sirenState        = vehicle->GetSiren();
+                    metadata.steer             = vehicle->GetSteer();
+                    metadata.velocity          = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
                 }
             });
 
