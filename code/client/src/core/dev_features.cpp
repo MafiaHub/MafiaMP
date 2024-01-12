@@ -73,8 +73,6 @@ namespace MafiaMP::Core {
             _networkStats->Update(&_showNetworkStats);
         }
 
-        /*--------------------------------------------------------------------------*/
-
         if (gApplication->_input->IsKeyPressed(FW_KEY_F1)) {
             const auto human = Game::Helpers::Controls::GetLocalPlayer();
             if (human) {

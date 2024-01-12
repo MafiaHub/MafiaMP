@@ -277,11 +277,11 @@ sdk.on("gamemodeLoaded", () => {
     console.log("[GAMEMODE] Gamemode loaded!");
 
     // Spawn vehicles
-    vehicleSpawns.forEach((veh) => {
+    for (const veh of vehicleSpawns) {
         const car = sdk.World.createVehicle(veh.modelName);
         car.setPosition(veh.pos);
         car.setRotation(veh.rot);
-    });
+    }
     console.log(`[GAMEMODE] spawned ${vehicleSpawns.length} vehicles!`);
 
     // Weather
@@ -305,8 +305,8 @@ sdk.on("playerConnected", (player) => {
     console.log(`[GAMEMODE] Player ${player.getNickname()} connected!`);
     player.sendChatToAll(`[SERVER] ${player.getNickname()} has joined the session!`);
 
-    player.addWeapon(2, 200); // doesn't works
-    player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805)); // doesn't works
+    player.addWeapon(2, 200); // TODO: doesn't works yet
+    player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805)); // TODO: doesn't works yet
     player.sendChat(`[SERVER] Welcome ${player.getNickname()}!`);
 });
 
@@ -350,7 +350,7 @@ sdk.on("chatCommand", (player, message, command, args) => {
     }
 
     if (command === "veh") {
-        // const modelName = args[0] ?? "berkley_810"; // doesn't works well yet
+        // const modelName = args[0] ?? "berkley_810"; // TODO: doesn't works well yet
         const modelName = "berkley_810";
         const veh = sdk.World.createVehicle(modelName);
 
@@ -368,7 +368,7 @@ sdk.on("chatCommand", (player, message, command, args) => {
     }
 
     if (command === "wep") {
-        // doesn't works yet
+        // TODO: doesn't works yet
 
         // const weaponId = parseInt(args[0], 10) ?? 85;
         const weaponId = 85;

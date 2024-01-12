@@ -214,7 +214,11 @@ namespace MafiaMP::Core::Modules {
             return;
         }
 
-        // TODO: Explain why do we have to do this
+        /**
+         * Ensure remote human doesn't die on client-side due to client-only factors.
+         * This way we reflect actual health the player has and don't run into desync issue
+         * where player would die on someone else's screen even if they shouldn't.
+         */
         trackingData->human->GetHumanScript()->SetDemigod(true);
         trackingData->human->GetHumanScript()->SetInvulnerabilityByScript(true);
 

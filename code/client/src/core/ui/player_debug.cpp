@@ -97,13 +97,7 @@ namespace MafiaMP::Core::UI {
             (health);
         }
 
-        /**
-         * SetHealthMax is explicitly disabled for the player
-         */
-        // float healthMax = pActivePlayer->GetHumanScript()->GetHealthMax();
-        // if (ImGui::SliderFloat("Health Max", &healthMax, 0.0f, 1000.0f)) {
-        //     pActivePlayer->GetHumanScript()->SetHealthMax(healthMax);
-        // }
+        // SetHealthMax is explicitly disabled for the player
         ImGui::Text("Health Max: %f\n", pActivePlayer->GetHumanScript()->GetHealthMax());
 
         {
@@ -148,15 +142,6 @@ namespace MafiaMP::Core::UI {
             auto dir = SDK::ue::sys::math::C_Vector(0.985, -0.175, 0.000);
             SDK::GetPlayerTeleportModule()->TeleportPlayer(syncObject, pos, dir, false, false, false, false);
         }
-
-        // void pActivePlayer->GetHumanScript()->GetOnVehicle(ue::C_CntPtr<uintptr_t> &outSyncObject, C_Actor *arg1, unsigned int arg2, bool arg3, bool arg4, E_HumanMoveMode moveMode, bool force) {
-        //     (*(void(__thiscall *)(C_HumanScript *, ue::C_CntPtr<uintptr_t> &, C_Actor *, unsigned int, bool, bool, E_HumanMoveMode, bool))gPatterns.C_HumanScript__GetOnVehicle)(
-        //         this, outSyncObject, arg1, arg2, arg3, arg4, moveMode, force);
-        // }
-
-        // void pActivePlayer->GetHumanScript()->GetOffVehicle(ue::C_CntPtr<uintptr_t> &outSyncObject, C_Actor *arg1, bool arg2, bool arg3) {
-        //     (*(void(__thiscall *)(C_HumanScript *, ue::C_CntPtr<uintptr_t> &, C_Actor *, bool, bool))gPatterns.C_HumanScript__GetOffVehicle)(this, outSyncObject, arg1, arg2, arg3);
-        // }
 
         ImGui::Text("Player Ptr: %p", pActivePlayer);
 
