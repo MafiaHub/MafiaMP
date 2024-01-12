@@ -294,7 +294,7 @@ namespace MafiaMP::Core::Modules {
 
             if (licensePlate.HasValue()) {
                 const auto plate = licensePlate().C_String();
-                ::memcpy(updateData->licensePlate, plate, strlen(plate));
+                ::memcpy(updateData->licensePlate, plate, strlen(plate)+1);
             }
 
             Update(e);
