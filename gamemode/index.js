@@ -1,5 +1,3 @@
-console.log("Hello from the gamemode!");
-
 const vehicleSpawns = [
     {
         modelName: "berkley_810",
@@ -273,27 +271,21 @@ const vehicleSpawns = [
     },
 ];
 
-const weatherSets = [
-    "mm_030_molotov_cp_010_cine",
-    "mm_150_boat_cp_010",
-    "mm_210_gallery_cp_050",
-];
+const weatherSets = ["mm_030_molotov_cp_010_cine", "mm_150_boat_cp_010", "mm_210_gallery_cp_050"];
 
 sdk.on("gamemodeLoaded", () => {
-    console.log('[GAMEMODE] Gamemode loaded!')
+    console.log("[GAMEMODE] Gamemode loaded!");
 
     // Spawn vehicles
-    for (const veh of vehicleSpawns) {
+    vehicleSpawns.forEach((veh) => {
         const car = sdk.World.createVehicle(veh.modelName);
         car.setPosition(veh.pos);
         car.setRotation(veh.rot);
-    }
+    });
     console.log(`[GAMEMODE] spawned ${vehicleSpawns.length} vehicles!`);
 
     // Weather
-    const selectedSet = weatherSets[
-        Math.floor(Math.random() * weatherSets.length)
-    ];
+    const selectedSet = weatherSets[Math.floor(Math.random() * weatherSets.length)];
     sdk.Environment.setWeather(selectedSet);
 
     // Clock
@@ -305,13 +297,17 @@ sdk.on("gamemodeLoaded", () => {
     }, 1000);
 });
 
+sdk.on("gamemodeUnloading", () => {
+    console.log("[GAMEMODE] Gamemode unloading!");
+});
+
 sdk.on("playerConnected", (player) => {
     console.log(`[GAMEMODE] Player ${player.getNickname()} connected!`);
     player.sendChatToAll(`[SERVER] ${player.getNickname()} has joined the session!`);
 
-    // player.addWeapon(20, 200); // TODO: Not working yet
-    player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
-    player.sendChat(`[SERVER] Welcome ${player.getNickname()}!`)
+    player.addWeapon(2, 200); // doesn't works
+    player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805)); // doesn't works
+    player.sendChat(`[SERVER] Welcome ${player.getNickname()}!`);
 });
 
 sdk.on("playerDisconnected", (player) => {
@@ -336,18 +332,50 @@ sdk.on("chatMessage", (player, message) => {
 sdk.on("chatCommand", (player, message, command, args) => {
     console.log(`[GAMEMODE] Player ${player.getNickname()} used: ${command}. (${message})`);
 
-    switch (command) {
-        case 'home':
-            player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
-            player.sendChat(`[SERVER] Teleported to home!`)
-            break
-
-        case 'showArgs':
-            sdk.Chat.sendToAll(`[SERVER] Player ${player.getNickname()} used /showArgs with args: ${args}`);
-            break
-
-        default:
-            sdk.Chat.sendToPlayer(player, `[SERVER] Unknown command "${command}"`);
-            break
+    if (command === "showArgs") {
+        sdk.Chat.sendToAll(`[SERVER] Player ${player.getNickname()} used /showArgs with args: ${args}`);
+        return;
     }
+
+    if (command === "heal") {
+        player.setHealth(100);
+        player.sendChat(`[SERVER] Health restored!`);
+        return;
+    }
+
+    if (command === "home") {
+        player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
+        player.sendChat(`[SERVER] Teleported to home!`);
+        return;
+    }
+
+    if (command === "veh") {
+        // const modelName = args[0] ?? "berkley_810"; // doesn't works well yet
+        const modelName = "berkley_810";
+        const veh = sdk.World.createVehicle(modelName);
+
+        if (veh) {
+            // doesn't work yet, still an object even if the vehicle doesn't exist
+            veh.setPosition(player.getPosition());
+            veh.setRotation(player.getRotation());
+
+            player.sendChat(`[SERVER] ${modelName} successfully created!`);
+            return;
+        }
+
+        player.sendChat(`[SERVER] Unable to create vehicle ${modelName}!`);
+        return;
+    }
+
+    if (command === "wep") {
+        // doesn't works yet
+
+        // const weaponId = parseInt(args[0], 10) ?? 85;
+        const weaponId = 85;
+        player.addWeapon(weaponId, 200);
+        player.sendChat(`[SERVER] Weapon received!`);
+        return;
+    }
+
+    sdk.Chat.sendToPlayer(player, `[SERVER] Unknown command "${command}"`);
 });

@@ -2,8 +2,8 @@
 
 #include <utils/hooking/hooking.h>
 
-#include "../c_human_2.h"
 #include "../../c_game.h"
+#include "../c_human_2.h"
 
 #include "../../patterns.h"
 
@@ -44,7 +44,7 @@ namespace SDK {
     }
 
     bool C_HumanScript::GetInvulnerabilityByScript() const {
-        return m_pHuman->m_bDemigod;
+        return m_pHuman->m_bInvulnerable;
     }
 
     void C_HumanScript::SetInvulnerabilityByScript(bool bInvulnerabilityByScript) {
@@ -52,8 +52,7 @@ namespace SDK {
     }
 
     void C_HumanScript::GetOnVehicle(ue::C_CntPtr<uintptr_t> &outSyncObject, C_Actor *arg1, unsigned int arg2, bool arg3, bool arg4, E_HumanMoveMode moveMode, bool force) {
-        (*(void(__thiscall *)(C_HumanScript *, ue::C_CntPtr<uintptr_t> &, C_Actor *, unsigned int, bool, bool, E_HumanMoveMode, bool))gPatterns.C_HumanScript__GetOnVehicle)(
-            this, outSyncObject, arg1, arg2, arg3, arg4, moveMode, force);
+        (*(void(__thiscall *)(C_HumanScript *, ue::C_CntPtr<uintptr_t> &, C_Actor *, unsigned int, bool, bool, E_HumanMoveMode, bool))gPatterns.C_HumanScript__GetOnVehicle)(this, outSyncObject, arg1, arg2, arg3, arg4, moveMode, force);
     }
 
     void C_HumanScript::GetOffVehicle(ue::C_CntPtr<uintptr_t> &outSyncObject, C_Actor *arg1, bool arg2, bool arg3) {
@@ -72,4 +71,4 @@ namespace SDK {
     void C_HumanScript::SetStealthMove(bool move) {
         hook::this_call(gPatterns.C_HumanScript__SetStealthMove, this, move);
     }
-}
+} // namespace SDK

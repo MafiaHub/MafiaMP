@@ -8,9 +8,9 @@ namespace MafiaMP::Core::UI {
       public:
         NetworkStats();
 
-        void Update();
+        void Update(bool *isVisible);
 
-    private:
+      private:
         int64_t _nextStatsUpdate = 0;
         char _stats[8192]        = {0};
     };

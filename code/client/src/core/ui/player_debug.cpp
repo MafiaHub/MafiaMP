@@ -1,0 +1,165 @@
+#include "player_debug.h"
+#include <external/imgui/wrapper.h>
+#include <imgui.h>
+
+#include "sdk/c_player_teleport_module.h"
+#include "sdk/entities/c_player_2.h"
+
+#include "game/helpers/controls.h"
+
+namespace MafiaMP::Core::UI {
+    PlayerDebug::PlayerDebug() {}
+
+    void PlayerDebug::Update(bool *isVisible) {
+        const auto pActivePlayer = Game::Helpers::Controls::GetLocalPlayer();
+        if (!pActivePlayer)
+            return;
+
+        ImGui::Begin("Player debug", isVisible);
+
+        auto position = pActivePlayer->GetPos();
+        if (ImGui::DragFloat3("Pos", (float *)&position, 0.1f, -2000.0f, 2000.0f)) {
+            pActivePlayer->SetPos(position);
+        }
+
+        auto dir = pActivePlayer->GetDir();
+        if (ImGui::DragFloat3("Dir", (float *)&dir, 0.01f, -1.0f, 1.0f)) {
+            pActivePlayer->SetDir(dir);
+        }
+
+        auto rot = pActivePlayer->GetRot();
+        if (ImGui::DragFloat4("Rot", (float *)&rot, 0.01f, -1.0f, 1.0f)) {
+            pActivePlayer->SetRot(rot);
+        }
+
+        /**
+         * TODO: Scale is float or Vector3 ?
+         */
+        // auto scale = pActivePlayer->GetScale();
+        // if (ImGui::SliderFloat4("Scale", (float *)&scale, 0.0f, 1.0f)) {
+        //     // pActivePlayer->SetScale(scale);
+        // }
+
+        // float scale = pActivePlayer->GetScale();
+        // if (ImGui::SliderFloat("Scale", &scale, 0.0f, 1.0f)) {
+        //     pActivePlayer->SetScale(scale);
+        // }
+
+        float transparency = pActivePlayer->GetTransparency();
+        if (ImGui::SliderFloat("Transparency", &transparency, 0.0f, 1.0f)) {
+            pActivePlayer->SetTransparency(transparency);
+        }
+
+        uint64_t defaultSpawnProfile                     = 335218123840277515;
+        ImGuiInputTextFlags_ defaultSpawnProfileGuiFlags = ImGuiInputTextFlags_ReadOnly;
+        ImGui::InputScalar("Default SpawnProfile", ImGuiDataType_U64, &defaultSpawnProfile, NULL, &defaultSpawnProfileGuiFlags);
+
+        uint64_t spawnProfile = Game::Helpers::Controls::GetLocalPlayerSpawnProfile();
+        if (ImGui::InputScalar("SpawnProfile", ImGuiDataType_U64, &spawnProfile, NULL)) {
+            Game::Helpers::Controls::PlayerChangeSpawnProfile(spawnProfile);
+        }
+
+        ImGui::Text("RightHandWeaponID: %i\n", pActivePlayer->GetHumanWeaponController()->GetRightHandWeaponID());
+        ImGui::Text("IsThrownWeapon: %s\n", pActivePlayer->GetHumanWeaponController()->IsThrownWeapon() ? "true" : "false");
+
+        ImGui::Text("IsDeath: %s\n", pActivePlayer->IsDeath() ? "true" : "false");
+
+        ImGui::Text("IsInVehicle: %s\n", pActivePlayer->IsInVehicle() ? "true" : "false");
+        ImGui::Text("IsInCar: %s\n", pActivePlayer->IsInCar() ? "true" : "false");
+        ImGui::Text("IsInBoat: %s\n", pActivePlayer->IsInBoat() ? "true" : "false");
+
+        ImGui::Text("IsCrouch: %s\n", pActivePlayer->IsCrouch() ? "true" : "false");
+
+        ImGui::Text("IsAiming: %s\n", pActivePlayer->GetHumanWeaponController()->IsAiming() ? "true" : "false");
+
+        ImGui::Text("IsInCover: %s\n", pActivePlayer->IsInCover() ? "true" : "false");
+        ImGui::Text("IsInCoverFull(true): %s\n", pActivePlayer->IsInCoverFull(true) ? "true" : "false");
+        ImGui::Text("IsInCoverFull(false): %s\n", pActivePlayer->IsInCoverFull(false) ? "true" : "false");
+
+        bool lockedControls = Game::Helpers::Controls::AreControlsLocked();
+        if (ImGui::Checkbox("Lock Controls", &lockedControls)) {
+            Game::Helpers::Controls::Lock(lockedControls);
+        }
+
+        bool demigod = pActivePlayer->GetHumanScript()->IsDemigod();
+        if (ImGui::Checkbox("Demigod", &demigod)) {
+            pActivePlayer->GetHumanScript()->SetDemigod(demigod);
+        }
+
+        bool invulnerable = pActivePlayer->GetHumanScript()->GetInvulnerabilityByScript();
+        if (ImGui::Checkbox("Invulnerable", &invulnerable)) {
+            pActivePlayer->GetHumanScript()->SetInvulnerabilityByScript(invulnerable);
+        }
+
+        float health = pActivePlayer->GetHumanScript()->GetHealth();
+        if (ImGui::SliderFloat("Health", &health, 0.0f, pActivePlayer->GetHumanScript()->GetHealthMax())) {
+            pActivePlayer->GetHumanScript()->SetHealth(health);
+            (health);
+        }
+
+        /**
+         * SetHealthMax is explicitly disabled for the player
+         */
+        // float healthMax = pActivePlayer->GetHumanScript()->GetHealthMax();
+        // if (ImGui::SliderFloat("Health Max", &healthMax, 0.0f, 1000.0f)) {
+        //     pActivePlayer->GetHumanScript()->SetHealthMax(healthMax);
+        // }
+        ImGui::Text("Health Max: %f\n", pActivePlayer->GetHumanScript()->GetHealthMax());
+
+        {
+            if (ImGui::Button("Heal")) {
+                float healthMax = pActivePlayer->GetHumanScript()->GetHealthMax();
+                pActivePlayer->GetHumanScript()->SetHealth(healthMax);
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Heal to -1.0f")) {
+                pActivePlayer->GetHumanScript()->SetHealth(-1.0f); // Doesn't kill the player
+            }
+        }
+
+        /**
+         * TODO: How to kill the player?
+         */
+        // if (ImGui::Button("Kill")) {
+        //     // ??
+        // }
+
+        {
+            if (ImGui::Button("Give weapons")) {
+                pActivePlayer->GetInventoryWrapper()->AddWeapon(85, 300); // Give Golden Tommy Gun (smg_trench_a_v2)
+                pActivePlayer->GetInventoryWrapper()->AddWeapon(3, 200);  // Give Gold Pistol (p_mast_a_v2)
+
+                pActivePlayer->GetHumanWeaponController()->DoWeaponSelectByItemId(85, true); // probably not the best way to do it (double hands guns are handled with one)
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Throw weapon")) {
+                // Not sync
+                pActivePlayer->ThrowWeapon();
+            }
+        }
+
+        if (ImGui::Button("Teleport to Salieri's Bar")) {
+            SDK::ue::C_CntPtr<uintptr_t> syncObject;
+            auto pos = SDK::ue::sys::math::C_Vector(-908.717, 209.283, 2.793);
+            auto dir = SDK::ue::sys::math::C_Vector(0.985, -0.175, 0.000);
+            SDK::GetPlayerTeleportModule()->TeleportPlayer(syncObject, pos, dir, false, false, false, false);
+        }
+
+        // void pActivePlayer->GetHumanScript()->GetOnVehicle(ue::C_CntPtr<uintptr_t> &outSyncObject, C_Actor *arg1, unsigned int arg2, bool arg3, bool arg4, E_HumanMoveMode moveMode, bool force) {
+        //     (*(void(__thiscall *)(C_HumanScript *, ue::C_CntPtr<uintptr_t> &, C_Actor *, unsigned int, bool, bool, E_HumanMoveMode, bool))gPatterns.C_HumanScript__GetOnVehicle)(
+        //         this, outSyncObject, arg1, arg2, arg3, arg4, moveMode, force);
+        // }
+
+        // void pActivePlayer->GetHumanScript()->GetOffVehicle(ue::C_CntPtr<uintptr_t> &outSyncObject, C_Actor *arg1, bool arg2, bool arg3) {
+        //     (*(void(__thiscall *)(C_HumanScript *, ue::C_CntPtr<uintptr_t> &, C_Actor *, bool, bool))gPatterns.C_HumanScript__GetOffVehicle)(this, outSyncObject, arg1, arg2, arg3);
+        // }
+
+        ImGui::Text("Player Ptr: %p", pActivePlayer);
+
+        ImGui::End();
+    }
+}; // namespace MafiaMP::Core::UI

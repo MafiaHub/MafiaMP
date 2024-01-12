@@ -6,6 +6,9 @@
 #include "../../patterns.h"
 
 namespace SDK {
+    /**
+     * @param unk If false, the model does not appear, maybe for scripted weapons (like turret_truck)
+     */
     bool C_HumanWeaponController::DoWeaponSelectByItemId(unsigned int weaponId, bool unk) {
         return hook::this_call<bool>(gPatterns.C_HumanWeaponController__DoWeaponSelectByItemId, this, weaponId, unk);
     }
@@ -50,7 +53,7 @@ namespace SDK {
         hook::this_call<void>(gPatterns.C_HumanWeaponController__SetZoomFlag, this, bIsActive);
     }
 
-    bool C_HumanWeaponController::DoShot(void* unk, ue::sys::math::C_Vector* vec1, ue::sys::math::C_Vector* vec2, bool unk1, bool unk2) {
+    bool C_HumanWeaponController::DoShot(void *unk, ue::sys::math::C_Vector *vec1, ue::sys::math::C_Vector *vec2, bool unk1, bool unk2) {
         return hook::this_call<bool>(gPatterns.C_HumanWeaponController__DoShot, this, unk, vec1, vec2, unk1, unk2);
     }
 

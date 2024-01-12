@@ -14,13 +14,12 @@
 #include "game/helpers/controls.h"
 #include "game/helpers/human.h"
 #include "game/streaming/entity_factory.h"
-#include "sdk/entities/c_car.h"
-#include "sdk/entities/c_player_2.h"
-#include "sdk/entities/c_crash_obj.h"
-#include "sdk/entities/c_vehicle.h"
-#include "sdk/entities/human/c_human_script.h"
-#include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 #include "sdk/c_game_traffic_module.h"
+#include "sdk/entities/c_car.h"
+#include "sdk/entities/c_crash_obj.h"
+#include "sdk/entities/c_player_2.h"
+#include "sdk/entities/c_vehicle.h"
+#include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 #include "sdk/mafia/framework/director/c_game_director.h"
 #include "sdk/mafia/ui/c_game_gui_2_module.h"
 
@@ -36,10 +35,10 @@
 
 #include "shared/game_rpc/human/human_changeskin.h"
 
-#include "modules/human.h"
-#include "../sdk/ue/sys/sodb/c_sys_odb.h"
-#include "../sdk/mafia/framework/c_vehicles_database.h"
 #include "../sdk/mafia/framework/c_mafia_dbs.h"
+#include "../sdk/mafia/framework/c_vehicles_database.h"
+#include "../sdk/ue/sys/sodb/c_sys_odb.h"
+#include "modules/human.h"
 
 namespace MafiaMP::Core {
     DevFeatures::DevFeatures() {
@@ -55,26 +54,26 @@ namespace MafiaMP::Core {
 
     void DevFeatures::Update() {
         if (_showEntityBrowser) {
-            _entityBrowser->Update();
+            _entityBrowser->Update(&_showEntityBrowser);
         }
 
         if (_showCameraStudio) {
             _cameraStudio->Update();
         }
 
-        if (_showVehicledebug) {
-            _vehicleDebug->Update();
+        if (_showPlayerDebug) {
+            _playerDebug->Update(&_showPlayerDebug);
+        }
+
+        if (_showVehicleDebug) {
+            _vehicleDebug->Update(&_showVehicleDebug);
         }
 
         if (_showNetworkStats) {
-            _networkStats->Update();
+            _networkStats->Update(&_showNetworkStats);
         }
 
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F7)) {
-            gApplication->GetImGUI()->ShowCursor(!_showCameraStudio);
-            MafiaMP::Game::Helpers::Controls::Lock(!_showCameraStudio);
-            _showCameraStudio = !_showCameraStudio;
-        }
+        /*--------------------------------------------------------------------------*/
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F1)) {
             const auto human = Game::Helpers::Controls::GetLocalPlayer();
@@ -86,14 +85,6 @@ namespace MafiaMP::Core {
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F2)) {
             SpawnCrashObject();
-        }
-
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F11)) {
-            ToggleEntityBrowser();
-        }
-
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F10)) {
-            ToggleNetworkStats();
         }
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F3)) {
@@ -116,8 +107,8 @@ namespace MafiaMP::Core {
                     human->GameInit();
                     human->Activate();
 
-                    const auto ent                         = info->GetNetworkEntity();
-                    auto localPlayer                       = SDK::GetGame()->GetActivePlayer();
+                    const auto ent   = info->GetNetworkEntity();
+                    auto localPlayer = SDK::GetGame()->GetActivePlayer();
 
                     SDK::ue::sys::math::C_Vector newPos    = localPlayer->GetPos();
                     SDK::ue::sys::math::C_Quat newRot      = localPlayer->GetRot();
@@ -173,6 +164,20 @@ namespace MafiaMP::Core {
 
             Framework::Logging::GetLogger("Playground")->debug("Aiming : {}", human->GetHumanWeaponController()->IsAiming());
         }
+
+        if (gApplication->_input->IsKeyPressed(FW_KEY_F7)) {
+            gApplication->GetImGUI()->ShowCursor(!_showCameraStudio);
+            MafiaMP::Game::Helpers::Controls::Lock(!_showCameraStudio);
+            _showCameraStudio = !_showCameraStudio;
+        }
+
+        if (gApplication->_input->IsKeyPressed(FW_KEY_F10)) {
+            ToggleNetworkStats();
+        }
+
+        if (gApplication->_input->IsKeyPressed(FW_KEY_F11)) {
+            ToggleEntityBrowser();
+        }
     }
 
     void DevFeatures::Shutdown() {}
@@ -210,8 +215,12 @@ namespace MafiaMP::Core {
         _showCameraStudio = !_showCameraStudio;
     }
 
+    void DevFeatures::TogglePlayerDebug() {
+        _showPlayerDebug = !_showPlayerDebug;
+    }
+
     void DevFeatures::ToggleVehicleDebug() {
-        _showVehicledebug = !_showVehicledebug;
+        _showVehicleDebug = !_showVehicleDebug;
     }
 
     void DevFeatures::ToggleNetworkStats() {
@@ -311,14 +320,12 @@ namespace MafiaMP::Core {
 
     void DevFeatures::SpawnRandomCar() {
         const auto mafiaDB = SDK::mafia::framework::GetMafiaDBs();
-        if (!mafiaDB)
-        {
+        if (!mafiaDB) {
             return;
         }
 
         const auto vehiclesDB = mafiaDB->GetVehiclesDatabase();
-        if (!vehiclesDB.IsValid())
-        {
+        if (!vehiclesDB.IsValid()) {
             return;
         }
 
@@ -327,28 +334,24 @@ namespace MafiaMP::Core {
 
         using namespace SDK::mafia::framework;
         const C_VehiclesDatabase::TItemAccessorConst &selectedCar = vehiclesDB->GetVehicleByIndex(randomIndex);
-        if (const auto* vehicle = selectedCar.Get())
-        {
+        if (const auto *vehicle = selectedCar.Get()) {
             const auto vehicleID = vehicle->GetID();
-            if (vehicle->GetID() == 0)
-            {
+            if (vehicle->GetID() == 0) {
                 // dud index, nothing to spawn
                 return;
             }
 
             const char *modelName = vehicle->GetModelName();
-            if (!modelName)
-            {
+            if (!modelName) {
                 Framework::Logging::GetLogger("Debug")->info("Skipping ID {}, encountered m_ModelName which is nullptr", vehicleID);
                 return;
             }
 
             if (vehicle->HasVehicleFlags(SDK::mafia::traffic::E_TrafficVehicleFlags::E_TVF_CAR) == false) {
-
                 Framework::Logging::GetLogger("Debug")->info("Skipping {}, not E_TVF_CAR", modelName);
                 return;
             }
-            
+
             SpawnCar(modelName);
 
             Framework::Logging::GetLogger("Debug")->info("Spawned {}", modelName);
@@ -356,6 +359,17 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::SetupCommands() {
+        gApplication->_commandProcessor->RegisterCommand(
+            "help", {},
+            [this](cxxopts::ParseResult &) {
+                std::stringstream ss;
+                for (const auto &name : gApplication->_commandProcessor->GetCommandNames()) {
+                    ss << fmt::format("{} {:>8}\n", name, gApplication->_commandProcessor->GetCommandInfo(name)->options->help());
+                }
+                Framework::Logging::GetLogger("Debug")->info("Available commands:\n{}", ss.str());
+            },
+            "prints all available commands");
+
         gApplication->_commandProcessor->RegisterCommand(
             "test", {{"a,aargument", "Test argument 1", cxxopts::value<std::string>()}, {"b,bargument", "Test argument 2", cxxopts::value<int>()}},
             [this](const cxxopts::ParseResult &result) {
@@ -369,20 +383,14 @@ namespace MafiaMP::Core {
                 }
             },
             "Testing command");
+
         gApplication->_commandProcessor->RegisterCommand(
             "test", {},
             [this](cxxopts::ParseResult &) {
 
             },
             "crashes the game");
-        gApplication->_commandProcessor->RegisterCommand(
-            "weapon", {},
-            [this](cxxopts::ParseResult&) {
-                auto localPlayer = SDK::GetGame()->GetActivePlayer();
-                localPlayer->GetInventoryWrapper()->AddWeapon(84, 300);
-            },
-            "Gives a random weapon to the player"
-        );
+
         gApplication->_commandProcessor->RegisterCommand(
             "echo", {},
             [this](const cxxopts::ParseResult &result) {
@@ -394,35 +402,21 @@ namespace MafiaMP::Core {
                 Framework::Logging::GetLogger("Debug")->info(argsConcat);
             },
             "[args] - prints the arguments back");
-        gApplication->_commandProcessor->RegisterCommand(
-            "help", {},
-            [this](cxxopts::ParseResult &) {
-                std::stringstream ss;
-                for (const auto &name : gApplication->_commandProcessor->GetCommandNames()) {
-                    ss << fmt::format("{} {:>8}\n", name, gApplication->_commandProcessor->GetCommandInfo(name)->options->help());
-                }
-                Framework::Logging::GetLogger("Debug")->info("Available commands:\n{}", ss.str());
-            },
-            "prints all available commands");
+
         gApplication->_commandProcessor->RegisterCommand(
             "exit", {},
             [this](cxxopts::ParseResult &) {
                 CloseGame();
             },
             "quits the game");
+
         gApplication->_commandProcessor->RegisterCommand(
-            "spawnCar", {{"m,model", "model name of the car", cxxopts::value<std::string>()->default_value("berkley_810")}},
-            [this](const cxxopts::ParseResult &result) {
-                std::string modelName = result["model"].as<std::string>();
-                SpawnCar(modelName);
+            "disconnect", {},
+            [this](const cxxopts::ParseResult &) {
+                Disconnect();
             },
-            "spawn a car of a given model");
-        gApplication->_commandProcessor->RegisterCommand(
-            "spawnCrashObject", {},
-            [this](const cxxopts::ParseResult &result) {
-                SpawnCrashObject();
-            },
-            "spawn a crash object");
+            "disconnect from server");
+
         gApplication->_commandProcessor->RegisterCommand(
             "lua", {{"c,command", "command to execute", cxxopts::value<std::string>()->default_value("")}, {"f,file", "file to execute", cxxopts::value<std::string>()->default_value("")}},
             [this](const cxxopts::ParseResult &result) {
@@ -451,6 +445,22 @@ namespace MafiaMP::Core {
                 }
             },
             "executes Lua commands");
+
+        gApplication->_commandProcessor->RegisterCommand(
+            "spawnCar", {{"m,model", "model name of the car", cxxopts::value<std::string>()->default_value("berkley_810")}},
+            [this](const cxxopts::ParseResult &result) {
+                std::string modelName = result["model"].as<std::string>();
+                SpawnCar(modelName);
+            },
+            "spawn a car of a given model");
+
+        gApplication->_commandProcessor->RegisterCommand(
+            "spawnCrashObject", {},
+            [this](const cxxopts::ParseResult &result) {
+                SpawnCrashObject();
+            },
+            "spawn a crash object");
+
         gApplication->_commandProcessor->RegisterCommand(
             "chat", {{"m,msg", "message to send", cxxopts::value<std::string>()->default_value("")}},
             [this](const cxxopts::ParseResult &result) {
@@ -462,12 +472,7 @@ namespace MafiaMP::Core {
                 }
             },
             "sends a chat message");
-        gApplication->_commandProcessor->RegisterCommand(
-            "disconnect", {},
-            [this](const cxxopts::ParseResult &) {
-                Disconnect();
-            },
-            "disconnect from server");
+
         gApplication->_commandProcessor->RegisterCommand(
             "wep", {{"w,wep", "weapon id", cxxopts::value<int>()->default_value("85")}, {"a,ammo", "ammo count", cxxopts::value<int>()->default_value("200")}},
             [this](const cxxopts::ParseResult &result) {
@@ -479,19 +484,8 @@ namespace MafiaMP::Core {
                     Framework::Logging::GetLogger("test")->debug("Added wep {} with ammo {}", wep, ammo);
                 }
             },
-            "sends a chat message");
-        gApplication->_commandProcessor->RegisterCommand(
-            "skin", {{"s,skin", "spawnprofile id", cxxopts::value<uint64_t>()->default_value("335218123840277515")}},
-            [this](const cxxopts::ParseResult &result) {
-                const auto human = Game::Helpers::Controls::GetLocalPlayer();
-                if (human) {
-                    const auto skinId = result["skin"].as<uint64_t>();
-                    Framework::Logging::GetLogger("test")->debug("send rpc to change skin to {}", skinId);
+            "give weapon");
 
-                    FW_SEND_CLIENT_COMPONENT_GAME_RPC(Shared::RPC::HumanChangeSkin, gApplication->GetLocalPlayer(), skinId);
-                }
-            },
-            "sends a chat message");
         /*gApplication->_commandProcessor->RegisterCommand(
             "camFPV", {},
             [this](const cxxopts::ParseResult &result) {
@@ -500,18 +494,35 @@ namespace MafiaMP::Core {
                 MafiaMP::Game::Helpers::Camera::SetFPV(fpvOn);
             },
             "toggles camera first person view");*/
+
         gApplication->_commandProcessor->RegisterCommand(
             "showEntityBrowser", {},
             [this](const cxxopts::ParseResult &result) {
                 ToggleEntityBrowser();
             },
             "toggles entity browser dialog");
+
         gApplication->_commandProcessor->RegisterCommand(
             "showCameraStudio", {},
             [this](const cxxopts::ParseResult &result) {
                 ToggleCameraStudio();
             },
             "toggles camera studio dialog");
+
+        gApplication->_commandProcessor->RegisterCommand(
+            "showPlayerDebug", {},
+            [this](const cxxopts::ParseResult &result) {
+                TogglePlayerDebug();
+            },
+            "toggles player debug dialog");
+
+        gApplication->_commandProcessor->RegisterCommand(
+            "showVehicleDebug", {},
+            [this](const cxxopts::ParseResult &result) {
+                ToggleVehicleDebug();
+            },
+            "toggles vehicle debug dialog");
+
         gApplication->_commandProcessor->RegisterCommand(
             "showNetworkStats", {},
             [this](const cxxopts::ParseResult &result) {
@@ -523,12 +534,11 @@ namespace MafiaMP::Core {
     void DevFeatures::SetupMenuBar() {
         gApplication->_console->RegisterMenuBarDrawer([this]() {
             if (ImGui::BeginMenu("Debug")) {
-                if (ImGui::MenuItem("Spawn car", "F1")) {
+                if (ImGui::MenuItem("Spawn car")) {
                     SpawnCar();
                 }
-                if (ImGui::MenuItem("Spawn 50 cars", "F1")) {
-                    for (size_t i = 0; i < 50; i++)
-                    {
+                if (ImGui::MenuItem("Spawn 50 cars")) {
+                    for (size_t i = 0; i < 50; i++) {
                         SpawnCar();
                     }
                 }
@@ -540,10 +550,10 @@ namespace MafiaMP::Core {
                         SpawnRandomCar();
                     }
                 }
-                if (ImGui::MenuItem("Despawn all", "F3")) {
+                if (ImGui::MenuItem("Despawn all")) {
                     DespawnAll();
                 }
-                if (ImGui::MenuItem("Disconnect", "F5")) {
+                if (ImGui::MenuItem("Disconnect")) {
                     Disconnect();
                 }
                 if (ImGui::MenuItem("Crash me!")) {
@@ -563,6 +573,9 @@ namespace MafiaMP::Core {
                 }
                 if (ImGui::MenuItem("Camera Studio")) {
                     ToggleCameraStudio();
+                }
+                if (ImGui::MenuItem("Player debug")) {
+                    TogglePlayerDebug();
                 }
                 if (ImGui::MenuItem("Vehicle debug")) {
                     ToggleVehicleDebug();

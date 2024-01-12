@@ -15,7 +15,7 @@ namespace MafiaMP::Core::UI {
       public:
         EntityBrowser();
 
-        void Update();
+        void Update(bool *isVisible);
 
       private:
         int _selectedIndex = 0;

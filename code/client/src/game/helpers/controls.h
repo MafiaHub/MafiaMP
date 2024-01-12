@@ -15,4 +15,4 @@ namespace MafiaMP::Game::Helpers {
         static uint64_t GetLocalPlayerSpawnProfile();
         static void PlayerChangeSpawnProfile(uint64_t spawnProfile);
     };
-}
+} // namespace MafiaMP::Game::Helpers

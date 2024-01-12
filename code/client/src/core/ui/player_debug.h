@@ -11,9 +11,9 @@
 #include "sdk/entities/c_entity.h"
 
 namespace MafiaMP::Core::UI {
-    class VehicleDebug final {
+    class PlayerDebug final {
       public:
-        VehicleDebug();
+        PlayerDebug();
 
         void Update(bool *isVisible);
     };
