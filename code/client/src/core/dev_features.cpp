@@ -44,6 +44,8 @@ namespace MafiaMP::Core {
     DevFeatures::DevFeatures() {
         _entityBrowser = std::make_shared<UI::EntityBrowser>();
         _cameraStudio  = std::make_shared<UI::CameraStudio>();
+        _playerDebug   = std::make_shared<UI::PlayerDebug>();
+        _vehicleDebug  = std::make_shared<UI::VehicleDebug>();
         _networkStats  = std::make_shared<UI::NetworkStats>();
     }
 
