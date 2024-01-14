@@ -492,7 +492,7 @@ namespace MafiaMP::Core::Modules {
             transform.SetPos(newPos);
 
             SDK::ue::C_CntPtr<uintptr_t> syncObject2;
-            SDK::GetPlayerTeleportModule()->TeleportPlayer(syncObject2, newPos, newPos, true, true, true, false);
+            SDK::GetPlayerTeleportModule()->TeleportPlayer(syncObject2, newPos, newPos, true, true, true, true);
             trackingData->human->SetTransform(transform);
         }
     }

@@ -317,12 +317,11 @@ namespace MafiaMP::Core::Modules {
             interp->interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
             interp->interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, tr->rot, MafiaMP::Core::gApplication->GetTickInterval());
         }
-        else {
-            SDK::ue::sys::math::C_Vector newPos = {tr->pos.x, tr->pos.y, tr->pos.z};
-            SDK::ue::sys::math::C_Quat newRot   = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
-            trackingData->car->SetPos(newPos);
-            trackingData->car->SetRot(newRot);
-        }
+
+        SDK::ue::sys::math::C_Vector newPos = {tr->pos.x, tr->pos.y, tr->pos.z};
+        SDK::ue::sys::math::C_Quat newRot   = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
+        trackingData->car->SetPos(newPos);
+        trackingData->car->SetRot(newRot);
     }
 
     flecs::entity Vehicle::GetCarEntity(SDK::C_Car *carPtr) {

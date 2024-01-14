@@ -332,6 +332,10 @@ namespace MafiaMP::Core {
             if (!e.is_alive()) {
                 return;
             }
+
+            auto tr = e.get_mut<Framework::World::Modules::Base::Transform>();
+            *tr     = msg->GetTransform();
+
             const auto ekind = e.get<Shared::Modules::Mod::EntityKind>();
             switch (ekind->kind) {
             case Shared::Modules::Mod::MOD_PLAYER: Core::Modules::Human::UpdateTransform(e); break;
