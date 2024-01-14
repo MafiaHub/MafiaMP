@@ -329,53 +329,75 @@ sdk.on("chatMessage", (player, message) => {
     sdk.Chat.sendToAll(`<${player.getNickname()}>: ${message}`);
 });
 
+const REGISTERED_CHAT_COMMANDS = new Map();
+
 sdk.on("chatCommand", (player, message, command, args) => {
     console.log(`[GAMEMODE] Player ${player.getNickname()} used: ${command}. (${message})`);
 
-    if (command === "showArgs") {
-        sdk.Chat.sendToAll(`[SERVER] Player ${player.getNickname()} used /showArgs with args: ${args}`);
-        return;
-    }
+    const foundCommand = REGISTERED_CHAT_COMMANDS.get(command);
 
-    if (command === "heal") {
-        player.setHealth(100);
-        player.sendChat(`[SERVER] Health restored!`);
-        return;
-    }
-
-    if (command === "home") {
-        player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
-        player.sendChat(`[SERVER] Teleported to home!`);
-        return;
-    }
-
-    if (command === "veh") {
-        // const modelName = args[0] ?? "berkley_810"; // TODO: doesn't works well yet
-        const modelName = "berkley_810";
-        const veh = sdk.World.createVehicle(modelName);
-
-        if (veh) {
-            // doesn't work yet, still an object even if the vehicle doesn't exist
-            veh.setPosition(player.getPosition());
-            veh.setRotation(player.getRotation());
-
-            player.sendChat(`[SERVER] ${modelName} successfully created!`);
-            return;
-        }
-
-        player.sendChat(`[SERVER] Unable to create vehicle ${modelName}!`);
-        return;
-    }
-
-    if (command === "wep") {
-        // TODO: doesn't works yet
-
-        // const weaponId = parseInt(args[0], 10) ?? 85;
-        const weaponId = 85;
-        player.addWeapon(weaponId, 200);
-        player.sendChat(`[SERVER] Weapon received!`);
+    if (foundCommand) {
+        foundCommand(player, message, command, args);
         return;
     }
 
     sdk.Chat.sendToPlayer(player, `[SERVER] Unknown command "${command}"`);
+});
+
+function RegisterChatCommand(name, handler) {
+    REGISTERED_CHAT_COMMANDS.set(name, handler);
+}
+
+RegisterChatCommand("showArgs", (player, message, command, args) => {
+    sdk.Chat.sendToAll(`[SERVER] Player ${player.getNickname()} used /showArgs with args: ${args}`);
+});
+
+RegisterChatCommand("heal", (player, message, command, args) => {
+    player.setHealth(100);
+    player.sendChat(`[SERVER] Health restored!`);
+});
+
+RegisterChatCommand("home", (player, message, command, args) => {
+    player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
+    player.sendChat(`[SERVER] Teleported to home!`);
+});
+
+RegisterChatCommand("veh", (player, message, command, args) => {
+    // const modelName = args[0] ?? "berkley_810"; // TODO: doesn't works yet
+    const modelName = "berkley_810";
+    const veh = sdk.World.createVehicle(modelName);
+
+    if (veh) {
+        // Condition doesn't works well yet, still an object even if the vehicle doesn't exist
+        veh.setPosition(player.getPosition());
+        veh.setRotation(player.getRotation());
+
+        player.sendChat(`[SERVER] ${modelName} successfully created!`);
+        return;
+    }
+
+    player.sendChat(`[SERVER] Unable to create vehicle ${modelName}!`);
+});
+
+RegisterChatCommand("plate", (player, message, command, args) => {
+    const veh = player.getVehicle();
+    const plate = args[0];
+
+    if (veh) {
+        veh.setLicensePlate(plate);
+        player.sendChat(`[SERVER] Plate successfully changed to ${plate}!`);
+        return;
+    }
+
+    player.sendChat(`[SERVER] You're not in a vehicle!`);
+});
+
+RegisterChatCommand("wep", (player, message, command, args) => {
+    // TODO: doesn't works yet
+
+    // const weaponId = parseInt(args[0], 10) ?? 85;
+    const weaponId = 85;
+    player.addWeapon(weaponId, 200);
+    player.sendChat(`[SERVER] Weapon received!`);
+    return;
 });
