@@ -1,6 +1,6 @@
 {
-	"name": "mafiamp-gamemode-demo",
-	"main": "index.js",
-	"version": "0.0.1",
-	"mod": "MafiaMP"
+    "name": "mafiamp-racing-gamemode",
+    "main": "index.js",
+    "version": "0.0.1",
+    "mod": "MafiaMP"
 }
