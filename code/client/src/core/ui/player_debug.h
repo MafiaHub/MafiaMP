@@ -15,6 +15,8 @@ namespace MafiaMP::Core::UI {
       public:
         PlayerDebug();
 
-        void Update(bool *isVisible);
+        bool isVisible = false;
+
+        void Update();
     };
 } // namespace MafiaMP::Core::UI

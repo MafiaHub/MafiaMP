@@ -10,7 +10,7 @@
 namespace MafiaMP::Core::UI {
     PlayerDebug::PlayerDebug() {}
 
-    void PlayerDebug::Update(bool *isVisible) {
+    void PlayerDebug::Update() {
         /**
          * TODO
          * - Implement GetScale/SetScale => see https://github.com/MafiaHub/MafiaMP/issues/49
@@ -21,7 +21,7 @@ namespace MafiaMP::Core::UI {
         if (!pActivePlayer)
             return;
 
-        ImGui::Begin("Player debug", isVisible);
+        ImGui::Begin("Player debug", &isVisible);
 
         auto position = pActivePlayer->GetPos();
         if (ImGui::DragFloat3("Pos", (float *)&position, 0.1f, -2000.0f, 2000.0f)) {

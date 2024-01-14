@@ -63,8 +63,8 @@ namespace MafiaMP::Core {
             _cameraStudio->Update();
         }
 
-        if (_showPlayerDebug) {
-            _playerDebug->Update(&_showPlayerDebug);
+        if (_playerDebug->isVisible) {
+            _playerDebug->Update();
         }
 
         if (_showVehicleDebug) {
@@ -216,7 +216,7 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::TogglePlayerDebug() {
-        _showPlayerDebug = !_showPlayerDebug;
+        _playerDebug->isVisible = !_playerDebug->isVisible;
     }
 
     void DevFeatures::ToggleVehicleDebug() {

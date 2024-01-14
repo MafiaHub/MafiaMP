@@ -34,7 +34,6 @@ namespace MafiaMP::Core {
         bool _showCameraStudio {false};
         std::shared_ptr<UI::CameraStudio> _cameraStudio {};
 
-        bool _showPlayerDebug {false};
         std::shared_ptr<UI::PlayerDebug> _playerDebug {};
 
         bool _showVehicleDebug {false};
