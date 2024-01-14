@@ -11,6 +11,8 @@
 
 #include "scripting/module.h"
 
+#include "vehicle.h"
+
 namespace MafiaMP::Scripting {
     class Human final: public Framework::Integrations::Scripting::Entity {
       public:
@@ -37,6 +39,24 @@ namespace MafiaMP::Scripting {
         void SendChat(std::string message) {
             const auto str = _ent.get<Framework::World::Modules::Base::Streamer>();
             FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(str->guid), message);
+        }
+
+        v8::Local<v8::Value> GetVehicle() const {
+            const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
+            if (carEnt.is_valid() && carEnt.is_alive()) {
+                return v8pp::class_<Vehicle>::create_object(v8::Isolate::GetCurrent(), carEnt.id());
+            }
+            return v8::Undefined(v8::Isolate::GetCurrent());
+        }
+
+        int GetVehicleSeat() const {
+            const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
+            if (carEnt.is_valid() && carEnt.is_alive()) {
+                return updateData->carPassenger.seatId;
+            }
+            return -1;
         }
 
         static void SendChatToAll(std::string message) {
@@ -88,6 +108,8 @@ namespace MafiaMP::Scripting {
             cls.function("addWeapon", &Human::AddWeapon);
             cls.function("setHealth", &Human::SetHealth);
             cls.function("getHealth", &Human::GetHealth);
+            cls.function("getVehicle", &Human::GetVehicle);
+            cls.function("getVehicleSeat", &Human::GetVehicleSeat);
             cls.function("sendChat", &Human::SendChat);
             cls.function("sendChatToAll", &Human::SendChatToAll);
             rootModule->class_("Human", cls);
