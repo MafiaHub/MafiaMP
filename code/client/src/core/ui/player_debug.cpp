@@ -11,6 +11,12 @@ namespace MafiaMP::Core::UI {
     PlayerDebug::PlayerDebug() {}
 
     void PlayerDebug::Update(bool *isVisible) {
+        /**
+         * TODO
+         * - Implement GetScale/SetScale => see https://github.com/MafiaHub/MafiaMP/issues/49
+         * - Implement kill player => see https://github.com/MafiaHub/MafiaMP/issues/52
+         */
+
         const auto pActivePlayer = Game::Helpers::Controls::GetLocalPlayer();
         if (!pActivePlayer)
             return;
@@ -31,19 +37,6 @@ namespace MafiaMP::Core::UI {
         if (ImGui::DragFloat4("Rot", (float *)&rot, 0.01f, -1.0f, 1.0f)) {
             pActivePlayer->SetRot(rot);
         }
-
-        /**
-         * TODO: Scale is float or Vector3 ?
-         */
-        // auto scale = pActivePlayer->GetScale();
-        // if (ImGui::SliderFloat4("Scale", (float *)&scale, 0.0f, 1.0f)) {
-        //     // pActivePlayer->SetScale(scale);
-        // }
-
-        // float scale = pActivePlayer->GetScale();
-        // if (ImGui::SliderFloat("Scale", &scale, 0.0f, 1.0f)) {
-        //     pActivePlayer->SetScale(scale);
-        // }
 
         float transparency = pActivePlayer->GetTransparency();
         if (ImGui::SliderFloat("Transparency", &transparency, 0.0f, 1.0f)) {
@@ -112,13 +105,6 @@ namespace MafiaMP::Core::UI {
                 pActivePlayer->GetHumanScript()->SetHealth(-1.0f); // Doesn't kill the player
             }
         }
-
-        /**
-         * TODO: How to kill the player?
-         */
-        // if (ImGui::Button("Kill")) {
-        //     // ??
-        // }
 
         {
             if (ImGui::Button("Give weapons")) {
