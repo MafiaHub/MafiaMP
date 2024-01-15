@@ -109,6 +109,7 @@ namespace MafiaMP {
                 Scripting::Chat::EventChatMessage(ent, text);
             }
         });
+        
         // test until we do it via nodejs builtins
         net->RegisterGameRPC<Shared::RPC::HumanChangeSkin>([this](SLNet::RakNetGUID guid, Shared::RPC::HumanChangeSkin *msg) {
             if (!msg->Valid())
