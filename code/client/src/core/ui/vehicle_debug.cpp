@@ -13,11 +13,11 @@
 namespace MafiaMP::Core::UI {
     VehicleDebug::VehicleDebug() {}
 
-    void VehicleDebug::Update(bool *isVisible) {
+    void VehicleDebug::Update() {
         const auto pActivePlayer = Game::Helpers::Controls::GetLocalPlayer();
         SDK::C_Car *currentCar   = pActivePlayer ? reinterpret_cast<SDK::C_Car *>(pActivePlayer->GetOwner()) : nullptr;
 
-        ImGui::Begin("Vehicle debug", isVisible, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("Vehicle debug", &_visible, ImGuiWindowFlags_AlwaysAutoResize);
 
         if (currentCar) {
             auto currentVehicle = currentCar->GetVehicle();

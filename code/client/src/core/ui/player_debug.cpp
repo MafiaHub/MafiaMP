@@ -21,7 +21,7 @@ namespace MafiaMP::Core::UI {
         if (!pActivePlayer)
             return;
 
-        ImGui::Begin("Player debug", &isVisible);
+        ImGui::Begin("Player debug", &_visible);
 
         auto position = pActivePlayer->GetPos();
         if (ImGui::DragFloat3("Pos", (float *)&position, 0.1f, -2000.0f, 2000.0f)) {

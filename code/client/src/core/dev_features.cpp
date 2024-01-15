@@ -55,24 +55,24 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::Update() {
-        if (_showEntityBrowser) {
-            _entityBrowser->Update(&_showEntityBrowser);
+        if (_entityBrowser->IsVisible()) {
+            _entityBrowser->Update();
         }
 
-        if (_showCameraStudio) {
+        if (_cameraStudio->IsVisible()) {
             _cameraStudio->Update();
         }
 
-        if (_playerDebug->isVisible) {
+        if (_playerDebug->IsVisible()) {
             _playerDebug->Update();
         }
 
-        if (_showVehicleDebug) {
-            _vehicleDebug->Update(&_showVehicleDebug);
+        if (_vehicleDebug->IsVisible()) {
+            _vehicleDebug->Update();
         }
 
-        if (_showNetworkStats) {
-            _networkStats->Update(&_showNetworkStats);
+        if (_networkStats->IsVisible()) {
+            _networkStats->Update();
         }
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F1)) {
@@ -166,9 +166,9 @@ namespace MafiaMP::Core {
         }
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F7)) {
-            gApplication->GetImGUI()->ShowCursor(!_showCameraStudio);
-            MafiaMP::Game::Helpers::Controls::Lock(!_showCameraStudio);
-            _showCameraStudio = !_showCameraStudio;
+            gApplication->GetImGUI()->ShowCursor(!_cameraStudio->IsVisible());
+            MafiaMP::Game::Helpers::Controls::Lock(!_cameraStudio->IsVisible());
+            ToggleCameraStudio();
         }
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F10)) {
@@ -208,23 +208,23 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::ToggleEntityBrowser() {
-        _showEntityBrowser = !_showEntityBrowser;
+        _entityBrowser->SetVisible(!_entityBrowser->IsVisible());
     }
 
     void DevFeatures::ToggleCameraStudio() {
-        _showCameraStudio = !_showCameraStudio;
+        _cameraStudio->SetVisible(!_playerDebug->IsVisible());
     }
 
     void DevFeatures::TogglePlayerDebug() {
-        _playerDebug->isVisible = !_playerDebug->isVisible;
+        _playerDebug->SetVisible(!_playerDebug->IsVisible());
     }
 
     void DevFeatures::ToggleVehicleDebug() {
-        _showVehicleDebug = !_showVehicleDebug;
+        _vehicleDebug->SetVisible(!_vehicleDebug->IsVisible());
     }
 
     void DevFeatures::ToggleNetworkStats() {
-        _showNetworkStats = !_showNetworkStats;
+        _networkStats->SetVisible(!_networkStats->IsVisible());
     }
 
     void DevFeatures::SpawnCrashObject() {

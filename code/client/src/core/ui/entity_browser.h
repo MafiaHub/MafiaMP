@@ -15,9 +15,19 @@ namespace MafiaMP::Core::UI {
       public:
         EntityBrowser();
 
-        void Update(bool *isVisible);
+        void Update();
+
+        bool IsVisible() const {
+            return _visible;
+        }
+
+        void SetVisible(bool visible) {
+            _visible = visible;
+        }
 
       private:
+        bool _visible = false;
+
         int _selectedIndex = 0;
         std::unordered_map<SDK::E_EntityType, std::string> _allTypes {};
 

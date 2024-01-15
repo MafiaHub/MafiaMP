@@ -10,15 +10,14 @@
 #include "game/helpers/controls.h"
 
 namespace MafiaMP::Core::UI {
-
     NetworkStats::NetworkStats() {}
 
-    void NetworkStats::Update(bool *isVisible) {
+    void NetworkStats::Update() {
         auto localPlayer = Game::Helpers::Controls::GetLocalPlayer();
         if (!localPlayer)
             return;
 
-        ImGui::Begin("Network Stats", isVisible, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("Network Stats", &_visible, ImGuiWindowFlags_AlwaysAutoResize);
         {
             const auto net   = gApplication->GetNetworkingEngine()->GetNetworkClient();
             const auto state = net->GetConnectionState();

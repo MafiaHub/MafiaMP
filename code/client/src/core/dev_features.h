@@ -28,18 +28,14 @@ namespace MafiaMP::Core {
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
         Game::Streaming::EntityTrackingInfo *_TEMP_HUMAN = nullptr;
 
-        bool _showEntityBrowser {false};
         std::shared_ptr<UI::EntityBrowser> _entityBrowser {};
 
-        bool _showCameraStudio {false};
         std::shared_ptr<UI::CameraStudio> _cameraStudio {};
 
         std::shared_ptr<UI::PlayerDebug> _playerDebug {};
 
-        bool _showVehicleDebug {false};
         std::shared_ptr<UI::VehicleDebug> _vehicleDebug {};
 
-        bool _showNetworkStats {false};
         std::shared_ptr<UI::NetworkStats> _networkStats {};
 
       public:

@@ -18,7 +18,7 @@ namespace MafiaMP::Core::UI {
         InitialiseEntityTypes();
     }
 
-    void EntityBrowser::Update(bool *isVisible) {
+    void EntityBrowser::Update() {
         auto entityList = SDK::GetEntityList();
         if (!entityList)
             return;
@@ -27,7 +27,7 @@ namespace MafiaMP::Core::UI {
         if (!localPlayer)
             return;
 
-        ImGui::Begin("Entity Browser", isVisible);
+        ImGui::Begin("Entity Browser", &_visible);
         {
             if (ImGui::Button("Select all")) {
                 for (size_t i = 0; i < (sizeof(_checkedTypes) / sizeof(_checkedTypes[0])); i++) _checkedTypes[i] = true;
