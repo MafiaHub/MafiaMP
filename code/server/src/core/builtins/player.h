@@ -5,8 +5,8 @@
 #include "scripting/engines/node/sdk.h"
 #include "shared/modules/human_sync.hpp"
 
-#include "shared/game_rpc/human/human_setprops.h"
 #include "shared/game_rpc/add_weapon.h"
+#include "shared/game_rpc/human/human_setprops.h"
 #include "shared/rpc/chat_message.h"
 
 #include "scripting/module.h"
@@ -28,7 +28,7 @@ namespace MafiaMP::Scripting {
             return ss.str();
         }
 
-        void Destruct(v8::Isolate *isolate) {
+        void Destroy(v8::Isolate *isolate) {
             isolate->ThrowException(v8::Exception::Error(v8::String::NewFromUtf8(isolate, "Human object can not be destroyed!").ToLocalChecked()));
         }
 
@@ -64,7 +64,7 @@ namespace MafiaMP::Scripting {
         }
 
         void SetHealth(float health) {
-            auto h = _ent.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            auto h            = _ent.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
             h->_healthPercent = health;
             MafiaMP::Shared::RPC::HumanSetProps msg {};
             msg.health = health;
@@ -104,7 +104,7 @@ namespace MafiaMP::Scripting {
 
             v8pp::class_<Human> cls(isolate);
             cls.inherit<Framework::Integrations::Scripting::Entity>();
-            cls.function("destruct", &Human::Destruct);
+            cls.function("destroy", &Human::Destroy);
             cls.function("addWeapon", &Human::AddWeapon);
             cls.function("setHealth", &Human::SetHealth);
             cls.function("getHealth", &Human::GetHealth);
