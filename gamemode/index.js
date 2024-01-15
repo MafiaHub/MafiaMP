@@ -422,8 +422,7 @@ RegisterChatCommand("pos", (player, message, command, args) => {
 });
 
 RegisterChatCommand("veh", (player, message, command, args) => {
-    // const modelName = args[0] ?? "berkley_810"; // TODO: doesn't works yet
-    const modelName = "berkley_810";
+    const modelName = args[0] ?? "berkley_810";
     const veh = sdk.World.createVehicle(modelName);
 
     if (veh) {
@@ -454,8 +453,7 @@ RegisterChatCommand("plate", (player, message, command, args) => {
 RegisterChatCommand("wep", (player, message, command, args) => {
     // TODO: doesn't works yet
 
-    // const weaponId = parseInt(args[0], 10) ?? 85;
-    const weaponId = 85;
+    const weaponId = parseInt(args[0], 10) ?? 85;
     player.addWeapon(weaponId, 200);
     player.sendChat(`[SERVER] Weapon received!`);
     return;
