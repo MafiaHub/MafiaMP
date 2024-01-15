@@ -274,6 +274,13 @@ namespace SDK {
         // C_GameTrafficModule
         uint64_t C_GameTrafficModule__GetInstance = 0x0;
 
+        // C_TrafficSpawnManager
+        uint64_t C_TrafficSpawnManager__SetTrainDensity = 0x0;
+
+        // C_StreamingTrafficModule
+        uint64_t C_StreamingTrafficModule__GetInstance = 0x0;
+        uint64_t C_StreamingTrafficModule__SetMaxHumanElements = 0x0;
+
         // C_Fader
         uint64_t C_Fader__FadeIn = 0x0;
         uint64_t C_Fader__FadeOut = 0x0;

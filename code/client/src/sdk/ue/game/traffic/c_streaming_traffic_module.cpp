@@ -1,15 +1,15 @@
 #include "c_streaming_traffic_module.h"
 
+#include "../../../patterns.h"
+
 #include <utils/hooking/hooking.h>
 
 namespace ue::game::traffic {
     void C_StreamingTrafficModule::SetMaxHumanElements(int64_t maxHumanElements) {
-        // TODO: move to pattern
-        hook::this_call<void>(0x000000142DA1C50, this, maxHumanElements);
+        hook::this_call<void>(gPatterns.C_StreamingTrafficModule__SetMaxHumanElements, this, maxHumanElements);
     }
 
     C_StreamingTrafficModule *C_StreamingTrafficModule::GetInstance() {
-        // TODO: move to pattern
-        return hook::this_call<C_StreamingTrafficModule *>(0x000000142D954A0);
+        return hook::this_call<C_StreamingTrafficModule *>(gPatterns.C_StreamingTrafficModule__GetInstance);
     }
 }

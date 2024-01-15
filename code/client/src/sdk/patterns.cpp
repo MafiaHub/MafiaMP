@@ -321,6 +321,13 @@ namespace SDK {
         // C_GameTrafficModule
         gPatterns.C_GameTrafficModule__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 80 7E 07 00");
 
+        // C_TrafficSpawnManager
+        gPatterns.C_TrafficSpawnManager__SetTrainDensity = reinterpret_cast<uint64_t>(hook::get_pattern("80 B9 ? ? ? ? ? F3 0F 11 89 ? ? ? ? 74 0C"));
+
+        // C_StreamingTrafficModule
+        gPatterns.C_StreamingTrafficModule__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 4C 8B 44 F3 ?");
+        gPatterns.C_StreamingTrafficModule__SetMaxHumanElements = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC 28 3B 91 ? ? ? ? 74 25"));
+
         // C_Fader
         gPatterns.C_Fader__FadeIn = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4D 67 48 8B 9C 24 ? ? ? ?");
         gPatterns.C_Fader__FadeOut = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4C 24 ? 0F 28 74 24 ? 48 85 C9 74 1E");
