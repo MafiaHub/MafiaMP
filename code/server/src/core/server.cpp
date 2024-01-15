@@ -85,9 +85,18 @@ namespace MafiaMP {
                 return;
 
             const auto text = chatMessage->GetText();
+            std::string command;
+            std::string argsPart;
+
             if (text[0] == '/') {
-                const auto command  = text.substr(1, text.find(' ') - 1);
-                const auto argsPart = text.substr(text.find(' ') + 1);
+                if (text.find(' ') != std::string::npos) {
+                    command  = text.substr(1, text.find(' ') - 1);
+                    argsPart = text.substr(text.find(' ') + 1);
+                }
+                else {
+                    command = text.substr(1);
+                }
+
                 std::vector<std::string> args;
                 std::string arg;
                 std::istringstream iss(argsPart);
@@ -100,7 +109,6 @@ namespace MafiaMP {
                 Scripting::Chat::EventChatMessage(ent, text);
             }
         });
-
         // test until we do it via nodejs builtins
         net->RegisterGameRPC<Shared::RPC::HumanChangeSkin>([this](SLNet::RakNetGUID guid, Shared::RPC::HumanChangeSkin *msg) {
             if (!msg->Valid())
