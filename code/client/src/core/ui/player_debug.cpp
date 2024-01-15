@@ -124,8 +124,8 @@ namespace MafiaMP::Core::UI {
 
         if (ImGui::Button("Teleport to Salieri's Bar")) {
             SDK::ue::C_CntPtr<uintptr_t> syncObject;
-            auto pos = SDK::ue::sys::math::C_Vector(-908.717, 209.283, 2.793);
-            auto dir = SDK::ue::sys::math::C_Vector(0.985, -0.175, 0.000);
+            auto pos = SDK::ue::sys::math::C_Vector(-916.0, -210.0, 2.605);
+            auto dir = SDK::ue::sys::math::C_Vector(1.0, 0.0, 0.0);
             SDK::GetPlayerTeleportModule()->TeleportPlayer(syncObject, pos, dir, false, false, false, false);
         }
 

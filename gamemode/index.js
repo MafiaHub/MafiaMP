@@ -273,6 +273,11 @@ const vehicleSpawns = [
 
 const weatherSets = ["mm_030_molotov_cp_010_cine", "mm_150_boat_cp_010", "mm_210_gallery_cp_050"];
 
+const SPAWN_POINT = {
+    pos: sdk.Vector3(-985.871, -299.401, 2.1),
+    rot: sdk.Quaternion(0.301, 0.0, 0.0, -0.954),
+};
+
 sdk.on("gamemodeLoaded", () => {
     console.log("[GAMEMODE] Gamemode loaded!");
 
@@ -306,7 +311,8 @@ sdk.on("playerConnected", (player) => {
     player.sendChatToAll(`[SERVER] ${player.getNickname()} has joined the session!`);
 
     player.addWeapon(2, 200); // TODO: doesn't works yet
-    player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805)); // TODO: doesn't works yet
+    player.setPosition(SPAWN_POINT.pos);
+    player.setRotation(SPAWN_POINT.rot);
     player.sendChat(`[SERVER] Welcome ${player.getNickname()}!`);
 });
 
@@ -321,7 +327,8 @@ sdk.on("playerDied", (player) => {
 
     // Respawn the player
     player.setHealth(100.0);
-    player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
+    player.setPosition(SPAWN_POINT.pos);
+    player.setRotation(SPAWN_POINT.rot);
 });
 
 sdk.on("chatMessage", (player, message) => {
@@ -336,12 +343,12 @@ sdk.on("chatCommand", (player, message, command, args) => {
 
     const foundCommand = REGISTERED_CHAT_COMMANDS.get(command);
 
-    if (foundCommand) {
-        foundCommand(player, message, command, args);
+    if (!foundCommand) {
+        sdk.Chat.sendToPlayer(player, `[SERVER] Unknown command "${command}"`);
         return;
     }
 
-    sdk.Chat.sendToPlayer(player, `[SERVER] Unknown command "${command}"`);
+    foundCommand(player, message, command, args);
 });
 
 function RegisterChatCommand(name, handler) {
@@ -357,9 +364,61 @@ RegisterChatCommand("heal", (player, message, command, args) => {
     player.sendChat(`[SERVER] Health restored!`);
 });
 
-RegisterChatCommand("home", (player, message, command, args) => {
-    player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
-    player.sendChat(`[SERVER] Teleported to home!`);
+const TP_DESTINATIONS = {
+    spawn: SPAWN_POINT,
+    start: {
+        pos: sdk.Vector3(-916.0, -210.0, 2.605),
+        rot: sdk.Quaternion(0.707, 0.0, 0.0, 0.707),
+    },
+    autodrome: {
+        pos: sdk.Vector3(-1915.627, 10.715, 17.566),
+        rot: sdk.Quaternion(0.99, 0.0, 0.0, 0.139),
+    },
+};
+
+RegisterChatCommand("tp", (player, message, command, args) => {
+    const tpDestName = args[0];
+    const foundTpDest = TP_DESTINATIONS[tpDestName];
+
+    if (!foundTpDest) {
+        player.sendChat(`[SERVER] Teleportation failed. Unknown destination ${tpDestName}`);
+        return;
+    }
+
+    player.setPosition(foundTpDest.pos);
+    player.setRotation(foundTpDest.rot);
+    player.sendChat(`[SERVER] Teleported to ${tpDestName}!`);
+});
+
+RegisterChatCommand("coords", (player, message, command, args) => {
+    let x = args[0];
+    let y = args[1];
+    let z = args[2];
+
+    if (x == null || y == null || z == null) {
+        player.sendChat(`[SERVER] You must provide x, y and z!`);
+        return;
+    }
+
+    x = parseFloat(x);
+    y = parseFloat(y);
+    z = parseFloat(z);
+
+    player.setPosition(sdk.Vector3(x, y, z));
+    player.sendChat(`[SERVER] Teleported to ${x}, ${y}, ${z}!`);
+});
+
+RegisterChatCommand("pos", (player, message, command, args) => {
+    const pos = player.getPosition();
+    const rot = player.getRotation();
+
+    const parse = (x) =>
+        parseFloat(x)
+            .toFixed(3)
+            .replace(/\.?0+$/, "");
+
+    player.sendChat(`[SERVER] Position: ${parse(pos.x)}, ${parse(pos.y)}, ${parse(pos.z)}`);
+    player.sendChat(`[SERVER] Rotation: ${parse(rot.w)}, ${parse(rot.x)}, ${parse(rot.y)}, ${parse(rot.z)}`);
 });
 
 RegisterChatCommand("veh", (player, message, command, args) => {
