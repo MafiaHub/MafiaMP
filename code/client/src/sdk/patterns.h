@@ -215,7 +215,7 @@ namespace SDK {
         uint64_t C_InventoryWrapper__TellMoney = 0x0;
 
         // C_MafiaDBs
-        uint64_t C_MafiaDBs__GetMafiaDbs         = 0x0;
+        uint64_t C_MafiaDBs__GetMafiaDBs         = 0x0;
         uint64_t C_MafiaDBs__GetTablesDatabase   = 0x0;
         uint64_t C_MafiaDBs__GetVehiclesDatabase = 0x0;
 

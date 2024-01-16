@@ -238,7 +238,7 @@ namespace SDK {
         gPatterns.C_InventoryWrapper__TellMoney = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC 28 48 8B 41 68 80 78 18 09"));
 
         // C_MafiaDBs
-        gPatterns.C_MafiaDBs__GetMafiaDbs         = hook::get_opcode_address("E8 ? ? ? ? 48 8D 55 87 48 8B C8");
+        gPatterns.C_MafiaDBs__GetMafiaDBs         = hook::get_opcode_address("E8 ? ? ? ? 48 8D 55 87 48 8B C8");
         gPatterns.C_MafiaDBs__GetTablesDatabase   = hook::get_opcode_address("E8 ? ? ? ? 48 8B F8 49 8B C7");
         gPatterns.C_MafiaDBs__GetVehiclesDatabase = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC 20 48 8B DA 41 B8 06 00 00 00"));
 
