@@ -1,6 +1,5 @@
 #include "c_inventory_wrapper.h"
 
-#include <utils/hooking/hooking.h>
 #include "../patterns.h"
 
 namespace SDK {
@@ -15,4 +14,4 @@ namespace SDK {
     uint64_t C_InventoryWrapper::TellMoney() {
         return hook::this_call<uint64_t>(gPatterns.C_InventoryWrapper__TellMoney, this);
     }
-}
+} // namespace SDK

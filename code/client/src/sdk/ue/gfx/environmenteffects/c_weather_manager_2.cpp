@@ -1,25 +1,23 @@
 #include "c_weather_manager_2.h"
 
-#include <utils/hooking/hooking.h>
-
 #include "../../../patterns.h"
 
 namespace SDK {
     namespace ue::gfx::environmenteffects {
         float C_WeatherManager2::GetDayTimeHours() {
-            return hook::this_call<float>(gPatterns.C_WeatherManager2__GetDayTimeHoursAddr, this);
+            return hook::this_call<float>(gPatterns.C_WeatherManager2__GetDayTimeHours, this);
         }
 
         float C_WeatherManager2::GetDayTimeRel() {
-            return hook::this_call<float>(gPatterns.C_WeatherManager2__GetDayTimeRelAddr, this);
+            return hook::this_call<float>(gPatterns.C_WeatherManager2__GetDayTimeRel, this);
         }
 
         void C_WeatherManager2::SetDayTimeHours(float time) {
-            hook::this_call<float>(gPatterns.C_WeatherManager2__SetDayTimeHoursAddr, this, time);
+            hook::this_call<float>(gPatterns.C_WeatherManager2__SetDayTimeHours, this, time);
         }
 
         void C_WeatherManager2::SetDayTimeRel(float time) {
-            hook::this_call<float>(gPatterns.C_WeatherManager2__SetDayTimeRelAddr, this, time);
+            hook::this_call<float>(gPatterns.C_WeatherManager2__SetDayTimeRel, this, time);
         }
 
         void C_WeatherManager2::SetDayTimeSec(float time) {
@@ -28,7 +26,7 @@ namespace SDK {
         }
 
         void C_WeatherManager2::SetWeatherSet(ue::C_String const &preset, float time) {
-            hook::this_call(gPatterns.C_WeatherManager2__SetWeatherSetAddr, this, preset, time);
+            hook::this_call(gPatterns.C_WeatherManager2__SetWeatherSet, this, preset, time);
         }
     } // namespace ue::gfx::environmenteffects
-}
+} // namespace SDK

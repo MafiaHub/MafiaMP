@@ -1,7 +1,6 @@
 #include "c_player_teleport_module.h"
 
 #include "patterns.h"
-#include <utils/hooking/hooking.h>
 
 namespace SDK {
     C_PlayerTeleportModule *C_PlayerTeleportModule::GetInstance() {

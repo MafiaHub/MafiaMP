@@ -1,6 +1,5 @@
 #include "c_behavior_character.h"
 
-#include <utils/hooking/hooking.h>
 #include "../../../patterns.h"
 
 namespace SDK {
@@ -9,4 +8,4 @@ namespace SDK {
             hook::this_call<void>(gPatterns.C_BehaviorCharacter__SetWAnimVariable_float, this, id, value);
         }
     } // namespace ue::game::human
-}
+} // namespace SDK

@@ -1,5 +1,4 @@
 #include "c_ticked_module_manager.h"
-#include <utils/hooking/hooking.h>
 
 #include "patterns.h"
 

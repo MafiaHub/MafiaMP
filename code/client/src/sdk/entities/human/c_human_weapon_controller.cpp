@@ -1,7 +1,6 @@
 #include "c_human_weapon_controller.h"
 
 #include <logging/logger.h>
-#include <utils/hooking/hooking.h>
 
 #include "../../patterns.h"
 

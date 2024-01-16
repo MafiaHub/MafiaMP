@@ -2,7 +2,6 @@
 #include "../../sdk/patterns.h"
 
 #include <MinHook.h>
-#include <utils/hooking/hooking.h>
 #include <utils/hooking/hook_function.h>
 
 // Ticked module hooking
@@ -13,7 +12,7 @@ void __fastcall C_InitDone__MafiaFramework(void *_this) {
     MafiaMP::Game::gGlobals.module = new MafiaMP::Game::ModModule();
 }
 
-// Intro vide hooking
+// Intro video hooking
 int __fastcall C_CommandLine__FindCommand(void *_this, const char *command) {
     if (strstr(command, "NoMy2K") || strstr(command, "SkipLoadingPrompt") /*|| strstr(command, "fastRender")*/) {
         return 1;
@@ -22,11 +21,11 @@ int __fastcall C_CommandLine__FindCommand(void *_this, const char *command) {
 }
 
 static InitFunction init([]() {
-    MH_CreateHook((LPVOID)SDK::gPatterns.C_InitDone_MafiaFrameworkAddr, (PBYTE)C_InitDone__MafiaFramework, reinterpret_cast<void **>(&C_InitDone__Init_MafiaFramework_original));
+    MH_CreateHook((LPVOID)SDK::gPatterns.C_InitDone_MafiaFramework, (PBYTE)C_InitDone__MafiaFramework, reinterpret_cast<void **>(&C_InitDone__Init_MafiaFramework_original));
 
     // Disable the loading intro
-    hook::return_function(SDK::gPatterns.LoadIntroAddr);
+    hook::return_function(SDK::gPatterns.LoadIntro);
 
     // Skip loading prompt & debug stuff
-    MH_CreateHook((LPVOID)SDK::gPatterns.C_CommandLine__FindCommandAddr, (PBYTE)C_CommandLine__FindCommand, nullptr);
+    MH_CreateHook((LPVOID)SDK::gPatterns.C_CommandLine__FindCommand, (PBYTE)C_CommandLine__FindCommand, nullptr);
 });
