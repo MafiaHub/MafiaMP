@@ -14,6 +14,6 @@ namespace SDK {
             ue::C_WeakPtr<mafia::framework::C_VehiclesDatabase> GetVehiclesDatabase();
         };
 
-        static C_MafiaDBs *GetMafiaDBs();
+        C_MafiaDBs *GetMafiaDBs();
     }; // namespace mafia::framework
 };     // namespace SDK

@@ -13,7 +13,7 @@ namespace SDK {
             return hook::this_call<ue::C_WeakPtr<mafia::framework::C_VehiclesDatabase> &>(gPatterns.C_MafiaDBs__GetVehiclesDatabase, this, database);
         }
 
-        static C_MafiaDBs *GetMafiaDBs() {
+        C_MafiaDBs *GetMafiaDBs() {
             return hook::call<C_MafiaDBs *>(gPatterns.C_MafiaDBs__GetMafiaDbs);
         }
     }; // namespace mafia::framework
