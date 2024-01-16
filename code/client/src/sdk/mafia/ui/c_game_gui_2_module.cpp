@@ -13,7 +13,7 @@ namespace SDK {
         }
 
         C_GameGUI2Module *C_GameGUI2Module::GetInstance() {
-            return *reinterpret_cast<C_GameGUI2Module **>(gPatterns.C_GameGUI2Module__GetInstance);
+            return *reinterpret_cast<C_GameGUI2Module **>(gPatterns.C_GameGUI2Module__Instance);
         }
 
         C_GameGUI2Module *GetGameGui2Module() {

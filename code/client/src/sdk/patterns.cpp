@@ -143,9 +143,9 @@ namespace SDK {
         gPatterns.C_GameFramework__IsSuspended = reinterpret_cast<uint64_t>(hook::get_pattern("80 39 ? 74 ? 80 79 ? ?"));
 
         // C_GameGUI2Module
-        uint64_t C_GameGUI2Module               = hook::get_opcode_address("E8 ? ? ? ? 41 8D 56 11");
-        uint8_t *C_GameGUI2Module_Bytes         = reinterpret_cast<uint8_t *>(C_GameGUI2Module);
-        gPatterns.C_GameGUI2Module__GetInstance = reinterpret_cast<uint64_t>(C_GameGUI2Module_Bytes + *(int32_t *)(C_GameGUI2Module_Bytes + 3) + 7);
+        uint64_t C_GameGUI2Module            = hook::get_opcode_address("E8 ? ? ? ? 41 8D 56 11");
+        uint8_t *C_GameGUI2Module_Bytes      = reinterpret_cast<uint8_t *>(C_GameGUI2Module);
+        gPatterns.C_GameGUI2Module__Instance = reinterpret_cast<uint64_t>(C_GameGUI2Module_Bytes + *(int32_t *)(C_GameGUI2Module_Bytes + 3) + 7);
 
         gPatterns.C_GameGUI2Module__GetGameGui2Module           = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 40 80 F6 01");
         gPatterns.C_GameGUI2Module__SendHUDSimpleBooleanMessage = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 49 8B 97 ? ? ? ? 4C 8D 05 ? ? ? ?");
@@ -159,9 +159,9 @@ namespace SDK {
         gPatterns.C_GameTrafficModule__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 80 7E 07 00");
 
         // C_GfxEnvironmentEffects
-        uint64_t C_GfxEnvironmentEffects           = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 05 ? ? ? ? 48 8B 40 28 48 8B 40 28"));
-        uint8_t *C_GfxEnvironmentEffects_Bytes     = reinterpret_cast<uint8_t *>(C_GfxEnvironmentEffects);
-        gPatterns.C_GfxEnvironmentEffects_Instance = reinterpret_cast<uint64_t>(C_GfxEnvironmentEffects_Bytes + *(int32_t *)(C_GfxEnvironmentEffects_Bytes + 3) + 7);
+        uint64_t C_GfxEnvironmentEffects            = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 05 ? ? ? ? 48 8B 40 28 48 8B 40 28"));
+        uint8_t *C_GfxEnvironmentEffects_Bytes      = reinterpret_cast<uint8_t *>(C_GfxEnvironmentEffects);
+        gPatterns.C_GfxEnvironmentEffects__Instance = reinterpret_cast<uint64_t>(C_GfxEnvironmentEffects_Bytes + *(int32_t *)(C_GfxEnvironmentEffects_Bytes + 3) + 7);
 
         // C_HashName
         gPatterns.C_HashName__ComputeHash = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 74 24 ? 41 56 48 83 EC ? 4C 8B F2 48 8B F1 48 85 C9"));
