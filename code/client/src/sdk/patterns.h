@@ -125,9 +125,10 @@ namespace SDK {
         uint64_t C_GameFramework__IsSuspended = 0x0;
 
         // C_GameGUI2Module
-        uint64_t C_GameGUI2Module_GetInstance                 = 0x0;
-        uint64_t C_GameGUI2Module_SendHUDSimpleBooleanMessage = 0x0;
-        uint64_t C_GameGUI2Module_SendMessageMovie            = 0x0;
+        uint64_t C_GameGUI2Module__GetGameGui2Module           = 0x0;
+        uint64_t C_GameGUI2Module__GetInstance                 = 0x0;
+        uint64_t C_GameGUI2Module__SendHUDSimpleBooleanMessage = 0x0;
+        uint64_t C_GameGUI2Module__SendMessageMovie            = 0x0;
 
         // C_GameInputModule
         uint64_t C_GameInputModule__GetGameInputModule = 0x0;
@@ -214,6 +215,7 @@ namespace SDK {
         uint64_t C_InventoryWrapper__TellMoney = 0x0;
 
         // C_MafiaDBs
+        uint64_t C_MafiaDBs__GetMafiaDbs         = 0x0;
         uint64_t C_MafiaDBs__GetTablesDatabase   = 0x0;
         uint64_t C_MafiaDBs__GetVehiclesDatabase = 0x0;
 
@@ -255,8 +257,9 @@ namespace SDK {
         uint64_t C_PlayerModelManager__SwitchPlayerProfile = 0x0;
 
         // C_PlayerTeleportModule
-        uint64_t C_PlayerTeleportModule__Instance       = 0x0;
-        uint64_t C_PlayerTeleportModule__TeleportPlayer = 0x0;
+        uint64_t C_PlayerTeleportModule__GetPlayerTeleportModule = 0x0;
+        uint64_t C_PlayerTeleportModule__Instance                = 0x0;
+        uint64_t C_PlayerTeleportModule__TeleportPlayer          = 0x0;
 
         // C_ProfileSpawner
         uint64_t C_ProfileSpawner__C_ProfileSpawner      = 0x0;

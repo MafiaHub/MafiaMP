@@ -21,6 +21,6 @@ namespace SDK {
     }
 
     C_PlayerTeleportModule *GetPlayerTeleportModule() {
-        return hook::call<C_PlayerTeleportModule *>(hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 83 78 38 00 74 13"));
+        return hook::call<C_PlayerTeleportModule *>(gPatterns.C_PlayerTeleportModule__GetPlayerTeleportModule);
     }
 } // namespace SDK

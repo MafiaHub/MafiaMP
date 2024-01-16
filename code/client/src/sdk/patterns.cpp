@@ -143,12 +143,13 @@ namespace SDK {
         gPatterns.C_GameFramework__IsSuspended = reinterpret_cast<uint64_t>(hook::get_pattern("80 39 ? 74 ? 80 79 ? ?"));
 
         // C_GameGUI2Module
-        uint64_t C_GameGUI2Module              = hook::get_opcode_address("E8 ? ? ? ? 41 8D 56 11");
-        uint8_t *C_GameGUI2Module_Bytes        = reinterpret_cast<uint8_t *>(C_GameGUI2Module);
-        gPatterns.C_GameGUI2Module_GetInstance = reinterpret_cast<uint64_t>(C_GameGUI2Module_Bytes + *(int32_t *)(C_GameGUI2Module_Bytes + 3) + 7);
+        uint64_t C_GameGUI2Module               = hook::get_opcode_address("E8 ? ? ? ? 41 8D 56 11");
+        uint8_t *C_GameGUI2Module_Bytes         = reinterpret_cast<uint8_t *>(C_GameGUI2Module);
+        gPatterns.C_GameGUI2Module__GetInstance = reinterpret_cast<uint64_t>(C_GameGUI2Module_Bytes + *(int32_t *)(C_GameGUI2Module_Bytes + 3) + 7);
 
-        gPatterns.C_GameGUI2Module_SendHUDSimpleBooleanMessage = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 49 8B 97 ? ? ? ? 4C 8D 05 ? ? ? ?");
-        gPatterns.C_GameGUI2Module_SendMessageMovie            = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 48 8D 5D 58");
+        gPatterns.C_GameGUI2Module__GetGameGui2Module           = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 40 80 F6 01");
+        gPatterns.C_GameGUI2Module__SendHUDSimpleBooleanMessage = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 49 8B 97 ? ? ? ? 4C 8D 05 ? ? ? ?");
+        gPatterns.C_GameGUI2Module__SendMessageMovie            = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 48 8D 5D 58");
 
         // C_GameInputModule
         gPatterns.C_GameInputModule__GetGameInputModule = hook::get_opcode_address("E8 ? ? ? ? 4C 8B F0 8B D7");
@@ -237,6 +238,7 @@ namespace SDK {
         gPatterns.C_InventoryWrapper__TellMoney = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC 28 48 8B 41 68 80 78 18 09"));
 
         // C_MafiaDBs
+        gPatterns.C_MafiaDBs__GetMafiaDbs         = hook::get_opcode_address("E8 ? ? ? ? 48 8D 55 87 48 8B C8");
         gPatterns.C_MafiaDBs__GetTablesDatabase   = hook::get_opcode_address("E8 ? ? ? ? 48 8B F8 49 8B C7");
         gPatterns.C_MafiaDBs__GetVehiclesDatabase = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC 20 48 8B DA 41 B8 06 00 00 00"));
 
@@ -285,11 +287,12 @@ namespace SDK {
         gPatterns.C_PlayerModelManager__SwitchPlayerProfile = hook::get_opcode_address("E8 ? ? ? ? 48 8B C3 48 83 C4 20 5B C3 48 8B 41 48");
 
         // C_PlayerTeleportModule
-        uint64_t C_PlayerTeleportModule            = hook::get_opcode_address("E8 ? ? ? ? 83 78 38 00 74 13") + 0xD;
-        uint8_t *C_PlayerTeleportModule_Bytes      = reinterpret_cast<uint8_t *>(C_PlayerTeleportModule);
-        gPatterns.C_PlayerTeleportModule__Instance = reinterpret_cast<uint64_t>(C_PlayerTeleportModule_Bytes + *(int32_t *)(C_PlayerTeleportModule_Bytes + 3) + 7);
+        uint64_t C_PlayerTeleportModule       = hook::get_opcode_address("E8 ? ? ? ? 83 78 38 00 74 13") + 0xD;
+        uint8_t *C_PlayerTeleportModule_Bytes = reinterpret_cast<uint8_t *>(C_PlayerTeleportModule);
 
-        gPatterns.C_PlayerTeleportModule__TeleportPlayer = reinterpret_cast<uint64_t>(hook::get_pattern("40 56 48 83 EC 50 83 79 38 00"));
+        gPatterns.C_PlayerTeleportModule__GetPlayerTeleportModule = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 83 78 38 00 74 13");
+        gPatterns.C_PlayerTeleportModule__Instance                = reinterpret_cast<uint64_t>(C_PlayerTeleportModule_Bytes + *(int32_t *)(C_PlayerTeleportModule_Bytes + 3) + 7);
+        gPatterns.C_PlayerTeleportModule__TeleportPlayer          = reinterpret_cast<uint64_t>(hook::get_pattern("40 56 48 83 EC 50 83 79 38 00"));
 
         // C_ProfileSpawner
         gPatterns.C_ProfileSpawner__C_ProfileSpawner      = hook::get_opcode_address("49 8B CE E8 ? ? ? ? 48 8B 5C 24 ? 48 8D 05 ? ? ? ?", 3);
