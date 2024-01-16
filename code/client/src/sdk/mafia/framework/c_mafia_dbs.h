@@ -2,8 +2,8 @@
 
 #include "c_vehicles_database.h"
 
-#include "sdk/ue/c_weak_ptr.h"
-#include "sdk/ue/sys/sodb/c_sys_odb.h"
+#include "../../ue/c_weak_ptr.h"
+#include "../../ue/sys/sodb/c_sys_odb.h"
 
 namespace SDK {
     namespace mafia::framework {

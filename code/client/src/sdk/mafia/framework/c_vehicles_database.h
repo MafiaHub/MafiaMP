@@ -1,7 +1,7 @@
 #pragma once
 
-#include "sdk/gamedb/tables/vehicles/s_vehicles_table_item.h"
-#include "sdk/ue/sys/sodb/c_database_interface.h"
+#include "../../gamedb/tables/vehicles/s_vehicles_table_item.h"
+#include "../../ue/sys/sodb/c_database_interface.h"
 
 namespace SDK {
     namespace mafia::framework {
