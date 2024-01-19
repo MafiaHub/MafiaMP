@@ -1,7 +1,5 @@
 #include "c_game_director.h"
 
-#include "../../../patterns.h"
-
 namespace SDK {
     namespace mafia::framework::director {
         C_GameDirector *C_GameDirector::GetInstance() {

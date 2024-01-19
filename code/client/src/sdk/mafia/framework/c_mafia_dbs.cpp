@@ -1,7 +1,5 @@
 #include "c_mafia_dbs.h"
 
-#include "../../patterns.h"
-
 namespace SDK {
     namespace mafia::framework {
         void C_MafiaDBs::GetTablesDatabase(ue::sys::sodb::C_SysODB *odb) {

@@ -1,4 +1,5 @@
 #include "luavm.h"
+
 #include "sdk/patterns.h"
 
 #include <MinHook.h>

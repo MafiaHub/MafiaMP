@@ -36,9 +36,6 @@
 
 #include "shared/game_rpc/human/human_changeskin.h"
 
-#include "../sdk/mafia/framework/c_mafia_dbs.h"
-#include "../sdk/mafia/framework/c_vehicles_database.h"
-#include "../sdk/ue/sys/sodb/c_sys_odb.h"
 #include "modules/human.h"
 
 #include "sdk/mafia/framework/c_mafia_dbs.h"
