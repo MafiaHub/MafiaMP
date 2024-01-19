@@ -1,5 +1,5 @@
 #include "../../game/module.h"
-#include "../../sdk/patterns.h"
+#include "sdk/patterns.h"
 
 #include <MinHook.h>
 #include <utils/hooking/hook_function.h>

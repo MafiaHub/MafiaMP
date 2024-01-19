@@ -13,11 +13,11 @@
 
 #include "../../game/module.h"
 
-#include "../../sdk/ue/c_application_win32.h"
-#include "../../sdk/ue/sys/render/device/c_d3d11_window_context_cache.h"
-#include "../../sdk/ue/sys/render/device/c_direct_3d11_render_device.h"
-#include "../../sdk/ue/sys/render/device/c_dynamic_vi_buffer_pool.h"
-#include "../../sdk/ue/sys/render/device/s_render_device_desc.h"
+#include "sdk/ue/c_application_win32.h"
+#include "sdk/ue/sys/render/device/c_d3d11_window_context_cache.h"
+#include "sdk/ue/sys/render/device/c_direct_3d11_render_device.h"
+#include "sdk/ue/sys/render/device/c_dynamic_vi_buffer_pool.h"
+#include "sdk/ue/sys/render/device/s_render_device_desc.h"
 
 typedef bool(__fastcall *C_Direct3D11RenderDevice__Init_t)(SDK::ue::sys::render::device::C_Direct3D11RenderDevice *pThis, SDK::ue::sys::render::device::S_RenderDeviceDesc const &a2, SDK::ue::sys::render::device::C_DynamicVIBufferPool &a3, void *idk);
 C_Direct3D11RenderDevice__Init_t C_Direct3D11RenderDevice__Init_original = nullptr;

@@ -1,13 +1,14 @@
 #include "controls.h"
 
-#include "../../sdk/mafia/framework/c_mafia_framework_interfaces.h"
-#include "../../sdk/mafia/framework/c_mafia_framework.h"
+#include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
-#include "../../sdk/c_game_input_module.h"
-#include "../../sdk/entities/c_player_2.h"
+#include "sdk/mafia/framework/c_mafia_framework.h"
+
+#include "sdk/c_game_input_module.h"
+#include "sdk/entities/c_player_2.h"
 
 namespace MafiaMP::Game::Helpers {
-    SDK::C_Player2* Controls::GetLocalPlayer() {
+    SDK::C_Player2 *Controls::GetLocalPlayer() {
         SDK::mafia::framework::C_MafiaFramework *pMafiaFramework = SDK::mafia::framework::C_MafiaFramework::GetInstance();
         if (!pMafiaFramework) {
             return nullptr;
@@ -95,4 +96,4 @@ namespace MafiaMP::Game::Helpers {
 
         playerModelManager->SwitchSpawnProfile(spawnProfile);
     }
-}
+} // namespace MafiaMP::Game::Helpers

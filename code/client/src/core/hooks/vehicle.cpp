@@ -9,11 +9,11 @@
 #include "../modules/vehicle.h"
 #include "shared/modules/vehicle_sync.hpp"
 
-#include "../../sdk/entities/c_actor.h"
-#include "../../sdk/entities/c_car.h"
-#include "../../sdk/entities/c_human_2.h"
-#include "../../sdk/entities/c_vehicle.h"
-#include "../../sdk/wrappers/c_human_2_car_wrapper.h"
+#include "sdk/entities/c_actor.h"
+#include "sdk/entities/c_car.h"
+#include "sdk/entities/c_human_2.h"
+#include "sdk/entities/c_vehicle.h"
+#include "sdk/wrappers/c_human_2_car_wrapper.h"
 
 SDK::C_Actor* C_ActorAction__GetOwnerAsActor(void *pThis) {
     return hook::this_call<SDK::C_Actor *>(0x0000001423434E0, pThis);
@@ -127,7 +127,7 @@ void C_Human2CarWrapper__EndDrive(SDK::C_Human2CarWrapper *pThis, SDK::C_Actor *
     }
 }
 
-static InitFunction init([]() {    
+static InitFunction init([]() {
     // Disable automated vehicle enable (engine, siren, beacon lights etc...) when player enter it
     const auto C_Human2CarWrapper__StartDrive_Addr = hook::pattern("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 57 48 83 EC 70 45 33 FF").get_first();
     MH_CreateHook((LPVOID)C_Human2CarWrapper__StartDrive_Addr, (PBYTE)C_Human2CarWrapper__StartDrive, reinterpret_cast<void **>(&C_Human2CarWrapper__StartDrive_original));

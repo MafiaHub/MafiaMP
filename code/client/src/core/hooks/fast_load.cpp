@@ -2,8 +2,8 @@
 #include <utils/hooking/hooking.h>
 #include <utils/hooking/hook_function.h>
 
-#include "../../sdk/mafia/ui/c_game_gui_2_module.h"
-#include "../../sdk/mafia/ui/menu/c_save_menu.h"
+#include "sdk/mafia/ui/c_game_gui_2_module.h"
+#include "sdk/mafia/ui/menu/c_save_menu.h"
 
 void __fastcall C_MainMenu__QueueMenuSequenceScreen(void *_this, int sequence, bool cannotSkip) {
     if (sequence == -1) {

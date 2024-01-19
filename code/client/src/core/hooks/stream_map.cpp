@@ -1,8 +1,8 @@
 #include <MinHook.h>
 #include <utils/hooking/hook_function.h>
 
-#include "../../sdk/c_stream_map.h"
-#include "../../sdk/patterns.h"
+#include "sdk/c_stream_map.h"
+#include "sdk/patterns.h"
 
 #include <logging/logger.h>
 

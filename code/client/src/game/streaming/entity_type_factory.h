@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../sdk/entities/c_entity.h"
+#include "sdk/entities/c_entity.h"
+
 #include "entity_tracking_info.h"
 
 #include <list>
@@ -25,7 +26,7 @@ namespace MafiaMP::Game::Streaming {
 
             ExtendedTrackingInfo(SDK::E_EntityType entityType, Kind entityKind): _kind(entityKind), _info(std::make_unique<EntityTrackingInfo>(entityType)) {}
             ExtendedTrackingInfo(ExtendedTrackingInfo &&other): _kind(other._kind), _info(std::exchange(other._info, nullptr)) {}
-            ExtendedTrackingInfo(ExtendedTrackingInfo &) = delete;
+            ExtendedTrackingInfo(ExtendedTrackingInfo &)            = delete;
             ExtendedTrackingInfo &operator=(ExtendedTrackingInfo &) = delete;
 
             Kind GetKind() const {
@@ -40,11 +41,8 @@ namespace MafiaMP::Game::Streaming {
             std::list<ExtendedTrackingInfo> _createdEntities;
 
             SpawnerWrap(Spawner *spawner): _spawner(spawner) {}
-            SpawnerWrap(SpawnerWrap &&other)
-                : _spawner(std::exchange(other._spawner, nullptr))
-                , _state(std::exchange(other._state, EntitySpawnerState::Loading))
-                , _ongoingRequests(std::move(other._ongoingRequests)) {}
-            SpawnerWrap(SpawnerWrap &) = delete;
+            SpawnerWrap(SpawnerWrap &&other): _spawner(std::exchange(other._spawner, nullptr)), _state(std::exchange(other._state, EntitySpawnerState::Loading)), _ongoingRequests(std::move(other._ongoingRequests)) {}
+            SpawnerWrap(SpawnerWrap &)            = delete;
             SpawnerWrap &operator=(SpawnerWrap &) = delete;
 
             EntitySpawnerState GetState() const {
@@ -66,15 +64,14 @@ namespace MafiaMP::Game::Streaming {
         std::unordered_map<EntityTrackingInfo *, SpawnerWrap *> _trackingInfos;
 
       public:
-        EntityTypeFactory(SpawnerCreateFn createSpawnerFn, SpawnerProcessLoadFn spawnerProcessLoadFn, SpawnerSpawnEntityFn spawnEntityFn,
-            SpawnerReturnEntityFn returnEntityToSpawnerFn, SpawnerDestroyFn destroySpawnerFn)
+        EntityTypeFactory(SpawnerCreateFn createSpawnerFn, SpawnerProcessLoadFn spawnerProcessLoadFn, SpawnerSpawnEntityFn spawnEntityFn, SpawnerReturnEntityFn returnEntityToSpawnerFn, SpawnerDestroyFn destroySpawnerFn)
             : _spawnerCreate(createSpawnerFn)
             , _spawnerProcessLoad(spawnerProcessLoadFn)
             , _spawnerSpawnEntity(spawnEntityFn)
             , _spawnerReturnEntity(returnEntityToSpawnerFn)
             , _spawnerDestroy(destroySpawnerFn) {}
 
-        EntityTypeFactory(EntityTypeFactory &) = delete;
+        EntityTypeFactory(EntityTypeFactory &)            = delete;
         EntityTypeFactory &operator=(EntityTypeFactory &) = delete;
 
         ~EntityTypeFactory() {
@@ -146,7 +143,7 @@ namespace MafiaMP::Game::Streaming {
         }
 
         // Update our collection of spawners
-        // Each spawner can be in one of two states: Ready or Loading. 
+        // Each spawner can be in one of two states: Ready or Loading.
         // A spawner is Ready if it has finished loading and is now ready to spawn entities. A spawner is Loading if it is still loading and not ready to spawn entities.
         void Update() {
             auto spawnerIter = _spawners.begin();
@@ -177,7 +174,7 @@ namespace MafiaMP::Game::Streaming {
                                 requestFinished = true;
 
                                 EntityTrackingInfo *trackingInfo = createdEntities.back()._info.get();
-                                trackingInfo->_entity          = entity;
+                                trackingInfo->_entity            = entity;
                                 if (trackingInfo->_requestFinish)
                                     trackingInfo->_requestFinish(trackingInfo, true);
                             }
@@ -186,7 +183,7 @@ namespace MafiaMP::Game::Streaming {
                                 requestFinished = true;
 
                                 ExtendedTrackingInfo &request = *requestIter;
-                                request._info->_entity     = nullptr;
+                                request._info->_entity        = nullptr;
                                 if (request._info->_requestFinish)
                                     request._info->_requestFinish(nullptr, false);
                             }

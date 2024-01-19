@@ -1,5 +1,5 @@
 #include "luavm.h"
-#include "../sdk/patterns.h"
+#include "sdk/patterns.h"
 
 #include <MinHook.h>
 #include <logging/logger.h>

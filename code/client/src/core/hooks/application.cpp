@@ -1,7 +1,7 @@
 #include <MinHook.h>
 #include <utils/hooking/hook_function.h>
 
-#include "../../sdk/patterns.h"
+#include "sdk/patterns.h"
 
 bool __fastcall C_GameFramework__IsSuspended(void *_this) {
     return false;

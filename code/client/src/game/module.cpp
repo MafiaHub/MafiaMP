@@ -1,10 +1,10 @@
 #include "module.h"
 
-#include "../sdk/c_game.h"
-#include "../sdk/entities/c_car.h"
-#include "../sdk/entities/c_player_2.h"
-#include "../sdk/entities/c_vehicle.h"
-#include "../sdk/entities/human/c_human_weapon_controller.h"
+#include "sdk/c_game.h"
+#include "sdk/entities/c_car.h"
+#include "sdk/entities/c_player_2.h"
+#include "sdk/entities/c_vehicle.h"
+#include "sdk/entities/human/c_human_weapon_controller.h"
 
 #include <SDL2/SDL.h>
 #include <logging/logger.h>

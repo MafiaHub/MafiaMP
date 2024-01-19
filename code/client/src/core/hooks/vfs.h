@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../sdk/ue/sys/filesystem/c_virtual_file_system_cache.h"
+#include "sdk/ue/sys/filesystem/c_virtual_file_system_cache.h"
 
 struct S_Init {
 
