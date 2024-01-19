@@ -89,7 +89,7 @@ int64_t C_WindowProcHandler__CreateMainWindow(void *_this, SDK::ue::C_Applicatio
     MafiaMP::Game::gGlobals.window = appWin32->m_pWindow;
 
     // Update the main window title asap
-    SetWindowTextA(MafiaMP::Game::gGlobals.window, "Mafia: Advanced Multiplayer Edition");
+    SetWindowTextA(MafiaMP::Game::gGlobals.window, "Mafia: Multiplayer");
 
     // Patch the wind proc handler
     g_pOriginalWndProcHandler = (WNDPROC)SetWindowLongPtrW(MafiaMP::Game::gGlobals.window, GWLP_WNDPROC, (LONG_PTR)WndProc);
