@@ -16,8 +16,9 @@
 
 #include "ui/camera_studio.h"
 #include "ui/entity_browser.h"
-#include "ui/vehicle_debug.h"
 #include "ui/network_stats.h"
+#include "ui/player_debug.h"
+#include "ui/vehicle_debug.h"
 
 #include "sdk/entities/c_human_2.h"
 
@@ -27,16 +28,14 @@ namespace MafiaMP::Core {
         std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
         Game::Streaming::EntityTrackingInfo *_TEMP_HUMAN = nullptr;
 
-        bool _showEntityBrowser {false};
         std::shared_ptr<UI::EntityBrowser> _entityBrowser {};
 
-        bool _showCameraStudio {false};
         std::shared_ptr<UI::CameraStudio> _cameraStudio {};
 
-        bool _showVehicledebug {false};
+        std::shared_ptr<UI::PlayerDebug> _playerDebug {};
+
         std::shared_ptr<UI::VehicleDebug> _vehicleDebug {};
 
-        bool _showNetworkStats {false};
         std::shared_ptr<UI::NetworkStats> _networkStats {};
 
       public:
@@ -59,6 +58,7 @@ namespace MafiaMP::Core {
 
         void ToggleEntityBrowser();
         void ToggleCameraStudio();
+        void TogglePlayerDebug();
         void ToggleVehicleDebug();
         void ToggleNetworkStats();
     };

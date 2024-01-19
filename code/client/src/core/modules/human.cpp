@@ -4,24 +4,21 @@
 
 #include <flecs/flecs.h>
 
-#include "sdk/c_game.h"
-#include "sdk/entities/c_car.h"
-#include "sdk/entities/c_player_2.h"
-#include "sdk/entities/c_vehicle.h"
-#include "sdk/entities/human/c_human_script.h"
-#include "sdk/entities/human/c_human_weapon_controller.h"
-#include "sdk/wrappers/c_human_2_car_wrapper.h"
-#include "sdk/c_player_teleport_module.h"
-
 #include "game/helpers/controls.h"
 #include "game/helpers/human.h"
 #include "game/overrides/character_controller.h"
 #include "game/streaming/entity_tracking_info.h"
+#include "sdk/c_game.h"
+#include "sdk/c_player_teleport_module.h"
+#include "sdk/entities/c_car.h"
+#include "sdk/entities/c_player_2.h"
+#include "sdk/entities/c_vehicle.h"
+#include "sdk/wrappers/c_human_2_car_wrapper.h"
 
-#include "shared/game_rpc/human/human_shoot.h"
-#include "shared/game_rpc/human/human_reload.h"
 #include "shared/game_rpc/human/human_changeskin.h"
+#include "shared/game_rpc/human/human_reload.h"
 #include "shared/game_rpc/human/human_setprops.h"
+#include "shared/game_rpc/human/human_shoot.h"
 
 #include "vehicle.h"
 #include <world/modules/base.hpp>
@@ -164,11 +161,6 @@ namespace MafiaMP::Core::Modules {
                 trackingData->charController = reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(human->GetCharacterController());
                 assert(MafiaMP::Game::Overrides::CharacterController::IsInstanceOfClass(trackingData->charController));
 
-                // TODO(DavoSK): remove
-                Game::Helpers::Human::AddWeapon(human, 85, 200);
-                Game::Helpers::Human::AddWeapon(human, 3, 200);
-                Game::Helpers::Human::AddWeapon(human, 13, 200);
-                
                 Update(ent);
             }
         };
@@ -204,10 +196,6 @@ namespace MafiaMP::Core::Modules {
         e.add<HumanData>();
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
 
-        // TODO(DavoSK): remove
-        Game::Helpers::Human::AddWeapon(trackingData->human, 85, 200);
-        Game::Helpers::Human::AddWeapon(trackingData->human, 3, 200);
-
         const auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
         es->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
@@ -226,6 +214,11 @@ namespace MafiaMP::Core::Modules {
             return;
         }
 
+        /**
+         * Ensure remote human doesn't die on client-side due to client-only factors.
+         * This way we reflect actual health the player has and don't run into desync issue
+         * where player would die on someone else's screen even if they shouldn't.
+         */
         trackingData->human->GetHumanScript()->SetDemigod(true);
         trackingData->human->GetHumanScript()->SetInvulnerabilityByScript(true);
 
@@ -258,7 +251,7 @@ namespace MafiaMP::Core::Modules {
         // Update basic data
         const auto tr = e.get<Framework::World::Modules::Base::Transform>();
         if (e.get<Interpolated>()) {
-            auto interp   = e.get_mut<Interpolated>();
+            auto interp         = e.get_mut<Interpolated>();
             const auto humanPos = trackingData->human->GetPos();
             const auto humanRot = trackingData->human->GetRot();
             interp->interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
@@ -432,7 +425,8 @@ namespace MafiaMP::Core::Modules {
 
             if (e == gApplication->GetLocalPlayer()) {
                 Game::Helpers::Controls::PlayerChangeSpawnProfile(msg->GetSpawnProfile());
-            } else {
+            }
+            else {
                 // todo remote ped
             }
         });
@@ -468,7 +462,7 @@ namespace MafiaMP::Core::Modules {
         // Update basic data
         const auto tr = e.get<Framework::World::Modules::Base::Transform>();
         if (e.get<Interpolated>()) {
-            auto interp   = e.get_mut<Interpolated>();
+            auto interp = e.get_mut<Interpolated>();
             // todo reset lerp
             const auto humanPos = trackingData->human->GetPos();
             const auto humanRot = trackingData->human->GetRot();
@@ -483,7 +477,8 @@ namespace MafiaMP::Core::Modules {
             transform.SetRot(newRot);
             transform.SetPos(newPos);
             trackingData->human->SetTransform(transform);
-        } else {
+        }
+        else {
             SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
             SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
             SDK::ue::sys::math::C_Matrix transform = {};
@@ -497,7 +492,7 @@ namespace MafiaMP::Core::Modules {
         }
     }
 
-    flecs::entity Human::GetHumanEntity(SDK::C_Human2* ptr) {
+    flecs::entity Human::GetHumanEntity(SDK::C_Human2 *ptr) {
         flecs::entity foundPlayerEntity {};
         findAllHumans.each([ptr, &foundPlayerEntity](flecs::entity e, Human::Tracking &tracking) {
             if (tracking.human == ptr) {

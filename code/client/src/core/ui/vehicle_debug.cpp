@@ -11,22 +11,29 @@
 #include "game/helpers/controls.h"
 
 namespace MafiaMP::Core::UI {
-    VehicleDebug::VehicleDebug() {
-    }
+    VehicleDebug::VehicleDebug() {}
 
     void VehicleDebug::Update() {
         const auto pActivePlayer = Game::Helpers::Controls::GetLocalPlayer();
-        SDK::C_Car *currentCar = pActivePlayer ? reinterpret_cast<SDK::C_Car *>(pActivePlayer->GetOwner()) : nullptr;
+        SDK::C_Car *currentCar   = pActivePlayer ? reinterpret_cast<SDK::C_Car *>(pActivePlayer->GetOwner()) : nullptr;
+
+        ImGui::Begin("Vehicle debug", &_visible, ImGuiWindowFlags_AlwaysAutoResize);
+
         if (currentCar) {
             auto currentVehicle = currentCar->GetVehicle();
 
             auto position = currentCar->GetPos();
-            if (ImGui::SliderFloat3("Pos", (float *)&position, -50000.0, 50000.0)) {
+            if (ImGui::DragFloat3("Pos", (float *)&position, 0.1f, -2000.0f, 2000.0f)) {
                 currentCar->SetPos(position);
             }
 
+            auto dir = currentCar->GetDir();
+            if (ImGui::DragFloat3("Dir", (float *)&dir, 0.01f, -1.0f, 1.0f)) {
+                currentCar->SetDir(dir);
+            }
+
             auto rot = currentCar->GetRot();
-            if (ImGui::SliderFloat4("Rot", (float *)&rot, -1.0, 1.0)) {
+            if (ImGui::DragFloat4("Rot", (float *)&rot, 0.01f, -1.0f, 1.0f)) {
                 currentCar->SetRot(rot);
             }
 
@@ -146,5 +153,10 @@ namespace MafiaMP::Core::UI {
                 currentVehicle->ChangeRadioStation(currentStation == 1 ? 0 : 1);
             }
         }
+        else {
+            ImGui::Text("You're not in a vehicle!");
+        }
+
+        ImGui::End();
     }
 }; // namespace MafiaMP::Core::UI

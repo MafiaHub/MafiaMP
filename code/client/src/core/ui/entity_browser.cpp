@@ -4,13 +4,13 @@
 #include <external/imgui/wrapper.h>
 #include <imgui.h>
 
-#include <sdk/entities/c_entity_list.h>
-#include <sdk/entities/c_player_2.h>
-#include <sdk/entities/c_human_2.h>
 #include <sdk/entities/c_car.h>
+#include <sdk/entities/c_entity_list.h>
+#include <sdk/entities/c_human_2.h>
+#include <sdk/entities/c_player_2.h>
 
-#include "core/modules/vehicle.h"
 #include "core/modules/human.h"
+#include "core/modules/vehicle.h"
 #include "game/helpers/controls.h"
 
 namespace MafiaMP::Core::UI {
@@ -27,7 +27,7 @@ namespace MafiaMP::Core::UI {
         if (!localPlayer)
             return;
 
-        ImGui::Begin("Entity Browser");
+        ImGui::Begin("Entity Browser", &_visible);
         {
             if (ImGui::Button("Select all")) {
                 for (size_t i = 0; i < (sizeof(_checkedTypes) / sizeof(_checkedTypes[0])); i++) _checkedTypes[i] = true;
@@ -67,8 +67,7 @@ namespace MafiaMP::Core::UI {
             static const char *streamFilterNames[]  = {"None", "Streamed", "Owned"};
             static const char *selectedStreamFilter = streamFilterNames[0];
 
-            if (ImGui::BeginCombo("Streamable filter", selectedStreamFilter))
-            {
+            if (ImGui::BeginCombo("Streamable filter", selectedStreamFilter)) {
                 for (int n = 0; n < IM_ARRAYSIZE(streamFilterNames); n++) {
                     bool is_selected = (selectedStreamFilter == streamFilterNames[n]);
                     if (ImGui::Selectable(streamFilterNames[n], is_selected)) {
@@ -125,8 +124,8 @@ namespace MafiaMP::Core::UI {
                         // TODO: better way to detect streamables
 
                         if (sceneObjectType == SDK::E_EntityType::E_ENTITY_CAR) {
-                            const auto veh = reinterpret_cast<SDK::C_Car* >(entity);
-                            
+                            const auto veh = reinterpret_cast<SDK::C_Car *>(entity);
+
                             e = Core::Modules::Vehicle::GetCarEntity(veh);
                         }
                         else if (sceneObjectType == SDK::E_EntityType::E_ENTITY_HUMAN /*|| sceneObjectType == SDK::E_EntityType::E_ENTITY_PLAYER*/) {
@@ -162,11 +161,13 @@ namespace MafiaMP::Core::UI {
                         auto entityPos = inspectedEntity->GetPos();
                         auto entityDir = inspectedEntity->GetDir();
 
-                        if (ImGui::DragFloat3("Pos", (float *)&entityPos, 0.1f, -2000.0f, 2000.0, "%.3f", 1.0f))
+                        if (ImGui::DragFloat3("Pos", (float *)&entityPos, 0.1f, -2000.0f, 2000.0f)) {
                             inspectedEntity->SetPos(entityPos);
+                        }
 
-                        if (ImGui::DragFloat3("Dir", (float *)&entityDir, 0.1f, -2000.0f, 2000.0, "%.3f", 1.0f))
+                        if (ImGui::DragFloat3("Dir", (float *)&entityDir, 0.01f, -1.0f, 1.0f)) {
                             inspectedEntity->SetDir(entityDir);
+                        }
 
                         if (ImGui::Button("Teleport to entity")) {
                             (reinterpret_cast<SDK::C_Actor *>(localPlayer))->SetPos(entityPos);

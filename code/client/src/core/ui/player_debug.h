@@ -3,9 +3,9 @@
 #include "utils/safe_win32.h"
 
 namespace MafiaMP::Core::UI {
-    class VehicleDebug final {
+    class PlayerDebug final {
       public:
-        VehicleDebug();
+        PlayerDebug();
 
         void Update();
 

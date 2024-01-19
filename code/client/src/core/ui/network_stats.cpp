@@ -10,7 +10,6 @@
 #include "game/helpers/controls.h"
 
 namespace MafiaMP::Core::UI {
-
     NetworkStats::NetworkStats() {}
 
     void NetworkStats::Update() {
@@ -18,8 +17,7 @@ namespace MafiaMP::Core::UI {
         if (!localPlayer)
             return;
 
-        static bool alwaysTrue = true;
-        ImGui::Begin("Network Stats", &alwaysTrue, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("Network Stats", &_visible, ImGuiWindowFlags_AlwaysAutoResize);
         {
             const auto net   = gApplication->GetNetworkingEngine()->GetNetworkClient();
             const auto state = net->GetConnectionState();
@@ -33,8 +31,8 @@ namespace MafiaMP::Core::UI {
             if (_nextStatsUpdate < Framework::Utils::Time::GetTime()) {
                 _nextStatsUpdate = Framework::Utils::Time::GetTime() + 500;
 
-                const auto peer   = net->GetPeer();
-                const auto stats  = peer->GetStatistics(peer->GetSystemAddressFromIndex(0), nullptr);
+                const auto peer  = net->GetPeer();
+                const auto stats = peer->GetStatistics(peer->GetSystemAddressFromIndex(0), nullptr);
                 ::memset(_stats, 0, sizeof(_stats));
                 SLNet::StatisticsToString(stats, _stats, 2);
             }
