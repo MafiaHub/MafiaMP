@@ -47,24 +47,31 @@ HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT fla
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     const auto app = MafiaMP::Core::gApplication.get();
     if (app && app->IsInitialized()) {
+        // Tick the input system from framework
         app->GetInput()->ProcessEvent(hWnd, msg, wParam, lParam);
 
+        // Push the input to ImGui
         if (app->GetImGUI()->ProcessEvent(hWnd, msg, wParam, lParam) == Framework::External::ImGUI::InputState::BLOCK) {
             return 0;
         }
     }
 
     switch (msg) {
-    /*case WM_SIZE:
-        auto gfx    = gCore->GetGfx();
-        auto device = gfx->GetDevice();
-        if (device != NULL && wParam != SIZE_MINIMIZED) {
-            auto swapchain = gfx->GetSwapChain();
-            gfx->CleanupRenderTarget();
-            swapchain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
-            gfx->CreateRenderTarget();
+    case WM_MOUSEMOVE:
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
+    case WM_MBUTTONDOWN:
+    case WM_MBUTTONUP: {
+        // Tick the web handler at each mouse event
+        if (app && app->IsInitialized()) {
+            if (app->GetWeb()) {
+                app->GetWeb()->ProcessMouseEvent(hWnd, msg, wParam, lParam);
+            }
         }
-        return 0;*/
+    } break;
+
     case WM_SYSCOMMAND:
         if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
             return 0;

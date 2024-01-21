@@ -46,6 +46,44 @@ struct VERTEX {
 };
 
 namespace MafiaMP::Core::UI {
+    void Web::ProcessMouseEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) const {
+        ultralight::MouseEvent ev;
+        ev.x = LOWORD(lParam); // TODO: revamp this because it fails on multiple monitors setups
+        ev.y = HIWORD(lParam); // TODO: revamp this because it fails on multiple monitors setups
+        switch (msg) {
+            case WM_MOUSEMOVE: {
+                ev.type = ultralight::MouseEvent::kType_MouseMoved;
+                ev.button = ultralight::MouseEvent::kButton_None;
+            } break;
+            case WM_LBUTTONDOWN: {
+                ev.type   = ultralight::MouseEvent::kType_MouseDown;
+                ev.button = ultralight::MouseEvent::kButton_Left;
+            } break;
+            case WM_LBUTTONUP: {
+                ev.type   = ultralight::MouseEvent::kType_MouseUp;
+                ev.button = ultralight::MouseEvent::kButton_Left;
+            } break;
+            case WM_RBUTTONDOWN: {
+                ev.type   = ultralight::MouseEvent::kType_MouseDown;
+                ev.button = ultralight::MouseEvent::kButton_Right;
+            } break;
+            case WM_RBUTTONUP: {
+                ev.type   = ultralight::MouseEvent::kType_MouseUp;
+                ev.button = ultralight::MouseEvent::kButton_Right;
+            } break;
+            case WM_MBUTTONDOWN: {
+                ev.type   = ultralight::MouseEvent::kType_MouseDown;
+                ev.button = ultralight::MouseEvent::kButton_Middle;
+            } break;
+            case WM_MBUTTONUP: {
+                ev.type   = ultralight::MouseEvent::kType_MouseUp;
+                ev.button = ultralight::MouseEvent::kButton_Middle;
+            } break;
+        }
+
+        _view->FireMouseEvent(ev);
+    }
+
     bool Web::Init() {
         using namespace ultralight;
 
@@ -63,7 +101,7 @@ namespace MafiaMP::Core::UI {
         cfg.is_transparent = true;
 
         _view = _renderer->CreateView(WEB_WIDTH, WEB_HEIGHT, cfg, nullptr); // TODO: use real res
-        _view->LoadURL("file:///index.html");
+        _view->LoadURL("https://youtube.fr");
         // TODO: set up DOMReady and JS object ready callback
 
         return true;
