@@ -37,6 +37,7 @@ HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT fla
         const auto app = MafiaMP::Core::gApplication.get();
         if (app && app->IsInitialized()) {
             app->GetImGUI()->Render();
+            app->GetWeb()->Render();
         }
     }
 

@@ -169,16 +169,12 @@ namespace MafiaMP::Core {
         if (_web) {
             _web->Update();
         }
-
-        if (GetAsyncKeyState(VK_F6) & 0x1) {
-            // _web->CreateView("test", 500, 500, "https://youtube.fr");
-        }
     }
 
     void Application::PostRender() {
-        if (_web) {
+        /*if (_web) {
             _web->Render();
-        }
+        }*/
     }
 
     void Application::InitNetworkingMessages() {

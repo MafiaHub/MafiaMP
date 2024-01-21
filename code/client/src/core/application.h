@@ -84,6 +84,10 @@ namespace MafiaMP::Core {
             return _luaVM;
         }
 
+        std::shared_ptr<UI::Web> GetWeb() const {
+            return _web;
+        }
+
         flecs::entity GetLocalPlayer() const {
             return _localPlayer;
         }

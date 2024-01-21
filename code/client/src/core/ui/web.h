@@ -1,8 +1,25 @@
 #pragma once
 #include <utils/safe_win32.h>
 
+#include <d3d11.h>
+
+#include <mutex>
+
+#include <Ultralight/Ultralight.h>
+
 namespace MafiaMP::Core::UI {
     class Web {
+      private:
+        ultralight::RefPtr<ultralight::Renderer> _renderer;
+        ultralight::RefPtr<ultralight::View> _view;
+        ID3D11Texture2D *_texture = nullptr;
+        ID3D11ShaderResourceView *_textureView = nullptr;
+        std::recursive_mutex _renderMutex;
+        bool _d3dInit = false;
+        uint8_t *_pixelData = nullptr;
+
+        void InitD3D();
+
       public:
         bool Init();
 
