@@ -98,6 +98,11 @@ namespace MafiaMP::Core::UI {
                 ev.type = ultralight::KeyEvent::kType_Char;
                 ev.text             = key;
                 ev.unmodified_text = ev.text;
+
+                // Make sure that pressing enter does not trigger this event
+                if (key[0] == 13) {
+                    return;
+                }
             } break;
         }
 
