@@ -44,6 +44,17 @@ struct VERTEX {
 
 namespace MafiaMP::Core::UI {
     void Web::ProcessMouseEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) const {
+        // Handle the mouse wheel event as separate from the other mouse events
+        if (msg == WM_MOUSEWHEEL) {
+            ultralight::ScrollEvent ev;
+            ev.type = ultralight::ScrollEvent::kType_ScrollByPixel;
+            ev.delta_x = 0;
+            ev.delta_y = GET_WHEEL_DELTA_WPARAM(wParam) * 0.8;
+            _view->FireScrollEvent(ev);
+            return;
+        }
+
+        // Handle other classic mouse events
         ultralight::MouseEvent ev;
         ev.x = LOWORD(lParam); // TODO: revamp this because it fails on multiple monitors setups
         ev.y = HIWORD(lParam); // TODO: revamp this because it fails on multiple monitors setups
