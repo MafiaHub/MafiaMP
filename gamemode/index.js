@@ -307,23 +307,23 @@ sdk.on("gamemodeUnloading", () => {
 });
 
 sdk.on("playerConnected", (player) => {
-    console.log(`[GAMEMODE] Player ${player.getNickname()} connected!`);
-    player.sendChatToAll(`[SERVER] ${player.getNickname()} has joined the session!`);
+    console.log(`[GAMEMODE] Player ${player.nickname} connected!`);
+    player.sendChatToAll(`[SERVER] ${player.nickname} has joined the session!`);
 
     player.addWeapon(2, 200); // TODO: doesn't works yet
     player.setPosition(SPAWN_POINT.pos);
     player.setRotation(SPAWN_POINT.rot);
-    player.sendChat(`[SERVER] Welcome ${player.getNickname()}!`);
+    player.sendChat(`[SERVER] Welcome ${player.nickname}!`);
 });
 
 sdk.on("playerDisconnected", (player) => {
-    console.log(`[GAMEMODE] Player ${player.getNickname()} disconnected!`);
-    player.sendChatToAll(`[SERVER] ${player.getNickname()} has left the session!`);
+    console.log(`[GAMEMODE] Player ${player.nickname} disconnected!`);
+    player.sendChatToAll(`[SERVER] ${player.nickname} has left the session!`);
 });
 
 sdk.on("playerDied", (player) => {
-    console.log(`[GAMEMODE] Player ${player.getNickname()} died!`);
-    player.sendChatToAll(`[SERVER] Player ${player.getNickname()} died!`);
+    console.log(`[GAMEMODE] Player ${player.nickname} died!`);
+    player.sendChatToAll(`[SERVER] Player ${player.nickname} died!`);
 
     // Respawn the player
     player.setHealth(100.0);
@@ -332,14 +332,14 @@ sdk.on("playerDied", (player) => {
 });
 
 sdk.on("chatMessage", (player, message) => {
-    console.log(`[GAMEMODE] Player ${player.getNickname()} said: ${message}`);
-    sdk.Chat.sendToAll(`<${player.getNickname()}>: ${message}`);
+    console.log(`[GAMEMODE] Player ${player.nickname} said: ${message}`);
+    sdk.Chat.sendToAll(`<${player.nickname}>: ${message}`);
 });
 
 const REGISTERED_CHAT_COMMANDS = new Map();
 
 sdk.on("chatCommand", (player, message, command, args) => {
-    console.log(`[GAMEMODE] Player ${player.getNickname()} used: ${command}. (${message})`);
+    console.log(`[GAMEMODE] Player ${player.nickname} used: ${command}. (${message})`);
 
     const foundCommand = REGISTERED_CHAT_COMMANDS.get(command);
 
@@ -356,7 +356,7 @@ function RegisterChatCommand(name, handler) {
 }
 
 RegisterChatCommand("showArgs", (player, message, command, args) => {
-    sdk.Chat.sendToAll(`[SERVER] Player ${player.getNickname()} used /showArgs with args: ${args}`);
+    sdk.Chat.sendToAll(`[SERVER] Player ${player.nickname} used /showArgs with args: ${args}`);
 });
 
 RegisterChatCommand("heal", (player, message, command, args) => {
