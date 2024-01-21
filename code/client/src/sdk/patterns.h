@@ -108,6 +108,7 @@ namespace SDK {
 
         // C_GameAudioModule
         uint64_t C_GameAudioModule__GetAudioModule    = 0x0;
+
         uint64_t C_GameAudioModule__SetCutsceneVolume = 0x0;
         uint64_t C_GameAudioModule__SetDialogueVolume = 0x0;
         uint64_t C_GameAudioModule__SetDynamicRange   = 0x0;
@@ -136,6 +137,9 @@ namespace SDK {
 
         // C_GameTrafficModule
         uint64_t C_GameTrafficModule__GetInstance = 0x0;
+
+        // C_GameRenderingSystemModule
+        uint64_t C_GameRenderingSystemModule__GetGameRenderingSystemModule = 0x0;
 
         // C_GfxEnvironmentEffects
         uint64_t C_GfxEnvironmentEffects__Instance = 0x0;

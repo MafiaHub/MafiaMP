@@ -158,6 +158,9 @@ namespace SDK {
         // C_GameTrafficModule
         gPatterns.C_GameTrafficModule__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 80 7E 07 00");
 
+        // C_GameRenderingSystemModule
+        gPatterns.C_GameRenderingSystemModule__GetGameRenderingSystemModule = hook::get_opcode_address("E8 ? ? ? ? 45 33 C0 0F B6 D3");
+
         // C_GfxEnvironmentEffects
         uint64_t C_GfxEnvironmentEffects       = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 05 ? ? ? ? 48 8B 40 28 48 8B 40 28"));
         uint8_t *C_GfxEnvironmentEffects_Bytes = reinterpret_cast<uint8_t *>(C_GfxEnvironmentEffects);
