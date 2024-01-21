@@ -57,6 +57,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     }
 
     switch (msg) {
+    // Web handler inputs
     case WM_MOUSEMOVE:
     case WM_LBUTTONDOWN:
     case WM_LBUTTONUP:
@@ -64,10 +65,21 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_RBUTTONUP:
     case WM_MBUTTONDOWN:
     case WM_MBUTTONUP: {
-        // Tick the web handler at each mouse event
         if (app && app->IsInitialized()) {
             if (app->GetWeb()) {
                 app->GetWeb()->ProcessMouseEvent(hWnd, msg, wParam, lParam);
+            }
+        }
+    } break;
+
+    case WM_CHAR:
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
+    case WM_KEYUP:
+    case WM_SYSKEYUP: {
+        if (app && app->IsInitialized()) {
+            if (app->GetWeb()) {
+                app->GetWeb()->ProcessKeyboardEvent(hWnd, msg, wParam, lParam);
             }
         }
     } break;

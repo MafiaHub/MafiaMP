@@ -27,5 +27,6 @@ namespace MafiaMP::Core::UI {
         void Render();
 
         void ProcessMouseEvent(HWND, UINT, WPARAM, LPARAM) const;
+        void ProcessKeyboardEvent(HWND, UINT, WPARAM, LPARAM) const;
     };
 }

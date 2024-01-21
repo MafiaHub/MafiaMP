@@ -84,6 +84,30 @@ namespace MafiaMP::Core::UI {
         _view->FireMouseEvent(ev);
     }
 
+    void Web::ProcessKeyboardEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) const {
+        ultralight::KeyEvent ev;
+        switch (msg) {
+            case WM_KEYDOWN: {
+                ev.type = ultralight::KeyEvent::kType_RawKeyDown;
+            } break;
+            case WM_KEYUP: {
+                ev.type = ultralight::KeyEvent::kType_KeyUp;
+            } break;
+            case WM_CHAR: {
+                char key[2]         = {(char)wParam, 0};
+                ev.type = ultralight::KeyEvent::kType_Char;
+                ev.text             = key;
+                ev.unmodified_text = ev.text;
+            } break;
+        }
+
+        ev.virtual_key_code = wParam;
+        ev.native_key_code  = lParam;
+
+        ultralight::GetKeyIdentifierFromVirtualKeyCode(ev.virtual_key_code, ev.key_identifier);
+        _view->FireKeyEvent(ev);
+    }
+
     bool Web::Init() {
         using namespace ultralight;
 
@@ -101,7 +125,7 @@ namespace MafiaMP::Core::UI {
         cfg.is_transparent = true;
 
         _view = _renderer->CreateView(WEB_WIDTH, WEB_HEIGHT, cfg, nullptr); // TODO: use real res
-        _view->LoadURL("https://youtube.fr");
+        _view->LoadURL("https://google.com");
         // TODO: set up DOMReady and JS object ready callback
 
         return true;
