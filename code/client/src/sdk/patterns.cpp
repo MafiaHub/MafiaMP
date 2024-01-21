@@ -10,6 +10,8 @@ namespace SDK {
         gPatterns.C_Entity__DeactivateAddr = reinterpret_cast<uint64_t>(hook::pattern("40 53 48 83 EC ? 8B 41 ? 48 8B D9 25 ? ? ? ? 3D ? ? ? ?").get_first());
         gPatterns.C_Entity__ReleaseAddr    = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 ? 57 48 83 EC ? 8B 41 ? 48 8B D9 25 ? ? ? ?").get_first());
 
+        gPatterns.C_GameRenderingSystemModule__GetGameRenderingSystemModule = hook::get_opcode_address("E8 ? ? ? ? 45 33 C0 0F B6 D3");
+
         gPatterns.C_GameAudioModule__GetAudioModule = hook::get_opcode_address("E8 ? ? ? ? 48 8B C8 8D 53 51");
         gPatterns.C_GameAudioModule__SetCutsceneVolume = hook::get_opcode_address("E9 ? ? ? ? CC CC CC 48 8B 81 ? ? ? ? 89 90 ? ? ? ?");
         gPatterns.C_GameAudioModule__SetDialogueVolume = hook::get_opcode_address("E9 ? ? ? ? CC CC CC 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 49 8B F0 48 8B F9");
