@@ -10,6 +10,8 @@ namespace SDK {
         gPatterns.C_Entity__DeactivateAddr = reinterpret_cast<uint64_t>(hook::pattern("40 53 48 83 EC ? 8B 41 ? 48 8B D9 25 ? ? ? ? 3D ? ? ? ?").get_first());
         gPatterns.C_Entity__ReleaseAddr    = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 ? 57 48 83 EC ? 8B 41 ? 48 8B D9 25 ? ? ? ?").get_first());
 
+        gPatterns.C_GameAudioModule__GetAudioModule = hook::get_opcode_address("E8 ? ? ? ? 48 8B C8 8D 53 51");
+
         gPatterns.C_Game__GetGame = hook::get_opcode_address("E8 ? ? ? ? 0F B7 5B 20");
 
         gPatterns.C_GameInputModule__GetGameInputModule = hook::get_opcode_address("E8 ? ? ? ? 4C 8B F0 8B D7");

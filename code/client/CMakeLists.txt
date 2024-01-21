@@ -3,6 +3,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/luavm.cpp
     src/core/application.cpp
     src/core/dev_features.cpp
+    src/core/ui/audio_debug.cpp
     src/core/ui/console.cpp
     src/core/ui/chat.cpp
     src/core/ui/camera_studio.cpp

@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include "ui/audio_debug.h"
 #include "ui/camera_studio.h"
 #include "ui/entity_browser.h"
 #include "ui/network_stats.h"
@@ -31,6 +32,8 @@ namespace MafiaMP::Core {
         std::shared_ptr<UI::EntityBrowser> _entityBrowser {};
 
         std::shared_ptr<UI::CameraStudio> _cameraStudio {};
+
+        std::shared_ptr<UI::AudioDebug> _audioDebug {};
 
         std::shared_ptr<UI::PlayerDebug> _playerDebug {};
 
@@ -58,6 +61,7 @@ namespace MafiaMP::Core {
 
         void ToggleEntityBrowser();
         void ToggleCameraStudio();
+        void ToggleAudioDebug();
         void TogglePlayerDebug();
         void ToggleVehicleDebug();
         void ToggleNetworkStats();

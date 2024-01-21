@@ -15,6 +15,8 @@ namespace SDK {
 
         uint64_t C_Game__GetGame = 0x0;
 
+        uint64_t C_GameAudioModule__GetAudioModule = 0x0;
+
         uint64_t C_GameInputModule__GetGameInputModule = 0x0;
         uint64_t C_GameInputModule__PauseInput         = 0x0;
 

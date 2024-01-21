@@ -44,6 +44,7 @@ namespace MafiaMP::Core {
     DevFeatures::DevFeatures() {
         _entityBrowser = std::make_shared<UI::EntityBrowser>();
         _cameraStudio  = std::make_shared<UI::CameraStudio>();
+        _audioDebug    = std::make_shared<UI::AudioDebug>();
         _playerDebug   = std::make_shared<UI::PlayerDebug>();
         _vehicleDebug  = std::make_shared<UI::VehicleDebug>();
         _networkStats  = std::make_shared<UI::NetworkStats>();
@@ -61,6 +62,10 @@ namespace MafiaMP::Core {
 
         if (_cameraStudio->IsVisible()) {
             _cameraStudio->Update();
+        }
+
+        if (_audioDebug->IsVisible()) {
+            _audioDebug->Update();
         }
 
         if (_playerDebug->IsVisible()) {
@@ -213,6 +218,10 @@ namespace MafiaMP::Core {
 
     void DevFeatures::ToggleCameraStudio() {
         _cameraStudio->SetVisible(!_playerDebug->IsVisible());
+    }
+
+    void DevFeatures::ToggleAudioDebug() {
+        _audioDebug->SetVisible(!_audioDebug->IsVisible());
     }
 
     void DevFeatures::TogglePlayerDebug() {
@@ -574,6 +583,11 @@ namespace MafiaMP::Core {
                 if (ImGui::MenuItem("Camera Studio")) {
                     ToggleCameraStudio();
                 }
+
+                if (ImGui::MenuItem("Audio debug")) {
+                    ToggleAudioDebug();
+                }
+
                 if (ImGui::MenuItem("Player debug")) {
                     TogglePlayerDebug();
                 }
