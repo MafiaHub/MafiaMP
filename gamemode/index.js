@@ -275,7 +275,7 @@ const weatherSets = ["mm_030_molotov_cp_010_cine", "mm_150_boat_cp_010", "mm_210
 
 const SPAWN_POINT = {
     pos: sdk.Vector3(-985.871, -299.401, 2.1),
-    rot: sdk.Quaternion(0.301, 0.0, 0.0, -0.954),
+    rot: sdk.Quaternion(0.291, 0, 0, -0.957),
 };
 
 sdk.on("gamemodeLoaded", () => {
@@ -417,8 +417,15 @@ RegisterChatCommand("pos", (player, message, command, args) => {
             .toFixed(3)
             .replace(/\.?0+$/, "");
 
-    player.sendChat(`[SERVER] Position: ${parse(pos.x)}, ${parse(pos.y)}, ${parse(pos.z)}`);
-    player.sendChat(`[SERVER] Rotation: ${parse(rot.w)}, ${parse(rot.x)}, ${parse(rot.y)}, ${parse(rot.z)}`);
+    const posParsedMessage = `${parse(pos.x)}, ${parse(pos.y)}, ${parse(pos.z)}`
+    const rotParsedMessage = `${parse(rot.w)}, ${parse(rot.x)}, ${parse(rot.y)}, ${parse(rot.z)}`
+
+    player.sendChat(`[SERVER] Position: ${posParsedMessage}`);
+    player.sendChat(`[SERVER] Rotation: ${rotParsedMessage}`);
+
+    // Log in console for easy copy-paste
+    console.log(`[GAMEMODE] Player Position: ${posParsedMessage}`);
+    console.log(`[GAMEMODE] Player Rotation: ${rotParsedMessage}`);
 });
 
 RegisterChatCommand("veh", (player, message, command, args) => {

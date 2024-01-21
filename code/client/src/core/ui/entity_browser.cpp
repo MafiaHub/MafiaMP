@@ -161,7 +161,7 @@ namespace MafiaMP::Core::UI {
                         auto entityPos = inspectedEntity->GetPos();
                         auto entityDir = inspectedEntity->GetDir();
 
-                        if (ImGui::DragFloat3("Pos", (float *)&entityPos, 0.1f, -2000.0f, 2000.0f)) {
+                        if (ImGui::DragFloat3("Pos", (float *)&entityPos, 0.1f, -4500.0f, 4500.0f)) {
                             inspectedEntity->SetPos(entityPos);
                         }
 
