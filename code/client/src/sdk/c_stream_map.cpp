@@ -1,6 +1,5 @@
 #include "c_stream_map.h"
 
-#include <utils/hooking/hooking.h>
 #include "patterns.h"
 
 namespace SDK {
@@ -16,27 +15,27 @@ namespace SDK {
         hook::this_call(gPatterns.C_StreamMap__ClosePart, this);
     }
 
-    const char* C_StreamMap::GetGame() {
+    const char *C_StreamMap::GetGame() {
         return m_sGameName;
     }
 
-    const char* C_StreamMap::GetMission() {
+    const char *C_StreamMap::GetMission() {
         return m_sMissionName;
     }
 
-    const char* C_StreamMap::GetPart() {
+    const char *C_StreamMap::GetPart() {
         return m_sPartName;
     }
 
-    void C_StreamMap::OpenGame(const char* game) {
+    void C_StreamMap::OpenGame(const char *game) {
         hook::this_call(gPatterns.C_StreamMap__OpenGame, this, game);
     }
 
-    void C_StreamMap::OpenMission(const char* mission) {
+    void C_StreamMap::OpenMission(const char *mission) {
         hook::this_call(gPatterns.C_StreamMap__OpenMission, this, mission);
     }
 
-    void C_StreamMap::OpenPart(const char* part) {
+    void C_StreamMap::OpenPart(const char *part) {
         hook::this_call(gPatterns.C_StreamMap__OpenPart, this, part);
     }
-}
+} // namespace SDK

@@ -2,7 +2,7 @@
 
 #include "states.h"
 
-#include "../../sdk/c_game.h"
+#include "sdk/c_game.h"
 
 #include <utils/states/machine.h>
 

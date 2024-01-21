@@ -1,7 +1,5 @@
 #include "c_human_inventory.h"
 
-#include <utils/hooking/hooking.h>
-
 #include "../../patterns.h"
 
 namespace SDK {
@@ -40,4 +38,4 @@ namespace SDK {
     void C_HumanInventory::UseMedkit() {
         hook::this_call(gPatterns.C_HumanInventory__UseMedkit, this);
     }
-}
+} // namespace SDK

@@ -1,7 +1,5 @@
 #include "c_door.h"
 
-#include <utils/hooking/hooking.h>
-
 #include "../patterns.h"
 
 namespace SDK {
@@ -64,4 +62,4 @@ namespace SDK {
     void C_Door::DisableAction() {
         hook::this_call(gPatterns.C_Door__DisableAction, this);
     }
-}
+} // namespace SDK

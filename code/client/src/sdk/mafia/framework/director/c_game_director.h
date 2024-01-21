@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "../../../patterns.h"
 
 #include "../../../entities/c_entity.h"
 #include "../../../ue/sys/math/c_vector.h"
@@ -22,4 +22,4 @@ namespace SDK {
             int64_t *GetDistrict(ue::sys::math::C_Vector const &);
         };
     }; // namespace mafia::framework::director
-};    // namespace SDK
+};     // namespace SDK

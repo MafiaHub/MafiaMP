@@ -1,6 +1,6 @@
 #include "character_controller.h"
 
-#include "../../sdk/c_ie.h"
+#include "sdk/c_ie.h"
 
 #include "scoped_entity_type_faker.h"
 

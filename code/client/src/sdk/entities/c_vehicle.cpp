@@ -1,7 +1,5 @@
 #include "c_vehicle.h"
 
-#include <utils/hooking/hooking.h>
-
 #include "../patterns.h"
 
 namespace SDK {
@@ -86,13 +84,11 @@ namespace SDK {
         hook::this_call(gPatterns.C_Vehicle__SetWheelTintColor, this, color);
     }
 
-    void C_Vehicle::SetInteriorColors(ue::sys::math::C_Vector4 const *color1, ue::sys::math::C_Vector4 const *color2, ue::sys::math::C_Vector4 const *color3,
-                                      ue::sys::math::C_Vector4 const *color4, ue::sys::math::C_Vector4 const *color5) {
+    void C_Vehicle::SetInteriorColors(ue::sys::math::C_Vector4 const *color1, ue::sys::math::C_Vector4 const *color2, ue::sys::math::C_Vector4 const *color3, ue::sys::math::C_Vector4 const *color4, ue::sys::math::C_Vector4 const *color5) {
         hook::this_call(gPatterns.C_Vehicle__SetInteriorColors, this, color1, color2, color3, color4, color5);
     }
 
-    void C_Vehicle::GetInteriorColors(ue::sys::math::C_Vector4 *color1, ue::sys::math::C_Vector4 *color2, ue::sys::math::C_Vector4 *color3, ue::sys::math::C_Vector4 *color4,
-                                      ue::sys::math::C_Vector4 *color5) const {
+    void C_Vehicle::GetInteriorColors(ue::sys::math::C_Vector4 *color1, ue::sys::math::C_Vector4 *color2, ue::sys::math::C_Vector4 *color3, ue::sys::math::C_Vector4 *color4, ue::sys::math::C_Vector4 *color5) const {
         *color1 = m_InteriorColors[0];
         *color2 = m_InteriorColors[1];
         *color3 = m_InteriorColors[2];
@@ -146,31 +142,28 @@ namespace SDK {
     }
 
     void C_Vehicle::EnableRadio(bool enable) {
-
         // NB: Need to shift to (I assume to a radio) interface
-        void* shiftedThis = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(this) + 0x268);
+        void *shiftedThis = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(this) + 0x268);
         hook::this_call(gPatterns.C_Vehicle__EnableRadio, shiftedThis, enable);
     }
 
     void C_Vehicle::TurnRadioOn(bool on) {
-
-         // NB: Need to shift to (I assume to a radio) interface
-        void* shiftedThis = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(this) + 0x268);
+        // NB: Need to shift to (I assume to a radio) interface
+        void *shiftedThis = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(this) + 0x268);
         hook::this_call(gPatterns.C_Vehicle__TurnRadioOn, shiftedThis, on);
     }
 
-     uint32_t C_Vehicle::GetRadioStation() {
+    uint32_t C_Vehicle::GetRadioStation() {
         constexpr uint32_t RADIO_LAST = 5;
         return m_RadioSound ? m_RadioSound->GetCurrentStation() : RADIO_LAST;
-     }
+    }
 
     void C_Vehicle::ChangeRadioStation(uint32_t stationSelection) {
-
         // NB: Internally selects radio using E_RadioStationSelection.
         // In IDA, see C_GameMusicModule::SelectStation and C_AvailableStations::GetStationById
 
         // NB: Need to shift to (I assume to a radio) interface
-        void* shiftedThis = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(this) + 0x268);
+        void *shiftedThis = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(this) + 0x268);
         hook::this_call(gPatterns.C_Vehicle__ChangeRadioStation, shiftedThis, stationSelection);
     }
 

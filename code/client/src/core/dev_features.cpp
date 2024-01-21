@@ -14,6 +14,7 @@
 #include "game/helpers/controls.h"
 #include "game/helpers/human.h"
 #include "game/streaming/entity_factory.h"
+
 #include "sdk/c_game_traffic_module.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_crash_obj.h"
@@ -35,10 +36,11 @@
 
 #include "shared/game_rpc/human/human_changeskin.h"
 
-#include "../sdk/mafia/framework/c_mafia_dbs.h"
-#include "../sdk/mafia/framework/c_vehicles_database.h"
-#include "../sdk/ue/sys/sodb/c_sys_odb.h"
 #include "modules/human.h"
+
+#include "sdk/mafia/framework/c_mafia_dbs.h"
+#include "sdk/mafia/framework/c_vehicles_database.h"
+#include "sdk/ue/sys/sodb/c_sys_odb.h"
 
 namespace MafiaMP::Core {
     DevFeatures::DevFeatures() {

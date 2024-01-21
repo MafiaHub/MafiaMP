@@ -6,7 +6,7 @@
 
 #include <logging/logger.h>
 
-#include "../../sdk/mafia/ui/menu/c_menu_base.h"
+#include "sdk/mafia/ui/menu/c_menu_base.h"
 
 typedef int64_t(__fastcall *C_MenuBase__OnScriptedMenuEvent_t)(void *pThis, int, SDK::mafia::ui::menu::C_MenuBase::E_ScriptedMenuEvent);
 C_MenuBase__OnScriptedMenuEvent_t C_MenuBase__OnScriptedMenuEvent_original = nullptr;

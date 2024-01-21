@@ -4,7 +4,7 @@
 
 #include <logging/logger.h>
 
-#include "../../sdk/ue/sys/math/c_vector.h"
+#include "sdk/ue/sys/math/c_vector.h"
 
 struct S_ObjectToSpawn {
     char pad0[0x10];

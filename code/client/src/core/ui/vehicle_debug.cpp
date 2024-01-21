@@ -1,12 +1,12 @@
 #include "vehicle_debug.h"
+
 #include <external/imgui/wrapper.h>
 #include <imgui.h>
 
-#include "../../sdk/entities/c_car.h"
-#include "../../sdk/entities/c_player_2.h"
-#include "../../sdk/entities/c_vehicle.h"
-
-#include "../../sdk/ue/sys/math/c_vector.h"
+#include "sdk/entities/c_car.h"
+#include "sdk/entities/c_player_2.h"
+#include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/sys/math/c_vector.h"
 
 #include "game/helpers/controls.h"
 

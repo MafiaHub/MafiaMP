@@ -8,8 +8,9 @@
 
 #include "../../game/helpers/camera.h"
 #include "../../game/helpers/controls.h"
-#include "../../sdk/mafia/framework/c_mafia_framework.h"
-#include "../../sdk/mafia/framework/c_mafia_framework_interfaces.h"
+
+#include "sdk/mafia/framework/c_mafia_framework.h"
+#include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
 #include "../application.h"
 

@@ -1,8 +1,7 @@
 #include "c_car.h"
-#include "c_vehicle.h"
 #include "c_human_2.h"
+#include "c_vehicle.h"
 
-#include <utils/hooking/hooking.h>
 #include "../patterns.h"
 
 #ifdef NONSTEAM_SUPPORT
@@ -72,7 +71,7 @@ namespace SDK {
         }
     }
 
-    bool C_Car::SetSeatStatus(I_Human2 *human, unsigned int seatID, S_BaseSeat::E_BaseSeatStatus status){
+    bool C_Car::SetSeatStatus(I_Human2 *human, unsigned int seatID, S_BaseSeat::E_BaseSeatStatus status) {
         return hook::this_call<bool>(gPatterns.C_Car__SetSeatStatus, this, human, seatID, status);
     }
 
@@ -96,7 +95,7 @@ namespace SDK {
         hook::this_call<void>(gPatterns.C_Car__PosefujZimuVShopu, this, dirt);
     }
 
-    void C_Car::RestoreCar(){
+    void C_Car::RestoreCar() {
         hook::this_call<void>(gPatterns.C_Car__RestoreCar, this);
     }
 
