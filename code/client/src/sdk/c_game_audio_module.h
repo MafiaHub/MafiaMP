@@ -19,6 +19,14 @@ namespace SDK {
 
 
       public:
+
+          void SetMasterVolume(float);
+          void SetDialogueVolume(float);
+          void SetMusicVolume(float);
+          void SetSfxVolume(float);
+          void SetCutsceneVolume(float);
+          void SetDynamicRange(int);
+
         static C_GameAudioModule *GetAudioModule() {
             return hook::call<C_GameAudioModule *>(gPatterns.C_GameAudioModule__GetAudioModule);
         }

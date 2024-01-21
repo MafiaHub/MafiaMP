@@ -11,6 +11,12 @@ namespace SDK {
         gPatterns.C_Entity__ReleaseAddr    = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 ? 57 48 83 EC ? 8B 41 ? 48 8B D9 25 ? ? ? ?").get_first());
 
         gPatterns.C_GameAudioModule__GetAudioModule = hook::get_opcode_address("E8 ? ? ? ? 48 8B C8 8D 53 51");
+        gPatterns.C_GameAudioModule__SetCutsceneVolume = hook::get_opcode_address("E9 ? ? ? ? CC CC CC 48 8B 81 ? ? ? ? 89 90 ? ? ? ?");
+        gPatterns.C_GameAudioModule__SetDialogueVolume = hook::get_opcode_address("E9 ? ? ? ? CC CC CC 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 49 8B F0 48 8B F9");
+        gPatterns.C_GameAudioModule__SetMasterVolume   = hook::get_opcode_address("E9 ? ? ? ? CC CC CC 48 8B 49 20 E9 ? ? ? ?");
+        gPatterns.C_GameAudioModule__SetMusicVolume    = hook::get_opcode_address("E9 ? ? ? ? CC CC CC 48 89 5C 24 ? 57 48 83 EC 70 48 8B 59 70");
+        gPatterns.C_GameAudioModule__SetSfxVolume      = hook::get_opcode_address("E9 ? ? ? ? CC CC CC 48 8B C4 48 81 EC ? ? ? ? F3 0F 10 15 ? ? ? ? 0F 57 C0");
+        gPatterns.C_GameAudioModule__SetDynamicRange   = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC 20 8B DA 89 91 ? ? ? ? E8 ? ? ? ?"));
 
         gPatterns.C_Game__GetGame = hook::get_opcode_address("E8 ? ? ? ? 0F B7 5B 20");
 
