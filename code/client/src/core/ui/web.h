@@ -18,6 +18,9 @@ namespace MafiaMP::Core::UI {
         bool _d3dInit = false;
         uint8_t *_pixelData = nullptr;
 
+        int _width = 0;
+        int _height = 0;
+
         void InitD3D();
 
       public:

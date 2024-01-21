@@ -14,9 +14,6 @@
 #pragma comment(lib, "d3dcompiler") // Automatically link with d3dcompiler.lib as we are using D3DCompile() below.
 #endif
 
-constexpr int WEB_WIDTH = 1600;
-constexpr int WEB_HEIGHT = 900;
-
 struct WebData {
     ID3D11Buffer *pVB;
     ID3D11Buffer *pIB;
@@ -116,6 +113,13 @@ namespace MafiaMP::Core::UI {
     bool Web::Init() {
         using namespace ultralight;
 
+        // Grab the window dimensions
+        RECT rect;
+        GetClientRect(Game::gGlobals.window, &rect);
+        _width  = rect.right - rect.left;
+        _height = rect.bottom - rect.top;
+
+        // Initialize the platform
         Config config;
         Platform::instance().set_config(config);
 
@@ -129,7 +133,7 @@ namespace MafiaMP::Core::UI {
         cfg.is_accelerated = false;
         cfg.is_transparent = true;
 
-        _view = _renderer->CreateView(WEB_WIDTH, WEB_HEIGHT, cfg, nullptr); // TODO: use real res
+        _view = _renderer->CreateView(_width, _height, cfg, nullptr); // TODO: use real res
         _view->LoadURL("https://google.com");
         // TODO: set up DOMReady and JS object ready callback
 
@@ -164,14 +168,14 @@ namespace MafiaMP::Core::UI {
         const auto renderCtx = gApplication->GetRenderer()->GetD3D11Backend()->GetContext();
         const auto ctx       = renderCtx; // lazy
 
-        int size     = WEB_WIDTH * WEB_HEIGHT * 4; // TODO: calc from res
+        int size     = _width * _height * 4;
         {
             // TODO: Destroy the texture if window size has changed
             if (!_texture) {
                 D3D11_TEXTURE2D_DESC textureDesc;
                 ZeroMemory(&textureDesc, sizeof(textureDesc));
-                textureDesc.Width              = WEB_WIDTH; // width of the texture
-                textureDesc.Height             = WEB_HEIGHT; // height of the texture
+                textureDesc.Width              = _width; // width of the texture
+                textureDesc.Height             = _height; // height of the texture
                 textureDesc.MipLevels          = 1;
                 textureDesc.ArraySize          = 1;
                 textureDesc.Format             = DXGI_FORMAT_B8G8R8A8_UNORM; // texture format
@@ -191,13 +195,13 @@ namespace MafiaMP::Core::UI {
 
             D3D11_BOX destRegion;
             destRegion.left       = 0;
-            destRegion.right      = WEB_WIDTH;
+            destRegion.right      = _width;
             destRegion.top        = 0;
-            destRegion.bottom     = WEB_HEIGHT;
+            destRegion.bottom     = _height;
             destRegion.front      = 0;
             destRegion.back       = 1;
-            const auto rowPitch   = WEB_WIDTH * 4;
-            const auto depthPitch = rowPitch * WEB_HEIGHT;
+            const auto rowPitch   = _width * 4;
+            const auto depthPitch = rowPitch * _height;
 
             renderCtx->UpdateSubresource(_texture, 0, &destRegion, _pixelData, rowPitch, depthPitch);
         }
@@ -249,7 +253,7 @@ namespace MafiaMP::Core::UI {
         ctx->IAGetInputLayout(&old.InputLayout);
 
         // Apply scissor/clipping rectangle
-        const D3D11_RECT r = {0, 0, WEB_WIDTH, WEB_HEIGHT};
+        const D3D11_RECT r = {0, 0, _width, _height};
         ctx->RSSetScissorRects(1, &r);
 
         // Setup shader and vertex buffers
@@ -281,9 +285,9 @@ namespace MafiaMP::Core::UI {
                 return;
             VERTEX_CONSTANT_BUFFER *constant_buffer = (VERTEX_CONSTANT_BUFFER *)mapped_resource.pData;
             float L                                 = 0;
-            float R                                 = WEB_WIDTH;
+            float R                                 = _width;
             float T                                 = 0;
-            float B                                 = WEB_HEIGHT;
+            float B                                 = _height;
             float mvp[4][4]                         = {
                 {2.0f / (R - L), 0.0f, 0.0f, 0.0f},
                 {0.0f, 2.0f / (T - B), 0.0f, 0.0f},
