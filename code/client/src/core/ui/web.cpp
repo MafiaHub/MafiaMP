@@ -15,23 +15,23 @@
 #endif
 
 struct WebData {
-    ID3D11Buffer *pVB;
-    ID3D11Buffer *pIB;
-    ID3D11VertexShader *pVertexShader;
-    ID3D11InputLayout *pInputLayout;
-    ID3D11Buffer *pVertexConstantBuffer;
-    ID3D11PixelShader *pPixelShader;
-    ID3D11SamplerState *pSampler;
-    ID3D11RasterizerState *pRasterizerState;
-    ID3D11BlendState *pBlendState;
-    ID3D11DepthStencilState *pDepthStencilState;
+    ID3D11Buffer* pVB;
+    ID3D11Buffer* pIB;
+    ID3D11VertexShader* pVertexShader;
+    ID3D11InputLayout* pInputLayout;
+    ID3D11Buffer* pVertexConstantBuffer;
+    ID3D11PixelShader* pPixelShader;
+    ID3D11SamplerState* pSampler;
+    ID3D11RasterizerState* pRasterizerState;
+    ID3D11BlendState* pBlendState;
+    ID3D11DepthStencilState* pDepthStencilState;
 
     WebData() {
         memset(this, 0, sizeof(*this));
     }
 };
 
-WebData *bd = new WebData;
+WebData* bd = new WebData;
 
 struct VERTEX_CONSTANT_BUFFER {
     float mvp[4][4];
@@ -43,8 +43,16 @@ struct VERTEX {
 };
 
 namespace MafiaMP::Core::UI {
-    void Web::OnAddConsoleMessage(ultralight::View *, ultralight::MessageSource source, ultralight::MessageLevel level, const ultralight::String &message, uint32_t line_number, uint32_t column_number, const ultralight::String &source_id) {
+    void Web::OnAddConsoleMessage(ultralight::View*, ultralight::MessageSource source, ultralight::MessageLevel level, const ultralight::String& message, uint32_t line_number, uint32_t column_number, const ultralight::String& source_id) {
         Framework::Logging::GetLogger("Web")->debug("Console message: {}:{}:{}:{}", message.utf8().data(), line_number, column_number, source_id.utf8().data());
+    }
+
+    void Web::OnDOMReady(ultralight::View *caller, uint64_t frame_id, bool is_main_frame, const ultralight::String &url) {
+        Framework::Logging::GetLogger("Web")->debug("DOM ready");
+    }
+
+    void Web::OnWindowObjectReady(ultralight::View* caller, uint64_t frame_id, bool is_main_frame, const ultralight::String& url) {
+        Framework::Logging::GetLogger("Web")->debug("Window object ready");
     }
 
     void Web::ProcessMouseEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) const {
@@ -151,6 +159,7 @@ namespace MafiaMP::Core::UI {
         _view = _renderer->CreateView(_width, _height, cfg, nullptr); // TODO: use real res
         _view->LoadURL("https://google.com");
         _view->set_view_listener(this);
+        _view->set_load_listener(this);
         // TODO: set up DOMReady and JS object ready callback
 
         return true;
