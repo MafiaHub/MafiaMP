@@ -3,6 +3,7 @@
 #include "human.h"
 
 #include <flecs/flecs.h>
+#include <glm/glm.hpp>
 
 #include "game/helpers/controls.h"
 #include "game/helpers/human.h"
@@ -464,14 +465,14 @@ namespace MafiaMP::Core::Modules {
         if (e.get<Interpolated>()) {
             auto interp = e.get_mut<Interpolated>();
             // todo reset lerp
-            const auto humanPos = trackingData->human->GetPos();
             const auto humanRot = trackingData->human->GetRot();
-            interp->interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
+            const auto humanPos = trackingData->human->GetPos();
             interp->interpolator.GetRotation()->SetTargetValue({humanRot.w, humanRot.x, humanRot.y, humanRot.z}, tr->rot, MafiaMP::Core::gApplication->GetTickInterval());
+            interp->interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
         }
         else if (gApplication->GetLocalPlayer() != e.id()) {
-            SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
             SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
+            SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
             SDK::ue::sys::math::C_Matrix transform = {};
             transform.Identity();
             transform.SetRot(newRot);
@@ -479,15 +480,27 @@ namespace MafiaMP::Core::Modules {
             trackingData->human->SetTransform(transform);
         }
         else {
-            SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
             SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
+            SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
             SDK::ue::sys::math::C_Matrix transform = {};
             transform.Identity();
             transform.SetRot(newRot);
             transform.SetPos(newPos);
 
+            /**
+             * We use TeleportPlayer because it preloads the world (collisions).
+             * It also teleports the car the player is in if applicable.
+             *
+             * Since we don't know the player direction required by TeleportPlayer,
+             * we get it from the player rotation.
+             *
+             * TODO: preload the world instead of using TeleportPlayer
+             */
+            glm::mat4 rotMatrix                 = glm::mat4_cast(tr->rot);
+            SDK::ue::sys::math::C_Vector newDir = {-rotMatrix[1][0], rotMatrix[1][1], rotMatrix[1][2]};
             SDK::ue::C_CntPtr<uintptr_t> syncObject2;
-            SDK::GetPlayerTeleportModule()->TeleportPlayer(syncObject2, newPos, newPos, true, true, true, false);
+            SDK::GetPlayerTeleportModule()->TeleportPlayer(syncObject2, newPos, newDir, true, true, true, false);
+
             trackingData->human->SetTransform(transform);
         }
     }
