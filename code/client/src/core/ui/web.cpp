@@ -43,6 +43,10 @@ struct VERTEX {
 };
 
 namespace MafiaMP::Core::UI {
+    void Web::OnAddConsoleMessage(ultralight::View *, ultralight::MessageSource source, ultralight::MessageLevel level, const ultralight::String &message, uint32_t line_number, uint32_t column_number, const ultralight::String &source_id) {
+        Framework::Logging::GetLogger("Web")->debug("Console message: {}:{}:{}:{}", message.utf8().data(), line_number, column_number, source_id.utf8().data());
+    }
+
     void Web::ProcessMouseEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) const {
         // Handle the mouse wheel event as separate from the other mouse events
         if (msg == WM_MOUSEWHEEL) {
@@ -146,6 +150,7 @@ namespace MafiaMP::Core::UI {
 
         _view = _renderer->CreateView(_width, _height, cfg, nullptr); // TODO: use real res
         _view->LoadURL("https://google.com");
+        _view->set_view_listener(this);
         // TODO: set up DOMReady and JS object ready callback
 
         return true;

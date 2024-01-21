@@ -8,7 +8,7 @@
 #include <Ultralight/Ultralight.h>
 
 namespace MafiaMP::Core::UI {
-    class Web {
+    class Web: public ultralight::ViewListener {
       private:
         ultralight::RefPtr<ultralight::Renderer> _renderer;
         ultralight::RefPtr<ultralight::View> _view;
@@ -22,6 +22,8 @@ namespace MafiaMP::Core::UI {
         int _height = 0;
 
         void InitD3D();
+
+        void OnAddConsoleMessage(ultralight::View *, ultralight::MessageSource, ultralight::MessageLevel, const ultralight::String &, uint32_t, uint32_t, const ultralight::String &) override;
 
       public:
         bool Init();
