@@ -172,9 +172,6 @@ namespace MafiaMP::Core {
     }
 
     void Application::PostRender() {
-        /*if (_web) {
-            _web->Render();
-        }*/
     }
 
     void Application::InitNetworkingMessages() {
