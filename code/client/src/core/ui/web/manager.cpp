@@ -140,6 +140,8 @@ namespace MafiaMP::Core::UI::Web {
         // Remove the view from the list
         _views.erase(_views.begin() + id);
 
+        Framework::Logging::GetLogger("Web")->debug("Destroyed view with id {}", id);
+
         return true;
     }
 } // namespace MafiaMP::Core::UI::Web
