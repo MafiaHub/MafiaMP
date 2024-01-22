@@ -11,7 +11,8 @@ set(MAFIAMP_CLIENT_FILES
     src/core/ui/network_stats.cpp
     src/core/ui/player_debug.cpp
     src/core/ui/vehicle_debug.cpp
-    src/core/ui/web.cpp
+    src/core/ui/web/manager.cpp
+    src/core/ui/web/view.cpp
     src/core/states/initialize.cpp
     src/core/states/menu.cpp
     src/core/states/session_connected.cpp

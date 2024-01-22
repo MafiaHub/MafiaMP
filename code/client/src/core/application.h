@@ -10,7 +10,7 @@
 #include "luavm.h"
 #include "ui/chat.h"
 #include "ui/console.h"
-#include "ui/web.h"
+#include "ui/web/manager.h"
 
 #include "dev_features.h"
 
@@ -27,7 +27,7 @@ namespace MafiaMP::Core {
         std::shared_ptr<Framework::Utils::States::Machine> _stateMachine;
         std::shared_ptr<UI::MafiaConsole> _console;
         std::shared_ptr<UI::Chat> _chat;
-        std::shared_ptr<UI::Web> _web;
+        std::shared_ptr<UI::Web::Manager> _web;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
         std::shared_ptr<MafiaMP::Game::GameInput> _input;
@@ -84,7 +84,7 @@ namespace MafiaMP::Core {
             return _luaVM;
         }
 
-        std::shared_ptr<UI::Web> GetWeb() const {
+        std::shared_ptr<UI::Web::Manager> GetWeb() const {
             return _web;
         }
 

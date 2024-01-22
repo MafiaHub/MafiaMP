@@ -62,7 +62,7 @@ namespace MafiaMP::Core {
         _input            = std::make_shared<MafiaMP::Game::GameInput>();
         _console          = std::make_shared<UI::MafiaConsole>(_commandProcessor, _input);
         _chat             = std::make_shared<UI::Chat>();
-        _web              = std::make_shared<UI::Web>();
+        _web              = std::make_shared<UI::Web::Manager>();
         
         if (_web) {
             _web->Init();
