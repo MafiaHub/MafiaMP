@@ -39,7 +39,16 @@ struct VERTEX {
 };
 
 namespace MafiaMP::Core::UI::Web {
-    View::View(ultralight::RefPtr<ultralight::Renderer> renderer): _renderer(renderer) {}
+    View::View(ultralight::RefPtr<ultralight::Renderer> renderer): _renderer(renderer), _pixelData(nullptr), _d3dInitialized(false), _width(0), _height(0) {
+        _sdk = new SDK;
+    }
+
+    View::~View() {
+        if (_sdk) {
+            _sdk->Shutdown();
+            delete _sdk;
+        }
+    }
 
     bool View::Init(std::string &path, int width, int height) {
         // Initialize a view configuration
@@ -602,6 +611,9 @@ namespace MafiaMP::Core::UI::Web {
 
     void View::OnDOMReady(ultralight::View *caller, uint64_t frame_id, bool is_main_frame, const ultralight::String &url) {
         Framework::Logging::GetLogger("Web")->debug("DOM ready");
+
+        // Bind the SDK
+        _sdk->Init(caller);
     }
 
     void View::OnWindowObjectReady(ultralight::View *caller, uint64_t frame_id, bool is_main_frame, const ultralight::String &url) {

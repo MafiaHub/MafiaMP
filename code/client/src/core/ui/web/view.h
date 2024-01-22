@@ -8,16 +8,20 @@
 
 #include <Ultralight/Ultralight.h>
 
+#include "sdk.h"
+
 namespace MafiaMP::Core::UI::Web {
     class View : public ultralight::ViewListener, ultralight::LoadListener {
       private:
         ultralight::RefPtr<ultralight::Renderer> _renderer;
-        ultralight::RefPtr<ultralight::View> _internalView;
+        ultralight::RefPtr<ultralight::View> _internalView = nullptr;
 
-        uint8_t *_pixelData = nullptr;
+        SDK *_sdk = nullptr;
+
+        uint8_t *_pixelData;
         int _width;
         int _height;
-        bool _d3dInitialized = false;
+        bool _d3dInitialized;
 
         ID3D11Texture2D *_texture              = nullptr;
         ID3D11ShaderResourceView *_textureView = nullptr;
@@ -33,6 +37,7 @@ namespace MafiaMP::Core::UI::Web {
 
       public:
         View(ultralight::RefPtr<ultralight::Renderer>);
+        ~View();
 
         bool Init(std::string &, int, int);
 
