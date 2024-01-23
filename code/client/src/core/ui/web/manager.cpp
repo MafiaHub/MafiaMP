@@ -2,7 +2,7 @@
 
 #include <logging/logger.h>
 
-#include "../../../game/module.h"
+#include "game/module.h"
 
 namespace MafiaMP::Core::UI::Web {
     Manager::Manager() {}

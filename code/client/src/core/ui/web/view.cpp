@@ -1,6 +1,6 @@
 #include "view.h"
 
-#include "../../../game/module.h"
+#include "game/module.h"
 
 // DirectX
 #include <d3d11.h>
@@ -15,7 +15,6 @@ struct WebData {
     ID3D11Buffer *pIB;
     ID3D11VertexShader *pVertexShader;
     ID3D11InputLayout *pInputLayout;
-    ID3D11Buffer *pVertexConstantBuffer;
     ID3D11PixelShader *pPixelShader;
     ID3D11SamplerState *pSampler;
     ID3D11RasterizerState *pRasterizerState;
@@ -27,11 +26,7 @@ struct WebData {
     }
 };
 
-WebData *bd = new WebData;
-
-struct VERTEX_CONSTANT_BUFFER {
-    float mvp[4][4];
-};
+static WebData *bd = new WebData;
 
 struct VERTEX {
     float x, y;
@@ -90,11 +85,7 @@ namespace MafiaMP::Core::UI::Web {
         }
 
         {
-            static const char *vertexShader = "cbuffer vertexBuffer : register(b0) \
-            {\
-              float4x4 ProjectionMatrix; \
-            };\
-            struct VS_INPUT\
+            static const char *vertexShader = "struct VS_INPUT\
             {\
               float2 pos : POSITION;\
               float2 uv  : TEXCOORD0;\
@@ -132,17 +123,6 @@ namespace MafiaMP::Core::UI::Web {
                 return;
             }
             vertexShaderBlob->Release();
-
-            // Create the constant buffer
-            {
-                D3D11_BUFFER_DESC desc;
-                desc.ByteWidth      = sizeof(VERTEX_CONSTANT_BUFFER);
-                desc.Usage          = D3D11_USAGE_DYNAMIC;
-                desc.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
-                desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-                desc.MiscFlags      = 0;
-                device->CreateBuffer(&desc, NULL, &bd->pVertexConstantBuffer);
-            }
         }
 
         // Create the pixel shader
@@ -346,6 +326,8 @@ namespace MafiaMP::Core::UI::Web {
         }
         memcpy(_pixelData, pixels, size);
         surface->UnlockPixels();
+
+        // Draw cursor
     }
 
     void View::Render() {
@@ -426,7 +408,7 @@ namespace MafiaMP::Core::UI::Web {
         renderCtx->IASetIndexBuffer(bd->pIB, DXGI_FORMAT_R16_UINT, 0);
         renderCtx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         renderCtx->VSSetShader(bd->pVertexShader, NULL, 0);
-        renderCtx->VSSetConstantBuffers(0, 1, &bd->pVertexConstantBuffer);
+        renderCtx->VSSetConstantBuffers(0, 0, NULL);
         renderCtx->PSSetShader(bd->pPixelShader, NULL, 0);
         renderCtx->PSSetSamplers(0, 1, &bd->pSampler);
         renderCtx->GSSetShader(NULL, NULL, 0);
@@ -439,27 +421,6 @@ namespace MafiaMP::Core::UI::Web {
         renderCtx->OMSetBlendState(bd->pBlendState, blend_factor, 0xffffffff);
         renderCtx->OMSetDepthStencilState(bd->pDepthStencilState, 0);
         renderCtx->RSSetState(bd->pRasterizerState);
-
-        // Setup orthographic projection matrix into our constant buffer
-        {
-            D3D11_MAPPED_SUBRESOURCE mapped_resource;
-            if (renderCtx->Map(bd->pVertexConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource) != S_OK)
-                return;
-            VERTEX_CONSTANT_BUFFER *constant_buffer = (VERTEX_CONSTANT_BUFFER *)mapped_resource.pData;
-            float L                                 = 0;
-            float R                                 = _width;
-            float T                                 = 0;
-            float B                                 = _height;
-            float mvp[4][4]                         = {
-                {2.0f / (R - L), 0.0f, 0.0f, 0.0f},
-                {0.0f, 2.0f / (T - B), 0.0f, 0.0f},
-                {0.0f, 0.0f, 0.5f, 0.0f},
-                {(R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f},
-            };
-            memcpy(&constant_buffer->mvp, mvp, sizeof(mvp));
-            renderCtx->Unmap(bd->pVertexConstantBuffer, 0);
-        }
-
         renderCtx->PSSetShaderResources(0, 1, &_textureView);
         renderCtx->DrawIndexed(6, 0, 0);
 
