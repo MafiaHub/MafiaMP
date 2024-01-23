@@ -40,7 +40,7 @@ namespace MafiaMP::Core::States {
         bool shouldProceed = false;
 
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F9)) {
-            machine->RequestNextState(StateIds::Menu);
+            machine->RequestNextState(StateIds::MainMenu);
             shouldProceed = true;
         }
 
