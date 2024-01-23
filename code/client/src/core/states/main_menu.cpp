@@ -1,4 +1,4 @@
-#include "menu.h"
+#include "main_menu.h"
 #include "states.h"
 #include <utils/safe_win32.h>
 
@@ -15,19 +15,19 @@
 #include "../application.h"
 
 namespace MafiaMP::Core::States {
-    InMenuState::InMenuState() {}
+    MainMenuState::MainMenuState() {}
 
-    InMenuState::~InMenuState() {}
+    MainMenuState::~MainMenuState() {}
 
-    int32_t InMenuState::GetId() const {
-        return StateIds::Menu;
+    int32_t MainMenuState::GetId() const {
+        return StateIds::MainMenu;
     }
 
-    const char *InMenuState::GetName() const {
-        return "InMenu";
+    const char *MainMenuState::GetName() const {
+        return "MainMenu";
     }
 
-    bool InMenuState::OnEnter(Framework::Utils::States::Machine *) {
+    bool MainMenuState::OnEnter(Framework::Utils::States::Machine *) {
         _shouldDisplayWidget       = true;
         _shouldProceedConnection   = false;
         _shouldProceedOfflineDebug = false;
@@ -43,7 +43,7 @@ namespace MafiaMP::Core::States {
         return true;
     }
 
-    bool InMenuState::OnExit(Framework::Utils::States::Machine *) {
+    bool MainMenuState::OnExit(Framework::Utils::States::Machine *) {
         // Temp
         Game::Helpers::Camera::ResetBehindPlayer();
 
@@ -52,7 +52,7 @@ namespace MafiaMP::Core::States {
         return true;
     }
 
-    bool InMenuState::OnUpdate(Framework::Utils::States::Machine *machine) {
+    bool MainMenuState::OnUpdate(Framework::Utils::States::Machine *machine) {
         gApplication->GetImGUI()->PushWidget([this]() {
             if (!ImGui::Begin("Debug", &_shouldDisplayWidget, ImGuiWindowFlags_AlwaysAutoResize)) {
                 ImGui::End();

@@ -7,19 +7,15 @@
 #include <utils/states/machine.h>
 
 namespace MafiaMP::Core::States {
-    InitializeState::InitializeState() {
+    InitializeState::InitializeState() {}
 
-    }
-
-    InitializeState::~InitializeState() {
-
-    }
+    InitializeState::~InitializeState() {}
 
     int32_t InitializeState::GetId() const {
         return StateIds::Initialize;
     }
 
-    const char* InitializeState::GetName() const {
+    const char *InitializeState::GetName() const {
         return "Initialize";
     }
 
@@ -28,7 +24,7 @@ namespace MafiaMP::Core::States {
     }
 
     bool InitializeState::OnExit(Framework::Utils::States::Machine *machine) {
-        machine->RequestNextState(StateIds::Menu);
+        machine->RequestNextState(StateIds::MainMenu);
         return true;
     }
 
@@ -40,4 +36,4 @@ namespace MafiaMP::Core::States {
 
         return game->IsGameUp();
     }
-}
+} // namespace MafiaMP::Core::States
