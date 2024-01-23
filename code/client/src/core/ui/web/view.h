@@ -8,6 +8,8 @@
 
 #include <Ultralight/Ultralight.h>
 
+#include <glm/glm.hpp>
+
 #include "sdk.h"
 
 namespace MafiaMP::Core::UI::Web {
@@ -26,14 +28,18 @@ namespace MafiaMP::Core::UI::Web {
         ID3D11Texture2D *_texture              = nullptr;
         ID3D11ShaderResourceView *_textureView = nullptr;
         std::recursive_mutex _renderMutex;
+        ultralight::Cursor _cursor = ultralight::kCursor_Pointer;
+        glm::vec2 _cursorPos {};
 
       private:
         void OnAddConsoleMessage(ultralight::View *, ultralight::MessageSource, ultralight::MessageLevel, const ultralight::String &, uint32_t, uint32_t, const ultralight::String &) override;
         void OnDOMReady(ultralight::View *, uint64_t, bool, const ultralight::String &) override;
         void OnWindowObjectReady(ultralight::View *, uint64_t, bool, const ultralight::String &) override;
+        void OnChangeCursor(ultralight::View *caller, ultralight::Cursor cursor) override;
 
         void InitD3D();
         void ResetTextures();
+        void LoadCursorData(ultralight::Cursor cursor);
 
       public:
         View(ultralight::RefPtr<ultralight::Renderer>);
@@ -43,6 +49,7 @@ namespace MafiaMP::Core::UI::Web {
 
         void Update();
         void Render();
+        void RenderCursor();
 
         void ProcessMouseEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
         void ProcessKeyboardEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

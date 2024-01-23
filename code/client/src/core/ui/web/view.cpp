@@ -10,20 +10,24 @@
 #pragma comment(lib, "d3dcompiler") // Automatically link with d3dcompiler.lib as we are using D3DCompile() below.
 #endif
 
-struct WebData {
-    ID3D11Buffer *pVB;
-    ID3D11Buffer *pIB;
-    ID3D11VertexShader *pVertexShader;
-    ID3D11InputLayout *pInputLayout;
-    ID3D11PixelShader *pPixelShader;
-    ID3D11SamplerState *pSampler;
-    ID3D11RasterizerState *pRasterizerState;
-    ID3D11BlendState *pBlendState;
-    ID3D11DepthStencilState *pDepthStencilState;
+#include <unordered_map>
 
-    WebData() {
-        memset(this, 0, sizeof(*this));
-    }
+struct CursorData {
+    void *pixels;
+    int w, h;
+};
+
+struct WebData {
+    ID3D11Buffer *pVB {};
+    ID3D11Buffer *pIB {};
+    ID3D11VertexShader *pVertexShader {};
+    ID3D11InputLayout *pInputLayout {};
+    ID3D11PixelShader *pPixelShader {};
+    ID3D11SamplerState *pSampler {};
+    ID3D11RasterizerState *pRasterizerState {};
+    ID3D11BlendState *pBlendState {};
+    ID3D11DepthStencilState *pDepthStencilState {};
+    std::unordered_map<ultralight::Cursor, CursorData> _cursors;
 };
 
 static WebData *bd = new WebData;
@@ -46,6 +50,9 @@ namespace MafiaMP::Core::UI::Web {
     }
 
     bool View::Init(std::string &path, int width, int height) {
+        // Load default cursor
+        LoadCursorData(ultralight::kCursor_Pointer);
+
         // Initialize a view configuration
         ultralight::ViewConfig config;
         config.is_accelerated = false;
@@ -66,7 +73,7 @@ namespace MafiaMP::Core::UI::Web {
         _internalView->LoadURL(path.c_str());
 
         // Store the width/height
-        _width = width;
+        _width  = width;
         _height = height;
         return true;
     }
@@ -310,6 +317,145 @@ namespace MafiaMP::Core::UI::Web {
         renderCtx->UpdateSubresource(_texture, 0, &destRegion, _pixelData, rowPitch, depthPitch);
     }
 
+    void View::LoadCursorData(ultralight::Cursor cursor) {
+        using namespace ultralight;
+
+        if (bd->_cursors.find(cursor) != bd->_cursors.end())
+            return;
+
+        auto cursorId = IDC_ARROW;
+
+        switch (cursor) {
+        case kCursor_Pointer: cursorId = IDC_ARROW; break;
+        case kCursor_Cross: cursorId = IDC_CROSS; break;
+        case kCursor_Hand: cursorId = IDC_HAND; break;
+        case kCursor_IBeam: cursorId = IDC_IBEAM; break;
+        case kCursor_Wait: cursorId = IDC_WAIT; break;
+        case kCursor_Help: cursorId = IDC_HELP; break;
+        case kCursor_EastResize: cursorId = IDC_SIZEWE; break;
+        case kCursor_NorthResize: cursorId = IDC_SIZENS; break;
+        case kCursor_NorthEastResize: cursorId = IDC_SIZENESW; break;
+        case kCursor_NorthWestResize: cursorId = IDC_SIZENWSE; break;
+        case kCursor_SouthResize: cursorId = IDC_SIZENS; break;
+        case kCursor_SouthEastResize: cursorId = IDC_SIZENWSE; break;
+        case kCursor_SouthWestResize: cursorId = IDC_SIZENESW; break;
+        case kCursor_WestResize: cursorId = IDC_SIZEWE; break;
+        case kCursor_NorthSouthResize: cursorId = IDC_SIZENS; break;
+        case kCursor_EastWestResize: cursorId = IDC_SIZEWE; break;
+        case kCursor_NorthEastSouthWestResize: cursorId = IDC_SIZENESW; break;
+        case kCursor_NorthWestSouthEastResize: cursorId = IDC_SIZENWSE; break;
+        // The following cursors might not have direct Win32 equivalents.
+        case kCursor_ColumnResize:
+        case kCursor_RowResize:
+        case kCursor_MiddlePanning:
+        case kCursor_EastPanning:
+        case kCursor_NorthPanning:
+        case kCursor_NorthEastPanning:
+        case kCursor_NorthWestPanning:
+        case kCursor_SouthPanning:
+        case kCursor_SouthEastPanning:
+        case kCursor_SouthWestPanning:
+        case kCursor_WestPanning:
+        case kCursor_Move:
+        case kCursor_VerticalText:
+        case kCursor_Cell:
+        case kCursor_ContextMenu:
+        case kCursor_Alias:
+        case kCursor_Progress:
+        case kCursor_NoDrop:
+        case kCursor_Copy:
+        case kCursor_None:
+        case kCursor_NotAllowed:
+        case kCursor_ZoomIn:
+        case kCursor_ZoomOut:
+        case kCursor_Grab:
+        case kCursor_Grabbing:
+        case kCursor_Custom:
+            // Use a custom cursor or a default one like IDC_ARROW
+            cursorId = IDC_ARROW;
+            break;
+        default: cursorId = IDC_ARROW; break;
+        }
+
+        // Load the system cursor
+        HCURSOR hCursor = (HCURSOR)LoadCursor(0, cursorId);
+        if (hCursor == NULL) {
+            DWORD dwError = GetLastError();
+            printf("LoadImage failed with error %lu\n", dwError);
+            if (cursor != kCursor_Pointer) {
+                // Load fallback arrow cursor if we can't map the one requested.
+                bd->_cursors[cursor] = bd->_cursors[kCursor_Pointer];
+            }
+            return;
+        }
+
+        ICONINFO iconInfo = {0};
+        GetIconInfo(hCursor, &iconInfo);
+
+        HDC hdc        = GetDC(nullptr);
+
+        BITMAP bmpColor, bmpMask;
+        if (iconInfo.hbmColor)
+            GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmpColor);
+        if (iconInfo.hbmMask) {
+            GetObject(iconInfo.hbmMask, sizeof(BITMAP), &bmpMask);
+            /*For monochrome icons, the hbmMask is twice the height of the icon (with the AND mask on top and the XOR mask on the bottom), and hbmColor is NULL. 
+            Also, in this case the height should be an even multiple of two.*/
+            bmpMask.bmHeight /= 2;
+        }
+
+        BITMAP *bmp = iconInfo.hbmColor ? &bmpColor : &bmpMask;
+
+        // Prepare a buffer to receive the bitmap data
+        BITMAPINFO biColor = {0};
+        biColor.bmiHeader.biSize           = sizeof(BITMAPINFOHEADER);
+        biColor.bmiHeader.biWidth          = bmp->bmWidth;
+        biColor.bmiHeader.biHeight         = -bmp->bmHeight;
+        biColor.bmiHeader.biPlanes         = 1;
+        biColor.bmiHeader.biBitCount       = 32;
+        biColor.bmiHeader.biCompression    = BI_RGB;
+
+        // Get the actual bitmap data
+        BYTE *pPixels = new BYTE[bmp->bmWidth * bmp->bmHeight * 4];
+        memset(pPixels, 0x00, bmp->bmWidth * bmp->bmHeight * 4);
+
+        if (bmp == &bmpMask) {
+            char *pPixelMask = new char[bmp->bmWidth * bmp->bmHeight * 8];
+            GetDIBits(hdc, iconInfo.hbmMask, 0, bmp->bmHeight, &pPixelMask[0], &biColor, DIB_RGB_COLORS);
+
+            for (int y = 0; y < bmp->bmHeight; y++) {
+                for (int x = 0; x < bmp->bmWidth; x++) {
+                    int i = (y * bmp->bmWidth + x) * 4;
+
+                    bool andMask = pPixelMask[i] != 0;
+                    bool xorMask = pPixelMask[i+(bmp->bmHeight*bmp->bmWidthBytes)] != 0;
+
+                    if (!andMask) {
+                        *(DWORD *)&pPixels[i] = !!xorMask ? 0xFFFFFFFF : 0xFF000000;
+                    }
+                }
+            }
+
+            delete[] pPixelMask;
+        }
+        else {
+            GetDIBits(hdc, iconInfo.hbmColor, 0, bmp->bmHeight, &pPixels[0], &biColor, DIB_RGB_COLORS);
+        }
+
+        // Now we can populate CursorData
+        CursorData cursorData;
+        cursorData.pixels    = pPixels;
+        cursorData.w         = bmp->bmWidth;
+        cursorData.h         = bmp->bmHeight;
+        bd->_cursors[cursor] = cursorData;
+
+        // Perform cleanup
+        ReleaseDC(NULL, hdc);
+        DeleteObject(iconInfo.hbmColor);
+        DeleteObject(iconInfo.hbmMask);
+        DestroyIcon(hCursor);
+    }
+
     void View::Update() {
         if (!_internalView || !_internalView.get()) {
             return;
@@ -317,7 +463,7 @@ namespace MafiaMP::Core::UI::Web {
 
         std::lock_guard lock(_renderMutex);
 
-        auto surface  = (ultralight::BitmapSurface *)_internalView->surface();
+        auto surface = (ultralight::BitmapSurface *)_internalView->surface();
         void *pixels = surface->LockPixels();
         int size     = surface->size(); // TODO: calc from res
         // TODO: Realloc if size changes
@@ -327,7 +473,7 @@ namespace MafiaMP::Core::UI::Web {
         memcpy(_pixelData, pixels, size);
         surface->UnlockPixels();
 
-        // Draw cursor
+        RenderCursor();
     }
 
     void View::Render() {
@@ -351,50 +497,6 @@ namespace MafiaMP::Core::UI::Web {
         if (!_texture || !_textureView) {
             return;
         }
-
-        // Render ye
-        struct BACKUP_DX11_STATE {
-            UINT ScissorRectsCount, ViewportsCount;
-            D3D11_RECT ScissorRects[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
-            D3D11_VIEWPORT Viewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
-            ID3D11RasterizerState *RS;
-            ID3D11BlendState *BlendState;
-            FLOAT BlendFactor[4];
-            UINT SampleMask;
-            UINT StencilRef;
-            ID3D11DepthStencilState *DepthStencilState;
-            ID3D11ShaderResourceView *PSShaderResource;
-            ID3D11SamplerState *PSSampler;
-            ID3D11PixelShader *PS;
-            ID3D11VertexShader *VS;
-            ID3D11GeometryShader *GS;
-            UINT PSInstancesCount, VSInstancesCount, GSInstancesCount;
-            ID3D11ClassInstance *PSInstances[256], *VSInstances[256], *GSInstances[256]; // 256 is max according to PSSetShader documentation
-            D3D11_PRIMITIVE_TOPOLOGY PrimitiveTopology;
-            ID3D11Buffer *IndexBuffer, *VertexBuffer, *VSConstantBuffer;
-            UINT IndexBufferOffset, VertexBufferStride, VertexBufferOffset;
-            DXGI_FORMAT IndexBufferFormat;
-            ID3D11InputLayout *InputLayout;
-        };
-        BACKUP_DX11_STATE old = {};
-        old.ScissorRectsCount = old.ViewportsCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
-        renderCtx->RSGetScissorRects(&old.ScissorRectsCount, old.ScissorRects);
-        renderCtx->RSGetViewports(&old.ViewportsCount, old.Viewports);
-        renderCtx->RSGetState(&old.RS);
-        renderCtx->OMGetBlendState(&old.BlendState, old.BlendFactor, &old.SampleMask);
-        renderCtx->OMGetDepthStencilState(&old.DepthStencilState, &old.StencilRef);
-        renderCtx->PSGetShaderResources(0, 1, &old.PSShaderResource);
-        renderCtx->PSGetSamplers(0, 1, &old.PSSampler);
-        old.PSInstancesCount = old.VSInstancesCount = old.GSInstancesCount = 256;
-        renderCtx->PSGetShader(&old.PS, old.PSInstances, &old.PSInstancesCount);
-        renderCtx->VSGetShader(&old.VS, old.VSInstances, &old.VSInstancesCount);
-        renderCtx->VSGetConstantBuffers(0, 1, &old.VSConstantBuffer);
-        renderCtx->GSGetShader(&old.GS, old.GSInstances, &old.GSInstancesCount);
-
-        renderCtx->IAGetPrimitiveTopology(&old.PrimitiveTopology);
-        renderCtx->IAGetIndexBuffer(&old.IndexBuffer, &old.IndexBufferFormat, &old.IndexBufferOffset);
-        renderCtx->IAGetVertexBuffers(0, 1, &old.VertexBuffer, &old.VertexBufferStride, &old.VertexBufferOffset);
-        renderCtx->IAGetInputLayout(&old.InputLayout);
 
         // Apply scissor/clipping rectangle
         const D3D11_RECT r = {0, 0, _width, _height};
@@ -423,53 +525,30 @@ namespace MafiaMP::Core::UI::Web {
         renderCtx->RSSetState(bd->pRasterizerState);
         renderCtx->PSSetShaderResources(0, 1, &_textureView);
         renderCtx->DrawIndexed(6, 0, 0);
+    }
 
-        // Restore modified DX state
-        renderCtx->RSSetScissorRects(old.ScissorRectsCount, old.ScissorRects);
-        renderCtx->RSSetViewports(old.ViewportsCount, old.Viewports);
-        renderCtx->RSSetState(old.RS);
-        if (old.RS)
-            old.RS->Release();
-        renderCtx->OMSetBlendState(old.BlendState, old.BlendFactor, old.SampleMask);
-        if (old.BlendState)
-            old.BlendState->Release();
-        renderCtx->OMSetDepthStencilState(old.DepthStencilState, old.StencilRef);
-        if (old.DepthStencilState)
-            old.DepthStencilState->Release();
-        renderCtx->PSSetShaderResources(0, 1, &old.PSShaderResource);
-        if (old.PSShaderResource)
-            old.PSShaderResource->Release();
-        renderCtx->PSSetSamplers(0, 1, &old.PSSampler);
-        if (old.PSSampler)
-            old.PSSampler->Release();
-        renderCtx->PSSetShader(old.PS, old.PSInstances, old.PSInstancesCount);
-        if (old.PS)
-            old.PS->Release();
-        for (UINT i = 0; i < old.PSInstancesCount; i++)
-            if (old.PSInstances[i])
-                old.PSInstances[i]->Release();
-        renderCtx->VSSetShader(old.VS, old.VSInstances, old.VSInstancesCount);
-        if (old.VS)
-            old.VS->Release();
-        renderCtx->VSSetConstantBuffers(0, 1, &old.VSConstantBuffer);
-        if (old.VSConstantBuffer)
-            old.VSConstantBuffer->Release();
-        renderCtx->GSSetShader(old.GS, old.GSInstances, old.GSInstancesCount);
-        if (old.GS)
-            old.GS->Release();
-        for (UINT i = 0; i < old.VSInstancesCount; i++)
-            if (old.VSInstances[i])
-                old.VSInstances[i]->Release();
-        renderCtx->IASetPrimitiveTopology(old.PrimitiveTopology);
-        renderCtx->IASetIndexBuffer(old.IndexBuffer, old.IndexBufferFormat, old.IndexBufferOffset);
-        if (old.IndexBuffer)
-            old.IndexBuffer->Release();
-        renderCtx->IASetVertexBuffers(0, 1, &old.VertexBuffer, &old.VertexBufferStride, &old.VertexBufferOffset);
-        if (old.VertexBuffer)
-            old.VertexBuffer->Release();
-        renderCtx->IASetInputLayout(old.InputLayout);
-        if (old.InputLayout)
-            old.InputLayout->Release();
+    void View::RenderCursor() {
+        if (bd->_cursors.find(_cursor) == bd->_cursors.end())
+            return;
+
+        const auto &cursorData = bd->_cursors[_cursor];
+        for (int y = 0; y < cursorData.h; y++) {
+            for (int x = 0; x < cursorData.w; x++) {
+                int i  = (y * cursorData.w + x) * 4;
+                int bx = _cursorPos.x + x;
+                int by = _cursorPos.y + y;
+
+                if (bx >= 0 && bx < _width && by >= 0 && by < _height) {
+                    int bi             = (by * _width + bx) * 4;
+                    char *cursorPixels = (char *)cursorData.pixels;
+                    if (cursorPixels[i + 3]) {
+                        _pixelData[bi]     = cursorPixels[i + 0]; // B
+                        _pixelData[bi + 1] = cursorPixels[i + 1]; // G
+                        _pixelData[bi + 2] = cursorPixels[i + 2]; // R
+                    }
+                }
+            }
+        }
     }
 
     void View::ProcessMouseEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -497,8 +576,9 @@ namespace MafiaMP::Core::UI::Web {
         ev.y = HIWORD(lParam); // TODO: revamp this because it fails on multiple monitors setups
         switch (msg) {
         case WM_MOUSEMOVE: {
-            ev.type   = ultralight::MouseEvent::kType_MouseMoved;
-            ev.button = ultralight::MouseEvent::kButton_None;
+            ev.type    = ultralight::MouseEvent::kType_MouseMoved;
+            ev.button  = ultralight::MouseEvent::kButton_None;
+            _cursorPos = {ev.x, ev.y};
         } break;
         case WM_LBUTTONDOWN: {
             ev.type   = ultralight::MouseEvent::kType_MouseDown;
@@ -580,4 +660,12 @@ namespace MafiaMP::Core::UI::Web {
     void View::OnWindowObjectReady(ultralight::View *caller, uint64_t frame_id, bool is_main_frame, const ultralight::String &url) {
         Framework::Logging::GetLogger("Web")->debug("Window object ready");
     }
-}
+
+    void View::OnChangeCursor(ultralight::View *caller, ultralight::Cursor cursor) {
+        _cursor = cursor;
+
+        if (bd->_cursors.find(cursor) == bd->_cursors.end()) {
+            LoadCursorData(cursor);
+        }
+    }
+} // namespace MafiaMP::Core::UI::Web
