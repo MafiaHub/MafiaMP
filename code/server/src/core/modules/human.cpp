@@ -38,7 +38,7 @@ namespace MafiaMP::Core::Modules {
 
                 const auto carData = carEnt.get<Modules::Vehicle::CarData>();
                 if (carData) {
-                    for (int i = 0; i < 4 /* dynamic? */; ++i) {
+                    for (int i = 0; i < 4 /* TODO: use MAX_SEATS constexpr var */; ++i) {
                         if (e.id() != carData->seats[i])
                             streamer.rangeExemptEntities.insert(carData->seats[i]);
                     }
