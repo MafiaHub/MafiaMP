@@ -19,7 +19,7 @@ namespace SDK {
             }
 
             uint32_t SetName(const char *str) {
-                return hook::this_call<uint32_t>(gPatterns.C_HashName__ComputeHash, this, str);
+                return hook::this_call<uint32_t>(gPatterns.C_HashName__SetName, this, str);
             }
 
             // Conversion Operator
