@@ -9,6 +9,7 @@ namespace SDK {
           public:
 
             // Accessor for table items
+            // Todo(Greavesy): add a few operator overloads
             template <typename T>
             class C_AccessorConst {
               public:
@@ -18,10 +19,6 @@ namespace SDK {
 
                 bool IsValid() const {
                     return m_Item != nullptr;
-                }
-
-                T* operator->() const {
-                    return m_Item;
                 }
 
               private:

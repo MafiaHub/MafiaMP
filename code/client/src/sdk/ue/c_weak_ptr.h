@@ -7,20 +7,6 @@ namespace SDK {
         template <typename T>
         class C_WeakPtr {
           public:
-
-              T* Get() const {
-                return m_Ptr;
-              }
-
-              bool IsValid() const {
-                return m_Ptr != nullptr;
-              }
-
-              T* operator->() const {
-                return m_Ptr;
-              }
-
-          private:
             uintptr_t unk;
             T* m_Ptr = nullptr;
             uintptr_t unk3;
