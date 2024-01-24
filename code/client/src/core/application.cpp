@@ -3,7 +3,7 @@
 #include <logging/logger.h>
 
 #include "states/initialize.h"
-#include "states/menu.h"
+#include "states/main_menu.h"
 #include "states/session_connected.h"
 #include "states/session_connection.h"
 #include "states/session_disconnection.h"
