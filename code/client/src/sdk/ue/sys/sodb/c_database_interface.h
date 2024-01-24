@@ -18,6 +18,10 @@ namespace SDK {
                     return m_Item != nullptr;
                 }
 
+                T *operator->() const {
+                    return m_Item;
+                }
+
               private:
                 const T *m_Item = nullptr;
             };

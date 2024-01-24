@@ -341,10 +341,10 @@ namespace MafiaMP::Core {
         }
 
         // TODO(Greavesy): May not be 'random' if our application does not use srand, but not important as only debug feature
-        const uint32_t randomIndex = rand() % vehiclesDB.Get()->GetVehiclesCount();
+        const uint32_t randomIndex = rand() % vehiclesDB->GetVehiclesCount();
 
         using namespace SDK::mafia::framework;
-        const C_VehiclesDatabase::TItemAccessorConst &selectedCar = vehiclesDB.Get()->GetVehicleByIndex(randomIndex);
+        const C_VehiclesDatabase::TItemAccessorConst &selectedCar = vehiclesDB->GetVehicleByIndex(randomIndex);
         if (const auto *vehicle = selectedCar.Get()) {
             const auto vehicleID = vehicle->GetID();
             if (vehicle->GetID() == 0) {
