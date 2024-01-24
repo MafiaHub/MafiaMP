@@ -9,7 +9,7 @@
 
 <br />
 <div align="center">
-  Mafia: Definitive Edition Multiplayer!
+  Mafia: Multiplayer
 </div>
 
 <div align="center">

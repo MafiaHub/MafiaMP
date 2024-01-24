@@ -1,8 +1,8 @@
 #pragma once
 
-#include "sdk/ue/c_ptr.h"
-#include "sdk/ue/c_string.h"
-#include "sdk/ue/sys/math/c_vector.h"
+#include "../../ue/c_ptr.h"
+#include "../../ue/c_string.h"
+#include "../../ue/sys/math/c_vector.h"
 
 namespace SDK {
     namespace mafia::streaming {

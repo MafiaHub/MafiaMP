@@ -1,12 +1,12 @@
 #include "vehicle_debug.h"
+
 #include <external/imgui/wrapper.h>
 #include <imgui.h>
 
-#include "../../sdk/entities/c_car.h"
-#include "../../sdk/entities/c_player_2.h"
-#include "../../sdk/entities/c_vehicle.h"
-
-#include "../../sdk/ue/sys/math/c_vector.h"
+#include "sdk/entities/c_car.h"
+#include "sdk/entities/c_player_2.h"
+#include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/sys/math/c_vector.h"
 
 #include "game/helpers/controls.h"
 
@@ -23,7 +23,7 @@ namespace MafiaMP::Core::UI {
             auto currentVehicle = currentCar->GetVehicle();
 
             auto position = currentCar->GetPos();
-            if (ImGui::DragFloat3("Pos", (float *)&position, 0.1f, -2000.0f, 2000.0f)) {
+            if (ImGui::DragFloat3("Pos", (float *)&position, 0.1f, -4500.0f, 4500.0f)) {
                 currentCar->SetPos(position);
             }
 

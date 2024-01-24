@@ -1,7 +1,5 @@
 #include "c_navigation.h"
 
-#include <utils/hooking/hooking.h>
-
 #include "../../../patterns.h"
 
 namespace SDK {
@@ -10,7 +8,7 @@ namespace SDK {
             return hook::this_call<mafia::ui::navigation::C_Navigation *>(gPatterns.C_Navigation__GetInstance);
         }
 
-        void C_Navigation::EnableGPSCustomPath(std::vector<ue::sys::math::C_Vector> const& vectors) {
+        void C_Navigation::EnableGPSCustomPath(std::vector<ue::sys::math::C_Vector> const &vectors) {
             hook::this_call(gPatterns.C_Navigation__EnableGPSCustomPath, this, vectors);
         }
 
@@ -54,12 +52,12 @@ namespace SDK {
             return hook::this_call<bool>(gPatterns.C_Navigation__UnregisterId, this, id);
         }
 
-        bool C_Navigation::UnregisterHuman(I_Human2* human, bool unk) {
+        bool C_Navigation::UnregisterHuman(I_Human2 *human, bool unk) {
             return hook::this_call<bool>(gPatterns.C_Navigation__UnregisterHuman, this, human, unk);
         }
 
         bool C_Navigation::UnregisterVehicle(C_Actor *ent) {
             return hook::this_call<bool>(gPatterns.C_Navigation__UnregisterVehicle, this, ent);
         }
-    }
-}
+    } // namespace mafia::ui::navigation
+} // namespace SDK

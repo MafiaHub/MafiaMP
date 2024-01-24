@@ -1,9 +1,9 @@
 #include "luavm.h"
-#include "../sdk/patterns.h"
+
+#include "sdk/patterns.h"
 
 #include <MinHook.h>
 #include <logging/logger.h>
-#include <utils/hooking/hooking.h>
 
 #include <sstream>
 
@@ -12,7 +12,7 @@
 using namespace SDK;
 
 namespace MafiaMP::Core {
-    using lua_State = void;
+    using lua_State       = void;
     lua_State *g_luaState = nullptr;
 
     typedef int32_t(__cdecl *lua_pcall_t)(lua_State *L, int32_t nargs, int32_t nresults, int32_t errfunc);
@@ -85,9 +85,9 @@ namespace MafiaMP::Core {
     }
 
     static InitFunction init([]() {
-        MH_CreateHook(reinterpret_cast<void **>(gPatterns.Lua__pcallAddr), reinterpret_cast<void **>(lua_pcall_), reinterpret_cast<void **>(&plua_pcall));
-        MH_CreateHook(reinterpret_cast<void **>(gPatterns.Lua__loadbufferAddr), reinterpret_cast<void **>(luaL_loadbuffer_), reinterpret_cast<void **>(&pluaL_loadbuffer));
-        MH_CreateHook(reinterpret_cast<void **>(gPatterns.Lua__tostringAddr), reinterpret_cast<void **>(lua_tostring_), reinterpret_cast<void **>(&plua_tostring));
-        MH_CreateHook(reinterpret_cast<void **>(gPatterns.Lua__isstringAddr), reinterpret_cast<void **>(lua_isstring_), reinterpret_cast<void **>(&plua_isstring));
+        MH_CreateHook(reinterpret_cast<void **>(gPatterns.Lua__pcall), reinterpret_cast<void **>(lua_pcall_), reinterpret_cast<void **>(&plua_pcall));
+        MH_CreateHook(reinterpret_cast<void **>(gPatterns.Lua__loadbuffer), reinterpret_cast<void **>(luaL_loadbuffer_), reinterpret_cast<void **>(&pluaL_loadbuffer));
+        MH_CreateHook(reinterpret_cast<void **>(gPatterns.Lua__tostring), reinterpret_cast<void **>(lua_tostring_), reinterpret_cast<void **>(&plua_tostring));
+        MH_CreateHook(reinterpret_cast<void **>(gPatterns.Lua__isstring), reinterpret_cast<void **>(lua_isstring_), reinterpret_cast<void **>(&plua_isstring));
     });
 } // namespace MafiaMP::Core

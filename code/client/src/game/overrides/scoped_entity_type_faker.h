@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../sdk/entities/c_entity.h"
+#include "sdk/entities/c_entity.h"
 
 namespace MafiaMP::Game::Overrides {
     struct ScopedEntityTypeFaker {

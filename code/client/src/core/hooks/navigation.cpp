@@ -1,13 +1,17 @@
 #include <utils/safe_win32.h>
+
 #include <MinHook.h>
+
 #include <utils/hooking/hook_function.h>
 #include <utils/hooking/hooking.h>
 
 #include <logging/logger.h>
 
 #include "../application.h"
+
 #include "../../game/helpers/districts.h"
-#include "../../sdk/mafia/framework/director/c_game_director.h"
+
+#include "sdk/mafia/framework/director/c_game_director.h"
 
 typedef int64_t(__fastcall *C_Navigation__OnDistrictChange_t)(void *, SDK::mafia::framework::director::I_GameDirector::C_DistrictDefinition const &);
 C_Navigation__OnDistrictChange_t C_Navigation__OnDistrictChange_original = nullptr;

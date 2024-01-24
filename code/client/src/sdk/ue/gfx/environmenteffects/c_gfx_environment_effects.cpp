@@ -9,7 +9,7 @@ namespace SDK {
         }
 
         C_GfxEnvironmentEffects *C_GfxEnvironmentEffects::GetInstance() {
-            return *reinterpret_cast<C_GfxEnvironmentEffects **>(gPatterns.C_GfxEnvironmentEffects_Instance);
+            return *reinterpret_cast<C_GfxEnvironmentEffects **>(gPatterns.C_GfxEnvironmentEffects__Instance);
         }
     } // namespace ue::gfx::environmenteffects
 }

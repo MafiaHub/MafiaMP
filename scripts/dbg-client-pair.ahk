@@ -4,7 +4,7 @@ SendMode Input
 
 BinaryFolder := A_ScriptDir "\..\..\..\..\builds\build-64\bin"
 
-SetWorkingDir, %BinaryFolder% 
+SetWorkingDir, %BinaryFolder%
 
 ;
 ; First instance
@@ -18,7 +18,7 @@ WinSetTitle, mafiamp-cli-1
 WinMove, mafiamp-cli-1,, 0, (A_ScreenHeight / 1.5), (A_ScreenWidth / 2), (A_ScreenHeight / 3)
 
 ; game window
-WinWait Mafia: Advanced Multiplayer Edition
+WinWait Mafia: Multiplayer
 WinActivate
 WinSetTitle, mafiamp-game-1
 WinMove, mafiamp-game-1,, 0, 0,(A_ScreenWidth / 2), (A_ScreenHeight / 1.5)
@@ -36,7 +36,7 @@ WinSetTitle, mafiamp-cli-2
 WinMove, mafiamp-cli-2,, (A_ScreenWidth / 2), (A_ScreenHeight / 1.5), (A_ScreenWidth / 2), (A_ScreenHeight / 3)
 
 ; game window
-WinWait Mafia: Advanced Multiplayer Edition
+WinWait Mafia: Multiplayer
 WinActivate
 WinSetTitle, mafiamp-game-2
 WinMove, mafiamp-game-2,, (A_ScreenWidth / 2), 0,(A_ScreenWidth / 2), (A_ScreenHeight / 1.5)

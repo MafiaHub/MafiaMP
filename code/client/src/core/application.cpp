@@ -3,7 +3,7 @@
 #include <logging/logger.h>
 
 #include "states/initialize.h"
-#include "states/menu.h"
+#include "states/main_menu.h"
 #include "states/session_connected.h"
 #include "states/session_connection.h"
 #include "states/session_disconnection.h"
@@ -42,7 +42,7 @@ namespace MafiaMP::Core {
         // Create the state machine and initialize
         _stateMachine = std::make_shared<Framework::Utils::States::Machine>();
         _stateMachine->RegisterState<States::InitializeState>();
-        _stateMachine->RegisterState<States::InMenuState>();
+        _stateMachine->RegisterState<States::MainMenuState>();
         _stateMachine->RegisterState<States::SessionConnectionState>();
         _stateMachine->RegisterState<States::SessionConnectedState>();
         _stateMachine->RegisterState<States::SessionDisconnectionState>();
@@ -260,8 +260,12 @@ namespace MafiaMP::Core {
     }
 
     void Application::LockControls(bool lock) {
-        if (lock) _controlsLocked++;
-        else _controlsLocked = std::max(--_controlsLocked, 0);
+        if (lock) {
+            _controlsLocked++;
+        }
+        else {
+            _controlsLocked = std::max(--_controlsLocked, 0);
+        }
 
         if (_controlsLocked) {
             // Lock game controls

@@ -2,9 +2,13 @@
 
 #include "../ai/sight/c_human_detector.h"
 #include "../c_corpse_emitter.h"
+#include "../c_human_emitter.h"
+#include "../c_melee_emitter.h"
 #include "../c_weapon_emitter.h"
 #include "../game/ai/hear/c_actorear.h"
+#include "../game/ai/sight/c_actor_emitter.h"
 #include "../inventory/c_inventory_wrapper.h"
+#include "../mafia/health_system/c_health_system.h"
 #include "../ue/c_ptr.h"
 #include "../ue/game/audio/radio/c_radio_sound.h"
 #include "../ue/game/humainai/c_character_controller.h"
@@ -18,9 +22,11 @@
 #include "../ue/sys/math/c_vector.h"
 #include "../ue/sys/utils/c_hash_name.h"
 #include "c_actor.h"
+#include "human/c_human_ai_controller.h"
 #include "human/c_human_head_controller.h"
 #include "human/c_human_script.h"
 #include "human/c_human_weapon_controller.h"
+#include "c_entity_ownership_human_car.h"
 
 #include <cstdint>
 
@@ -32,29 +38,42 @@ namespace SDK {
       public:
         char pad0[0x100];                                                 // 0008 - 0108
         ai::sight::C_HumanDetector *m_pHumanDetector;                     // 0108 - 0110
-        char pad1[0x10];                                                  // 0110 - 0120
+        game::ai::sight::C_ActorEmitter *m_pUnkActorEmitter1;             // 0110 - 0118
+        char pad1[0x8];                                                   // 0118 - 0120
         game::ai::hear::C_ActorEar *m_pActorEar;                          // 0120 - 0128
         C_InventoryWrapper *m_pHumanInventory;                            // 0128 - 0130
         C_HumanScript *m_pHumanScript;                                    // 0130 - 0138
-        char pad2[0x10];                                                  // 0148 - 0148
+        C_HumanAIController *m_pHumanAIController;                        // 0138 - 0140
+        char pad2[0x8];                                                   // 0140 - 0148
         C_HumanWeaponController *m_pHumanWeaponController;                // 0148 - 0150
         ue::game::injury::C_InjuryAnalyser *m_pInjuryAnalyser;            // 0150 - 0158
         C_HumanHeadController *m_pHumanHeadController;                    // 0158 - 0160
         void *m_pUnkPtr;                                                  // 0160 - 0168
         C_CorpseEmitter *m_pCorpseEmitter;                                // 0168 - 0170
-        char pad3[0x38];                                                  // 0170 - 01A8
+        void *m_pUnkActorEmitter2;                                        // 0170 - 0178
+        void *m_pUnkActorEmitter3;                                        // 0178 - 0180
+        void *m_pUnkActorEmitter4;                                        // 0180 - 0188
+        game::ai::sight::C_ActorEmitter *m_pBattleSearchEmitter;          // 0188 - 0190
+        void *m_pUnkActorEmitter5;                                        // 0190 - 0198
+        void *m_pUnkActorEmitter6;                                        // 0198 - 01A0
+        void *m_pUnkActorEmitter7;                                        // 01A0 - 01A8
         C_WeaponEmitter *m_pWeaponEmitter;                                // 01A8 - 01B0
-        char pad4[0x18];                                                  // 01B0 - 01C8
+        char pad3[0x8];                                                   // 01B0 - 01B8
+        C_MeleeEmitter *m_pMeleeEmitter;                                  // 01B8 - 01C0
+        char pad4[0x8];                                                   // 01C0 - 01C8
         ue::game::humanai::C_CharacterState *m_pCharacterState;           // 01C8 - 01D0
-        char pad5[0x8];                                                   // 01D0 - 01D8
+        C_EntityOwnershipHumanCar *m_pEntityOwnershipHumanCar;            // 01D0 - 01D8
         ue::game::human::C_BehaviorCharacter *m_pBehaviorCharacter;       // 01D8 - 01E0
         float m_fHealth;                                                  // 01E0 - 01E4
         float m_fHealthMax;                                               // 01E4 - 01E8
         char pad6[0x10];                                                  // 01E8 - 01F8
         bool m_bInvulnerable;                                             // 01F8 - 01F9
-        char pad7[2];                                                     // 01F9 - 01FB
+        bool m_bDeath;                                                    // 01F9 - 01FA
+        char pad7[0x1];                                                   // 01FA - 01FB
         bool m_bDemigod;                                                  // 01FB - 01FC
-        char pad8[0xBC];                                                  // 01FC - 02B8
+        char pad8[0xA4];                                                  // 01FC - 02A0
+        mafia::health_system::C_HealthSystem *m_pHealthSystem;            // 02A0 - 02A8
+        char pad82[0x10];                                                 // 02A8 - 02B8
         float field_02B8;                                                 // 02B8 - 02BC
         float m_fWaterLevel;                                              // 02BC - 02C0
         bool m_bWasCarried;                                               // 02E2 - 02E3

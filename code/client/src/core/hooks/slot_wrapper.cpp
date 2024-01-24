@@ -4,19 +4,19 @@
 
 #include <logging/logger.h>
 
-#include "../../sdk/ue/sys/core/c_frame.h"
-#include "../../sdk/ue/sys/core/c_scene.h"
-#include "../../sdk/ue/sys/math/c_vector.h"
+#include "sdk/ue/sys/core/c_frame.h"
+#include "sdk/ue/sys/core/c_scene.h"
+#include "sdk/ue/sys/math/c_vector.h"
 
-#include "../../sdk/mafia/streaming/c_slot_wrapper.h"
+#include "sdk/mafia/streaming/c_slot_wrapper.h"
 
-#include "../../sdk/entities/c_actor.h"
-#include "../../sdk/ue/sys/utils/c_hash_name.h"
+#include "sdk/entities/c_actor.h"
+#include "sdk/ue/sys/utils/c_hash_name.h"
 
 typedef bool(__fastcall *C_SlotManagerWrapper__ConnectToQuota_t)(void *, SDK::mafia::streaming::I_SlotWrapper *, char const *, int, int);
 C_SlotManagerWrapper__ConnectToQuota_t C_SlotManagerWrapper__ConnectToQuota_original = nullptr;
 
-bool C_SlotManagerWrapper__ConnectToQuota(void* pThis, SDK::mafia::streaming::I_SlotWrapper* slotWrapper, char const* name, int slotType, int unk) {
+bool C_SlotManagerWrapper__ConnectToQuota(void *pThis, SDK::mafia::streaming::I_SlotWrapper *slotWrapper, char const *name, int slotType, int unk) {
     // Framework::Logging::GetLogger("Hooks")->debug("[Wrapper] Connected to quota {} for slot type {} and unk {} ({})", name, slotType, unk, slotWrapper->GetWrapperName());
     return C_SlotManagerWrapper__ConnectToQuota_original(pThis, slotWrapper, name, slotType, unk);
 }
@@ -24,7 +24,7 @@ bool C_SlotManagerWrapper__ConnectToQuota(void* pThis, SDK::mafia::streaming::I_
 typedef int64_t(__fastcall *C_SlotManagerWrapper__LoadData_t)(void *, char const *, SDK::ue::sys::core::C_Scene *, unsigned int, char const *, bool *, bool);
 C_SlotManagerWrapper__LoadData_t C_SlotManagerWrapper__LoadData_original = nullptr;
 
-int64_t C_SlotManagerWrapper__LoadData(void* pThis, char const* sdsName, SDK::ue::sys::core::C_Scene* scene, unsigned int unk, char const* dataName, bool* unk2, bool unk3) {
+int64_t C_SlotManagerWrapper__LoadData(void *pThis, char const *sdsName, SDK::ue::sys::core::C_Scene *scene, unsigned int unk, char const *dataName, bool *unk2, bool unk3) {
     // Framework::Logging::GetLogger("Hooks")->debug("[Wrapper] Loaded data = {} | {} | {}", sdsName, unk, dataName);
     return C_SlotManagerWrapper__LoadData_original(pThis, sdsName, scene, unk, dataName, unk2, unk3);
 }
@@ -32,7 +32,7 @@ int64_t C_SlotManagerWrapper__LoadData(void* pThis, char const* sdsName, SDK::ue
 typedef int64_t(__fastcall *C_Slot__LoadData_t)(void *, char const *, SDK::ue::sys::core::C_Scene *, unsigned int, void *, char const *, bool *, bool);
 C_Slot__LoadData_t C_Slot__LoadData_original = nullptr;
 
-int64_t C_Slot__LoadData(void *pThis, char const *sdsName, SDK::ue::sys::core::C_Scene *scene, unsigned int unk, void * unkPtr, char const *dataName, bool *unk2, bool unk3) {
+int64_t C_Slot__LoadData(void *pThis, char const *sdsName, SDK::ue::sys::core::C_Scene *scene, unsigned int unk, void *unkPtr, char const *dataName, bool *unk2, bool unk3) {
     // Framework::Logging::GetLogger("Hooks")->debug("Loaded data = {} | {} | {}", sdsName, unk, dataName);
     return C_Slot__LoadData_original(pThis, sdsName, scene, unk, unkPtr, dataName, unk2, unk3);
 }

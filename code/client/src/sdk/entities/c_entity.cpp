@@ -1,26 +1,25 @@
 #include "c_entity.h"
 
-#include <utils/hooking/hooking.h>
 #include "../patterns.h"
 
 namespace SDK {
     void C_Entity::GameInit() {
-        hook::this_call<void>(gPatterns.C_Entity__GameInitAddr, this);
+        hook::this_call<void>(gPatterns.C_Entity__GameInit, this);
     }
 
     void C_Entity::GameDone() {
-        hook::this_call<void>(gPatterns.C_Entity__GameDoneAddr, this);
+        hook::this_call<void>(gPatterns.C_Entity__GameDone, this);
     }
 
     void C_Entity::Activate() {
-        hook::this_call<void>(gPatterns.C_Entity__ActivateAddr, this);
+        hook::this_call<void>(gPatterns.C_Entity__Activate, this);
     }
 
     void C_Entity::Deactivate() {
-        hook::this_call<void>(gPatterns.C_Entity__DeactivateAddr, this);
+        hook::this_call<void>(gPatterns.C_Entity__Deactivate, this);
     }
 
     void C_Entity::Release() {
-        hook::this_call<void>(gPatterns.C_Entity__ReleaseAddr, this);
+        hook::this_call<void>(gPatterns.C_Entity__Release, this);
     }
-}
+} // namespace SDK

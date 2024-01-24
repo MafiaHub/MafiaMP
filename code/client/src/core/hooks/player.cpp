@@ -4,8 +4,8 @@
 
 #include <logging/logger.h>
 
-#include "../../sdk/entities/c_player_2.h"
-#include "../../sdk/c_game.h"
+#include "sdk/entities/c_player_2.h"
+#include "sdk/c_game.h"
 
 typedef bool(__fastcall *C_Player2__IsInputDisabled_t)(SDK::C_Player2 *, int);
 C_Player2__IsInputDisabled_t C_Player2__IsInputDisabled_Original = nullptr;

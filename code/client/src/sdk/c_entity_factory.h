@@ -1,7 +1,6 @@
 #pragma once
 
 #include <utils/hooking/hook_function.h>
-#include <utils/hooking/hooking.h>
 
 #include "entities/c_entity.h"
 

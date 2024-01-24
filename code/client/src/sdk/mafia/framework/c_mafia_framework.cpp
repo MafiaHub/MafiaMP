@@ -1,6 +1,5 @@
 #include "c_mafia_framework.h"
 
-#include <utils/hooking/hooking.h>
 #include "../../patterns.h"
 
 namespace SDK {
@@ -9,4 +8,4 @@ namespace SDK {
             return *reinterpret_cast<C_MafiaFramework **>(gPatterns.C_MafiaFramework__Instance);
         }
     }; // namespace mafia::framework
-}
+} // namespace SDK

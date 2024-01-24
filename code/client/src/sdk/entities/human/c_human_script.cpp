@@ -1,7 +1,5 @@
 #include "c_human_script.h"
 
-#include <utils/hooking/hooking.h>
-
 #include "../../c_game.h"
 #include "../c_human_2.h"
 

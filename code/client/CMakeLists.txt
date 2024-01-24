@@ -15,7 +15,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/ui/web/sdk.cpp
     src/core/ui/web/view.cpp
     src/core/states/initialize.cpp
-    src/core/states/menu.cpp
+    src/core/states/main_menu.cpp
     src/core/states/session_connected.cpp
     src/core/states/session_connection.cpp
     src/core/states/session_disconnection.cpp
