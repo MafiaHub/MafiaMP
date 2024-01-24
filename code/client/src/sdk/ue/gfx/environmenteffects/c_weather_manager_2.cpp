@@ -9,7 +9,7 @@ namespace SDK {
          * You should set SetDefaultTimeFlowSpeedMult or SetUserTimeFlowSpeedMult to 0 to disable time flow.
          */
         void C_WeatherManager2::EnableTimeFlow(bool enable) {
-            return hook::this_call<void>(gPatterns.C_WeatherManager2__EnableTimeFlow, this, enable);
+            hook::this_call<void>(gPatterns.C_WeatherManager2__EnableTimeFlow, this, enable);
         }
 
         float C_WeatherManager2::GetDayTimeHours() {
@@ -37,15 +37,15 @@ namespace SDK {
         }
 
         void C_WeatherManager2::SetDayTimeSec(float seconds) {
-            hook::this_call(gPatterns.C_WeatherManager2__SetDayTimeSec, this, seconds);
+            hook::this_call<void>(gPatterns.C_WeatherManager2__SetDayTimeSec, this, seconds);
         }
 
         void C_WeatherManager2::SetDefaultTimeFlowSpeedMult(float speedMult) {
-            return hook::this_call<void>(gPatterns.C_WeatherManager2__SetDefaultTimeFlowSpeedMult, this, speedMult);
+            hook::this_call<void>(gPatterns.C_WeatherManager2__SetDefaultTimeFlowSpeedMult, this, speedMult);
         }
 
         void C_WeatherManager2::SetUserTimeFlowSpeedMult(float speedMult) {
-            return hook::this_call<void>(gPatterns.C_WeatherManager2__SetUserTimeFlowSpeedMult, this, speedMult);
+            hook::this_call<void>(gPatterns.C_WeatherManager2__SetUserTimeFlowSpeedMult, this, speedMult);
         }
 
         /**
@@ -53,7 +53,7 @@ namespace SDK {
          * @param transitionSpeed Speed ​​at which we move from one weather to another. 0 for immediately.
          */
         void C_WeatherManager2::SetWeatherSet(ue::C_String const &weatherSetName, float transitionSpeed) {
-            hook::this_call(gPatterns.C_WeatherManager2__SetWeatherSet, this, weatherSetName, transitionSpeed);
+            hook::this_call<void>(gPatterns.C_WeatherManager2__SetWeatherSet, this, weatherSetName, transitionSpeed);
         }
     } // namespace ue::gfx::environmenteffects
 } // namespace SDK
