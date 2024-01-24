@@ -336,29 +336,29 @@ namespace MafiaMP::Core {
         }
 
         const auto vehiclesDB = mafiaDB->GetVehiclesDatabase();
-        if (!vehiclesDB.m_Ptr) {
+        if (!vehiclesDB.IsValid()) {
             return;
         }
 
         // TODO(Greavesy): May not be 'random' if our application does not use srand, but not important as only debug feature
-        const uint32_t randomIndex = rand() % vehiclesDB.m_Ptr->GetVehiclesCount();
+        const uint32_t randomIndex = rand() % vehiclesDB.Get()->GetVehiclesCount();
 
         using namespace SDK::mafia::framework;
-        const C_VehiclesDatabase::TItemAccessorConst &carByIndex = vehiclesDB.m_Ptr->GetVehicleByIndex(randomIndex);
-        if (const S_VehiclesTableItem* vehicle = carByIndex.Get())
-        {
-            if (vehicle->m_ID == 0)
-            {
+        const C_VehiclesDatabase::TItemAccessorConst &selectedCar = vehiclesDB.Get()->GetVehicleByIndex(randomIndex);
+        if (const auto *vehicle = selectedCar.Get()) {
+            const auto vehicleID = vehicle->GetID();
+            if (vehicle->GetID() == 0) {
                 // dud index, nothing to spawn
                 return;
             }
 
-            const char *modelName = &vehicle->m_ModelName[0];
+            const char *modelName = vehicle->GetModelName();
+            if (!modelName) {
+                Framework::Logging::GetLogger("Debug")->info("Skipping ID {}, encountered m_ModelName which is nullptr", vehicleID);
+                return;
+            }
 
-            // TODO(Greavesy): bit wise utilities, probably included in the public API of S_VehiclesTableItem
-            constexpr uint32_t TVF_CAR = (uint32_t)SDK::mafia::traffic::E_TrafficVehicleFlags::E_TVF_CAR;
-            if (((uint32_t)vehicle->m_VehicleFlags & TVF_CAR) != TVF_CAR) {
-
+            if (vehicle->HasVehicleFlags(SDK::mafia::traffic::E_TrafficVehicleFlags::E_TVF_CAR) == false) {
                 Framework::Logging::GetLogger("Debug")->info("Skipping {}, not E_TVF_CAR", modelName);
                 return;
             }
