@@ -62,6 +62,26 @@ namespace MafiaMP::Core::Modules {
                     metadata._sprintSpeed          = charController->GetSprintMoveSpeed();
                     metadata.weaponData.isAiming   = tracking.human->GetHumanWeaponController()->IsAiming();
 
+                    // Try to enter/exit vehicle if an action is pending
+                    if (metadata.carPassenger.pending) {
+                        if (!metadata.carPassenger.carId) {
+                            if (tracking.human->GetOwner()) {
+                                Game::Helpers::Human::RemoveFromCar(tracking.charController, (SDK::C_Car *)tracking.human->GetOwner(), metadata.carPassenger.forced);
+                            }
+                            metadata.carPassenger.pending = false;
+                        }
+                        else {
+                            const auto carEnt = gApplication->GetWorldEngine()->GetEntityByServerID(metadata.carPassenger.carId);
+                            if (carEnt.is_valid()) {
+                                const auto carData = carEnt.get<Core::Modules::Vehicle::Tracking>();
+                                if (carData->car) {
+                                    Game::Helpers::Human::PutIntoCar(tracking.charController, carData->car, metadata.carPassenger.seatId, metadata.carPassenger.forced);
+                                    metadata.carPassenger.pending = false;
+                                }
+                            }
+                        }
+                    }
+
                     // Current state-specific sync data
                     switch (metadata._charStateHandlerType) {
                     case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_MOVE: {
@@ -73,6 +93,8 @@ namespace MafiaMP::Core::Modules {
                     } break;
 
                     case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR: {
+                        if (metadata.carPassenger.pending)
+                            break;
                         auto human2CarWrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
                         // printf("id: %d\n", charController->GetCarHandler()->GetCarState());
                         if (human2CarWrapper && charController->GetCarHandler()->GetCarState() == 2) /* entering in progress */ {
@@ -88,7 +110,7 @@ namespace MafiaMP::Core::Modules {
                     } break;
                     }
 
-                    if (metadata._charStateHandlerType != SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
+                    if (!metadata.carPassenger.pending && metadata._charStateHandlerType != SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
                         // not in a vehicle, so make sure data is reset
                         metadata.carPassenger = {};
                     }
@@ -442,7 +464,7 @@ namespace MafiaMP::Core::Modules {
             }
 
             auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
-            if (!trackingData && trackingData->human) {
+            if (!trackingData || (trackingData && !trackingData->human)) {
                 return;
             }
 
@@ -450,6 +472,17 @@ namespace MafiaMP::Core::Modules {
 
             if (setHealth.HasValue()) {
                 Game::Helpers::Human::SetHealthPercent(trackingData->human, setHealth());
+            }
+
+            const auto carEnterExitAction = msg->carEnterExitAction;
+
+            if (carEnterExitAction.HasValue()) {
+                const auto data = carEnterExitAction();
+                auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+                updateData->carPassenger.carId = data.carId;
+                updateData->carPassenger.seatId = data.seatId;
+                updateData->carPassenger.forced = data.forced;
+                updateData->carPassenger.pending = true;
             }
         });
     }
