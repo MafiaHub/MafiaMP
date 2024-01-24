@@ -15,7 +15,7 @@ namespace SDK {
                 return m_Ptr != nullptr;
             }
 
-          private:
+          public:
             uintptr_t unk;
             T *m_Ptr = nullptr;
             uintptr_t unk3;
