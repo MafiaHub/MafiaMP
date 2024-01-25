@@ -652,13 +652,13 @@ namespace MafiaMP::Core::UI::Web {
 
     void View::OnDOMReady(ultralight::View *caller, uint64_t frame_id, bool is_main_frame, const ultralight::String &url) {
         Framework::Logging::GetLogger("Web")->debug("DOM ready");
-
-        // Bind the SDK
-        _sdk->Init(caller);
     }
 
     void View::OnWindowObjectReady(ultralight::View *caller, uint64_t frame_id, bool is_main_frame, const ultralight::String &url) {
         Framework::Logging::GetLogger("Web")->debug("Window object ready");
+
+        // Bind the SDK
+        _sdk->Init(caller);
     }
 
     void View::OnChangeCursor(ultralight::View *caller, ultralight::Cursor cursor) {
