@@ -15,16 +15,17 @@ namespace SDK {
         gPatterns.C_BehaviorCharacter__SetWAnimVariable_float = hook::get_opcode_address("E9 ? ? ? ? 83 FA 20");
 
         // C_Car
-        gPatterns.C_Car__CloseHood       = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC ? 48 8B 81 ? ? ? ? 33 DB 48 2B 81 ? ? ? ? 33 FF 48 C1 F8 ? 48 8B F1 4C 63 F0 85 C0 0F 8E ? ? ? "
-                                                                                              "? 48 89 6C 24 ? 0F 29 74 24 ? 0F 57 F6 66 66 0F 1F 84 00 ? ? ? ? 48 8B 86 ? ? ? ? 48 63 0C B8 48 8B 86 ? ? ? ? 48 8B 14 C8 33 C9 8B 42 ? 39 05 ? ? ? ? "
-                                                                                              "48 0F 45 CA 48 85 C9 74 ? 48 0F BF 49 ? 48 8B 86 ? ? ? ? 48 8B 14 C8 0F 2F 72 ? 73 ? 0F B6 86 ? ? ? ? 48 8D 8E ? ? ? ? C0 E8 ? 45 33 C0"));
-        gPatterns.C_Car__CloseTrunk      = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4F ? 4C 8D 47 ? BA ? ? ? ? E8 ? ? ? ? 84 C0 0F 84 ? ? ? ?");
-        gPatterns.C_Car__ExplodeCar      = hook::get_opcode_address("E8 ? ? ? ? 48 8B 86 ? ? ? ? 45 33 E4 48 2B 86 ? ? ? ?");
-        gPatterns.C_Car__ExplodeCar_2    = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 11 4C 24 ? 4C 8B DC 55"));
-        gPatterns.C_Car__GetDamage       = hook::get_opcode_address("E8 ? ? ? ? 0F 57 C9 0F 2E C1 75 ? 0F 28 C1");
-        gPatterns.C_Car__GetMotorDamage  = hook::get_opcode_address("E8 ? ? ? ? 49 8B CE 0F 28 F8 E8 ? ? ? ? 0F 28 F0");
-        gPatterns.C_Car__Lock            = hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? B8 ? ? ? ? C3");
-        gPatterns.C_Car__LockEntryPoints = hook::get_opcode_address("E8 ? ? ? ? 45 8D 7E ? 48 8B 4F ?");
+        gPatterns.C_Car__CloseHood           = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC ? 48 8B 81 ? ? ? ? 33 DB 48 2B 81 ? ? ? ? 33 FF 48 C1 F8 ? 48 8B F1 4C 63 F0 85 C0 0F 8E ? ? ? "
+                                                                                                      "? 48 89 6C 24 ? 0F 29 74 24 ? 0F 57 F6 66 66 0F 1F 84 00 ? ? ? ? 48 8B 86 ? ? ? ? 48 63 0C B8 48 8B 86 ? ? ? ? 48 8B 14 C8 33 C9 8B 42 ? 39 05 ? ? ? ? "
+                                                                                                      "48 0F 45 CA 48 85 C9 74 ? 48 0F BF 49 ? 48 8B 86 ? ? ? ? 48 8B 14 C8 0F 2F 72 ? 73 ? 0F B6 86 ? ? ? ? 48 8D 8E ? ? ? ? C0 E8 ? 45 33 C0"));
+        gPatterns.C_Car__CloseTrunk          = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4F ? 4C 8D 47 ? BA ? ? ? ? E8 ? ? ? ? 84 C0 0F 84 ? ? ? ?");
+        gPatterns.C_Car__ExplodeCar          = hook::get_opcode_address("E8 ? ? ? ? 48 8B 86 ? ? ? ? 45 33 E4 48 2B 86 ? ? ? ?");
+        gPatterns.C_Car__ExplodeCar_2        = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 11 4C 24 ? 4C 8B DC 55"));
+        gPatterns.C_Car__GetDamage           = hook::get_opcode_address("E8 ? ? ? ? 0F 57 C9 0F 2E C1 75 ? 0F 28 C1");
+        gPatterns.C_Car__GetFuelTankCapacity = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC 28 48 8B 81 ? ? ? ? 48 8B 48 08 48 8B 09 48 85 C9 74 1E"));
+        gPatterns.C_Car__GetMotorDamage      = hook::get_opcode_address("E8 ? ? ? ? 49 8B CE 0F 28 F8 E8 ? ? ? ? 0F 28 F0");
+        gPatterns.C_Car__Lock                = hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? B8 ? ? ? ? C3");
+        gPatterns.C_Car__LockEntryPoints     = hook::get_opcode_address("E8 ? ? ? ? 45 8D 7E ? 48 8B 4F ?");
 
         //NOTE: new version only
 #ifndef NONSTEAM_SUPPORT
@@ -34,23 +35,22 @@ namespace SDK {
         gPatterns.C_Car__OpenTrunk = hook::get_opcode_address("E8 ? ? ? ? 4D 85 F6 74 ? 49 8D 9E ? ? ? ?");
 
 #ifndef NONSTEAM_SUPPORT
-        gPatterns.C_Car__PosefujZimuVShopu = hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? 4C 8B 41 ?");
-#else
-        gPatterns.C_Car__PosefujZimuVShopu = hook::get_opcode_address("E8 ? ? ? ? 8B 55 60 83 FA FF");
-#endif
-
-#ifndef NONSTEAM_SUPPORT
         // TODO lol
         gPatterns.C_Car__RestoreCar = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4B 10 0F 57 C9");
 #else
-        //NOTE: todo
         gPatterns.C_Car__RestoreCar = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4B 10 0F 57 C9");
 #endif
+        gPatterns.C_Car__SetActualFuel   = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 81 ? ? ? ? 48 8B 48 08 48 8B 09 48 85 C9 0F 85 ? ? ? ? C3 CC CC CC CC CC CC CC CC 0F 28 C1"));
+        gPatterns.C_Car__SetMotorDamage  = hook::get_opcode_address("E8 ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 49 21 86 ? ? ? ?");
+        gPatterns.C_Car__SetSeatStatus   = hook::get_opcode_address("E8 ? ? ? ? 45 85 F6 8B C5");
+        gPatterns.C_Car__SetSpeed        = hook::get_opcode_address("E8 ? ? ? ? 48 8B 5C 24 ? 33 C0 48 83 C4 ? 5F C3 ? ? 48 83 EC ? 48 8B C2");
+        gPatterns.C_Car__SetTransparency = hook::get_opcode_address("E8 ? ? ? ? 4C 39 2D ? ? ? ?");
 
-        gPatterns.C_Car__SetMotorDamage    = hook::get_opcode_address("E8 ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 49 21 86 ? ? ? ?");
-        gPatterns.C_Car__SetSeatStatus     = hook::get_opcode_address("E8 ? ? ? ? 45 85 F6 8B C5");
-        gPatterns.C_Car__SetSpeed          = hook::get_opcode_address("E8 ? ? ? ? 48 8B 5C 24 ? 33 C0 48 83 C4 ? 5F C3 ? ? 48 83 EC ? 48 8B C2");
-        gPatterns.C_Car__SetTransparency   = hook::get_opcode_address("E8 ? ? ? ? 4C 39 2D ? ? ? ?");
+#ifndef NONSTEAM_SUPPORT
+        gPatterns.C_Car__SetVehicleDirty = hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? 4C 8B 41 ?");
+#else
+        gPatterns.C_Car__SetVehicleDirty = hook::get_opcode_address("E8 ? ? ? ? 8B 55 60 83 FA FF");
+#endif
         gPatterns.C_Car__Unlock            = hook::get_opcode_address("E8 ? ? ? ? C6 43 ? ? 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? ? C2 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? C2 ? ?");
         gPatterns.C_Car__UnlockEntryPoints = hook::get_opcode_address("E8 ? ? ? ? 48 8B 6C 24 ? 48 83 C4 ? 5E C3 ? ? ? ? ? ? ? ? ? 48 89 5C 24 ?");
 
@@ -399,12 +399,12 @@ namespace SDK {
         gPatterns.C_Vehicle__SetSpeed           = hook::get_opcode_address("E8 ? ? ? ? 49 8B CF E8 ? ? ? ? 45 0F 57 C9");
         gPatterns.C_Vehicle__SetSpeedLimit      = hook::get_opcode_address("E8 ? ? ? ? 48 8B 8B ? ? ? ? 48 85 C9 74 ? 48 8B 89 ? ? ? ?");
         gPatterns.C_Vehicle__SetSPZText         = hook::get_opcode_address("E8 ? ? ? ? 48 8D 5D ? BF ? ? ? ? 0F B7 13");
-        gPatterns.C_Vehicle__SetSteer           = hook::get_opcode_address("E8 ? ? ? ? 45 33 C9 44 89 A7 ? ? ? ?");
+        gPatterns.C_Vehicle__SetSteer           = hook::get_opcode_address("E8 ? ? ? ? 41 B1 01 89 BE ? ? ? ?");
         gPatterns.C_Vehicle__SetVehicleColor    = hook::get_opcode_address("E8 ? ? ? ? 8B 43 ? 89 87 ? ? ? ? 8B 43 ? 89 87 ? ? ? ? 83 7B ? ?");
         gPatterns.C_Vehicle__SetVehicleDirty    = hook::get_opcode_address("E9 ? ? ? ? ? ? ? ? ? ? ? ? ? ? 40 57 48 83 EC ? 48 8B 81 ? ? ? ?");
         gPatterns.C_Vehicle__SetVehicleMatrix   = hook::get_opcode_address("E8 ? ? ? ? 80 BD ? ? ? ? ? 74 0B");
         gPatterns.C_Vehicle__SetVehicleRust     = hook::get_opcode_address("E9 ? ? ? ? ? ? ? ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56");
-        gPatterns.C_Vehicle__SetWheelTintColor  = hook::get_opcode_address("E8 ? ? ? ? 45 89 B7 ? ? ? ? 41 89 B7 ? ? ? ?");
+        gPatterns.C_Vehicle__SetWheelColor      = hook::get_opcode_address("E8 ? ? ? ? 8B 43 4C 89 87 ? ? ? ?");
         gPatterns.C_Vehicle__SetWindowTintColor = hook::get_opcode_address("E8 ? ? ? ? 89 AE ? ? ? ? 4C 8D 9C 24 ? ? ? ?");
         gPatterns.C_Vehicle__TurnRadioOn        = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 B9 ? ? ? ? ? 44 0F B6 CA"));
 

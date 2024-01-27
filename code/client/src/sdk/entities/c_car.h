@@ -7,10 +7,7 @@ namespace SDK {
     class I_Human2;
 
     struct S_BaseSeat {
-        enum E_BaseSeatStatus {
-            OCCUPIED = 3,
-            EMPTY = 4
-        };
+        enum E_BaseSeatStatus { OCCUPIED = 3, EMPTY = 4 };
     };
 
     class C_Car: public C_Actor {
@@ -35,17 +32,18 @@ namespace SDK {
 
         void SetActualFuel(float fuel);
         float GetActualFuel() const;
+        float GetFuelTankCapacity() const;
 
         void SetTransparency(float transparency);
+
         void SetSpeed(float speed);
 
-        /*
-         * PosefujZimuVShopu - same function as SetVehicleDirt
-         */
-        void PosefujZimuVShopu(float dirt);
+        void SetVehicleDirty(float);
+
         void RestoreCar();
 
         int GetGear();
+
         float GetDamage() const;
 
         bool SetSeatStatus(I_Human2 *, unsigned int, S_BaseSeat::E_BaseSeatStatus);

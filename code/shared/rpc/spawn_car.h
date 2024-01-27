@@ -8,11 +8,12 @@ namespace MafiaMP::Shared::RPC {
     class SpawnCar final: public Framework::Networking::RPC::IRPC<SpawnCar> {
       private:
         SLNet::RakString _modelName {};
+
       public:
-        void SetModelName(const std::string& name) {
+        void SetModelName(const std::string &name) {
             _modelName = name.c_str();
         }
-        
+
         std::string GetModelName() {
             return _modelName.C_String();
         }

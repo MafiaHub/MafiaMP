@@ -31,8 +31,8 @@ namespace SDK {
         hook::this_call(gPatterns.C_Vehicle__SetHandbrake, this, force, arg2);
     }
 
-    void C_Vehicle::SetEngineOn(bool arg1, bool arg2) {
-        hook::this_call(gPatterns.C_Vehicle__SetEngineOn, this, arg1, arg2);
+    void C_Vehicle::SetEngineOn(bool on, bool arg2) {
+        hook::this_call(gPatterns.C_Vehicle__SetEngineOn, this, on, arg2);
     }
 
     void C_Vehicle::SetPower(float power) {
@@ -67,21 +67,26 @@ namespace SDK {
         hook::this_call(gPatterns.C_Vehicle__SetVehicleRust, this, rust);
     }
 
-    void C_Vehicle::SetVehicleColor(ue::sys::math::C_Vector4 const *color1, ue::sys::math::C_Vector4 const *color2, bool unk) {
-        hook::this_call(gPatterns.C_Vehicle__SetVehicleColor, this, color1, color2, unk);
+    void C_Vehicle::SetVehicleColor(ue::sys::math::C_Vector4 const *color1, ue::sys::math::C_Vector4 const *color2, bool metallic) {
+        hook::this_call(gPatterns.C_Vehicle__SetVehicleColor, this, color1, color2, metallic);
     }
 
     void C_Vehicle::GetVehicleColor(ue::sys::math::C_Vector4 *color1, ue::sys::math::C_Vector4 *color2) const {
-        *color1 = m_Color1;
-        *color2 = m_Color2;
+        *color1 = m_MaterialColor;
+        *color2 = m_MaterialColor1;
     }
 
     void C_Vehicle::SetWindowTintColor(const ue::sys::math::C_Vector4 &color) {
         hook::this_call(gPatterns.C_Vehicle__SetWindowTintColor, this, color);
     }
 
-    void C_Vehicle::SetWheelTintColor(const ue::sys::math::C_Vector4 &color) {
-        hook::this_call(gPatterns.C_Vehicle__SetWheelTintColor, this, color);
+    void C_Vehicle::SetWheelColor(ue::sys::math::C_Vector4 const *rimColor, ue::sys::math::C_Vector4 const *tireColor) {
+        hook::this_call(gPatterns.C_Vehicle__SetWheelColor, this, rimColor, tireColor);
+    }
+
+    void C_Vehicle::GetWheelColor(ue::sys::math::C_Vector4 *rimColor, ue::sys::math::C_Vector4 *tireColor) const {
+        *rimColor  = m_WheelColor;
+        *tireColor = m_TireColor;
     }
 
     void C_Vehicle::SetInteriorColors(ue::sys::math::C_Vector4 const *color1, ue::sys::math::C_Vector4 const *color2, ue::sys::math::C_Vector4 const *color3, ue::sys::math::C_Vector4 const *color4, ue::sys::math::C_Vector4 const *color5) {
