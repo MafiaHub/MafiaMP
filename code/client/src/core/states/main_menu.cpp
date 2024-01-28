@@ -22,6 +22,9 @@ namespace MafiaMP::Core::States {
     }
 
     bool MainMenuState::OnEnter(Framework::Utils::States::Machine *) {
+        // Reset the states
+        _shouldProceedOfflineDebug = false;
+
         // Lock the game controls
         Game::Helpers::Controls::Lock(true);
 
@@ -41,6 +44,12 @@ namespace MafiaMP::Core::States {
             _shouldProceedOfflineDebug = true;
         });
 
+        view->AddEventListener("EXIT_APP", [this](std::string eventPayload) {
+            Framework::Logging::GetLogger("Web")->debug("EXIT_APP event received");
+
+            TerminateProcess(GetCurrentProcess(), 0);
+        });
+
         return true;
     }
 
@@ -48,12 +57,12 @@ namespace MafiaMP::Core::States {
         // Grab the view from the application
         auto const view = gApplication->GetWeb()->GetView(gApplication->GetMainMenuViewId());
         if (!view) {
-            _shouldProceedOfflineDebug = false;
             return false;
         }
 
         // Unbind the event listeners
         view->RemoveEventListener("RUN_SANDBOX");
+        view->RemoveEventListener("EXIT_APP");
 
         // Hide the view
         view->Display(false);
