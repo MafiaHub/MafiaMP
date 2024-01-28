@@ -38,15 +38,13 @@ namespace MafiaMP::Core::States {
         view->Focus(true);
 
         // Bind the event listeners
-        view->AddEventListener("RUN_SANDBOX", [this](std::string eventPayload) {
-            Framework::Logging::GetLogger("Web")->debug("RUN_SANDBOX event received");
-            
+        view->AddEventListener("RUN_SANDBOX", [this](std::string eventPayload) {            
             _shouldProceedOfflineDebug = true;
         });
 
         view->AddEventListener("EXIT_APP", [this](std::string eventPayload) {
-            Framework::Logging::GetLogger("Web")->debug("EXIT_APP event received");
-
+            // TODO: do proper shutdown - this is just a quick hack
+            // Notify the server, etc etc etc
             TerminateProcess(GetCurrentProcess(), 0);
         });
 
