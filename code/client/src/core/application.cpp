@@ -341,6 +341,8 @@ namespace MafiaMP::Core {
             *tr     = msg->GetTransform();
 
             const auto ekind = e.get<Shared::Modules::Mod::EntityKind>();
+            if (!ekind)
+                return;
             switch (ekind->kind) {
             case Shared::Modules::Mod::MOD_PLAYER: Core::Modules::Human::UpdateTransform(e); break;
             case Shared::Modules::Mod::MOD_VEHICLE: Core::Modules::Vehicle::UpdateTransform(e); break;
