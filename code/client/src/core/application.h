@@ -53,6 +53,9 @@ namespace MafiaMP::Core {
 
         void PimpMyImGUI();
         void LockControls(bool lock);
+        bool AreControlsLocked() const {
+            return _controlsLocked > 0;
+        }
 
         std::shared_ptr<Framework::Utils::States::Machine> GetStateMachine() const {
             return _stateMachine;

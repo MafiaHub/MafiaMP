@@ -22,7 +22,7 @@ namespace MafiaMP::Shared::Modules {
             int gear               = 0;
             float handbrake        = 0.0f;
             bool hornState         = false;
-            char licensePlate[7]   = "";
+            char licensePlate[7]   = "M1-MP";
             LockState locked       = LockState::Unlocked;
             float power            = 0.0f;
             int radioId            = 0;
