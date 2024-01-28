@@ -36,10 +36,7 @@ namespace MafiaMP::Core::States {
         Game::Helpers::Camera::SetPos({-986.40686, -304.061798, 2.292042}, {-985.365356, -336.348083, 2.892426}, true);
 
         // Lock game controls
-        Game::Helpers::Controls::Lock(true);
-
-        // Enable cursor
-        gApplication->GetImGUI()->ShowCursor(true);
+        gApplication->LockControls(true);
         return true;
     }
 
@@ -47,8 +44,7 @@ namespace MafiaMP::Core::States {
         // Temp
         Game::Helpers::Camera::ResetBehindPlayer();
 
-        // Hide cursor
-        gApplication->GetImGUI()->ShowCursor(false);
+        gApplication->LockControls(false);
         return true;
     }
 
