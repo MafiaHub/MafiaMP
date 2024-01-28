@@ -1,8 +1,8 @@
 #pragma once
 
-#include "sdk/mafia/tables/table_defines.h"
-#include "sdk/mafia/tables/vehicle/vehicle_defines.h"
-#include "sdk/mafia/traffic/traffic_defines.h"
+#include "../../../mafia/tables/table_defines.h"
+#include "../../../mafia/tables/vehicle/vehicle_defines.h"
+#include "../../../mafia/traffic/traffic_defines.h"
 
 #include <utils/bitops.h>
 
