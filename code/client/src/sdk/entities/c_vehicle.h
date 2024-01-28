@@ -131,7 +131,7 @@ namespace SDK {
         float m_fPower;                                                    // 0x09D4
         char pad_09D8[76];                                                 // 0x09D8
         float m_fSteer;                                                    // 0x0A24 - 0x0A28 // 2596 - 2600 // 4
-        char pad_0A88[96];                                                 // 0xA28 - 0x0A88 // 2600 - 2696 // 96
+        char pad_0A88[96];                                                 // 0x0A28 - 0x0A88 // 2600 - 2696 // 96
         bool m_bHorn;                                                      // 0x0A88 - 0x0A89 // 2696 - 2697 // 1
         char pad_0AF0[103];                                                // 0x0A89 - 0x0AF0 // 2697 - 2800 // 103
         float m_fBrakeHealth1;                                             // 0x0AF0 - 0x0AF4 // 2800 - 2804 // 4
