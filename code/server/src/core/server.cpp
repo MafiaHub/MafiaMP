@@ -30,7 +30,7 @@ namespace MafiaMP {
 
         // Setup specific components - default values
         auto weather             = GetWorldEngine()->GetWorld()->get_mut<Core::Modules::Environment::Weather>();
-        weather->_weatherSetName = "mm_110_omerta_cp_010_cs_cs_park";
+        weather->_weatherSetName = "_default_game";
         weather->_dayTimeHours   = 11.0f;
     }
 
@@ -107,7 +107,7 @@ namespace MafiaMP {
                 Scripting::Chat::EventChatMessage(ent, text);
             }
         });
-        
+
         // test until we do it via nodejs builtins
         net->RegisterGameRPC<Shared::RPC::HumanChangeSkin>([this](SLNet::RakNetGUID guid, Shared::RPC::HumanChangeSkin *msg) {
             if (!msg->Valid())

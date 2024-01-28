@@ -4,6 +4,14 @@
 
 namespace SDK {
     namespace ue::gfx::environmenteffects {
+        /**
+         * When false, dynamic weather sets will not change if you change the time.
+         * You should set SetDefaultTimeFlowSpeedMult or SetUserTimeFlowSpeedMult to 0 to disable time flow.
+         */
+        void C_WeatherManager2::EnableTimeFlow(bool enable) {
+            hook::this_call<void>(gPatterns.C_WeatherManager2__EnableTimeFlow, this, enable);
+        }
+
         float C_WeatherManager2::GetDayTimeHours() {
             return hook::this_call<float>(gPatterns.C_WeatherManager2__GetDayTimeHours, this);
         }
@@ -12,21 +20,40 @@ namespace SDK {
             return hook::this_call<float>(gPatterns.C_WeatherManager2__GetDayTimeRel, this);
         }
 
-        void C_WeatherManager2::SetDayTimeHours(float time) {
-            hook::this_call<float>(gPatterns.C_WeatherManager2__SetDayTimeHours, this, time);
+        float C_WeatherManager2::GetDefaultTimeFlowSpeedMult() {
+            return hook::this_call<float>(gPatterns.C_WeatherManager2__GetDefaultTimeFlowSpeedMult, this);
         }
 
-        void C_WeatherManager2::SetDayTimeRel(float time) {
-            hook::this_call<float>(gPatterns.C_WeatherManager2__SetDayTimeRel, this, time);
+        float C_WeatherManager2::GetUserTimeFlowSpeedMult() {
+            return hook::this_call<float>(gPatterns.C_WeatherManager2__GetUserTimeFlowSpeedMult, this);
         }
 
-        void C_WeatherManager2::SetDayTimeSec(float time) {
-            // const auto C_WeatherManager2__SetDayTimeSecAddr = reinterpret_cast<uint64_t>(hook::pattern("").first());
-            // hook::this_call<float>(0x0000001421076A0, this, time);
+        bool C_WeatherManager2::IsTimeFlowEnabled() {
+            return hook::this_call<bool>(gPatterns.C_WeatherManager2__IsTimeFlowEnabled, this);
         }
 
-        void C_WeatherManager2::SetWeatherSet(ue::C_String const &preset, float time) {
-            hook::this_call(gPatterns.C_WeatherManager2__SetWeatherSet, this, preset, time);
+        void C_WeatherManager2::SetDayTimeHours(float hour) {
+            hook::this_call<void>(gPatterns.C_WeatherManager2__SetDayTimeHours, this, hour);
+        }
+
+        void C_WeatherManager2::SetDayTimeSec(float seconds) {
+            hook::this_call<void>(gPatterns.C_WeatherManager2__SetDayTimeSec, this, seconds);
+        }
+
+        void C_WeatherManager2::SetDefaultTimeFlowSpeedMult(float speedMult) {
+            hook::this_call<void>(gPatterns.C_WeatherManager2__SetDefaultTimeFlowSpeedMult, this, speedMult);
+        }
+
+        void C_WeatherManager2::SetUserTimeFlowSpeedMult(float speedMult) {
+            hook::this_call<void>(gPatterns.C_WeatherManager2__SetUserTimeFlowSpeedMult, this, speedMult);
+        }
+
+        /**
+         * @param weatherSetName Name of the weather set
+         * @param transitionSpeed Speed ​​at which we move from one weather to another. 0 for immediately.
+         */
+        void C_WeatherManager2::SetWeatherSet(ue::C_String const &weatherSetName, float transitionSpeed) {
+            hook::this_call<void>(gPatterns.C_WeatherManager2__SetWeatherSet, this, weatherSetName, transitionSpeed);
         }
     } // namespace ue::gfx::environmenteffects
 } // namespace SDK
