@@ -47,7 +47,7 @@ namespace MafiaMP::Scripting {
         void SetColorPrimary(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb) {
             auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-            auto vec4Color = glm::vec4(rgb.GetRelR(), rgb.GetRelG(), rgb.GetRelB(), 1.0f);
+            auto vec4Color = glm::vec4(rgb.GetFloatR(), rgb.GetFloatG(), rgb.GetFloatB(), 1.0f);
 
             vehData->colorPrimary = vec4Color;
             MafiaMP::Shared::RPC::VehicleSetProps msg {};
@@ -65,7 +65,7 @@ namespace MafiaMP::Scripting {
         void SetColorSecondary(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb) {
             auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-            auto vec4Color = glm::vec4(rgb.GetRelR(), rgb.GetRelG(), rgb.GetRelB(), 1.0f);
+            auto vec4Color = glm::vec4(rgb.GetFloatR(), rgb.GetFloatG(), rgb.GetFloatB(), 1.0f);
 
             vehData->colorSecondary = vec4Color;
             MafiaMP::Shared::RPC::VehicleSetProps msg {};
@@ -161,7 +161,7 @@ namespace MafiaMP::Scripting {
         void SetRimColor(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb) {
             auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-            auto vec4Color = glm::vec4(rgb.GetRelR(), rgb.GetRelG(), rgb.GetRelB(), 1.0f);
+            auto vec4Color = glm::vec4(rgb.GetFloatR(), rgb.GetFloatG(), rgb.GetFloatB(), 1.0f);
 
             vehData->rimColor = vec4Color;
             MafiaMP::Shared::RPC::VehicleSetProps msg {};
@@ -205,7 +205,7 @@ namespace MafiaMP::Scripting {
         void SetTireColor(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb) {
             auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-            auto vec4Color = glm::vec4(rgb.GetRelR(), rgb.GetRelG(), rgb.GetRelB(), 1.0f);
+            auto vec4Color = glm::vec4(rgb.GetFloatR(), rgb.GetFloatG(), rgb.GetFloatB(), 1.0f);
 
             vehData->tireColor = vec4Color;
             MafiaMP::Shared::RPC::VehicleSetProps msg {};
@@ -223,7 +223,7 @@ namespace MafiaMP::Scripting {
         void SetWindowTint(Framework::Scripting::Engines::Node::Builtins::ColorRGBA rgba) {
             auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-            auto vec4Color = glm::vec4(rgba.GetRelR(), rgba.GetRelG(), rgba.GetRelB(), rgba.GetRelA());
+            auto vec4Color = glm::vec4(rgba.GetFloatR(), rgba.GetFloatG(), rgba.GetFloatB(), rgba.GetFloatA());
 
             vehData->windowTint = vec4Color;
             MafiaMP::Shared::RPC::VehicleSetProps msg {};
