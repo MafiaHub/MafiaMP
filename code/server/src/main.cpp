@@ -8,7 +8,6 @@ int main(int argc, char **argv) {
     opts.bindPort      = 27015;
     opts.webBindHost   = "0.0.0.0";
     opts.webBindPort   = 27016;
-    opts.bindName      = "Mafia MP Local Dev Server";
     opts.maxPlayers    = 10;
     opts.modName       = "MafiaMP";
     opts.modSlug       = "mafiamp_server";
