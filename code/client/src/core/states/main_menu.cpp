@@ -48,6 +48,7 @@ namespace MafiaMP::Core::States {
         // Grab the view from the application
         auto const view = gApplication->GetWeb()->GetView(gApplication->GetMainMenuViewId());
         if (!view) {
+            _shouldProceedOfflineDebug = false;
             return false;
         }
 
