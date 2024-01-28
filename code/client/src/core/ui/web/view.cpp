@@ -457,12 +457,14 @@ namespace MafiaMP::Core::UI::Web {
     }
 
     void View::Update() {
-        if (!_internalView || !_internalView.get()) {
+        if (!_internalView || !_shouldDisplay) {
             return;
         }
 
         std::lock_guard lock(_renderMutex);
 
+
+        // Update the view content
         auto surface = (ultralight::BitmapSurface *)_internalView->surface();
         void *pixels = surface->LockPixels();
         int size     = surface->size(); // TODO: calc from res
@@ -473,10 +475,15 @@ namespace MafiaMP::Core::UI::Web {
         memcpy(_pixelData, pixels, size);
         surface->UnlockPixels();
 
+        // Render the cursor
         RenderCursor();
     }
 
     void View::Render() {
+        if (!_internalView || !_shouldDisplay) {
+            return;
+        }
+
         std::lock_guard lock(_renderMutex);
 
         // Make sure we have D3D setup
@@ -552,7 +559,7 @@ namespace MafiaMP::Core::UI::Web {
     }
 
     void View::ProcessMouseEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-        if (!_internalView) {
+        if (!_internalView || !_shouldDisplay) {
             return;
         }
 
@@ -610,7 +617,7 @@ namespace MafiaMP::Core::UI::Web {
     }
 
     void View::ProcessKeyboardEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-        if (!_internalView) {
+        if (!_internalView || !_shouldDisplay) {
             return;
         }
 

@@ -1,16 +1,10 @@
 #include "main_menu.h"
 #include "states.h"
-#include <utils/safe_win32.h>
 
+#include <utils/safe_win32.h>
 #include <utils/states/machine.h>
 
-#include <imgui/imgui.h>
-
-#include "../../game/helpers/camera.h"
 #include "../../game/helpers/controls.h"
-
-#include "sdk/mafia/framework/c_mafia_framework.h"
-#include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
 #include "../application.h"
 
@@ -28,32 +22,55 @@ namespace MafiaMP::Core::States {
     }
 
     bool MainMenuState::OnEnter(Framework::Utils::States::Machine *) {
-        _shouldDisplayWidget       = true;
-        _shouldProceedConnection   = false;
-        _shouldProceedOfflineDebug = false;
-
-        // Set camera
-        Game::Helpers::Camera::SetPos({-986.40686, -304.061798, 2.292042}, {-985.365356, -336.348083, 2.892426}, true);
-
-        // Lock game controls
+        // Lock the game controls
         Game::Helpers::Controls::Lock(true);
 
-        // Enable cursor
-        gApplication->GetImGUI()->ShowCursor(true);
+        // Grab the view from the application
+        auto const view = gApplication->GetWeb()->GetView(gApplication->GetMainMenuViewId());
+        if (!view) {
+            return false;
+        }
+
+        view->Display(true);
+        view->Focus(true);
+
+        // Bind the event listeners
+        view->AddEventListener("RUN_SANDBOX", [this](std::string eventPayload) {
+            Framework::Logging::GetLogger("Web")->debug("RUN_SANDBOX event received");
+            
+            _shouldProceedOfflineDebug = true;
+        });
+
         return true;
     }
 
     bool MainMenuState::OnExit(Framework::Utils::States::Machine *) {
-        // Temp
-        Game::Helpers::Camera::ResetBehindPlayer();
+        // Grab the view from the application
+        auto const view = gApplication->GetWeb()->GetView(gApplication->GetMainMenuViewId());
+        if (!view) {
+            return false;
+        }
 
-        // Hide cursor
-        gApplication->GetImGUI()->ShowCursor(false);
+        // Unbind the event listeners
+        view->RemoveEventListener("RUN_SANDBOX");
+
+        // Hide the view
+        view->Display(false);
+        view->Focus(false);
+
+        // Unlock the game controls
+        Game::Helpers::Controls::Lock(false);
+
         return true;
     }
 
     bool MainMenuState::OnUpdate(Framework::Utils::States::Machine *machine) {
-        gApplication->GetImGUI()->PushWidget([this]() {
+        auto const view = gApplication->GetWeb()->GetView(gApplication->GetMainMenuViewId());
+        if (!view) {
+            return false;
+        }
+
+        /* gApplication->GetImGUI()->PushWidget([this]() {
             if (!ImGui::Begin("Debug", &_shouldDisplayWidget, ImGuiWindowFlags_AlwaysAutoResize)) {
                 ImGui::End();
                 return;
@@ -99,13 +116,13 @@ namespace MafiaMP::Core::States {
             }
 
             ImGui::End();
-        });
+        });*/
         if (_shouldProceedOfflineDebug) {
             machine->RequestNextState(StateIds::SessionOfflineDebug);
         }
-        if (_shouldProceedConnection) {
+        /* if (_shouldProceedConnection) {
             machine->RequestNextState(StateIds::SessionConnection);
-        }
-        return _shouldProceedConnection || _shouldProceedOfflineDebug;
+        }*/
+        return /* _shouldProceedConnection || */_shouldProceedOfflineDebug;
     }
 } // namespace MafiaMP::Core::States

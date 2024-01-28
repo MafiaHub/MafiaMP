@@ -37,6 +37,8 @@ namespace MafiaMP::Core {
         float _tickInterval = 0.01667f;
         int _controlsLocked = 0;
 
+        int _mainMenuViewId = -1;
+
       private:
         Game::Helpers::Districts _lastDistrictID = Game::Helpers::Districts::UNSPECIFIED;
 
@@ -101,6 +103,10 @@ namespace MafiaMP::Core {
 
         void SetLastDistrictID(Game::Helpers::Districts id) {
             _lastDistrictID = id;
+        }
+
+        int GetMainMenuViewId() const {
+            return _mainMenuViewId;
         }
     };
 

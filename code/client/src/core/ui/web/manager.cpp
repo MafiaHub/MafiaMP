@@ -44,13 +44,6 @@ namespace MafiaMP::Core::UI::Web {
             return false;
         }
 
-        // TEMPORARY DEBUG
-        // TODO: remove me
-        const auto debugViewId = CreateView("https://mafiamp.web.app", _viewportConfiguration.width, _viewportConfiguration.height);
-        if (debugViewId >= 0) {
-            GetView(debugViewId)->Focus(true);
-        }
-
         return true;
     }
 

@@ -4,7 +4,9 @@
 
 #include <d3d11.h>
 #include <mutex>
+#include <map>
 #include <string>
+#include <function2.hpp>
 
 #include <Ultralight/Ultralight.h>
 
@@ -13,6 +15,7 @@
 #include "sdk.h"
 
 namespace MafiaMP::Core::UI::Web {
+
     class View : public ultralight::ViewListener, ultralight::LoadListener {
       private:
         ultralight::RefPtr<ultralight::Renderer> _renderer;
@@ -24,6 +27,7 @@ namespace MafiaMP::Core::UI::Web {
         int _width;
         int _height;
         bool _d3dInitialized;
+        bool _shouldDisplay = false;
 
         ID3D11Texture2D *_texture              = nullptr;
         ID3D11ShaderResourceView *_textureView = nullptr;
@@ -67,6 +71,26 @@ namespace MafiaMP::Core::UI::Web {
                 _internalView->Unfocus();
                 ShowCursor(false);
             }
+        }
+
+        void Display(bool enable) {
+            _shouldDisplay = enable;
+        }
+
+        inline void AddEventListener(std::string eventName, const EventCallbackProc& proc) {
+            if (!_sdk) {
+                return;
+            }
+
+            _sdk->AddEventListener(eventName, proc);
+        }
+
+        inline void RemoveEventListener(std::string eventName) {
+            if (!_sdk) {
+                return;
+            }
+
+            _sdk->RemoveEventListener(eventName);
         }
     };
 }

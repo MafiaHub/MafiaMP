@@ -65,7 +65,10 @@ namespace MafiaMP::Core {
         _web              = std::make_shared<UI::Web::Manager>();
         
         if (_web) {
-            _web->Init();
+            if (!_web->Init()) {
+                Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
+                return false;
+            }
         }
 
         _chat->SetOnMessageSentCallback([this](const std::string &msg) {
@@ -100,6 +103,10 @@ namespace MafiaMP::Core {
 
         // Setup Lua VM wrapper
         _luaVM = std::make_shared<LuaVM>();
+
+        // Setup the main menu UI
+        const auto vhConfiguration = _web->GetViewportConfiguration();
+        _mainMenuViewId            = _web->CreateView("https://mafiamp.web.app", vhConfiguration.width, vhConfiguration.height);
 
         return true;
     }
