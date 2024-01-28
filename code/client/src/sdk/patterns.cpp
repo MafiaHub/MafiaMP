@@ -420,12 +420,18 @@ namespace SDK {
         gPatterns.C_WAnimPlaybackManager__PlayState = hook::get_opcode_address("E8 ? ? ? ? 4C 39 7F 50");
 
         // C_WeatherManager2
-        gPatterns.C_WeatherManager2__GetDayTimeHours = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 10 81 ? ? ? ? F3 0F 59 05 ? ? ? ? C3 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? F3 0F 10 81 ? ? ? ?"));
-        gPatterns.C_WeatherManager2__GetDayTimeRel   = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 10 81 ? ? ? ? F3 0F 59 05 ? ? ? ? C3 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 48 8B 41 ?"));
-        gPatterns.C_WeatherManager2__SetDayTimeHours = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 59 0D ? ? ? ? 0F 57 DB F3 0F 10 15 ? ? ? ? 0F 28 C1 F3 0F 5C C2 0F 2F C3 73 ? 0F 28 D1 F3 0F 10 0D ? ? ? ? 0F 28 C1 F3 "
-                                                                                                    "0F 5C C2 0F 2F C3 72 ? F3 0F 11 89 ? ? ? ? C3 F3 0F 11 91 ? ? ? ? C3 ? ? ? ? ? ? ? ? F3 0F 59 0D ? ? ? ?"));
-        gPatterns.C_WeatherManager2__SetDayTimeRel   = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 59 0D ? ? ? ? F3 0F 11 49 ? C3 ? ? F3 0F 59 0D ? ? ? ? 0F 57 DB"));
-        gPatterns.C_WeatherManager2__SetWeatherSet   = hook::get_opcode_address("E8 ? ? ? ? 48 8D 4F ? E8 ? ? ? ? E9 ? ? ? ? E8 ? ? ? ?");
+        gPatterns.C_WeatherManager2__EnableTimeFlow              = reinterpret_cast<uint64_t>(hook::get_pattern("88 91 ? ? ? ? C6 81 ? ? ? ? ? C6 81 ? ? ? ? ? C3"));
+        gPatterns.C_WeatherManager2__GetDayTimeHours             = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4B 38 33 C0");
+        gPatterns.C_WeatherManager2__GetDayTimeRel               = hook::get_opcode_address("E8 ? ? ? ? F3 0F 11 43 ? 48 8D 54 24 ?");
+        gPatterns.C_WeatherManager2__GetDefaultTimeFlowSpeedMult = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 10 81 ? ? ? ? C3 CC CC CC CC CC CC CC 8B 05 ? ? ? ?"));
+        gPatterns.C_WeatherManager2__GetUserTimeFlowSpeedMult    = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 10 81 ? ? ? ? C3 CC CC CC CC CC CC CC 41 83 F8 04"));
+        gPatterns.C_WeatherManager2__IsTimeFlowEnabled = reinterpret_cast<uint64_t>(hook::get_pattern("0F B6 81 ? ? ? ? C3 CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC "
+                                                                                                      "CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC B0 01"));
+        gPatterns.C_WeatherManager2__SetDayTimeHours   = hook::get_opcode_address("E8 ? ? ? ? 48 83 C4 30 5F 5E 5B C3 CC CC CC CC CC CC CC CC CC 48 83 EC 38");
+        gPatterns.C_WeatherManager2__SetDayTimeSec     = hook::get_opcode_address("E9 ? ? ? ? 8B 47 18 89 44 24 40");
+        gPatterns.C_WeatherManager2__SetDefaultTimeFlowSpeedMult = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 11 89 ? ? ? ? C3 CC CC CC CC CC CC CC F3 0F 11 89 ? ? ? ? C3 CC CC CC CC CC CC CC F3 0F 59 0D ? ? ? ?"));
+        gPatterns.C_WeatherManager2__SetUserTimeFlowSpeedMult    = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 11 89 ? ? ? ? C3 CC CC CC CC CC CC CC 83 FA 04"));
+        gPatterns.C_WeatherManager2__SetWeatherSet               = hook::get_opcode_address("E8 ? ? ? ? 48 83 7C 24 ? ? 0F 28 74 24 ?");
 
         // I_Core
         gPatterns.I_Core__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 4C 8B 40 68");
