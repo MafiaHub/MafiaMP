@@ -24,7 +24,7 @@ namespace MafiaMP::Shared::Messages::Human {
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
             bs->Serialize(write, _spawnProfile);
-            bs->Serialize(write, _carPassenger);
+            bs->SerializeCompressed(write, _carPassenger);
         }
 
         bool Valid() const override {

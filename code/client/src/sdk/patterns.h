@@ -110,7 +110,6 @@ namespace SDK {
 
         // C_GameAudioModule
         uint64_t C_GameAudioModule__GetAudioModule    = 0x0;
-
         uint64_t C_GameAudioModule__SetCutsceneVolume = 0x0;
         uint64_t C_GameAudioModule__SetDialogueVolume = 0x0;
         uint64_t C_GameAudioModule__SetDynamicRange   = 0x0;
@@ -356,11 +355,17 @@ namespace SDK {
         uint64_t C_WAnimPlaybackManager__PlayState = 0x0;
 
         // C_WeatherManager2
-        uint64_t C_WeatherManager2__GetDayTimeHours = 0x0;
-        uint64_t C_WeatherManager2__GetDayTimeRel   = 0x0;
-        uint64_t C_WeatherManager2__SetDayTimeHours = 0x0;
-        uint64_t C_WeatherManager2__SetDayTimeRel   = 0x0;
-        uint64_t C_WeatherManager2__SetWeatherSet   = 0x0;
+        uint64_t C_WeatherManager2__EnableTimeFlow              = 0x0;
+        uint64_t C_WeatherManager2__GetDayTimeHours             = 0x0;
+        uint64_t C_WeatherManager2__GetDayTimeRel               = 0x0;
+        uint64_t C_WeatherManager2__GetDefaultTimeFlowSpeedMult = 0x0;
+        uint64_t C_WeatherManager2__GetUserTimeFlowSpeedMult    = 0x0;
+        uint64_t C_WeatherManager2__IsTimeFlowEnabled           = 0x0;
+        uint64_t C_WeatherManager2__SetDayTimeHours             = 0x0;
+        uint64_t C_WeatherManager2__SetDayTimeSec               = 0x0;
+        uint64_t C_WeatherManager2__SetDefaultTimeFlowSpeedMult = 0x0;
+        uint64_t C_WeatherManager2__SetUserTimeFlowSpeedMult    = 0x0;
+        uint64_t C_WeatherManager2__SetWeatherSet               = 0x0;
 
         // I_Core
         uint64_t I_Core__GetInstance = 0x0;

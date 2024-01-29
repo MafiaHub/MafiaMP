@@ -8,8 +8,8 @@
 #include "scripting/engines/node/builtins/color_rgba.h"
 #include "scripting/engines/node/engine.h"
 #include "scripting/engines/node/sdk.h"
-
-#include "shared/game_rpc/set_vehicledata.h"
+#include "shared/modules/vehicle_sync.hpp"
+#include "core/modules/vehicle.h"
 #include "shared/game_rpc/vehicle/vehicle_setprops.h"
 #include "shared/modules/vehicle_sync.hpp"
 

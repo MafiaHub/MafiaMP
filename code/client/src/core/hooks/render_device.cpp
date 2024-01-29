@@ -48,7 +48,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     if (app && app->IsInitialized()) {
         app->GetInput()->ProcessEvent(hWnd, msg, wParam, lParam);
 
-        if (app->GetImGUI()->ProcessEvent(hWnd, msg, wParam, lParam) == Framework::External::ImGUI::InputState::BLOCK) {
+        if (app->AreControlsLocked() && app->GetImGUI()->ProcessEvent(hWnd, msg, wParam, lParam) == Framework::External::ImGUI::InputState::BLOCK) {
             return 0;
         }
     }

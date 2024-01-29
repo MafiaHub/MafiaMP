@@ -20,6 +20,7 @@
 #include "shared/game_rpc/human/human_reload.h"
 #include "shared/game_rpc/human/human_setprops.h"
 #include "shared/game_rpc/human/human_shoot.h"
+#include "shared/game_rpc/add_weapon.h"
 
 #include "vehicle.h"
 #include <world/modules/base.hpp>
@@ -442,7 +443,7 @@ namespace MafiaMP::Core::Modules {
             }
 
             auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
-            if (!trackingData && trackingData->human) {
+            if (trackingData && !trackingData->human) {
                 return;
             }
 
@@ -451,6 +452,23 @@ namespace MafiaMP::Core::Modules {
             if (setHealth.HasValue()) {
                 Game::Helpers::Human::SetHealthPercent(trackingData->human, setHealth());
             }
+        });
+
+        net->RegisterGameRPC<Shared::RPC::AddWeapon>([app](SLNet::RakNetGUID guid, Shared::RPC::AddWeapon *msg) {
+            if (!msg->Valid())
+                return;
+
+            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            if (trackingData && !trackingData->human) {
+                return;
+            }
+
+            trackingData->human->GetInventoryWrapper()->AddWeapon(msg->GetWeaponId(), msg->GetAmmo());
         });
     }
 
