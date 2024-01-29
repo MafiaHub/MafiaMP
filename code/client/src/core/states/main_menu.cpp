@@ -5,7 +5,6 @@
 #include <utils/states/machine.h>
 
 #include "../../game/helpers/controls.h"
-#include "../../game/helpers/camera.h"
 
 #include "../application.h"
 
@@ -26,11 +25,28 @@ namespace MafiaMP::Core::States {
         // Reset the states
         _shouldProceedOfflineDebug = false;
 
-        // Set camera
-        Game::Helpers::Camera::SetPos({-986.40686, -304.061798, 2.292042}, {-985.365356, -336.348083, 2.892426}, true);
-
         // Lock game controls
         gApplication->LockControls(true);
+
+        // Grab the view from the application
+        auto const view = gApplication->GetWeb()->GetView(gApplication->GetMainMenuViewId());
+        if (!view) {
+            return false;
+        }
+
+        view->Display(true);
+        view->Focus(true);
+
+        // Bind the event listeners
+        view->AddEventListener("RUN_SANDBOX", [this](std::string eventPayload) {
+            _shouldProceedOfflineDebug = true;
+        });
+
+        view->AddEventListener("EXIT_APP", [this](std::string eventPayload) {
+            // TODO: do proper shutdown - this is just a quick hack
+            // Notify the server, etc etc etc
+            TerminateProcess(GetCurrentProcess(), 0);
+        });
         return true;
     }
 
