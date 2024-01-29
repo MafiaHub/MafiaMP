@@ -137,8 +137,8 @@ namespace SDK {
         float m_fBrakeHealth1;                                             // 0AF0 - 0AF4
         float m_fBrakeHealth2;                                             // 0AF4 - 0AF8
         char pad_0AF8[0xB8];                                               // 0AF8 - 0BB0
-        ue::sys::math::C_Vector4 m_MaterialColor;                          // 0BB0 - 0BC0
-        ue::sys::math::C_Vector4 m_MaterialColor1;                         // 0BC0 - 0BD0
+        ue::sys::math::C_Vector4 m_Color1;                                 // 0BB0 - 0BC0
+        ue::sys::math::C_Vector4 m_Color2;                                 // 0BC0 - 0BD0
         ue::sys::math::C_Vector4 m_WindowTint;                             // 0BD0 - 0BE0
         ue::sys::math::C_Vector4 m_WheelColor;                             // 0BE0 - 0BF0
         ue::sys::math::C_Vector4 m_TireColor;                              // 0BF0 - 0C00

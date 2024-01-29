@@ -72,8 +72,8 @@ namespace SDK {
     }
 
     void C_Vehicle::GetVehicleColor(ue::sys::math::C_Vector4 *color1, ue::sys::math::C_Vector4 *color2) const {
-        *color1 = m_MaterialColor;
-        *color2 = m_MaterialColor1;
+        *color1 = m_Color1;
+        *color2 = m_Color2;
     }
 
     void C_Vehicle::SetWindowTintColor(const ue::sys::math::C_Vector4 &color) {
