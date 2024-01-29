@@ -443,7 +443,7 @@ namespace MafiaMP::Core::Modules {
             }
 
             auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
-            if (!trackingData && trackingData->human) {
+            if (trackingData && !trackingData->human) {
                 return;
             }
 
@@ -464,7 +464,7 @@ namespace MafiaMP::Core::Modules {
             }
 
             auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
-            if (!trackingData && trackingData->human) {
+            if (trackingData && !trackingData->human) {
                 return;
             }
 
