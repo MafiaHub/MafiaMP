@@ -16,7 +16,7 @@ namespace MafiaMP::Shared::Messages::Human {
         }
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
-            bs->Serialize(write, _updateData);
+            bs->SerializeCompressed(write, _updateData);
         }
 
         bool Valid() const override {
