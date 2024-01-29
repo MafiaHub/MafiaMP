@@ -16,7 +16,6 @@
 #include "shared/messages/vehicle/vehicle_spawn.h"
 #include "shared/messages/vehicle/vehicle_update.h"
 
-#include "shared/game_rpc/set_vehicledata.h"
 #include "shared/game_rpc/vehicle/vehicle_setprops.h"
 
 #include "shared/modules/mod.hpp"
@@ -250,17 +249,6 @@ namespace MafiaMP::Core::Modules {
 
     void Vehicle::InitRPCs(Application *app) {
         const auto net = app->GetNetworkingEngine()->GetNetworkClient();
-
-        net->RegisterGameRPC<Shared::RPC::SetVehicleData>([app](SLNet::RakNetGUID guid, Shared::RPC::SetVehicleData *msg) {
-            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            *updateData     = msg->GetData();
-            Update(e);
-        });
 
         net->RegisterGameRPC<Shared::RPC::VehicleSetProps>([app](SLNet::RakNetGUID guid, Shared::RPC::VehicleSetProps *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());

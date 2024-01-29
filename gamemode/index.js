@@ -310,7 +310,7 @@ sdk.on("playerConnected", (player) => {
     console.log(`[GAMEMODE] Player ${player.nickname} connected!`);
     player.sendChatToAll(`[SERVER] ${player.nickname} has joined the session!`);
 
-    player.addWeapon(2, 200); // TODO: doesn't works yet
+    player.addWeapon(2, 200);
     player.setPosition(SPAWN_POINT.pos);
     player.setRotation(SPAWN_POINT.rot);
     player.sendChat(`[SERVER] Welcome ${player.nickname}!`);
