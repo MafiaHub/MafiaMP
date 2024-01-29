@@ -5,6 +5,7 @@
 #include <utils/states/machine.h>
 
 #include "../../game/helpers/controls.h"
+#include "../../game/helpers/camera.h"
 
 #include "../application.h"
 
