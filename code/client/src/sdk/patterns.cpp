@@ -383,7 +383,7 @@ namespace SDK {
         gPatterns.C_Vehicle__IsActive           = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 0A B2 01");
         gPatterns.C_Vehicle__IsSiren            = hook::get_opcode_address("E8 ? ? ? ? 0F B6 4D BF");
         gPatterns.C_Vehicle__SetActive          = hook::get_opcode_address("E8 ? ? ? ? F3 0F 59 35 ? ? ? ? 48 8D 8B ? ? ? ?");
-        gPatterns.C_Vehicle__SetAngularSpeed    = hook::get_opcode_address(" E8 ? ? ? ? E9 ? ? ? ? 80 BD ? ? ? ? ? 0F 85 ? ? ? ?");
+        gPatterns.C_Vehicle__SetAngularSpeed    = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 80 BD ? ? ? ? ? 0F 85 ? ? ? ?");
         gPatterns.C_Vehicle__SetBeaconLightsOn  = hook::get_opcode_address("E8 ? ? ? ? 48 8B 7C 24 ? 48 83 C4 ? 5B C3 48 8B D9");
         gPatterns.C_Vehicle__SetBrake           = hook::get_opcode_address("E8 ? ? ? ? C7 87 ? ? ? ? ? ? ? ? 83 A7 ? ? ? ? ?");
         gPatterns.C_Vehicle__SetDoorFree        = hook::get_opcode_address("E8 ? ? ? ? 48 8B 5C 24 ? 33 C0 48 8B 74 24 ? 48 83 C4 ? 5F C3 ? ? ? 40 53 48 83 EC ? 45 33 C0 33 D2 48 8B D9 E8 ? ? ? ? 48 8B 43 ? C7 40 ? ? "
