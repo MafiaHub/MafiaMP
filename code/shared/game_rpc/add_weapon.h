@@ -26,8 +26,8 @@ namespace MafiaMP::Shared::RPC {
         }
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
-            bs->Write(weaponId);
-            bs->Write(ammo);
+            bs->Serialize(write, weaponId);
+            bs->Serialize(write, ammo);
         }
 
         bool Valid() const override {

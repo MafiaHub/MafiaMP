@@ -18,7 +18,7 @@ namespace MafiaMP::Shared::Messages::Vehicle {
         }
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
-            bs->Serialize(write, _updateData);
+            bs->SerializeCompressed(write, _updateData);
         }
 
         bool Valid() const override {

@@ -28,13 +28,14 @@ namespace MafiaMP::Game {
         // Init our main application
         if (Core::gApplication && !Core::gApplication->IsInitialized()) {
             Framework::Graphics::RendererConfiguration rendererOptions = {};
-            rendererOptions.backend = Framework::Graphics::RendererBackend::BACKEND_D3D_11;
+
+            rendererOptions.backend  = Framework::Graphics::RendererBackend::BACKEND_D3D_11;
             rendererOptions.platform = Framework::Graphics::PlatformBackend::PLATFORM_WIN32;
 
             // fill out renderer info
-            rendererOptions.d3d11.device = gGlobals.renderDevice->GetDevice();
+            rendererOptions.d3d11.device        = gGlobals.renderDevice->GetDevice();
             rendererOptions.d3d11.deviceContext = gGlobals.renderDevice->GetImmediateContext();
-            rendererOptions.windowHandle = gGlobals.window;
+            rendererOptions.windowHandle        = gGlobals.window;
 
             Framework::Integrations::Client::InstanceOptions opts;
             opts.discordAppId    = 763114144454672444;
@@ -44,7 +45,10 @@ namespace MafiaMP::Game {
             opts.rendererOptions = rendererOptions;
 
             opts.gameName    = "Mafia: Definitive Edition";
-            opts.gameVersion = MafiaMP::Version::rel;
+            opts.gameVersion = "3168979183"; // TODO: get this crc32 checksum from the game executable
+            opts.modVersion  = MafiaMP::Version::rel;
+
+            // opts.modVersion = MafiaMP::Version::rel;
 
             Core::gApplication->Init(opts);
         }
