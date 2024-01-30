@@ -31,12 +31,13 @@ namespace MafiaMP::Core::UI::Web {
         // Initialize the configuration
         ultralight::Config rendererConfig;
         rendererConfig.force_repaint = true;
+        rendererConfig.cache_path = (gProjectPath + "/cache").c_str();
 
         // Initialize the platform
         ultralight::Platform::instance().set_config(rendererConfig);
         ultralight::Platform::instance().set_font_loader(ultralight::GetPlatformFontLoader());
         ultralight::Platform::instance().set_file_system(ultralight::GetPlatformFileSystem(gProjectPath.c_str()));
-        ultralight::Platform::instance().set_logger(ultralight::GetDefaultLogger((gProjectPath + "/ultralight.log").c_str()));
+        ultralight::Platform::instance().set_logger(ultralight::GetDefaultLogger((gProjectPath + "/logs/ultralight.log").c_str()));
 
         // Initialize the renderer
         _renderer = ultralight::Renderer::Create();
