@@ -288,6 +288,13 @@ namespace SDK {
         // C_StreamingModule
         uint64_t C_StreamingModule__SetStreamingPosSource = 0x0;
 
+        // C_StreamingTrafficModule
+        uint64_t C_StreamingTrafficModule__CloseSeason         = 0x0;
+        uint64_t C_StreamingTrafficModule__GetSeasonOpened     = 0x0;
+        uint64_t C_StreamingTrafficModule__GetInstance         = 0x0;
+        uint64_t C_StreamingTrafficModule__OpenSeason          = 0x0;
+        uint64_t C_StreamingTrafficModule__SetMaxHumanElements = 0x0;
+
         // C_StreamMap
         uint64_t C_StreamMap__CloseGame    = 0x0;
         uint64_t C_StreamMap__CloseMission = 0x0;

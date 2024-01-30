@@ -5,15 +5,15 @@
 namespace SDK {
     namespace mafia::traffic {
         enum class E_TrafficCommonFlags : uint32_t {
-            // Time Periods
-            E_TCF_TIME_1930 = 0x1,
-            E_TCF_TIME_1932 = 0x2,
-            E_TCF_TIME_1933 = 0x4,
-            E_TCF_TIME_1935 = 0x8,
-            E_TCF_TIME_1938 = 0x10,
+            // Time Periods (also called Seasons)
+            E_TCF_TIME_1930     = 0x1,
+            E_TCF_TIME_1932     = 0x2,
+            E_TCF_TIME_1933     = 0x4,
+            E_TCF_TIME_1935     = 0x8,
+            E_TCF_TIME_1938     = 0x10,
+            E_TCF_TIME_FREERIDE = 0x1000,
 
             // Locations
-            E_TCF_TIME_FREERIDE  = 0x1000,
             E_TCF_LOC_LOSTHEAVEN = 0x10000
         };
 
@@ -76,5 +76,5 @@ namespace SDK {
             E_TVFL_SPORTS             = 0x200000,
             E_TVFL_RACING             = 0x400000,
         };
-    } // mafia::traffic
+    } // namespace mafia::traffic
 } // namespace SDK

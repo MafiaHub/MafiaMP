@@ -323,6 +323,13 @@ namespace SDK {
         // C_StreamingModule
         gPatterns.C_StreamingModule__SetStreamingPosSource = reinterpret_cast<uint64_t>(hook::get_pattern("33 C0 89 91 ? ? ? ? 48 89 81 ? ? ? ?"));
 
+        // C_StreamingTrafficModule
+        gPatterns.C_StreamingTrafficModule__CloseSeason         = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 6C 24 ? 41 56 48 83 EC 20 83 B9 ? ? ? ? ? 44 0F B6 F2"));
+        gPatterns.C_StreamingTrafficModule__GetSeasonOpened     = hook::get_opcode_address("E8 ? ? ? ? 33 D2 84 C0 74 0B ");
+        gPatterns.C_StreamingTrafficModule__GetInstance         = hook::get_opcode_address("E8 ? ? ? ? 4C 8B 44 F3 ?");
+        gPatterns.C_StreamingTrafficModule__OpenSeason          = hook::get_opcode_address("E8 ? ? ? ? 48 8B 76 08 48 8B CE");
+        gPatterns.C_StreamingTrafficModule__SetMaxHumanElements = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC 28 3B 91 ? ? ? ? 74 25"));
+
         // C_StreamMap
         gPatterns.C_StreamMap__CloseGame = reinterpret_cast<uint64_t>(
             hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 48 8B A9 ? ? ? ? 4C 8B F1 48 C7 44 24 ? ? ? ? ? B9 ? ? ? ? C7 44 24 ? ? ? ? ? 48 8B 75 08 E8 ? ? ? ? 48 8B D8 48 85 C0 75 07 FF 15 ? ? ? ? CC 48 89 7C 24 ? 48 8D 78 08 48 89 28 "
