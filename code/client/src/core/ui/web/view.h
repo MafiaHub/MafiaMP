@@ -3,10 +3,10 @@
 #include <utils/safe_win32.h>
 
 #include <d3d11.h>
-#include <mutex>
-#include <map>
-#include <string>
 #include <function2.hpp>
+#include <map>
+#include <mutex>
+#include <string>
 
 #include <Ultralight/Ultralight.h>
 
@@ -16,7 +16,9 @@
 
 namespace MafiaMP::Core::UI::Web {
 
-    class View : public ultralight::ViewListener, ultralight::LoadListener {
+    class View
+        : public ultralight::ViewListener
+        , ultralight::LoadListener {
       private:
         ultralight::RefPtr<ultralight::Renderer> _renderer;
         ultralight::RefPtr<ultralight::View> _internalView = nullptr;
@@ -36,7 +38,7 @@ namespace MafiaMP::Core::UI::Web {
         glm::vec2 _cursorPos {};
 
       private:
-        void OnAddConsoleMessage(ultralight::View *, ultralight::MessageSource, ultralight::MessageLevel, const ultralight::String &, uint32_t, uint32_t, const ultralight::String &) override;
+        void OnAddConsoleMessage(ultralight::View *caller, const ultralight::ConsoleMessage &message) override;
         void OnDOMReady(ultralight::View *, uint64_t, bool, const ultralight::String &) override;
         void OnWindowObjectReady(ultralight::View *, uint64_t, bool, const ultralight::String &) override;
         void OnChangeCursor(ultralight::View *caller, ultralight::Cursor cursor) override;
@@ -77,7 +79,7 @@ namespace MafiaMP::Core::UI::Web {
             _shouldDisplay = enable;
         }
 
-        inline void AddEventListener(std::string eventName, const EventCallbackProc& proc) {
+        inline void AddEventListener(std::string eventName, const EventCallbackProc &proc) {
             if (!_sdk) {
                 return;
             }
@@ -93,4 +95,4 @@ namespace MafiaMP::Core::UI::Web {
             _sdk->RemoveEventListener(eventName);
         }
     };
-}
+} // namespace MafiaMP::Core::UI::Web

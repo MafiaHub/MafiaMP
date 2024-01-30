@@ -63,7 +63,7 @@ namespace MafiaMP::Core {
         _console          = std::make_shared<UI::MafiaConsole>(_commandProcessor, _input);
         _chat             = std::make_shared<UI::Chat>();
         _web              = std::make_shared<UI::Web::Manager>();
-        
+
         if (_web) {
             if (!_web->Init()) {
                 Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
@@ -178,8 +178,7 @@ namespace MafiaMP::Core {
         }
     }
 
-    void Application::PostRender() {
-    }
+    void Application::PostRender() {}
 
     void Application::InitNetworkingMessages() {
         SetOnConnectionFinalizedCallback([this](flecs::entity newPlayer, float tickInterval) {

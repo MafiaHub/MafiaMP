@@ -392,14 +392,14 @@ namespace MafiaMP::Core::UI::Web {
         ICONINFO iconInfo = {0};
         GetIconInfo(hCursor, &iconInfo);
 
-        HDC hdc        = GetDC(nullptr);
+        HDC hdc = GetDC(nullptr);
 
         BITMAP bmpColor, bmpMask;
         if (iconInfo.hbmColor)
             GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmpColor);
         if (iconInfo.hbmMask) {
             GetObject(iconInfo.hbmMask, sizeof(BITMAP), &bmpMask);
-            /*For monochrome icons, the hbmMask is twice the height of the icon (with the AND mask on top and the XOR mask on the bottom), and hbmColor is NULL. 
+            /*For monochrome icons, the hbmMask is twice the height of the icon (with the AND mask on top and the XOR mask on the bottom), and hbmColor is NULL.
             Also, in this case the height should be an even multiple of two.*/
             bmpMask.bmHeight /= 2;
         }
@@ -407,13 +407,13 @@ namespace MafiaMP::Core::UI::Web {
         BITMAP *bmp = iconInfo.hbmColor ? &bmpColor : &bmpMask;
 
         // Prepare a buffer to receive the bitmap data
-        BITMAPINFO biColor = {0};
-        biColor.bmiHeader.biSize           = sizeof(BITMAPINFOHEADER);
-        biColor.bmiHeader.biWidth          = bmp->bmWidth;
-        biColor.bmiHeader.biHeight         = -bmp->bmHeight;
-        biColor.bmiHeader.biPlanes         = 1;
-        biColor.bmiHeader.biBitCount       = 32;
-        biColor.bmiHeader.biCompression    = BI_RGB;
+        BITMAPINFO biColor              = {0};
+        biColor.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+        biColor.bmiHeader.biWidth       = bmp->bmWidth;
+        biColor.bmiHeader.biHeight      = -bmp->bmHeight;
+        biColor.bmiHeader.biPlanes      = 1;
+        biColor.bmiHeader.biBitCount    = 32;
+        biColor.bmiHeader.biCompression = BI_RGB;
 
         // Get the actual bitmap data
         BYTE *pPixels = new BYTE[bmp->bmWidth * bmp->bmHeight * 4];
@@ -428,7 +428,7 @@ namespace MafiaMP::Core::UI::Web {
                     int i = (y * bmp->bmWidth + x) * 4;
 
                     bool andMask = pPixelMask[i] != 0;
-                    bool xorMask = pPixelMask[i+(bmp->bmHeight*bmp->bmWidthBytes)] != 0;
+                    bool xorMask = pPixelMask[i + (bmp->bmHeight * bmp->bmWidthBytes)] != 0;
 
                     if (!andMask) {
                         *(DWORD *)&pPixels[i] = !!xorMask ? 0xFFFFFFFF : 0xFF000000;
@@ -462,7 +462,6 @@ namespace MafiaMP::Core::UI::Web {
         }
 
         std::lock_guard lock(_renderMutex);
-
 
         // Update the view content
         auto surface = (ultralight::BitmapSurface *)_internalView->surface();
@@ -653,8 +652,8 @@ namespace MafiaMP::Core::UI::Web {
         _internalView->FireKeyEvent(ev);
     }
 
-    void View::OnAddConsoleMessage(ultralight::View *, ultralight::MessageSource source, ultralight::MessageLevel level, const ultralight::String &message, uint32_t line_number, uint32_t column_number, const ultralight::String &source_id) {
-        Framework::Logging::GetLogger("Web")->debug("Console message: {}:{}:{}:{}", message.utf8().data(), line_number, column_number, source_id.utf8().data());
+    void View::OnAddConsoleMessage(ultralight::View *caller, const ultralight::ConsoleMessage &message) {
+        Framework::Logging::GetLogger("Web")->debug("Console message: {}:{}:{}:{}", message.message().utf8().data(), message.line_number(), message.column_number(), message.source_id().utf8().data());
     }
 
     void View::OnDOMReady(ultralight::View *caller, uint64_t frame_id, bool is_main_frame, const ultralight::String &url) {
