@@ -5,7 +5,9 @@
 #include "game/module.h"
 
 namespace MafiaMP::Core::UI::Web {
-    Manager::Manager() {}
+    Manager::Manager() {
+        _clipboard = std::make_unique<SystemClipboard>();
+    }
 
     Manager::~Manager() {
         // Destroy the views
@@ -34,6 +36,7 @@ namespace MafiaMP::Core::UI::Web {
 
         // Initialize the platform
         ultralight::Platform::instance().set_config(rendererConfig);
+        ultralight::Platform::instance().set_clipboard(_clipboard.get());
         ultralight::Platform::instance().set_font_loader(ultralight::GetPlatformFontLoader());
         ultralight::Platform::instance().set_file_system(ultralight::GetPlatformFileSystem(gProjectPath.c_str()));
         ultralight::Platform::instance().set_logger(ultralight::GetDefaultLogger((gProjectPath + "/ultralight.log").c_str()));

@@ -648,9 +648,9 @@ namespace MafiaMP::Core::UI::Web {
         ev.virtual_key_code = wParam;
         ev.native_key_code  = lParam;
 
-        const bool ctrlPressed  = gApplication->GetInput()->IsKeyDown(VK_CONTROL);
-        const bool shiftPressed = gApplication->GetInput()->IsKeyDown(VK_SHIFT);
-        const bool altPressed   = gApplication->GetInput()->IsKeyDown(VK_MENU);
+        const bool ctrlPressed  = GetKeyState(VK_CONTROL) & 0x8000;
+        const bool shiftPressed = GetKeyState(VK_SHIFT) & 0x8000;
+        const bool altPressed   = GetKeyState(VK_MENU) & 0x8000;
         ev.modifiers            = (ctrlPressed ? ultralight::KeyEvent::kMod_CtrlKey : 0) | (shiftPressed ? ultralight::KeyEvent::kMod_ShiftKey : 0) | (altPressed ? ultralight::KeyEvent::kMod_AltKey : 0);
 
         ultralight::GetKeyIdentifierFromVirtualKeyCode(ev.virtual_key_code, ev.key_identifier);

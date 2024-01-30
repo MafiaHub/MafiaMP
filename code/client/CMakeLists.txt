@@ -12,6 +12,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/ui/player_debug.cpp
     src/core/ui/vehicle_debug.cpp
     src/core/ui/web/manager.cpp
+    src/core/ui/web/clipboard.cpp
     src/core/ui/web/sdk.cpp
     src/core/ui/web/view.cpp
     src/core/states/initialize.cpp
