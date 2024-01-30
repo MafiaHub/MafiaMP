@@ -30,6 +30,7 @@ namespace MafiaMP::Core::UI::Web {
 
         // Initialize the configuration
         ultralight::Config rendererConfig;
+        rendererConfig.force_repaint = true;
 
         // Initialize the platform
         ultralight::Platform::instance().set_config(rendererConfig);
