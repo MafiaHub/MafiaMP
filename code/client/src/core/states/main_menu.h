@@ -5,8 +5,7 @@
 namespace MafiaMP::Core::States {
     class MainMenuState: public Framework::Utils::States::IState {
       private:
-        // TODO: Implement back the connection logic
-        // bool _shouldProceedConnection;
+        bool _shouldProceedConnection;
         bool _shouldProceedOfflineDebug;
 
       public:

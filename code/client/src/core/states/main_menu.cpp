@@ -4,6 +4,9 @@
 #include <utils/safe_win32.h>
 #include <utils/states/machine.h>
 
+#include <nlohmann/json.hpp>
+#include <string>
+
 #include "../../game/helpers/controls.h"
 
 #include "../application.h"
@@ -24,6 +27,7 @@ namespace MafiaMP::Core::States {
     bool MainMenuState::OnEnter(Framework::Utils::States::Machine *) {
         // Reset the states
         _shouldProceedOfflineDebug = false;
+        _shouldProceedConnection   = false;
 
         // Lock game controls
         gApplication->LockControls(true);
@@ -47,6 +51,38 @@ namespace MafiaMP::Core::States {
             // Notify the server, etc etc etc
             TerminateProcess(GetCurrentProcess(), 0);
         });
+
+        view->AddEventListener("CONNECT_TO_HOST", [this](std::string eventPayload) {
+            auto const parsedPayload = nlohmann::json::parse(eventPayload);
+
+            // Make sure the payload is valid
+            if (!parsedPayload.count("host") || !parsedPayload.count("port")) {
+                // TODO: put critical logs bc shouldn't happen
+                return;
+            }
+
+            // Make sure the port is valid
+            if (!parsedPayload["port"].is_number()) {
+                // TODO: put critical logs bc shouldn't happen
+                return;
+            }
+
+            // Make sure the host is valid
+            if (!parsedPayload["host"].is_string() || parsedPayload["host"].get<std::string>().empty()) {
+                // TODO: put critical logs bc shouldn't happen
+                return;
+            }
+
+            // Update the application state for further usage
+            Framework::Integrations::Client::CurrentState newApplicationState = MafiaMP::Core::gApplication->GetCurrentState();
+            newApplicationState._host                                         = parsedPayload["host"];
+            newApplicationState._port                                         = parsedPayload["port"];
+            newApplicationState._nickname                                     = "yelo"; //TODO: handle this properly when the web app sends it
+            MafiaMP::Core::gApplication->SetCurrentState(newApplicationState);
+
+            // Request transition to next state (session connection)
+            _shouldProceedConnection = true;
+        });
         return true;
     }
 
@@ -59,6 +95,7 @@ namespace MafiaMP::Core::States {
 
         // Unbind the event listeners
         view->RemoveEventListener("RUN_SANDBOX");
+        view->RemoveEventListener("CONNECT_TO_HOST");
         view->RemoveEventListener("EXIT_APP");
 
         // Hide the view
@@ -78,59 +115,12 @@ namespace MafiaMP::Core::States {
             return false;
         }
 
-        /* gApplication->GetImGUI()->PushWidget([this]() {
-            if (!ImGui::Begin("Debug", &_shouldDisplayWidget, ImGuiWindowFlags_AlwaysAutoResize)) {
-                ImGui::End();
-                return;
-            }
-
-            bool isDiscordPresent = gApplication->GetPresence()->IsInitialized();
-
-            ImGui::Text("Enter connection details:");
-            static char serverIp[32] = "127.0.0.1";
-            static char nickname[32] = "Player";
-            ImGui::Text("Server IP: ");
-            ImGui::SameLine();
-            ImGui::InputText("##server_ip", serverIp, 32);
-
-            if (!isDiscordPresent) {
-                ImGui::Text("Nickname: ");
-                ImGui::SameLine();
-                ImGui::InputText("##nickname", nickname, 32);
-            }
-            else {
-                discord::User currUser {};
-                gApplication->GetPresence()->GetUserManager().GetCurrentUser(&currUser);
-                strcpy(nickname, currUser.GetUsername());
-                ImGui::Text("Nickname: %s (set via Discord)", nickname);
-            }
-
-            if (ImGui::Button("Connect")) {
-                // Update the application state for further usage
-                Framework::Integrations::Client::CurrentState newApplicationState = MafiaMP::Core::gApplication->GetCurrentState();
-                newApplicationState._host                                         = serverIp;
-                newApplicationState._port                                         = 27015; // TODO: fix this
-                newApplicationState._nickname                                     = nickname;
-                MafiaMP::Core::gApplication->SetCurrentState(newApplicationState);
-
-                // Request transition to next state (session connection)
-                _shouldProceedConnection = true;
-            }
-
-            ImGui::SameLine();
-
-            if (ImGui::Button("Play Offline (debug)")) {
-                _shouldProceedOfflineDebug = true;
-            }
-
-            ImGui::End();
-        });*/
         if (_shouldProceedOfflineDebug) {
             machine->RequestNextState(StateIds::SessionOfflineDebug);
         }
-        /* if (_shouldProceedConnection) {
+        if (_shouldProceedConnection) {
             machine->RequestNextState(StateIds::SessionConnection);
-        }*/
-        return /* _shouldProceedConnection || */_shouldProceedOfflineDebug;
+        }
+        return _shouldProceedConnection || _shouldProceedOfflineDebug;
     }
 } // namespace MafiaMP::Core::States
