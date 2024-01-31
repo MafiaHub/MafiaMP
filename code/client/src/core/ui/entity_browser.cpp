@@ -155,6 +155,8 @@ namespace MafiaMP::Core::UI {
                 if (inspectedEntity) {
                     auto sceneObject = *(SDK::ue::sys::core::C_SceneObject **)((uint64_t)inspectedEntity + 0x0A8);
                     if (sceneObject && sceneObject->GetName() && sceneObject->GetName()->c_str()) {
+                        ImGui::Text("Entity ID %d", inspectedEntity->GetId());
+                        ImGui::Text("Entity GUID %d", inspectedEntity->GetGUID());
                         ImGui::Text("Entity name: %s", sceneObject->GetName()->c_str());
                         ImGui::Text("Entity type: %s", _allTypes[inspectedEntity->GetType()].c_str());
 
