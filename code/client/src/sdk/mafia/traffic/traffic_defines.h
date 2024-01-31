@@ -44,11 +44,11 @@ namespace SDK {
             E_TVF_SIZE_BIG    = 0x80000,
 
             // special
-            E_TVF_BOAT         = 0x100000,
-            E_TVF_CIVILIAN     = 0x200000,
-            E_TVF_CAR          = 0x400000,
-            E_TVF_POLICE_STATE = 0x800000,
-            E_TVF_TRAIN        = 0x1000000,
+            E_TVF_BOAT       = 0x100000,
+            E_TVF_CIVILIAN   = 0x200000,
+            E_TVF_CAR        = 0x400000,
+            E_TVF_MOTORCYCLE = 0x800000,
+            E_TVF_TRAIN      = 0x1000000,
         };
 
         enum class E_TrafficVehicleLookFlags : uint32_t {
