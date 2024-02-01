@@ -5,13 +5,12 @@
 namespace MafiaMP::Core::States {
     class MainMenuState: public Framework::Utils::States::IState {
       private:
-        bool _shouldDisplayWidget;
         bool _shouldProceedConnection;
         bool _shouldProceedOfflineDebug;
 
       public:
         MainMenuState();
-        ~MainMenuState();
+        ~MainMenuState() override;
 
         virtual const char *GetName() const override;
         virtual int32_t GetId() const override;

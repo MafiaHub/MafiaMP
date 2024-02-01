@@ -1,16 +1,13 @@
 #include "main_menu.h"
 #include "states.h"
-#include <utils/safe_win32.h>
 
+#include <utils/safe_win32.h>
 #include <utils/states/machine.h>
 
-#include <imgui/imgui.h>
+#include <nlohmann/json.hpp>
+#include <string>
 
-#include "../../game/helpers/camera.h"
 #include "../../game/helpers/controls.h"
-
-#include "sdk/mafia/framework/c_mafia_framework.h"
-#include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
 #include "../application.h"
 
@@ -28,74 +25,99 @@ namespace MafiaMP::Core::States {
     }
 
     bool MainMenuState::OnEnter(Framework::Utils::States::Machine *) {
-        _shouldDisplayWidget       = true;
-        _shouldProceedConnection   = false;
+        // Reset the states
         _shouldProceedOfflineDebug = false;
-
-        // Set camera
-        Game::Helpers::Camera::SetPos({-986.40686, -304.061798, 2.292042}, {-985.365356, -336.348083, 2.892426}, true);
+        _shouldProceedConnection   = false;
 
         // Lock game controls
         gApplication->LockControls(true);
+
+        // Grab the view from the application
+        auto const view = gApplication->GetWebManager()->GetView(gApplication->GetMainMenuViewId());
+        if (!view) {
+            return false;
+        }
+
+        view->Display(true);
+        view->Focus(true);
+
+        // Bind the event listeners
+        view->AddEventListener("RUN_SANDBOX", [this](std::string eventPayload) {
+            _shouldProceedOfflineDebug = true;
+        });
+
+        view->AddEventListener("EXIT_APP", [this](std::string eventPayload) {
+            TerminateProcess(GetCurrentProcess(), 0);
+        });
+
+        view->AddEventListener("CONNECT_TO_HOST", [this](std::string eventPayload) {
+            auto const parsedPayload = nlohmann::json::parse(eventPayload);
+
+            // Make sure the payload is valid
+            if (!parsedPayload.count("host") || !parsedPayload.count("port")) {
+                Framework::Logging::GetLogger("WebManager")->critical("Invalid payload for CONNECT_TO_HOST event");
+                return;
+            }
+
+            // Make sure the port is valid
+            if (!parsedPayload["port"].is_number()) {
+                Framework::Logging::GetLogger("WebManager")->critical("Invalid port for CONNECT_TO_HOST event");
+                return;
+            }
+
+            // Make sure the host is valid
+            if (!parsedPayload["host"].is_string() || parsedPayload["host"].get<std::string>().empty()) {
+                Framework::Logging::GetLogger("WebManager")->critical("Invalid host for CONNECT_TO_HOST event");
+                return;
+            }
+
+            // Update the application state for further usage
+            Framework::Integrations::Client::CurrentState newApplicationState = gApplication->GetCurrentState();
+            newApplicationState._host                                         = parsedPayload["host"];
+            newApplicationState._port                                         = parsedPayload["port"];
+            newApplicationState._nickname                                     = "Player";
+            if (gApplication->GetPresence()->IsInitialized()) {
+                discord::User currUser {};
+                gApplication->GetPresence()->GetUserManager().GetCurrentUser(&currUser);
+                newApplicationState._nickname = currUser.GetUsername();
+            }
+            gApplication->SetCurrentState(newApplicationState);
+
+            // Request transition to next state (session connection)
+            _shouldProceedConnection = true;
+        });
         return true;
     }
 
     bool MainMenuState::OnExit(Framework::Utils::States::Machine *) {
-        // Temp
-        Game::Helpers::Camera::ResetBehindPlayer();
+        // Grab the view from the application
+        auto const view = gApplication->GetWebManager()->GetView(gApplication->GetMainMenuViewId());
+        if (!view) {
+            return false;
+        }
+
+        // Unbind the event listeners
+        view->RemoveEventListener("RUN_SANDBOX");
+        view->RemoveEventListener("CONNECT_TO_HOST");
+        view->RemoveEventListener("EXIT_APP");
+
+        // Hide the view
+        view->Display(false);
+        view->Focus(false);
+
+        // Unlock the game controls
+        Game::Helpers::Controls::Lock(false);
 
         gApplication->LockControls(false);
         return true;
     }
 
     bool MainMenuState::OnUpdate(Framework::Utils::States::Machine *machine) {
-        gApplication->GetImGUI()->PushWidget([this]() {
-            if (!ImGui::Begin("Debug", &_shouldDisplayWidget, ImGuiWindowFlags_AlwaysAutoResize)) {
-                ImGui::End();
-                return;
-            }
+        auto const view = gApplication->GetWebManager()->GetView(gApplication->GetMainMenuViewId());
+        if (!view) {
+            return false;
+        }
 
-            bool isDiscordPresent = gApplication->GetPresence()->IsInitialized();
-
-            ImGui::Text("Enter connection details:");
-            static char serverIp[32] = "127.0.0.1";
-            static char nickname[32] = "Player";
-            ImGui::Text("Server IP: ");
-            ImGui::SameLine();
-            ImGui::InputText("##server_ip", serverIp, 32);
-
-            if (!isDiscordPresent) {
-                ImGui::Text("Nickname: ");
-                ImGui::SameLine();
-                ImGui::InputText("##nickname", nickname, 32);
-            }
-            else {
-                discord::User currUser {};
-                gApplication->GetPresence()->GetUserManager().GetCurrentUser(&currUser);
-                strcpy(nickname, currUser.GetUsername());
-                ImGui::Text("Nickname: %s (set via Discord)", nickname);
-            }
-
-            if (ImGui::Button("Connect")) {
-                // Update the application state for further usage
-                Framework::Integrations::Client::CurrentState newApplicationState = MafiaMP::Core::gApplication->GetCurrentState();
-                newApplicationState._host                                         = serverIp;
-                newApplicationState._port                                         = 27015; // TODO: fix this
-                newApplicationState._nickname                                     = nickname;
-                MafiaMP::Core::gApplication->SetCurrentState(newApplicationState);
-
-                // Request transition to next state (session connection)
-                _shouldProceedConnection = true;
-            }
-
-            ImGui::SameLine();
-
-            if (ImGui::Button("Play Offline (debug)")) {
-                _shouldProceedOfflineDebug = true;
-            }
-
-            ImGui::End();
-        });
         if (_shouldProceedOfflineDebug) {
             machine->RequestNextState(StateIds::SessionOfflineDebug);
         }

@@ -11,7 +11,10 @@ set(MAFIAMP_CLIENT_FILES
     src/core/ui/network_stats.cpp
     src/core/ui/player_debug.cpp
     src/core/ui/vehicle_debug.cpp
-    src/core/ui/web.cpp
+    src/core/ui/web/manager.cpp
+    src/core/ui/web/clipboard.cpp
+    src/core/ui/web/sdk.cpp
+    src/core/ui/web/view.cpp
     src/core/states/initialize.cpp
     src/core/states/main_menu.cpp
     src/core/states/session_connected.cpp
@@ -121,7 +124,7 @@ set(MAFIAMP_SDK_FILES
 
 add_library(MafiaMPClient SHARED ${MAFIAMP_CLIENT_FILES} ${MAFIAMP_SDK_FILES})
 target_include_directories(MafiaMPClient PRIVATE src)
-target_link_libraries(MafiaMPClient Framework FrameworkClient shlwapi Lua54 DirectXTK)
+target_link_libraries(MafiaMPClient Framework FrameworkClient shlwapi Lua54 DirectXTK UltralightSDK JavaScriptCorePP)
 target_link_options(MafiaMPClient PRIVATE /SAFESEH:NO /MANIFEST:NO)
 
 add_custom_command(TARGET MafiaMPClient POST_BUILD
