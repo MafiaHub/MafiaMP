@@ -33,7 +33,7 @@ namespace MafiaMP::Core::States {
         gApplication->LockControls(true);
 
         // Grab the view from the application
-        auto const view = gApplication->GetWeb()->GetView(gApplication->GetMainMenuViewId());
+        auto const view = gApplication->GetWebManager()->GetView(gApplication->GetMainMenuViewId());
         if (!view) {
             return false;
         }
@@ -47,8 +47,7 @@ namespace MafiaMP::Core::States {
         });
 
         view->AddEventListener("EXIT_APP", [this](std::string eventPayload) {
-            // TODO: do proper shutdown - this is just a quick hack
-            // Notify the server, etc etc etc
+            gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect();
             TerminateProcess(GetCurrentProcess(), 0);
         });
 
@@ -57,28 +56,33 @@ namespace MafiaMP::Core::States {
 
             // Make sure the payload is valid
             if (!parsedPayload.count("host") || !parsedPayload.count("port")) {
-                // TODO: put critical logs bc shouldn't happen
+                Framework::Logging::GetLogger("WebManager")->error("Invalid payload for CONNECT_TO_HOST event");
                 return;
             }
 
             // Make sure the port is valid
             if (!parsedPayload["port"].is_number()) {
-                // TODO: put critical logs bc shouldn't happen
+                Framework::Logging::GetLogger("WebManager")->error("Invalid port for CONNECT_TO_HOST event");
                 return;
             }
 
             // Make sure the host is valid
             if (!parsedPayload["host"].is_string() || parsedPayload["host"].get<std::string>().empty()) {
-                // TODO: put critical logs bc shouldn't happen
+                Framework::Logging::GetLogger("WebManager")->error("Invalid host for CONNECT_TO_HOST event");
                 return;
             }
 
             // Update the application state for further usage
-            Framework::Integrations::Client::CurrentState newApplicationState = MafiaMP::Core::gApplication->GetCurrentState();
+            Framework::Integrations::Client::CurrentState newApplicationState = gApplication->GetCurrentState();
             newApplicationState._host                                         = parsedPayload["host"];
             newApplicationState._port                                         = parsedPayload["port"];
-            newApplicationState._nickname                                     = "yelo"; //TODO: handle this properly when the web app sends it
-            MafiaMP::Core::gApplication->SetCurrentState(newApplicationState);
+            newApplicationState._nickname                                     = "Player";
+            if (gApplication->GetPresence()->IsInitialized()) {
+                discord::User currUser {};
+                gApplication->GetPresence()->GetUserManager().GetCurrentUser(&currUser);
+                newApplicationState._nickname = currUser.GetUsername();
+            }
+            gApplication->SetCurrentState(newApplicationState);
 
             // Request transition to next state (session connection)
             _shouldProceedConnection = true;
@@ -88,7 +92,7 @@ namespace MafiaMP::Core::States {
 
     bool MainMenuState::OnExit(Framework::Utils::States::Machine *) {
         // Grab the view from the application
-        auto const view = gApplication->GetWeb()->GetView(gApplication->GetMainMenuViewId());
+        auto const view = gApplication->GetWebManager()->GetView(gApplication->GetMainMenuViewId());
         if (!view) {
             return false;
         }
@@ -110,7 +114,7 @@ namespace MafiaMP::Core::States {
     }
 
     bool MainMenuState::OnUpdate(Framework::Utils::States::Machine *machine) {
-        auto const view = gApplication->GetWeb()->GetView(gApplication->GetMainMenuViewId());
+        auto const view = gApplication->GetWebManager()->GetView(gApplication->GetMainMenuViewId());
         if (!view) {
             return false;
         }

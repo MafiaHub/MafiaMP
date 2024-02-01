@@ -37,7 +37,7 @@ HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT fla
         const auto app = MafiaMP::Core::gApplication.get();
         if (app && app->IsInitialized()) {
             app->GetImGUI()->Render();
-            app->GetWeb()->Render();
+            app->GetWebManager()->Render();
         }
     }
 
@@ -67,8 +67,8 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_MBUTTONDOWN:
     case WM_MBUTTONUP: {
         if (app && app->IsInitialized()) {
-            if (app->GetWeb()) {
-                app->GetWeb()->ProcessMouseEvent(hWnd, msg, wParam, lParam);
+            if (app->GetWebManager()) {
+                app->GetWebManager()->ProcessMouseEvent(hWnd, msg, wParam, lParam);
             }
         }
     } break;
@@ -79,8 +79,8 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_KEYUP:
     case WM_SYSKEYUP: {
         if (app && app->IsInitialized()) {
-            if (app->GetWeb()) {
-                app->GetWeb()->ProcessKeyboardEvent(hWnd, msg, wParam, lParam);
+            if (app->GetWebManager()) {
+                app->GetWebManager()->ProcessKeyboardEvent(hWnd, msg, wParam, lParam);
             }
         }
     } break;

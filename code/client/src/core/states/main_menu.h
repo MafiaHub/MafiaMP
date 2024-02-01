@@ -10,7 +10,7 @@ namespace MafiaMP::Core::States {
 
       public:
         MainMenuState();
-        ~MainMenuState();
+        ~MainMenuState() override;
 
         virtual const char *GetName() const override;
         virtual int32_t GetId() const override;

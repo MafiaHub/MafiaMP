@@ -4,8 +4,8 @@
 
 #include <utils/safe_win32.h>
 
-#include "../game/streaming/entity_factory.h"
 #include "../game/helpers/districts.h"
+#include "../game/streaming/entity_factory.h"
 
 #include "luavm.h"
 #include "ui/chat.h"
@@ -27,7 +27,7 @@ namespace MafiaMP::Core {
         std::shared_ptr<Framework::Utils::States::Machine> _stateMachine;
         std::shared_ptr<UI::MafiaConsole> _console;
         std::shared_ptr<UI::Chat> _chat;
-        std::shared_ptr<UI::Web::Manager> _web;
+        std::shared_ptr<UI::Web::Manager> _webManager;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
         std::shared_ptr<MafiaMP::Game::GameInput> _input;
@@ -89,8 +89,8 @@ namespace MafiaMP::Core {
             return _luaVM;
         }
 
-        std::shared_ptr<UI::Web::Manager> GetWeb() const {
-            return _web;
+        std::shared_ptr<UI::Web::Manager> GetWebManager() const {
+            return _webManager;
         }
 
         flecs::entity GetLocalPlayer() const {
