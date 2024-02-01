@@ -47,7 +47,6 @@ namespace MafiaMP::Core::States {
         });
 
         view->AddEventListener("EXIT_APP", [this](std::string eventPayload) {
-            gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect();
             TerminateProcess(GetCurrentProcess(), 0);
         });
 
