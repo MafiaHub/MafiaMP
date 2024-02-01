@@ -50,14 +50,4 @@ namespace MafiaMP::Core::UI::Web {
       private:
         void InitEventHandlers();
     };
-
-    static inline std::unordered_map<JSObjectRef, SDK *> _objectMap;
-
-    static void SetPrivateData(JSObjectRef object, SDK* sdk) {
-        _objectMap[object] = sdk;
-    }
-
-    static SDK* GetPrivateData(JSObjectRef object) {
-        return _objectMap[object];
-    }
 }

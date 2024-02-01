@@ -2,58 +2,9 @@
 
 #include <logging/logger.h>
 
+#include <JavaScriptCorePP/JSHelper.h>
+
 namespace MafiaMP::Core::UI::Web {
-    JSValueRef OnCallEvent(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argumentCount, const JSValueRef arguments[], JSValueRef *exception) {
-        Framework::Logging::GetLogger("Web")->debug("OnCallEvent");
-
-        // Make sure there is only two arguments
-        if (argumentCount != 2) {
-            // TODO: throw an exception
-            Framework::Logging::GetLogger("Web")->error("OnCallEvent: Invalid argument count");
-            return JSValueMakeBoolean(ctx, false);
-        }
-
-        // Make sure the first argument is a string
-        if (!JSValueIsString(ctx, arguments[0])) {
-            // TODO: throw an exception
-            Framework::Logging::GetLogger("Web")->error("OnCallEvent: first argument must be a string");
-            return JSValueMakeBoolean(ctx, false);
-        }
-
-        // Make sure the second argument is a string or null (because it is a JSON payload)
-        if (!JSValueIsString(ctx, arguments[1]) && !JSValueIsNull(ctx, arguments[1]) && !JSValueIsUndefined(ctx, arguments[1])) {
-            // TODO: throw an exception
-            Framework::Logging::GetLogger("Web")->error("OnCallEvent: second argument must be a string or null");
-            return JSValueMakeBoolean(ctx, false);
-        }
-
-        // Grab the event name
-        auto eventName = JSValueToStringCopy(ctx, arguments[0], nullptr);
-        size_t len = JSStringGetMaximumUTF8CStringSize(eventName) + 1;
-        char *eventNameStr = new char[len];
-        memset(eventNameStr, 0, len);
-        JSStringGetUTF8CString(eventName, eventNameStr, len);
-
-        // Grab the event payload
-        auto eventPayload = JSValueToStringCopy(ctx, arguments[1], nullptr);
-        size_t len2         = JSStringGetMaximumUTF8CStringSize(eventName) + 1;
-        char *eventPayloadStr = new char[len2];
-        memset(eventPayloadStr, 0, len2);
-        JSStringGetUTF8CString(eventPayload, eventPayloadStr, len2);
-
-        // Grab the SDK instance
-        auto sdk = GetPrivateData(thisObject);
-
-        // Process all the event callbacks
-        sdk->BroadcastEvent(eventNameStr, eventPayloadStr);
-
-        // Cleanup
-        delete[] eventNameStr;
-        delete[] eventPayloadStr;
-
-        return JSValueMakeBoolean(ctx, true);
-    }
-
     bool SDK::Init(ultralight::View* caller) {
         // Bind the view reference
         _view = caller;
@@ -75,12 +26,45 @@ namespace MafiaMP::Core::UI::Web {
     }
 
     void SDK::InitEventHandlers() {
-        SetPrivateData(_globalObject, this);
+        // Grab the context
+        auto context = JavaScriptCorePP::JSContext(_context);
+        auto obj = context.GetGlobalObject();
 
         // Bind the callEvent method
-        JSStringRef name = JSStringCreateWithUTF8CString("callEvent");
-        JSObjectRef func = JSObjectMakeFunctionWithCallback(_context, name, OnCallEvent);
-        JSObjectSetProperty(_context, _globalObject, name, func, 0, 0);
-        JSStringRelease(name);
+        obj["callEvent"] = [this](const JavaScriptCorePP::JSContext &context, const std::vector<JavaScriptCorePP::JSValue> &args, JavaScriptCorePP::JSValue &returnValue, JavaScriptCorePP::JSValue &returnException) {
+            // Make sure there is only two arguments
+            if (args.size() != 2) {
+                returnException = context.CreateString("Invalid argument count: callEvent(string, string | null)");
+                return;
+            }
+
+            std::string eventName;
+            std::string eventPayload;
+
+            // Grab the event name - must be a string
+            if (args[0].IsString()) {
+                eventName = args[0].GetString();
+            }
+            else {
+                returnException = context.CreateString("First argument must be a string");
+                return;
+            }
+
+            // Grab the event payload - must be a string or null
+            if (args[1].IsString()) {
+                eventPayload = args[1].GetString();
+            }
+            else if (args[1].IsNull() || args[1].IsUndefined()) {
+                eventPayload = "";
+            }
+            else {
+                returnException = context.CreateString("Second argument must be a string or null");
+                return;
+            }
+
+            // Process all event callbacks
+            BroadcastEvent(eventName, eventPayload);
+            returnValue = context.CreateBoolean(true);
+        };
     }
 }
