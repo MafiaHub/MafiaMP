@@ -55,19 +55,19 @@ namespace MafiaMP::Core::States {
 
             // Make sure the payload is valid
             if (!parsedPayload.count("host") || !parsedPayload.count("port")) {
-                Framework::Logging::GetLogger("WebManager")->critical("Invalid payload for CONNECT_TO_HOST event");
+                Framework::Logging::GetLogger("StateMachine")->critical("Invalid payload for CONNECT_TO_HOST event");
                 return;
             }
 
             // Make sure the port is valid
             if (!parsedPayload["port"].is_number()) {
-                Framework::Logging::GetLogger("WebManager")->critical("Invalid port for CONNECT_TO_HOST event");
+                Framework::Logging::GetLogger("StateMachine")->critical("Invalid port for CONNECT_TO_HOST event");
                 return;
             }
 
             // Make sure the host is valid
             if (!parsedPayload["host"].is_string() || parsedPayload["host"].get<std::string>().empty()) {
-                Framework::Logging::GetLogger("WebManager")->critical("Invalid host for CONNECT_TO_HOST event");
+                Framework::Logging::GetLogger("StateMachine")->critical("Invalid host for CONNECT_TO_HOST event");
                 return;
             }
 
