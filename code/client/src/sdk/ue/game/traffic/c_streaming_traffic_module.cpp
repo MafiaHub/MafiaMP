@@ -26,8 +26,8 @@ namespace SDK {
             hook::this_call<void>(gPatterns.C_StreamingTrafficModule__OpenSeason, this, seasonID, unk2);
         }
 
-        int C_StreamingTrafficModule::SetMaxHumanElements(int maxHumanElements) {
-            return hook::this_call<int>(gPatterns.C_StreamingTrafficModule__SetMaxHumanElements, this, maxHumanElements);
+        void C_StreamingTrafficModule::SetMaxHumanElements(int maxHumanElements) {
+            hook::this_call<void>(gPatterns.C_StreamingTrafficModule__SetMaxHumanElements, this, maxHumanElements);
         }
     } // namespace ue::game::traffic
 } // namespace SDK

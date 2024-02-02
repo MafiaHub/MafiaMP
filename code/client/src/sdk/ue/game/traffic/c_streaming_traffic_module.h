@@ -46,10 +46,7 @@ namespace SDK {
              */
             void OpenSeason(unsigned int seasonID, bool unk2);
 
-            /**
-             * @returns C_TrafficSpawnManager::UpdateMaxElementsCnt value
-             */
-            int SetMaxHumanElements(int maxHumanElements);
+            void SetMaxHumanElements(int maxHumanElements);
 
             static C_StreamingTrafficModule *GetInstance() {
                 return hook::call<C_StreamingTrafficModule *>(gPatterns.C_StreamingTrafficModule__GetInstance);
