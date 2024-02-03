@@ -9,8 +9,8 @@ namespace SDK {
         class C_StreamingTrafficModule: public C_TickedModule {
           public:
             char pad0[0x8C];         // 0008 - 0094
-            int m_SeasonID;          // 0094 - 0098
-            int m_PrevSeasonID;      // 0098 - 009C
+            int m_iSeasonID;         // 0094 - 0098
+            int m_iPrevSeasonID;     // 0098 - 009C
             char pad1[0x64];         // 009C - 0100
             int m_iMaxHumanElements; // 0100 - 0104
 

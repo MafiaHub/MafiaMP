@@ -7,7 +7,7 @@ namespace SDK {
         }
 
         int C_StreamingTrafficModule::GetCurrentSeasonID() {
-            return m_SeasonID;
+            return m_iSeasonID;
         }
 
         int C_StreamingTrafficModule::GetMaxHumanElements() {
@@ -15,11 +15,11 @@ namespace SDK {
         }
 
         int C_StreamingTrafficModule::GetPreviousSeasonID() {
-            return m_PrevSeasonID;
+            return m_iPrevSeasonID;
         }
 
         bool C_StreamingTrafficModule::GetSeasonOpened() {
-            return m_SeasonID != -1;
+            return m_iSeasonID != -1;
         }
 
         void C_StreamingTrafficModule::OpenSeason(unsigned int seasonID, bool unk2) {
