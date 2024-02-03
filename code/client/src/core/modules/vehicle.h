@@ -3,8 +3,8 @@
 #include <flecs/flecs.h>
 
 #include "game/streaming/entity_factory.h"
-#include "sdk/entities/c_car.h"
 #include "sdk/c_game.h"
+#include "sdk/entities/c_car.h"
 
 #include "shared/modules/vehicle_sync.hpp"
 
@@ -39,7 +39,7 @@ namespace MafiaMP::Core::Modules {
         static void InitRPCs(Application *app);
 
         static void UpdateTransform(flecs::entity e);
-        
+
         static flecs::entity GetCarEntity(SDK::C_Car *carPtr);
         static flecs::entity GetCarEntityByVehicle(SDK::C_Vehicle *vehiclePtr);
     };

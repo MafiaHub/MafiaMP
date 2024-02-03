@@ -6,17 +6,17 @@
 #include "world/modules/base.hpp"
 
 #include "shared/messages/vehicle/vehicle_despawn.h"
+#include "shared/messages/vehicle/vehicle_owner_update.h"
 #include "shared/messages/vehicle/vehicle_spawn.h"
 #include "shared/messages/vehicle/vehicle_update.h"
-#include "shared/messages/vehicle/vehicle_owner_update.h"
 #include "shared/modules/vehicle_sync.hpp"
 
 #include <utils/safe_string.h>
 
+#include <flecs/flecs.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> 
-#include <flecs/flecs.h>
+#include <string.h>
 
 namespace MafiaMP::Core::Modules {
     Vehicle::Vehicle(flecs::world &world) {
@@ -66,7 +66,7 @@ namespace MafiaMP::Core::Modules {
         };
 
         es->modEvents.spawnProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            const auto frame = e.get<Framework::World::Modules::Base::Frame>();
+            const auto frame      = e.get<Framework::World::Modules::Base::Frame>();
             auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
             Shared::Messages::Vehicle::VehicleSpawn vehicleSpawn;
             vehicleSpawn.FromParameters(frame->modelName.c_str(), *trackingMetadata);
@@ -117,8 +117,8 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto updateData             = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            *updateData = msg->GetData();
+            auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            *updateData     = msg->GetData();
         });
     }
 } // namespace MafiaMP::Core::Modules

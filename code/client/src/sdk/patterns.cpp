@@ -15,42 +15,41 @@ namespace SDK {
         gPatterns.C_BehaviorCharacter__SetWAnimVariable_float = hook::get_opcode_address("E9 ? ? ? ? 83 FA 20");
 
         // C_Car
-        gPatterns.C_Car__CloseHood       = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC ? 48 8B 81 ? ? ? ? 33 DB 48 2B 81 ? ? ? ? 33 FF 48 C1 F8 ? 48 8B F1 4C 63 F0 85 C0 0F 8E ? ? ? "
-                                                                                              "? 48 89 6C 24 ? 0F 29 74 24 ? 0F 57 F6 66 66 0F 1F 84 00 ? ? ? ? 48 8B 86 ? ? ? ? 48 63 0C B8 48 8B 86 ? ? ? ? 48 8B 14 C8 33 C9 8B 42 ? 39 05 ? ? ? ? "
-                                                                                              "48 0F 45 CA 48 85 C9 74 ? 48 0F BF 49 ? 48 8B 86 ? ? ? ? 48 8B 14 C8 0F 2F 72 ? 73 ? 0F B6 86 ? ? ? ? 48 8D 8E ? ? ? ? C0 E8 ? 45 33 C0"));
-        gPatterns.C_Car__CloseTrunk      = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4F ? 4C 8D 47 ? BA ? ? ? ? E8 ? ? ? ? 84 C0 0F 84 ? ? ? ?");
-        gPatterns.C_Car__ExplodeCar      = hook::get_opcode_address("E8 ? ? ? ? 48 8B 86 ? ? ? ? 45 33 E4 48 2B 86 ? ? ? ?");
-        gPatterns.C_Car__ExplodeCar_2    = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 11 4C 24 ? 4C 8B DC 55"));
-        gPatterns.C_Car__GetDamage       = hook::get_opcode_address("E8 ? ? ? ? 0F 57 C9 0F 2E C1 75 ? 0F 28 C1");
-        gPatterns.C_Car__GetMotorDamage  = hook::get_opcode_address("E8 ? ? ? ? 49 8B CE 0F 28 F8 E8 ? ? ? ? 0F 28 F0");
-        gPatterns.C_Car__Lock            = hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? B8 ? ? ? ? C3");
-        gPatterns.C_Car__LockEntryPoints = hook::get_opcode_address("E8 ? ? ? ? 45 8D 7E ? 48 8B 4F ?");
+        gPatterns.C_Car__CloseHood           = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC ? 48 8B 81 ? ? ? ? 33 DB 48 2B 81 ? ? ? ? 33 FF 48 C1 F8 ? 48 8B F1 4C 63 F0 85 C0 0F 8E ? ? ? ? 48 89 6C 24 ? 0F 29 74 24 ? 0F 57 F6 66 66 0F 1F 84 00 ? ? ? ? 48 8B 86 ? ? ? ? 48 63 0C B8 48 8B 86 ? ? ? ? 48 8B 14 C8 33 C9 8B 42 ? 39 05 ? ? ? ? 48 0F 45 CA 48 85 C9 74 ? 48 0F BF 49 ? 48 8B 86 ? ? ? ? 48 8B 14 C8 0F 2F 72 ? 73 ? 0F B6 86 ? ? ? ? 48 8D 8E ? ? ? ? C0 E8 ? 45 33 C0"));
+        gPatterns.C_Car__CloseTrunk          = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4F ? 4C 8D 47 ? BA ? ? ? ? E8 ? ? ? ? 84 C0 0F 84 ? ? ? ?");
+        gPatterns.C_Car__ExplodeCar          = hook::get_opcode_address("E8 ? ? ? ? 48 8B 86 ? ? ? ? 45 33 E4 48 2B 86 ? ? ? ?");
+        gPatterns.C_Car__ExplodeCar_2        = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 11 4C 24 ? 4C 8B DC 55"));
+        gPatterns.C_Car__GetDamage           = hook::get_opcode_address("E8 ? ? ? ? 0F 57 C9 0F 2E C1 75 ? 0F 28 C1");
+        gPatterns.C_Car__GetFuelTankCapacity = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC 28 48 8B 81 ? ? ? ? 48 8B 48 08 48 8B 09 48 85 C9 74 1E"));
+        gPatterns.C_Car__GetMotorDamage      = hook::get_opcode_address("E8 ? ? ? ? 49 8B CE 0F 28 F8 E8 ? ? ? ? 0F 28 F0");
+        gPatterns.C_Car__Lock                = hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? B8 ? ? ? ? C3");
+        gPatterns.C_Car__LockEntryPoints     = hook::get_opcode_address("E8 ? ? ? ? 45 8D 7E ? 48 8B 4F ?");
 
         //NOTE: new version only
 #ifndef NONSTEAM_SUPPORT
-        gPatterns.C_Car__OpenHood = hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 40 53 48 83 EC ? 45 33 C0 33 D2 48 8B D9 E8 ? ? ? ? 48 8B 43 ? C7 40 ? ? ? ? "
-                                                             "? C7 00 ? ? ? ? 48 83 C0 ? 48 89 43 ? B8 ? ? ? ? 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? 48 83 EC ?");
+        gPatterns.C_Car__OpenHood =
+            hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 40 53 48 83 EC ? 45 33 C0 33 D2 48 8B D9 E8 ? ? ? ? 48 8B 43 ? C7 40 ? ? ? ? ? C7 00 ? ? ? ? 48 83 C0 ? 48 89 43 ? B8 ? ? ? ? 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? 48 83 EC ?");
 #endif
         gPatterns.C_Car__OpenTrunk = hook::get_opcode_address("E8 ? ? ? ? 4D 85 F6 74 ? 49 8D 9E ? ? ? ?");
-
-#ifndef NONSTEAM_SUPPORT
-        gPatterns.C_Car__PosefujZimuVShopu = hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? 4C 8B 41 ?");
-#else
-        gPatterns.C_Car__PosefujZimuVShopu = hook::get_opcode_address("E8 ? ? ? ? 8B 55 60 83 FA FF");
-#endif
 
 #ifndef NONSTEAM_SUPPORT
         // TODO lol
         gPatterns.C_Car__RestoreCar = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4B 10 0F 57 C9");
 #else
-        //NOTE: todo
         gPatterns.C_Car__RestoreCar = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4B 10 0F 57 C9");
 #endif
+        gPatterns.C_Car__SetActualFuel   = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 81 ? ? ? ? 48 8B 48 08 48 8B 09 48 85 C9 0F 85 ? ? ? ? C3 CC CC CC CC CC CC CC CC 0F 28 C1"));
+        gPatterns.C_Car__SetMotorDamage  = hook::get_opcode_address("E8 ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 49 21 86 ? ? ? ?");
+        gPatterns.C_Car__SetSeatStatus   = hook::get_opcode_address("E8 ? ? ? ? 45 85 F6 8B C5");
+        gPatterns.C_Car__SetSpeed        = hook::get_opcode_address("E8 ? ? ? ? 48 8B 5C 24 ? 33 C0 48 83 C4 ? 5F C3 ? ? 48 83 EC ? 48 8B C2");
+        gPatterns.C_Car__SetTransparency = hook::get_opcode_address("E8 ? ? ? ? 4C 39 2D ? ? ? ?");
 
-        gPatterns.C_Car__SetMotorDamage    = hook::get_opcode_address("E8 ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 49 21 86 ? ? ? ?");
-        gPatterns.C_Car__SetSeatStatus     = hook::get_opcode_address("E8 ? ? ? ? 45 85 F6 8B C5");
-        gPatterns.C_Car__SetSpeed          = hook::get_opcode_address("E8 ? ? ? ? 48 8B 5C 24 ? 33 C0 48 83 C4 ? 5F C3 ? ? 48 83 EC ? 48 8B C2");
-        gPatterns.C_Car__SetTransparency   = hook::get_opcode_address("E8 ? ? ? ? 4C 39 2D ? ? ? ?");
+#ifndef NONSTEAM_SUPPORT
+        gPatterns.C_Car__SetVehicleDirty = hook::get_opcode_address("E8 ? ? ? ? 33 C0 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? 4C 8B 41 ?");
+#else
+        gPatterns.C_Car__SetVehicleDirty = hook::get_opcode_address("E8 ? ? ? ? 8B 55 60 83 FA FF");
+#endif
         gPatterns.C_Car__Unlock            = hook::get_opcode_address("E8 ? ? ? ? C6 43 ? ? 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? ? C2 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? C2 ? ?");
         gPatterns.C_Car__UnlockEntryPoints = hook::get_opcode_address("E8 ? ? ? ? 48 8B 6C 24 ? 48 83 C4 ? 5E C3 ? ? ? ? ? ? ? ? ? 48 89 5C 24 ?");
 
@@ -324,35 +323,20 @@ namespace SDK {
         gPatterns.C_StreamingModule__SetStreamingPosSource = reinterpret_cast<uint64_t>(hook::get_pattern("33 C0 89 91 ? ? ? ? 48 89 81 ? ? ? ?"));
 
         // C_StreamMap
-        gPatterns.C_StreamMap__CloseGame = reinterpret_cast<uint64_t>(
-            hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 48 8B A9 ? ? ? ? 4C 8B F1 48 C7 44 24 ? ? ? ? ? B9 ? ? ? ? C7 44 24 ? ? ? ? ? 48 8B 75 08 E8 ? ? ? ? 48 8B D8 48 85 C0 75 07 FF 15 ? ? ? ? CC 48 89 7C 24 ? 48 8D 78 08 48 89 28 "
-                              "48 85 FF 74 03 48 89 37 48 8D 48 10 48 85 C9 74 34 8B 44 24 20 48 8D 71 08 89 01 48 8D 54 24 ? 48 8B 44 24 ? 48 8B CE 48 89 06 E8 ? ? ? ? 84 C0 75 11 48 83 3E 00 74 0B 48 8B CE E8 ? ? ? ? F0 FF 00 49 8B 8E ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? "
-                              "48 2B C1 48 83 F8 01 73 0E 48 8D 0D ? ? ? ? FF 15 ? ? ? ? CC 48 8D 41 01 49 89 86 ? ? ? ? 48 89 5D 08 48 8B 07 48 89 18 48 83 7C 24 ? ? 74 1E 48 8D 4C 24 ? E8 ? ? ? ? 83 C9 FF F0 0F C1 08 83 F9 01 75 08 48 8B C8 E8 ? ? ? ? 48 8B 7C 24 ? "
-                              "48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 83 C4 30 41 5E C3 CC CC CC CC 40 53 48 83 EC 20 44 8B 41 10 48 8D 81 ? ? ? ? 48 89 81 ? ? ? ? 32 DB 41 8D 40 FF"));
-        gPatterns.C_StreamMap__CloseMission = reinterpret_cast<uint64_t>(
-            hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 48 8B A9 ? ? ? ? 4C 8B F1 48 C7 44 24 ? ? ? ? ? B9 ? ? ? ? C7 44 24 ? ? ? ? ? 48 8B 75 08 E8 ? ? ? ? 48 8B D8 48 85 C0 75 07 FF 15 ? ? ? ? CC 48 89 7C 24 ? 48 8D 78 "
-                              "08 48 89 28 48 85 FF 74 03 48 89 37 48 8D 48 10 48 85 C9 74 34 8B 44 24 20 48 8D 71 08 89 01 48 8D 54 24 ? 48 8B 44 24 ? 48 8B CE 48 89 06 E8 ? ? ? ? 84 C0 75 11 48 83 3E 00 74 0B 48 8B CE E8 ? ? ? ? F0 FF 00 49 8B 8E ? ? ? "
-                              "? 48 B8 ? ? ? ? ? ? ? ? 48 2B C1 48 83 F8 01 73 0E 48 8D 0D ? ? ? ? FF 15 ? ? ? ? CC 48 8D 41 01 49 89 86 ? ? ? ? 48 89 5D 08 48 8B 07 48 89 18 48 83 7C 24 ? ? 74 1E 48 8D 4C 24 ? E8 ? ? ? ? 83 C9 FF F0 0F C1 08 83 F9 01 75 "
-                              "08 48 8B C8 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 83 C4 30 41 5E C3 CC CC CC CC 48 89 5C 24 ?"));
-        gPatterns.C_StreamMap__ClosePart = reinterpret_cast<uint64_t>(
-            hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 48 8B A9 ? ? ? ? 4C 8B F1 48 C7 44 24 ? ? ? ? ? B9 ? ? ? ? C7 44 24 ? ? ? ? ? 48 8B 75 08 E8 ? ? ? ? 48 8B D8 48 85 C0 75 07 FF 15 ? ? ? ? CC 48 89 7C 24 ? 48 8D 78 "
-                              "08 48 89 28 48 85 FF 74 03 48 89 37 48 8D 48 10 48 85 C9 74 34 8B 44 24 20 48 8D 71 08 89 01 48 8D 54 24 ? 48 8B 44 24 ? 48 8B CE 48 89 06 E8 ? ? ? ? 84 C0 75 11 48 83 3E 00 74 0B 48 8B CE E8 ? ? ? ? F0 FF 00 49 8B 8E ? ? ? "
-                              "? 48 B8 ? ? ? ? ? ? ? ? 48 2B C1 48 83 F8 01 73 0E 48 8D 0D ? ? ? ? FF 15 ? ? ? ? CC 48 8D 41 01 49 89 86 ? ? ? ? 48 89 5D 08 48 8B 07 48 89 18 48 83 7C 24 ? ? 74 1E 48 8D 4C 24 ? E8 ? ? ? ? 83 C9 FF F0 0F C1 08 83 F9 01 75 "
-                              "08 48 8B C8 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 83 C4 30 41 5E C3 CC CC CC CC 40 53 48 83 EC 20 44 8B 41 10 48 8D 81 ? ? ? ? 48 89 81 ? ? ? ? 32 DB 41 8D 40 FD"));
-        gPatterns.C_StreamMap__GetGame     = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 41 10 48 85 C0 48 0F 44 05 ? ? ? ? C3 48 8B 81 ? ? ? ?"));
-        gPatterns.C_StreamMap__GetMission  = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 41 18 48 85 C0 48 0F 44 05 ? ? ? ? C3 48 8B 41 20"));
-        gPatterns.C_StreamMap__GetPart     = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 41 20 48 85 C0 48 0F 44 05 ? ? ? ? C3 40 53"));
-        gPatterns.C_StreamMap__OpenGame    = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 33 C0"));
-        gPatterns.C_StreamMap__OpenMission = reinterpret_cast<uint64_t>(
-            hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 4C 8B F1 48 C7 44 24 ? ? ? ? ? 48 8D 4C 24 ? C7 44 24 ? ? ? ? ? E8 ? ? ? ? 49 8B AE ? ? ? ? B9 ? ? ? ? 48 8B 75 08 E8 ? ? ? ? 48 8B D8 48 85 C0 75 07 FF 15 ? ? ? ? "
-                              "CC 48 89 7C 24 ? 48 8D 78 08 48 89 28 48 85 FF 74 03 48 89 37 48 8D 70 10 48 85 F6 74 34 8B 44 24 20 48 8D 54 24 ? 89 06 48 8D 4E 08 48 8B 44 24 ? 48 89 46 08 E8 ? ? ? ? 84 C0 75 13 48 83 7E ? ? 74 0C 48 8D 4E 08 E8 ? ? ? ? "
-                              "F0 FF 00 49 8B 8E ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 48 2B C1 48 83 F8 01 73 0E 48 8D 0D ? ? ? ? FF 15 ? ? ? ? CC 48 8D 41 01 49 89 86 ? ? ? ? 48 89 5D 08 48 8B 07 48 89 18 48 83 7C 24 ? ? 74 1E 48 8D 4C 24 ? E8 ? ? ? ? 83 C9 FF "
-                              "F0 0F C1 08 83 F9 01 75 08 48 8B C8 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 83 C4 30 41 5E C3 CC CC CC CC CC CC CC CC CC CC 40 53"));
-        gPatterns.C_StreamMap__OpenPart = reinterpret_cast<uint64_t>(
-            hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 4C 8B F1 48 C7 44 24 ? ? ? ? ? 48 8D 4C 24 ? C7 44 24 ? ? ? ? ? E8 ? ? ? ? 49 8B AE ? ? ? ? B9 ? ? ? ? 48 8B 75 08 E8 ? ? ? ? 48 8B D8 48 85 C0 75 07 FF 15 ? ? ? ? "
-                              "CC 48 89 7C 24 ? 48 8D 78 08 48 89 28 48 85 FF 74 03 48 89 37 48 8D 70 10 48 85 F6 74 34 8B 44 24 20 48 8D 54 24 ? 89 06 48 8D 4E 08 48 8B 44 24 ? 48 89 46 08 E8 ? ? ? ? 84 C0 75 13 48 83 7E ? ? 74 0C 48 8D 4E 08 E8 ? ? ? ? "
-                              "F0 FF 00 49 8B 8E ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 48 2B C1 48 83 F8 01 73 0E 48 8D 0D ? ? ? ? FF 15 ? ? ? ? CC 48 8D 41 01 49 89 86 ? ? ? ? 48 89 5D 08 48 8B 07 48 89 18 48 83 7C 24 ? ? 74 1E 48 8D 4C 24 ? E8 ? ? ? ? 83 C9 FF "
-                              "F0 0F C1 08 83 F9 01 75 08 48 8B C8 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 83 C4 30 41 5E C3 CC CC CC CC CC CC CC CC CC CC 48 89 5C 24 ?"));
+        gPatterns.C_StreamMap__CloseGame    = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 48 8B A9 ? ? ? ? 4C 8B F1 48 C7 44 24 ? ? ? ? ? B9 ? ? ? ? C7 44 24 ? ? ? ? ? 48 8B 75 08 E8 ? ? ? ? 48 8B D8 48 85 C0 75 07 FF 15 ? ? ? ? CC 48 89 7C 24 ? 48 8D 78 08 48 89 28 48 85 FF 74 03 48 89 37 48 8D 48 10 48 85 C9 74 34 8B 44 24 20 48 8D 71 08 89 01 48 8D 54 24 ? 48 8B 44 24 ? 48 8B CE 48 89 06 E8 ? ? ? ? 84 C0 75 11 48 83 3E 00 74 0B 48 8B CE E8 ? ? ? ? F0 FF 00 49 8B 8E ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 48 2B C1 48 83 F8 01 73 0E 48 8D 0D ? ? ? ? FF 15 ? ? ? ? CC 48 8D 41 01 49 89 86 ? ? ? ? 48 89 5D 08 48 8B 07 48 89 18 48 83 7C 24 ? ? 74 1E 48 8D 4C 24 ? E8 ? ? ? ? 83 C9 FF F0 0F C1 08 83 F9 01 75 08 48 8B C8 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 83 C4 30 41 5E C3 CC CC CC CC 40 53 48 83 EC 20 44 8B 41 10 48 8D 81 ? ? ? ? 48 89 81 ? ? ? ? 32 DB 41 8D 40 FF"));
+        gPatterns.C_StreamMap__CloseMission = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 48 8B A9 ? ? ? ? 4C 8B F1 48 C7 44 24 ? ? ? ? ? B9 ? ? ? ? C7 44 24 ? ? ? ? ? 48 8B 75 08 E8 ? ? ? ? 48 8B D8 48 85 C0 75 07 FF 15 ? ? ? ? CC 48 89 7C 24 ? 48 8D 78 08 48 89 28 48 85 FF 74 03 48 89 37 48 8D 48 10 48 85 C9 74 34 8B 44 24 20 48 8D 71 08 89 01 48 8D 54 24 ? 48 8B 44 24 ? 48 8B CE 48 89 06 E8 ? ? ? ? 84 C0 75 11 48 83 3E 00 74 0B 48 8B CE E8 ? ? ? ? F0 FF 00 49 8B 8E ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 48 2B C1 48 83 F8 01 73 0E 48 8D 0D ? ? ? ? FF 15 ? ? ? ? CC 48 8D 41 01 49 89 86 ? ? ? ? 48 89 5D 08 48 8B 07 48 89 18 48 83 7C 24 ? ? 74 1E 48 8D 4C 24 ? E8 ? ? ? ? 83 C9 FF F0 0F C1 08 83 F9 01 75 08 48 8B C8 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 83 C4 30 41 5E C3 CC CC CC CC 48 89 5C 24 ?"));
+        gPatterns.C_StreamMap__ClosePart    = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 48 8B A9 ? ? ? ? 4C 8B F1 48 C7 44 24 ? ? ? ? ? B9 ? ? ? ? C7 44 24 ? ? ? ? ? 48 8B 75 08 E8 ? ? ? ? 48 8B D8 48 85 C0 75 07 FF 15 ? ? ? ? CC 48 89 7C 24 ? 48 8D 78 08 48 89 28 48 85 FF 74 03 48 89 37 48 8D 48 10 48 85 C9 74 34 8B 44 24 20 48 8D 71 08 89 01 48 8D 54 24 ? 48 8B 44 24 ? 48 8B CE 48 89 06 E8 ? ? ? ? 84 C0 75 11 48 83 3E 00 74 0B 48 8B CE E8 ? ? ? ? F0 FF 00 49 8B 8E ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 48 2B C1 48 83 F8 01 73 0E 48 8D 0D ? ? ? ? FF 15 ? ? ? ? CC 48 8D 41 01 49 89 86 ? ? ? ? 48 89 5D 08 48 8B 07 48 89 18 48 83 7C 24 ? ? 74 1E 48 8D 4C 24 ? E8 ? ? ? ? 83 C9 FF F0 0F C1 08 83 F9 01 75 08 48 8B C8 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 83 C4 30 41 5E C3 CC CC CC CC 40 53 48 83 EC 20 44 8B 41 10 48 8D 81 ? ? ? ? 48 89 81 ? ? ? ? 32 DB 41 8D 40 FD"));
+        gPatterns.C_StreamMap__GetGame      = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 41 10 48 85 C0 48 0F 44 05 ? ? ? ? C3 48 8B 81 ? ? ? ?"));
+        gPatterns.C_StreamMap__GetMission   = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 41 18 48 85 C0 48 0F 44 05 ? ? ? ? C3 48 8B 41 20"));
+        gPatterns.C_StreamMap__GetPart      = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 41 20 48 85 C0 48 0F 44 05 ? ? ? ? C3 40 53"));
+        gPatterns.C_StreamMap__OpenGame     = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 33 C0"));
+        gPatterns.C_StreamMap__OpenMission  = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 4C 8B F1 48 C7 44 24 ? ? ? ? ? 48 8D 4C 24 ? C7 44 24 ? ? ? ? ? E8 ? ? ? ? 49 8B AE ? ? ? ? B9 ? ? ? ? 48 8B 75 08 E8 ? ? ? ? 48 8B D8 48 85 C0 75 07 FF 15 ? ? ? ? CC 48 89 7C 24 ? 48 8D 78 08 48 89 28 48 85 FF 74 03 48 89 37 48 8D 70 10 48 85 F6 74 34 8B 44 24 20 48 8D 54 24 ? 89 06 48 8D 4E 08 48 8B 44 24 ? 48 89 46 08 E8 ? ? ? ? 84 C0 75 13 48 83 7E ? ? 74 0C 48 8D 4E 08 E8 ? ? ? ? F0 FF 00 49 8B 8E ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 48 2B C1 48 83 F8 01 73 0E 48 8D 0D ? ? ? ? FF 15 ? ? ? ? CC 48 8D 41 01 49 89 86 ? ? ? ? 48 89 5D 08 48 8B 07 48 89 18 48 83 7C 24 ? ? 74 1E 48 8D 4C 24 ? E8 ? ? ? ? 83 C9 FF F0 0F C1 08 83 F9 01 75 08 48 8B C8 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 83 C4 30 41 5E C3 CC CC CC CC CC CC CC CC CC CC 40 53"));
+        gPatterns.C_StreamMap__OpenPart     = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 30 4C 8B F1 48 C7 44 24 ? ? ? ? ? 48 8D 4C 24 ? C7 44 24 ? ? ? ? ? E8 ? ? ? ? 49 8B AE ? ? ? ? B9 ? ? ? ? 48 8B 75 08 E8 ? ? ? ? 48 8B D8 48 85 C0 75 07 FF 15 ? ? ? ? CC 48 89 7C 24 ? 48 8D 78 08 48 89 28 48 85 FF 74 03 48 89 37 48 8D 70 10 48 85 F6 74 34 8B 44 24 20 48 8D 54 24 ? 89 06 48 8D 4E 08 48 8B 44 24 ? 48 89 46 08 E8 ? ? ? ? 84 C0 75 13 48 83 7E ? ? 74 0C 48 8D 4E 08 E8 ? ? ? ? F0 FF 00 49 8B 8E ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 48 2B C1 48 83 F8 01 73 0E 48 8D 0D ? ? ? ? FF 15 ? ? ? ? CC 48 8D 41 01 49 89 86 ? ? ? ? 48 89 5D 08 48 8B 07 48 89 18 48 83 7C 24 ? ? 74 1E 48 8D 4C 24 ? E8 ? ? ? ? 83 C9 FF F0 0F C1 08 83 F9 01 75 08 48 8B C8 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 83 C4 30 41 5E C3 CC CC CC CC CC CC CC CC CC CC 48 89 5C 24 ?"));
 
         // C_String
         gPatterns.C_String__SetString = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B FA 48 8B F1 48 85 D2 75 ? 48 8B 09"));
@@ -375,19 +359,18 @@ namespace SDK {
         // TODO
 #endif
 
-        gPatterns.C_Vehicle__DamageBreaks       = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B 01 48 8B D9 0F 29 7C 24 ? 0F 28 F9 FF 50 ? 84 C0 74 ? 48 8B 5B ? 4C 8D 44 24 ? 0F 29 74 24 ? 48 8D 54 "
-                                                                                                     "24 ? 0F 57 F6 C7 44 24 ? ? ? ? ? C7 44 24 ? ? ? ? ? 48 8D 8B ? ? ? ? E8 ? ? ? ? F3 0F 10 0D ? ? ? ? 0F 28 C7 F3 0F 5C C1 0F "
-                                                                                                     "2F C6 73 ? 0F 28 CF 0F 28 C1 0F 57 05 ? ? ? ? 0F 2F C6 73 ? 0F 28 F1 F3 0F 59 35 ? ? ? ? 48 8D 8B ? ? ? ? F3 0F 10 54 24 ?"));
-        gPatterns.C_Vehicle__EnableRadio        = hook::get_opcode_address("E8 ? ? ? ? 49 8B 84 24 ? ? ? ? 49 8B F7");
-        gPatterns.C_Vehicle__GetSPZText         = hook::get_opcode_address("E8 ? ? ? ? 49 8D 4F ? 48 8B D0");
-        gPatterns.C_Vehicle__IsActive           = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 0A B2 01");
-        gPatterns.C_Vehicle__IsSiren            = hook::get_opcode_address("E8 ? ? ? ? 0F B6 4D BF");
-        gPatterns.C_Vehicle__SetActive          = hook::get_opcode_address("E8 ? ? ? ? F3 0F 59 35 ? ? ? ? 48 8D 8B ? ? ? ?");
-        gPatterns.C_Vehicle__SetAngularSpeed    = hook::get_opcode_address(" E8 ? ? ? ? E9 ? ? ? ? 80 BD ? ? ? ? ? 0F 85 ? ? ? ?");
-        gPatterns.C_Vehicle__SetBeaconLightsOn  = hook::get_opcode_address("E8 ? ? ? ? 48 8B 7C 24 ? 48 83 C4 ? 5B C3 48 8B D9");
-        gPatterns.C_Vehicle__SetBrake           = hook::get_opcode_address("E8 ? ? ? ? C7 87 ? ? ? ? ? ? ? ? 83 A7 ? ? ? ? ?");
-        gPatterns.C_Vehicle__SetDoorFree        = hook::get_opcode_address("E8 ? ? ? ? 48 8B 5C 24 ? 33 C0 48 8B 74 24 ? 48 83 C4 ? 5F C3 ? ? ? 40 53 48 83 EC ? 45 33 C0 33 D2 48 8B D9 E8 ? ? ? ? 48 8B 43 ? C7 40 ? ? "
-                                                                                  "? ? ? C7 00 ? ? ? ? 48 83 C0 ? 48 89 43 ? B8 ? ? ? ? 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? B8 ? ? ? ?");
+        gPatterns.C_Vehicle__DamageBreaks      = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "40 53 48 83 EC ? 48 8B 01 48 8B D9 0F 29 7C 24 ? 0F 28 F9 FF 50 ? 84 C0 74 ? 48 8B 5B ? 4C 8D 44 24 ? 0F 29 74 24 ? 48 8D 54 24 ? 0F 57 F6 C7 44 24 ? ? ? ? ? C7 44 24 ? ? ? ? ? 48 8D 8B ? ? ? ? E8 ? ? ? ? F3 0F 10 0D ? ? ? ? 0F 28 C7 F3 0F 5C C1 0F 2F C6 73 ? 0F 28 CF 0F 28 C1 0F 57 05 ? ? ? ? 0F 2F C6 73 ? 0F 28 F1 F3 0F 59 35 ? ? ? ? 48 8D 8B ? ? ? ? F3 0F 10 54 24 ?"));
+        gPatterns.C_Vehicle__EnableRadio       = hook::get_opcode_address("E8 ? ? ? ? 49 8B 84 24 ? ? ? ? 49 8B F7");
+        gPatterns.C_Vehicle__GetSPZText        = hook::get_opcode_address("E8 ? ? ? ? 49 8D 4F ? 48 8B D0");
+        gPatterns.C_Vehicle__IsActive          = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 0A B2 01");
+        gPatterns.C_Vehicle__IsSiren           = hook::get_opcode_address("E8 ? ? ? ? 0F B6 4D BF");
+        gPatterns.C_Vehicle__SetActive         = hook::get_opcode_address("E8 ? ? ? ? F3 0F 59 35 ? ? ? ? 48 8D 8B ? ? ? ?");
+        gPatterns.C_Vehicle__SetAngularSpeed   = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 80 BD ? ? ? ? ? 0F 85 ? ? ? ?");
+        gPatterns.C_Vehicle__SetBeaconLightsOn = hook::get_opcode_address("E8 ? ? ? ? 48 8B 7C 24 ? 48 83 C4 ? 5B C3 48 8B D9");
+        gPatterns.C_Vehicle__SetBrake          = hook::get_opcode_address("E8 ? ? ? ? C7 87 ? ? ? ? ? ? ? ? 83 A7 ? ? ? ? ?");
+        gPatterns.C_Vehicle__SetDoorFree =
+            hook::get_opcode_address("E8 ? ? ? ? 48 8B 5C 24 ? 33 C0 48 8B 74 24 ? 48 83 C4 ? 5F C3 ? ? ? 40 53 48 83 EC ? 45 33 C0 33 D2 48 8B D9 E8 ? ? ? ? 48 8B 43 ? C7 40 ? ? ? ? ? C7 00 ? ? ? ? 48 83 C0 ? 48 89 43 ? B8 ? ? ? ? 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? B8 ? ? ? ?");
         gPatterns.C_Vehicle__SetEngineOn        = hook::get_opcode_address("E8 ? ? ? ? 48 8B 9E ? ? ? ? 0F B6 C3");
         gPatterns.C_Vehicle__SetGear            = hook::get_opcode_address("E8 ? ? ? ? C6 83 ? ? ? ? ? 80 7F ? ? 74 ? 33 D2");
         gPatterns.C_Vehicle__SetHandbrake       = hook::get_opcode_address("E8 ? ? ? ? 49 8B 86 ? ? ? ? 4D 89 BE ? ? ? ?");
@@ -399,20 +382,19 @@ namespace SDK {
         gPatterns.C_Vehicle__SetSpeed           = hook::get_opcode_address("E8 ? ? ? ? 49 8B CF E8 ? ? ? ? 45 0F 57 C9");
         gPatterns.C_Vehicle__SetSpeedLimit      = hook::get_opcode_address("E8 ? ? ? ? 48 8B 8B ? ? ? ? 48 85 C9 74 ? 48 8B 89 ? ? ? ?");
         gPatterns.C_Vehicle__SetSPZText         = hook::get_opcode_address("E8 ? ? ? ? 48 8D 5D ? BF ? ? ? ? 0F B7 13");
-        gPatterns.C_Vehicle__SetSteer           = hook::get_opcode_address("E8 ? ? ? ? 45 33 C9 44 89 A7 ? ? ? ?");
+        gPatterns.C_Vehicle__SetSteer           = hook::get_opcode_address("E8 ? ? ? ? 41 B1 01 89 BE ? ? ? ?");
         gPatterns.C_Vehicle__SetVehicleColor    = hook::get_opcode_address("E8 ? ? ? ? 8B 43 ? 89 87 ? ? ? ? 8B 43 ? 89 87 ? ? ? ? 83 7B ? ?");
         gPatterns.C_Vehicle__SetVehicleDirty    = hook::get_opcode_address("E9 ? ? ? ? ? ? ? ? ? ? ? ? ? ? 40 57 48 83 EC ? 48 8B 81 ? ? ? ?");
         gPatterns.C_Vehicle__SetVehicleMatrix   = hook::get_opcode_address("E8 ? ? ? ? 80 BD ? ? ? ? ? 74 0B");
         gPatterns.C_Vehicle__SetVehicleRust     = hook::get_opcode_address("E9 ? ? ? ? ? ? ? ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56");
-        gPatterns.C_Vehicle__SetWheelTintColor  = hook::get_opcode_address("E8 ? ? ? ? 45 89 B7 ? ? ? ? 41 89 B7 ? ? ? ?");
+        gPatterns.C_Vehicle__SetWheelColor      = hook::get_opcode_address("E8 ? ? ? ? 8B 43 4C 89 87 ? ? ? ?");
         gPatterns.C_Vehicle__SetWindowTintColor = hook::get_opcode_address("E8 ? ? ? ? 89 AE ? ? ? ? 4C 8D 9C 24 ? ? ? ?");
         gPatterns.C_Vehicle__TurnRadioOn        = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 B9 ? ? ? ? ? 44 0F B6 CA"));
 
         // C_VehiclesDatabase
         gPatterns.C_VehiclesDatabase__GetVehicleByID    = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B 41 30 33 FF 41 8B D8 48 8B F2 48 8B E9 39 78 18 76 79"));
-        gPatterns.C_VehiclesDatabase__GetVehicleByIndex = reinterpret_cast<uint64_t>(
-            hook::get_pattern("48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 41 56 48 83 EC 20 48 8B 41 30 33 DB 41 8B F8 4C 8B F2 48 8B F1 39 58 18 76 34 0F 1F 80 00 00 00 00 8B D3 48 8B C8 E8 ? ? ? ? 33 D2 48 8B C8 4C 8B 00 41 FF 50 ? 4C 8B C0 8B 48 04 "
-                              "3B F9 72 2D 48 8B 46 30 2B F9 FF C3 3B 58 18 72 D3 49 C7 06 00 00 00 00 48 8B 5C 24 30 49 8B C6 48 8B 74 24 38 48 8B 7C 24 40 48 83 C4 20 41 5E C3 49 63 10 8B C7 48 69 C0 F0 00 00 00"));
+        gPatterns.C_VehiclesDatabase__GetVehicleByIndex = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 41 56 48 83 EC 20 48 8B 41 30 33 DB 41 8B F8 4C 8B F2 48 8B F1 39 58 18 76 34 0F 1F 80 00 00 00 00 8B D3 48 8B C8 E8 ? ? ? ? 33 D2 48 8B C8 4C 8B 00 41 FF 50 ? 4C 8B C0 8B 48 04 3B F9 72 2D 48 8B 46 30 2B F9 FF C3 3B 58 18 72 D3 49 C7 06 00 00 00 00 48 8B 5C 24 30 49 8B C6 48 8B 74 24 38 48 8B 7C 24 40 48 83 C4 20 41 5E C3 49 63 10 8B C7 48 69 C0 F0 00 00 00"));
         gPatterns.C_VehiclesDatabase__GetVehicleByModel = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 55 41 56 41 57 48 83 EC 20 48 8B 41"));
         gPatterns.C_VehiclesDatabase__GetVehiclesCount  = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 48 8B 4D 30 8B F8");
 
@@ -425,10 +407,10 @@ namespace SDK {
         gPatterns.C_WeatherManager2__GetDayTimeRel               = hook::get_opcode_address("E8 ? ? ? ? F3 0F 11 43 ? 48 8D 54 24 ?");
         gPatterns.C_WeatherManager2__GetDefaultTimeFlowSpeedMult = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 10 81 ? ? ? ? C3 CC CC CC CC CC CC CC 8B 05 ? ? ? ?"));
         gPatterns.C_WeatherManager2__GetUserTimeFlowSpeedMult    = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 10 81 ? ? ? ? C3 CC CC CC CC CC CC CC 41 83 F8 04"));
-        gPatterns.C_WeatherManager2__IsTimeFlowEnabled = reinterpret_cast<uint64_t>(hook::get_pattern("0F B6 81 ? ? ? ? C3 CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC "
-                                                                                                      "CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC B0 01"));
-        gPatterns.C_WeatherManager2__SetDayTimeHours   = hook::get_opcode_address("E8 ? ? ? ? 48 83 C4 30 5F 5E 5B C3 CC CC CC CC CC CC CC CC CC 48 83 EC 38");
-        gPatterns.C_WeatherManager2__SetDayTimeSec     = hook::get_opcode_address("E9 ? ? ? ? 8B 47 18 89 44 24 40");
+        gPatterns.C_WeatherManager2__IsTimeFlowEnabled           = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "0F B6 81 ? ? ? ? C3 CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC B0 01"));
+        gPatterns.C_WeatherManager2__SetDayTimeHours             = hook::get_opcode_address("E8 ? ? ? ? 48 83 C4 30 5F 5E 5B C3 CC CC CC CC CC CC CC CC CC 48 83 EC 38");
+        gPatterns.C_WeatherManager2__SetDayTimeSec               = hook::get_opcode_address("E9 ? ? ? ? 8B 47 18 89 44 24 40");
         gPatterns.C_WeatherManager2__SetDefaultTimeFlowSpeedMult = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 11 89 ? ? ? ? C3 CC CC CC CC CC CC CC F3 0F 11 89 ? ? ? ? C3 CC CC CC CC CC CC CC F3 0F 59 0D ? ? ? ?"));
         gPatterns.C_WeatherManager2__SetUserTimeFlowSpeedMult    = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 11 89 ? ? ? ? C3 CC CC CC CC CC CC CC 83 FA 04"));
         gPatterns.C_WeatherManager2__SetWeatherSet               = hook::get_opcode_address("E8 ? ? ? ? 48 83 7C 24 ? ? 0F 28 74 24 ?");
