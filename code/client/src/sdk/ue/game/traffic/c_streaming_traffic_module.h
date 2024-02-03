@@ -7,7 +7,7 @@
 namespace SDK {
     namespace ue::game::traffic {
         class C_StreamingTrafficModule: public C_TickedModule {
-          private:
+          public:
             char pad0[0x8C];         // 0008 - 0094
             int m_SeasonID;          // 0094 - 0098
             int m_PrevSeasonID;      // 0098 - 009C
