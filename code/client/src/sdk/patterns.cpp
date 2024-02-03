@@ -176,6 +176,7 @@ namespace SDK {
 
         // C_Human2CarWrapper
         gPatterns.C_Human2CarWrapper__GetSeatID = hook::get_opcode_address("E8 ? ? ? ? 3D ? ? ? ? 75 0E");
+        gPatterns.C_Human2CarWrapper__IsEngineOn = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 16 44 8B 87 ? ? ? ?");
 
         // C_HumanInventory
         gPatterns.C_HumanInventory__AddItem                       = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 41 8B D6");
