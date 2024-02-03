@@ -11,7 +11,6 @@ constexpr uint64_t C_Motor_Offset = 0x458;
 #endif
 
 namespace SDK {
-
     void C_Car::Lock() {
         hook::this_call(gPatterns.C_Car__Lock, this);
     }
@@ -64,13 +63,6 @@ namespace SDK {
         return hook::this_call<float>(gPatterns.C_Car__GetMotorDamage, this);
     }
 
-    void C_Car::SetActualFuel(float fuel) {
-        uint64_t C_Motor = *(uint64_t *)(*(uint64_t *)((uint64_t)this + C_Motor_Offset) + 0x8);
-        if (C_Motor) {
-            hook::this_call(gPatterns.C_Motor__SetFuel, C_Motor, fuel);
-        }
-    }
-
     bool C_Car::SetSeatStatus(I_Human2 *human, unsigned int seatID, S_BaseSeat::E_BaseSeatStatus status) {
         return hook::this_call<bool>(gPatterns.C_Car__SetSeatStatus, this, human, seatID, status);
     }
@@ -83,6 +75,20 @@ namespace SDK {
         return 0.0f;
     }
 
+    void C_Car::SetActualFuel(float fuel) {
+        hook::this_call<void>(gPatterns.C_Car__SetActualFuel, this, fuel);
+
+        // TODO: fix me, doesn't work yet
+        // uint64_t C_Motor = *(uint64_t *)(*(uint64_t *)((uint64_t)this + C_Motor_Offset) + 0x8);
+        // if (C_Motor) {
+        //     hook::this_call(gPatterns.C_Motor__SetFuel, C_Motor, fuel);
+        // }
+    }
+
+    float C_Car::GetFuelTankCapacity() const {
+        return hook::this_call<float>(gPatterns.C_Car__GetFuelTankCapacity, this);
+    }
+
     void C_Car::SetTransparency(float transparency) {
         hook::this_call<void>(gPatterns.C_Car__SetTransparency, this, transparency);
     }
@@ -91,8 +97,8 @@ namespace SDK {
         hook::this_call<void>(gPatterns.C_Car__SetSpeed, this, speed);
     }
 
-    void C_Car::PosefujZimuVShopu(float dirt) {
-        hook::this_call<void>(gPatterns.C_Car__PosefujZimuVShopu, this, dirt);
+    void C_Car::SetVehicleDirty(float dirt) {
+        hook::this_call<void>(gPatterns.C_Car__SetVehicleDirty, this, dirt);
     }
 
     void C_Car::RestoreCar() {

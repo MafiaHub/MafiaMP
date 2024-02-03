@@ -1,6 +1,5 @@
 #include "vehicle_debug.h"
 
-#include <external/imgui/wrapper.h>
 #include <imgui.h>
 
 #include "sdk/entities/c_car.h"
@@ -44,9 +43,9 @@ namespace MafiaMP::Core::UI {
                 currentVehicle->SetSpeed(velocity, false, false);
             }
 
-            float isBrakeing = currentVehicle->GetBrake();
-            if (ImGui::SliderFloat("Brake", &isBrakeing, 0.0f, 1.0f)) {
-                currentVehicle->SetBrake(isBrakeing, false);
+            float isBraking = currentVehicle->GetBrake();
+            if (ImGui::SliderFloat("Brake", &isBraking, 0.0f, 1.0f)) {
+                currentVehicle->SetBrake(isBraking, false);
             }
 
             float steering = currentVehicle->GetSteer();
@@ -66,7 +65,26 @@ namespace MafiaMP::Core::UI {
 
             float dirtLevel = currentVehicle->GetVehicleDirty();
             if (ImGui::SliderFloat("Dirt level", &dirtLevel, 0.0f, 1.0f)) {
-                currentCar->PosefujZimuVShopu(dirtLevel);
+                // We have to use the car to set the dirt otherwise the value is reset
+                currentCar->SetVehicleDirty(dirtLevel);
+            }
+
+            float rustLevel = currentVehicle->GetVehicleRust();
+            if (ImGui::SliderFloat("Rust level", &rustLevel, 0.0f, 1.0f)) {
+                currentVehicle->SetVehicleRust(rustLevel);
+            }
+
+            const float fuelTankCapacity = currentCar->GetFuelTankCapacity();
+            float fuelLevel              = currentCar->GetActualFuel();
+            if (ImGui::SliderFloat("Fuel level", &fuelLevel, 0.0f, fuelTankCapacity)) {
+                currentCar->SetActualFuel(fuelLevel);
+            }
+
+            const char *licensePlate = currentVehicle->GetSPZText();
+            char wantedCurrentLicense[7];
+            strcpy(wantedCurrentLicense, licensePlate);
+            if (ImGui::InputText("Licence plate", wantedCurrentLicense, sizeof(wantedCurrentLicense))) {
+                currentVehicle->SetSPZText(wantedCurrentLicense, true);
             }
 
             bool horn = currentVehicle->GetHorn();
@@ -79,7 +97,7 @@ namespace MafiaMP::Core::UI {
                 currentVehicle->SetSiren(siren);
             }
 
-            bool beaconsLight = currentVehicle->AreBeaconLightsOn();
+            bool beaconsLight = currentVehicle->GetBeaconLightsOn();
             if (ImGui::Checkbox("Beacon Lights", &beaconsLight)) {
                 currentVehicle->SetBeaconLightsOn(beaconsLight);
             }
@@ -105,9 +123,14 @@ namespace MafiaMP::Core::UI {
                 currentVehicle->SetWindowTintColor(windowTint);
             }
 
-            auto wheelsTint = currentVehicle->GetWheelTintColor();
-            if (ImGui::ColorEdit4("Wheels Tint", (float *)&wheelsTint)) {
-                currentVehicle->SetWheelTintColor(wheelsTint);
+            SDK::ue::sys::math::C_Vector4 rimColor, tireColor;
+            currentVehicle->GetWheelColor(&rimColor, &tireColor);
+            if (ImGui::ColorEdit4("Wheel Rim color", (float *)&rimColor)) {
+                currentVehicle->SetWheelColor(&rimColor, &tireColor);
+            }
+
+            if (ImGui::ColorEdit4("Wheel Tire color", (float *)&tireColor)) {
+                currentVehicle->SetWheelColor(&rimColor, &tireColor);
             }
 
             SDK::ue::sys::math::C_Vector4 intColors[5];
@@ -118,9 +141,6 @@ namespace MafiaMP::Core::UI {
                 currentVehicle->SetInteriorColors(&intColors[0], &intColors[1], &intColors[2], &intColors[3], &intColors[4]);
             }
 
-            ImGui::Text("Fuel: %f\n", currentCar->GetActualFuel());
-            currentCar->SetActualFuel(20.0);
-
             ImGui::Text("Damage: %f\n", currentCar->GetDamage());
             ImGui::Text("Motor damage: %f\n", currentCar->GetMotorDamage());
 
@@ -129,8 +149,15 @@ namespace MafiaMP::Core::UI {
             ImGui::Text("Brake's damage: %f\n", brake);
             ImGui::Text("Handbrake's damage: %f\n", handbrake);
 
-            ImGui::Text("Radio State: %s", currentVehicle->IsRadioOn() ? "On" : "Off");
-            ImGui::Text("Radio Station: %u", currentVehicle->GetRadioStation());
+            bool radioOn = currentVehicle->IsRadioOn();
+            if (ImGui::Checkbox("Turn radio on", &radioOn)) {
+                currentVehicle->TurnRadioOn(radioOn);
+            }
+
+            if (ImGui::Button("Change Radio")) {
+                const uint32_t currentStation = currentVehicle->GetRadioStation();
+                currentVehicle->ChangeRadioStation(currentStation == 1 ? 0 : 1);
+            }
 
             if (ImGui::Button("Restore")) {
                 currentCar->RestoreCar();
@@ -148,14 +175,8 @@ namespace MafiaMP::Core::UI {
                 currentCar->UnlockEntryPoints();
             }
 
-            if (ImGui::Button("Toggle Radio")) {
-                currentVehicle->TurnRadioOn(!currentVehicle->IsRadioOn());
-            }
-
-            if (ImGui::Button("Change Radio")) {
-                const uint32_t currentStation = currentVehicle->GetRadioStation();
-                currentVehicle->ChangeRadioStation(currentStation == 1 ? 0 : 1);
-            }
+            ImGui::Text("Car Ptr: %p", currentCar);
+            ImGui::Text("Vehicle Ptr: %p", currentVehicle);
         }
         else {
             ImGui::Text("You're not in a vehicle!");
