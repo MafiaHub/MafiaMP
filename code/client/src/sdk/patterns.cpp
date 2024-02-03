@@ -381,6 +381,7 @@ namespace SDK {
         gPatterns.C_Vehicle__EnableRadio        = hook::get_opcode_address("E8 ? ? ? ? 49 8B 84 24 ? ? ? ? 49 8B F7");
         gPatterns.C_Vehicle__GetSPZText         = hook::get_opcode_address("E8 ? ? ? ? 49 8D 4F ? 48 8B D0");
         gPatterns.C_Vehicle__IsActive           = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 0A B2 01");
+        gPatterns.C_Vehicle__IsAnyLightOn       = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 81 ? ? ? ? 48 8B 89 ? ? ? ? 48 3B C1 74 18 48 8B 10"));
         gPatterns.C_Vehicle__IsSiren            = hook::get_opcode_address("E8 ? ? ? ? 0F B6 4D BF");
         gPatterns.C_Vehicle__SetActive          = hook::get_opcode_address("E8 ? ? ? ? F3 0F 59 35 ? ? ? ? 48 8D 8B ? ? ? ?");
         gPatterns.C_Vehicle__SetAngularSpeed    = hook::get_opcode_address(" E8 ? ? ? ? E9 ? ? ? ? 80 BD ? ? ? ? ? 0F 85 ? ? ? ?");

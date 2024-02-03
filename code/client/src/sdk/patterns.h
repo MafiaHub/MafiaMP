@@ -317,6 +317,7 @@ namespace SDK {
         uint64_t C_Vehicle__EnableRadio        = 0x0;
         uint64_t C_Vehicle__GetSPZText         = 0x0;
         uint64_t C_Vehicle__IsActive           = 0x0;
+        uint64_t C_Vehicle__IsAnyLightOn       = 0x0;
         uint64_t C_Vehicle__IsSiren            = 0x0;
         uint64_t C_Vehicle__SetActive          = 0x0;
         uint64_t C_Vehicle__SetAngularSpeed    = 0x0;

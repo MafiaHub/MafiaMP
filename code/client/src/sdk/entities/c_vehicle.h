@@ -40,9 +40,7 @@ namespace SDK {
         }
 
         void SetSiren(bool on);
-        bool GetSiren() const {
-            return false;
-        }
+        bool IsSiren();
 
         void SetSteer(float steer);
         float GetSteer() const {
@@ -106,6 +104,8 @@ namespace SDK {
         void SetActive(bool active);
         bool IsActive(int arg1 = 0);
         void Damage(bool arg1);
+
+        bool IsAnyLightOn();
 
         bool IsRadioOn();
         void EnableRadio(bool enable);

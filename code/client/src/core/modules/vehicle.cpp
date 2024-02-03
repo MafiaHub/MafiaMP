@@ -54,7 +54,7 @@ namespace MafiaMP::Core::Modules {
                     metadata.power             = vehicle->GetPower();
                     metadata.radioId           = vehicle->GetRadioStation();
                     metadata.radioState        = vehicle->IsRadioOn();
-                    metadata.sirenState        = vehicle->GetSiren();
+                    metadata.sirenState        = vehicle->IsSiren();
                     metadata.steer             = vehicle->GetSteer();
                     metadata.velocity          = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
                 }
