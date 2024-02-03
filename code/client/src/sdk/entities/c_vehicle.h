@@ -56,22 +56,22 @@ namespace SDK {
 
         void SetSpeed(ue::sys::math::C_Vector const &speed, bool arg2, bool arg3);
         const ue::sys::math::C_Vector &GetSpeed() const {
-            return m_Velocity;
+            return m_vVelocity;
         }
 
         void SetAngularSpeed(ue::sys::math::C_Vector const &speed, bool arg2);
         const ue::sys::math::C_Vector &GetAngularSpeed() const {
-            return m_AngularVelocity;
+            return m_vAngularVelocity;
         }
 
         void SetVehicleDirty(float level);
         float GetVehicleDirty() const {
-            return m_Dirty;
+            return m_fDirty;
         }
 
         void SetVehicleRust(float rust);
         float GetVehicleRust() const {
-            return m_Rust;
+            return m_fRust;
         }
 
         void SetVehicleColor(ue::sys::math::C_Vector4 const *color1, ue::sys::math::C_Vector4 const *color2, bool metallic);
@@ -79,7 +79,7 @@ namespace SDK {
 
         void SetWindowTintColor(const ue::sys::math::C_Vector4 &color);
         const ue::sys::math::C_Vector4 GetWindowTintColor() const {
-            return m_WindowTint;
+            return m_vWindowTint;
         }
 
         void SetWheelColor(ue::sys::math::C_Vector4 const *rimColor, ue::sys::math::C_Vector4 const *tireColor);
@@ -115,39 +115,37 @@ namespace SDK {
 
       private:
 #ifdef NONSTEAM_SUPPORT
-        char pad_0000[0x41C];
+        char pad_base[0x41C];
 #else
-        char pad_0000[0x40C];
+        char pad_base[0x40C];
 #endif
 
-        // 0x268 is VTABLE for radio interface
-
-        ue::sys::math::C_Vector m_Velocity;                                // 040C - 0418
-        ue::sys::math::C_Vector m_AngularVelocity;                         // 0418 - 0424
-        char pad_0424[0x5A4];                                              // 0424 - 09C8
+        ue::sys::math::C_Vector m_vVelocity;                               // 040C - 0418
+        ue::sys::math::C_Vector m_vAngularVelocity;                        // 0418 - 0424
+        char pad0[0x5A4];                                                  // 0424 - 09C8
         float m_fBreak;                                                    // 09C8 - 09CC
-        char pad_09CC[0x4];                                                // 09CC - 09D0
+        char pad1[0x4];                                                    // 09CC - 09D0
         float m_fHandBreak;                                                // 09D0 - 09D4
         float m_fPower;                                                    // 09D4 - 09D8
-        char pad_09D8[0x4C];                                               // 09D8 - 0A24
+        char pad2[0x4C];                                                   // 09D8 - 0A24
         float m_fSteer;                                                    // 0A24 - 0A28
-        char pad_0A28[0x60];                                               // 0A28 - 0A88
+        char pad3[0x60];                                                   // 0A28 - 0A88
         bool m_bHorn;                                                      // 0A88 - 0A89
-        char pad_0A89[0x67];                                               // 0A89 - 0AF0
+        char pad4[0x67];                                                   // 0A89 - 0AF0
         float m_fBrakeHealth1;                                             // 0AF0 - 0AF4
         float m_fBrakeHealth2;                                             // 0AF4 - 0AF8
-        char pad_0AF8[0xB8];                                               // 0AF8 - 0BB0
-        ue::sys::math::C_Vector4 m_Color1;                                 // 0BB0 - 0BC0
-        ue::sys::math::C_Vector4 m_Color2;                                 // 0BC0 - 0BD0
-        ue::sys::math::C_Vector4 m_WindowTint;                             // 0BD0 - 0BE0
-        ue::sys::math::C_Vector4 m_WheelColor;                             // 0BE0 - 0BF0
-        ue::sys::math::C_Vector4 m_TireColor;                              // 0BF0 - 0C00
-        char pad_0C00[0x8];                                                // 0C00 - 0C08
-        ue::sys::math::C_Vector4 m_InteriorColors[5];                      // 0C08 - 0C58
-        char pad_0C58[0x8];                                                // 0C58 - 0C60
-        float m_Dirty;                                                     // 0C60 - 0C64
-        float m_Rust;                                                      // 0C64 - 0C68
-        char pad_0C68[0x890];                                              // 0C68 - 14F8
-        SDK::ue::game::audio::radio::C_RadioSound *m_RadioSound = nullptr; // 14F8 - 1500 (NB: IDA says 0x1290 is the offset... yet the game says 0x14F8)
+        char pad5[0xB8];                                                   // 0AF8 - 0BB0
+        ue::sys::math::C_Vector4 m_vColor1;                                // 0BB0 - 0BC0
+        ue::sys::math::C_Vector4 m_vColor2;                                // 0BC0 - 0BD0
+        ue::sys::math::C_Vector4 m_vWindowTint;                            // 0BD0 - 0BE0
+        ue::sys::math::C_Vector4 m_vWheelColor;                            // 0BE0 - 0BF0
+        ue::sys::math::C_Vector4 m_vTireColor;                             // 0BF0 - 0C00
+        char pad6[0x8];                                                    // 0C00 - 0C08
+        ue::sys::math::C_Vector4 m_vInteriorColors[5];                     // 0C08 - 0C58
+        char pad7[0x8];                                                    // 0C58 - 0C60
+        float m_fDirty;                                                    // 0C60 - 0C64
+        float m_fRust;                                                     // 0C64 - 0C68
+        char pad8[0x890];                                                  // 0C68 - 14F8
+        ue::game::audio::radio::C_RadioSound *m_pRadioSound;               // 14F8 - 1500
     };
 } // namespace SDK
