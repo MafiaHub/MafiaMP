@@ -21,7 +21,8 @@ namespace MafiaMP::Core::UI {
 
         if (currentCar) {
             auto currentVehicle = currentCar->GetVehicle();
-            ImGui::Text("Vehicle Pointer: %p", currentVehicle);
+            ImGui::Text("Car Ptr: %p", currentCar);
+            ImGui::Text("Vehicle Ptr: %p", currentVehicle);
 
             auto position = currentCar->GetPos();
             if (ImGui::DragFloat3("Pos", (float *)&position, 0.1f, -4500.0f, 4500.0f)) {
@@ -130,9 +131,6 @@ namespace MafiaMP::Core::UI {
 
             ImGui::Text("Radio State: %s", currentVehicle->IsRadioOn() ? "On" : "Off");
             ImGui::Text("Radio Station: %u", currentVehicle->GetRadioStation());
-
-            ImGui::Text("Car Ptr: %p", currentCar);
-            ImGui::Text("Vehicle Ptr: %p", currentVehicle);
 
             if (ImGui::Button("Restore")) {
                 currentCar->RestoreCar();
