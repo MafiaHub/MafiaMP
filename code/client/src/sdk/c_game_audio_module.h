@@ -17,9 +17,7 @@ namespace SDK {
         float m_fCutsceneVolume;                        // 00B8 - 00BC
         int m_iDynamicRange;                            // 00BC - 00C0
 
-
       public:
-
           void SetMasterVolume(float);
           void SetDialogueVolume(float);
           void SetMusicVolume(float);

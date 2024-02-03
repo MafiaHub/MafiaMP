@@ -26,6 +26,8 @@ namespace MafiaMP::Core::UI {
             _newMsgArrived = false;
         }
 
+        bool _wasFocused = _isFocused;
+
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_RETURN) && !_isFocused) {
             _isFocused = true;
             gApplication->LockControls(true);
@@ -75,14 +77,16 @@ namespace MafiaMP::Core::UI {
                 return 0;
             };
 
-            if (ImGui::InputText("##chatinput", _inputText, sizeof(_inputText), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory, Framework::External::ImGUI::getCallback(inputEditCallback), &inputEditCallback)) {
-                _isFocused = false;
+            ImGui::InputText("##chatinput", _inputText, sizeof(_inputText), ImGuiInputTextFlags_CallbackHistory, Framework::External::ImGUI::getCallback(inputEditCallback), &inputEditCallback);
+
+            if (_wasFocused && gApplication->GetInput()->IsKeyPressed(FW_KEY_RETURN)) {
                 if (strlen(_inputText)) {
                     onMessageSentProc(_inputText);
                     _history.emplace(_history.begin(), _inputText);
                     strcpy(_inputText, "");
                 }
 
+                _isFocused = false;
                 gApplication->LockControls(false);
                 if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
                     ImGui::SetScrollHereY(1.0f);

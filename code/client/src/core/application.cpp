@@ -62,10 +62,13 @@ namespace MafiaMP::Core {
         _input            = std::make_shared<MafiaMP::Game::GameInput>();
         _console          = std::make_shared<UI::MafiaConsole>(_commandProcessor, _input);
         _chat             = std::make_shared<UI::Chat>();
-        _web              = std::make_shared<UI::Web>();
+        _webManager              = std::make_shared<UI::Web::Manager>();
 
-        if (_web) {
-            _web->Init();
+        if (_webManager) {
+            if (!_webManager->Init()) {
+                Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
+                return false;
+            }
         }
 
         _chat->SetOnMessageSentCallback([this](const std::string &msg) {
@@ -100,6 +103,10 @@ namespace MafiaMP::Core {
 
         // Setup Lua VM wrapper
         _luaVM = std::make_shared<LuaVM>();
+
+        // Setup the main menu UI
+        const auto vhConfiguration = _webManager->GetViewportConfiguration();
+        _mainMenuViewId            = _webManager->CreateView("https://mafiamp.web.app", vhConfiguration.width, vhConfiguration.height);
 
         return true;
     }
@@ -166,20 +173,12 @@ namespace MafiaMP::Core {
             _input->Update();
         }
 
-        if (_web) {
-            _web->Update();
-        }
-
-        if (GetAsyncKeyState(VK_F6) & 0x1) {
-            // _web->CreateView("test", 500, 500, "https://youtube.fr");
+        if (_webManager) {
+            _webManager->Update();
         }
     }
 
-    void Application::PostRender() {
-        if (_web) {
-            _web->Render();
-        }
-    }
+    void Application::PostRender() {}
 
     void Application::InitNetworkingMessages() {
         SetOnConnectionFinalizedCallback([this](flecs::entity newPlayer, float tickInterval) {
