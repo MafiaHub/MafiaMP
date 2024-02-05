@@ -42,6 +42,7 @@ namespace MafiaMP::Core::Modules {
             } carPassenger {};
 
             std::string nickname;
+            uint16_t playerIndex;
         };
 
         Human(flecs::world &world);
