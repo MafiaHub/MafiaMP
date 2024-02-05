@@ -207,7 +207,7 @@ namespace MafiaMP::Core::Modules {
         vehicle->SetGear(updateData->gear);
         vehicle->SetHandbrake(updateData->handbrake, false);
         vehicle->SetHorn(updateData->hornOn);
-        if (strcmp(vehicle->GetSPZText(), updateData->licensePlate)) {
+        if (::strcmp(vehicle->GetSPZText(), updateData->licensePlate) > 0) {
             vehicle->SetSPZText(updateData->licensePlate, true);
         }
         vehicle->SetPower(updateData->power);
