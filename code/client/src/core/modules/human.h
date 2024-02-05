@@ -4,15 +4,20 @@
 
 #include "sdk/entities/c_player_2.h"
 
-#include "game/streaming/entity_tracking_info.h"
 #include "game/overrides/character_controller.h"
+#include "game/streaming/entity_tracking_info.h"
 
 #include "core/application.h"
 
-#include <world/modules/base.hpp>
 #include <utils/interpolator.h>
+#include <world/modules/base.hpp>
 
-enum CarEnterStates { STATE_OUTSIDE, STATE_ENTERING, STATE_LEAVING, STATE_INSIDE };
+enum CarEnterStates {
+    STATE_OUTSIDE,
+    STATE_ENTERING,
+    STATE_LEAVING,
+    STATE_INSIDE
+};
 
 namespace MafiaMP::Core::Modules {
     struct Human {
@@ -33,8 +38,10 @@ namespace MafiaMP::Core::Modules {
         struct HumanData {
             struct CarPassenger {
                 CarEnterStates enterState = STATE_OUTSIDE;
-                bool enterForced{};
-            } carPassenger{};
+                bool enterForced {};
+            } carPassenger {};
+
+            std::string nickname;
         };
 
         Human(flecs::world &world);
@@ -55,7 +62,7 @@ namespace MafiaMP::Core::Modules {
 
         static flecs::entity GetHumanEntity(SDK::C_Human2 *ptr);
 
-        private:
+      private:
         static void InitRPCs(Application *app);
     };
 } // namespace MafiaMP::Core::Modules

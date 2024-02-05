@@ -4,6 +4,9 @@
 
 #include <flecs/flecs.h>
 #include <glm/glm.hpp>
+#include <imgui.h>
+
+#include <external/imgui/widgets/nametag.h>
 
 #include "game/helpers/controls.h"
 #include "game/helpers/human.h"
@@ -14,13 +17,14 @@
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
 #include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
 
+#include "shared/game_rpc/add_weapon.h"
 #include "shared/game_rpc/human/human_changeskin.h"
 #include "shared/game_rpc/human/human_reload.h"
 #include "shared/game_rpc/human/human_setprops.h"
 #include "shared/game_rpc/human/human_shoot.h"
-#include "shared/game_rpc/add_weapon.h"
 
 #include "vehicle.h"
 #include <world/modules/base.hpp>
@@ -122,6 +126,38 @@ namespace MafiaMP::Core::Modules {
                         tracking.human->SetRot({newRot.x, newRot.y, newRot.z, newRot.w});
                     }
                 }
+
+                const auto humanPtr = tracking.human;
+                const auto hp       = updateData->_healthPercent;
+                const auto nickname = humanData->nickname;
+                gApplication->GetImGUI()->PushWidget([humanPtr, hp, nickname]() {
+                    const auto displaySize = ImGui::GetIO().DisplaySize;
+
+                    auto gameCamera = SDK::ue::game::camera::C_GameCamera::GetInstanceInternal();
+                    if (!gameCamera) {
+                        return;
+                    }
+                    auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN_1);
+                    if (!camera) {
+                        return;
+                    }
+
+                    auto camPos                          = camera->GetPos();
+                    static const auto headBoneHash       = SDK::ue::sys::utils::C_HashName::ComputeHash("Head");
+                    SDK::ue::sys::math::C_Vector headPos = humanPtr->GetBoneWorldPos(headBoneHash);
+                    float distFromCam                    = headPos.dist(camPos);
+                    if (distFromCam <= 250.0f /* @todo: make configurable */) {
+                        headPos.z += 0.335f + (distFromCam * 0.03f);
+
+                        SDK::ue::sys::math::C_Vector2 screenPos;
+                        bool onScreen = false;
+                        float unkFloat1, unkFloat2;
+                        camera->GetScreenPos(screenPos, headPos, onScreen, &unkFloat1, &unkFloat2, true);
+                        if (onScreen) {
+                            Framework::External::ImGUI::Widgets::DrawNameTag({screenPos.x * displaySize.x, screenPos.y * displaySize.y}, nickname.empty() ? "Player" : nickname.c_str(), hp);
+                        }
+                    }
+                });
             }
         });
     }
@@ -314,6 +350,8 @@ namespace MafiaMP::Core::Modules {
             // Setup other components
             auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
             auto humanData  = e.get_mut<HumanData>();
+
+            humanData->nickname = msg->GetNickname();
 
             const auto carPassenger = msg->GetCarPassenger();
             if (carPassenger.carId) {
