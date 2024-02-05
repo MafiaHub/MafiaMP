@@ -10,6 +10,7 @@
 #include "sdk/entities/c_player_2.h"
 #include "sdk/mafia/framework/c_mafia_dbs.h"
 #include "sdk/ue/game/traffic/c_streaming_traffic_module.h"
+#include "sdk/ue/game/traffic/c_traffic_spawn_manager.h"
 #include "sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.h"
 
 #include "sdk/entities/c_car.h"
@@ -38,6 +39,11 @@ namespace MafiaMP::Core::UI {
 
         const auto streamingTrafficModule = SDK::ue::game::traffic::C_StreamingTrafficModule::GetInstance();
         if (!streamingTrafficModule) {
+            return;
+        }
+
+        const auto trafficSpawnManager = SDK::ue::game::traffic::C_TrafficSpawnManager::GetInstance();
+        if (!trafficSpawnManager) {
             return;
         }
 
@@ -241,6 +247,29 @@ namespace MafiaMP::Core::UI {
             int m_iMaxHumanElements = streamingTrafficModule->GetMaxHumanElements();
             if (ImGui::InputInt("MaxHumanElements", &m_iMaxHumanElements)) {
                 streamingTrafficModule->SetMaxHumanElements(m_iMaxHumanElements);
+            }
+
+            ImGui::Text("GetCivilCarDensityMult: %f\n", trafficSpawnManager->GetCivilCarDensityMult());
+
+            bool m_bPopulate = *(bool *)(((uintptr_t)trafficSpawnManager) + 230); // could be int?
+            ImGui::Text("m_bPopulate: %s\n", m_bPopulate ? "true" : "false");
+
+            static bool populateToggle = false;
+            if (ImGui::Checkbox("Populate", &populateToggle)) {
+                trafficSpawnManager->Populate(populateToggle);
+            }
+
+            float m_fTrainDensity = *(float *)(((uintptr_t)trafficSpawnManager) + 180);
+            if (ImGui::InputFloat("TrainDensity", &m_fTrainDensity)) {
+                trafficSpawnManager->SetTrainDensity(m_fTrainDensity);
+            }
+
+            bool m_bAmbiantTraffic = *(bool *)(((uintptr_t)trafficSpawnManager) + 229);
+            ImGui::Text("m_bAmbiantTraffic: %s\n", m_bAmbiantTraffic ? "true" : "false");
+
+            static bool switchAmbientTrafficToggle = false;
+            if (ImGui::Checkbox("SwitchAmbientTraffic", &switchAmbientTrafficToggle)) {
+                trafficSpawnManager->SwitchAmbientTraffic(switchAmbientTrafficToggle);
             }
         }
 

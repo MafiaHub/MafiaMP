@@ -357,6 +357,11 @@ namespace SDK {
         // C_TickedModuleManager
         gPatterns.C_TickedModuleManager__GetTickedModuleManager = hook::get_opcode_address("E8 ? ? ? ? 45 8B 46 24");
 
+        // C_TrafficSpawnManager
+        gPatterns.C_TrafficSpawnManager__Populate             = hook::get_opcode_address("E8 ? ? ? ? 48 8B 05 ? ? ? ? 48 89 03");
+        gPatterns.C_TrafficSpawnManager__SetTrainDensity      = reinterpret_cast<uint64_t>(hook::get_pattern("74 0C 48 8B 81 ? ? ? ? F3 0F 11 48 ?"));
+        gPatterns.C_TrafficSpawnManager__SwitchAmbientTraffic = reinterpret_cast<uint64_t>(hook::get_pattern("0F 85 ? ? ? ? 38 91 ? ? ? ? 0F 84 ? ? ? ? 48 89 5C 24 ?"));
+
         // C_Vehicle
         gPatterns.C_Vehicle__AddVehicleFlags    = hook::get_opcode_address("E8 ? ? ? ? 40 F6 C7 08 74 0D");
         gPatterns.C_Vehicle__ChangeRadioStation = reinterpret_cast<uint64_t>(hook::get_pattern("40 57 48 83 EC 20 48 83 B9 90 12 00 00 00"));
