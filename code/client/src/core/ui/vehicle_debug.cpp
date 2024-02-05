@@ -20,6 +20,8 @@ namespace MafiaMP::Core::UI {
 
         if (currentCar) {
             auto currentVehicle = currentCar->GetVehicle();
+            ImGui::Text("Car Ptr: %p", currentCar);
+            ImGui::Text("Vehicle Ptr: %p", currentVehicle);
 
             auto position = currentCar->GetPos();
             if (ImGui::DragFloat3("Pos", (float *)&position, 0.1f, -4500.0f, 4500.0f)) {
@@ -90,7 +92,7 @@ namespace MafiaMP::Core::UI {
                 currentVehicle->SetHorn(horn);
             }
 
-            bool siren = currentVehicle->GetSiren();
+            bool siren = currentVehicle->IsSiren();
             if (ImGui::Checkbox("Siren", &siren)) {
                 currentVehicle->SetSiren(siren);
             }
@@ -98,6 +100,11 @@ namespace MafiaMP::Core::UI {
             bool beaconsLight = currentVehicle->GetBeaconLightsOn();
             if (ImGui::Checkbox("Beacon Lights", &beaconsLight)) {
                 currentVehicle->SetBeaconLightsOn(beaconsLight);
+            }
+
+            bool isEngineOn = currentCar->IsEngineOn();
+            if (ImGui::Checkbox("Engine", &isEngineOn)) {
+                currentVehicle->SetEngineOn(isEngineOn, isEngineOn);
             }
 
             SDK::ue::sys::math::C_Vector4 color1, color2;

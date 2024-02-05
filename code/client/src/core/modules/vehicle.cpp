@@ -71,7 +71,7 @@ namespace MafiaMP::Core::Modules {
                     metadata.radioStationId  = vehicle->GetRadioStation();
                     metadata.rimColor        = {rimColor.r, rimColor.g, rimColor.b, rimColor.a};
                     metadata.rust            = vehicle->GetVehicleRust();
-                    metadata.sirenOn         = vehicle->GetSiren();
+                    metadata.sirenOn         = vehicle->IsSiren();
                     metadata.steer           = vehicle->GetSteer();
                     metadata.tireColor       = {tireColor.r, tireColor.g, tireColor.b, tireColor.a};
                     metadata.velocity        = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};

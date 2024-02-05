@@ -155,6 +155,7 @@ namespace SDK {
 
         // C_Human2CarWrapper
         uint64_t C_Human2CarWrapper__GetSeatID = 0x0;
+        uint64_t C_Human2CarWrapper__IsEngineOn = 0x0;
 
         // C_HumanInventory
         uint64_t C_HumanInventory__AddItem                       = 0x0;
@@ -326,6 +327,7 @@ namespace SDK {
         uint64_t C_Vehicle__EnableRadio        = 0x0;
         uint64_t C_Vehicle__GetSPZText         = 0x0;
         uint64_t C_Vehicle__IsActive           = 0x0;
+        uint64_t C_Vehicle__IsAnyLightOn       = 0x0;
         uint64_t C_Vehicle__IsSiren            = 0x0;
         uint64_t C_Vehicle__SetActive          = 0x0;
         uint64_t C_Vehicle__SetAngularSpeed    = 0x0;

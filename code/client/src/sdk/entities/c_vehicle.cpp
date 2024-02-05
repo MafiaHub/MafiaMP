@@ -43,6 +43,10 @@ namespace SDK {
         hook::this_call(gPatterns.C_Vehicle__SetSiren, this, on);
     }
 
+    bool C_Vehicle::IsSiren() {
+        return hook::this_call<bool>(gPatterns.C_Vehicle__IsSiren, this);
+    }
+
     void C_Vehicle::SetSteer(float steer) {
         hook::this_call(gPatterns.C_Vehicle__SetSteer, this, steer);
     }
@@ -144,6 +148,10 @@ namespace SDK {
 
     bool C_Vehicle::IsRadioOn() {
         return (m_pRadioSound && m_pRadioSound->IsRadioOn());
+    }
+
+    bool C_Vehicle::IsAnyLightOn() {
+        return hook::this_call<bool>(gPatterns.C_Vehicle__IsAnyLightOn, this);
     }
 
     void C_Vehicle::EnableRadio(bool enable) {
