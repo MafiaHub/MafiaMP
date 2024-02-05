@@ -131,9 +131,17 @@ namespace MafiaMP::Core::Modules {
                 const auto hp       = updateData->_healthPercent;
                 const auto nickname = humanData->nickname;
                 gApplication->GetImGUI()->PushWidget([humanPtr, hp, nickname]() {
-                    const auto displaySize               = ImGui::GetIO().DisplaySize;
-                    auto gameCamera                      = SDK::ue::game::camera::C_GameCamera::GetInstanceInternal();
-                    auto camera                          = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN_1);
+                    const auto displaySize = ImGui::GetIO().DisplaySize;
+
+                    auto gameCamera = SDK::ue::game::camera::C_GameCamera::GetInstanceInternal();
+                    if (!gameCamera) {
+                        return;
+                    }
+                    auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN_1);
+                    if (!camera) {
+                        return;
+                    }
+
                     auto camPos                          = camera->GetPos();
                     static const auto headBoneHash       = SDK::ue::sys::utils::C_HashName::ComputeHash("Head");
                     SDK::ue::sys::math::C_Vector headPos = humanPtr->GetBoneWorldPos(headBoneHash);
