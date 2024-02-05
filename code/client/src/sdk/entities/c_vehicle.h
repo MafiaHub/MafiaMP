@@ -9,6 +9,10 @@
 #include <cstdint>
 
 namespace SDK {
+    enum E_VehicleFlags {
+        BEACON_LIGHTS = 0x40,
+    };
+
     class C_Vehicle {
       public:
         void AddVehicleFlags(uint64_t);
@@ -94,7 +98,7 @@ namespace SDK {
 
         void SetBeaconLightsOn(bool on);
         bool GetBeaconLightsOn() {
-            return (m_uFlags & 0x40) != 0;
+            return (m_uFlags & E_VehicleFlags::BEACON_LIGHTS) != 0;
         }
         void SetSearchLightsOn(bool on);
 
