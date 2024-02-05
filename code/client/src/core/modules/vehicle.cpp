@@ -72,6 +72,7 @@ namespace MafiaMP::Core::Modules {
                     metadata.rimColor        = {rimColor.r, rimColor.g, rimColor.b, rimColor.a};
                     metadata.rust            = vehicle->GetVehicleRust();
                     metadata.sirenOn         = vehicle->IsSiren();
+                    metadata.engineOn        = car->IsEngineOn();
                     metadata.steer           = vehicle->GetSteer();
                     metadata.tireColor       = {tireColor.r, tireColor.g, tireColor.b, tireColor.a};
                     metadata.velocity        = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
@@ -204,6 +205,7 @@ namespace MafiaMP::Core::Modules {
         vehicle->SetVehicleColor(&colorPrimary, &colorSecondary, false);
         car->SetVehicleDirty(updateData->dirt); // We have to use the car to set the dirt otherwise the value is reset
         car->SetActualFuel(updateData->fuel);
+        vehicle->SetEngineOn(updateData->engineOn, updateData->engineOn);
         vehicle->SetGear(updateData->gear);
         vehicle->SetHandbrake(updateData->handbrake, false);
         vehicle->SetHorn(updateData->hornOn);
@@ -299,6 +301,7 @@ namespace MafiaMP::Core::Modules {
             const auto colorPrimary   = msg->colorPrimary;
             const auto colorSecondary = msg->colorSecondary;
             const auto dirt           = msg->dirt;
+            const auto engineOn       = msg->engineOn;
             const auto fuel           = msg->fuel;
             const auto licensePlate   = msg->licensePlate;
             const auto lockState      = msg->lockState;
@@ -324,6 +327,10 @@ namespace MafiaMP::Core::Modules {
 
             if (dirt.HasValue()) {
                 updateData->dirt = dirt();
+            }
+
+            if (engineOn.HasValue()) {
+                updateData->engineOn = engineOn();
             }
 
             if (fuel.HasValue()) {

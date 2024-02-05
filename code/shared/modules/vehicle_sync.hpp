@@ -33,6 +33,7 @@ namespace MafiaMP::Shared::Modules {
             glm::vec4 rimColor {1.0f, 1.0f, 1.0f, 1.0f};
             float rust   = 0.0f;
             bool sirenOn = false;
+            bool engineOn = false;
             float steer  = 0.0f;
             glm::vec4 tireColor {1.0f, 1.0f, 1.0f, 1.0f};
             glm::vec3 velocity {};

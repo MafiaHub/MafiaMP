@@ -231,6 +231,19 @@ namespace MafiaMP::Scripting {
             FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
         }
 
+        bool GetEngineOn() {
+            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            return syncData->engineOn;
+        }
+
+        void SetEngineOn(bool on) {
+            auto vehData     = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            vehData->engineOn = on;
+            MafiaMP::Shared::RPC::VehicleSetProps msg {};
+            msg.engineOn = on;
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        }
+
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
             if (!rootModule) {
                 return;
@@ -239,10 +252,11 @@ namespace MafiaMP::Scripting {
             v8pp::class_<Vehicle> cls(isolate);
             cls.inherit<Framework::Integrations::Scripting::Entity>();
 
-            cls.function("getBeaconLightsOn", &Vehicle::GetBeaconLightsOn); // TODO: doesn't work yet
+            cls.function("getBeaconLightsOn", &Vehicle::GetBeaconLightsOn);
             cls.function("getColorPrimary", &Vehicle::GetColorPrimary);
             cls.function("getColorSecondary", &Vehicle::GetColorSecondary);
             cls.function("getDirt", &Vehicle::GetDirt);
+            cls.function("getEngineOn", &Vehicle::GetEngineOn);
             cls.function("getFuel", &Vehicle::GetFuel);
             cls.function("getLicensePlate", &Vehicle::GetLicensePlate);
             cls.function("getLockState", &Vehicle::GetLockState);
@@ -250,16 +264,17 @@ namespace MafiaMP::Scripting {
             cls.function("getRadioStationId", &Vehicle::GetRadioStationId);
             cls.function("getRimColor", &Vehicle::GetRimColor);
             cls.function("getRust", &Vehicle::GetRust);
-            cls.function("getSirenOn", &Vehicle::GetSirenOn); // TODO: doesn't work yet
+            cls.function("getSirenOn", &Vehicle::GetSirenOn);
             cls.function("getTireColor", &Vehicle::GetTireColor);
             cls.function("getWindowTint", &Vehicle::GetWindowTint);
             cls.function("setBeaconLightsOn", &Vehicle::SetBeaconLightsOn);
             cls.function("setColorPrimary", &Vehicle::SetColorPrimary);
             cls.function("setColorSecondary", &Vehicle::SetColorSecondary);
             cls.function("setDirt", &Vehicle::SetDirt);
+            cls.function("setEngineOn", &Vehicle::SetEngineOn);
             cls.function("setFuel", &Vehicle::SetFuel);
             cls.function("setLicensePlate", &Vehicle::SetLicensePlate);
-            cls.function("setLockState", &Vehicle::SetLockState); // TODO: doesn't work yet
+            cls.function("setLockState", &Vehicle::SetLockState);
             cls.function("setRadioOn", &Vehicle::SetRadioOn);
             cls.function("setRadioStationId", &Vehicle::SetRadioStationId);
             cls.function("setRimColor", &Vehicle::SetRimColor);
