@@ -133,6 +133,11 @@ static InitFunction init([]() {
     const auto C_Human2CarWrapper__StartDrive_Addr = hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 57 48 83 EC 70 45 33 FF");
     MH_CreateHook((LPVOID)C_Human2CarWrapper__StartDrive_Addr, (PBYTE)C_Human2CarWrapper__StartDrive, reinterpret_cast<void **>(&C_Human2CarWrapper__StartDrive_original));
 
+    // Disable the game auto starting the engine when you press the forward key
+    auto C_Vehicle__VehicleUpdate_BaseAddr = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 81 EC ? ? ? ? 48 8B D9 44 0F 29 4C 24"));
+    C_Vehicle__VehicleUpdate_BaseAddr += 347;
+    hook::nop(C_Vehicle__VehicleUpdate_BaseAddr, 0x53);
+
     // Hook the game EndDrive method so we can avoid it disabling the vehicle (engine, lights etc...)
     const auto C_Human2CarWrapper__EndDrive_Addr = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 08 48 8B 7C 24 ?");
     MH_CreateHook((LPVOID)C_Human2CarWrapper__EndDrive_Addr, (PBYTE)C_Human2CarWrapper__EndDrive, reinterpret_cast<void **>(&C_Human2CarWrapper__EndDrive_original));
