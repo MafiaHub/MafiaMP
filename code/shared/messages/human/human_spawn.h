@@ -8,6 +8,7 @@ namespace MafiaMP::Shared::Messages::Human {
       private:
         uint64_t _spawnProfile;
         SLNet::RakString _nickname;
+        uint16_t _playerIndex;
 
         struct CarPassenger {
             uint64_t carId {};
@@ -19,14 +20,16 @@ namespace MafiaMP::Shared::Messages::Human {
             return MOD_HUMAN_SPAWN;
         }
 
-        void FromParameters(uint64_t spawnProfile, const std::string &nickname) {
+        void FromParameters(uint64_t spawnProfile, const std::string &nickname, uint16_t playerIndex) {
             _spawnProfile = spawnProfile;
             _nickname     = nickname.c_str();
+            _playerIndex  = playerIndex;
         }
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
             bs->Serialize(write, _spawnProfile);
             bs->Serialize(write, _nickname);
+            bs->Serialize(write, _playerIndex);
             bs->SerializeCompressed(write, _carPassenger);
         }
 
@@ -40,6 +43,10 @@ namespace MafiaMP::Shared::Messages::Human {
 
         std::string GetNickname() const {
             return _nickname.C_String();
+        }
+
+        uint16_t GetPlayerIndex() const {
+            return _playerIndex;
         }
 
         void SetCarPassenger(uint64_t carId, int seatId) {

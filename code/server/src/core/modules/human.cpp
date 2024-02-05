@@ -52,7 +52,7 @@ namespace MafiaMP::Core::Modules {
             const auto frame = e.get<Framework::World::Modules::Base::Frame>();
             const auto s     = e.get<Framework::World::Modules::Base::Streamer>();
             Shared::Messages::Human::HumanSpawn humanSpawn;
-            humanSpawn.FromParameters(frame->modelHash, s->nickname);
+            humanSpawn.FromParameters(frame->modelHash, s->nickname, s->playerIndex);
             humanSpawn.SetServerID(e.id());
 
             const auto trackingMetadata = e.get<Shared::Modules::HumanSync::UpdateData>();

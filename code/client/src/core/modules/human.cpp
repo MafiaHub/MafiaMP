@@ -130,7 +130,8 @@ namespace MafiaMP::Core::Modules {
                 const auto humanPtr = tracking.human;
                 const auto hp       = updateData->_healthPercent;
                 const auto nickname = humanData->nickname;
-                gApplication->GetImGUI()->PushWidget([humanPtr, hp, nickname]() {
+                const auto playerId = humanData->playerIndex;
+                gApplication->GetImGUI()->PushWidget([humanPtr, hp, nickname, playerId]() {
                     const auto displaySize = ImGui::GetIO().DisplaySize;
 
                     auto gameCamera = SDK::ue::game::camera::C_GameCamera::GetInstanceInternal();
@@ -154,7 +155,8 @@ namespace MafiaMP::Core::Modules {
                         float unkFloat1, unkFloat2;
                         camera->GetScreenPos(screenPos, headPos, onScreen, &unkFloat1, &unkFloat2, true);
                         if (onScreen) {
-                            Framework::External::ImGUI::Widgets::DrawNameTag({screenPos.x * displaySize.x, screenPos.y * displaySize.y}, nickname.empty() ? "Player" : nickname.c_str(), hp);
+                            const auto playerName = fmt::format("{} ({})", nickname.empty() ? "Player" : nickname, playerId);
+                            Framework::External::ImGUI::Widgets::DrawNameTag({screenPos.x * displaySize.x, screenPos.y * displaySize.y}, playerName.c_str(), hp);
                         }
                     }
                 });
@@ -351,7 +353,8 @@ namespace MafiaMP::Core::Modules {
             auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
             auto humanData  = e.get_mut<HumanData>();
 
-            humanData->nickname = msg->GetNickname();
+            humanData->nickname    = msg->GetNickname();
+            humanData->playerIndex = msg->GetPlayerIndex();
 
             const auto carPassenger = msg->GetCarPassenger();
             if (carPassenger.carId) {
