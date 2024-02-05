@@ -31,7 +31,7 @@ namespace SDK {
 
         void SetEngineOn(bool on, bool arg2);
         bool IsEngineOn() const {
-            return false; // TODO: implement me
+            return false;
         }
 
         void SetPower(float power);
@@ -94,7 +94,7 @@ namespace SDK {
 
         void SetBeaconLightsOn(bool on);
         bool GetBeaconLightsOn() {
-            return false; // TODO: implement me
+            return (m_uFlags & 0x40) != 0;
         }
         void SetSearchLightsOn(bool on);
 
@@ -145,7 +145,9 @@ namespace SDK {
         char pad7[0x8];                                                    // 0C58 - 0C60
         float m_fDirty;                                                    // 0C60 - 0C64
         float m_fRust;                                                     // 0C64 - 0C68
-        char pad8[0x890];                                                  // 0C68 - 14F8
+        char pad8[0x98];                                                   // 0C68 - 0D00
+        uint64_t m_uFlags;                                                 // 0D00 - 0D08
+        char pad9[0x7F0];                                                  // 0D08 - 14F8
         ue::game::audio::radio::C_RadioSound *m_pRadioSound;               // 14F8 - 1500
     };
 } // namespace SDK
