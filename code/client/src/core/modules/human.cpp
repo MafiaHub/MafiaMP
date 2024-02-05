@@ -154,7 +154,6 @@ namespace MafiaMP::Core::Modules {
                         float unkFloat1, unkFloat2;
                         camera->GetScreenPos(screenPos, headPos, onScreen, &unkFloat1, &unkFloat2, true);
                         if (onScreen) {
-                            Framework::Logging::GetLogger("aha")->debug("nick hp: {}", hp);
                             Framework::External::ImGUI::Widgets::DrawNameTag({screenPos.x * displaySize.x, screenPos.y * displaySize.y}, nickname.empty() ? "Player" : nickname.c_str(), hp);
                         }
                     }
