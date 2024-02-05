@@ -5,10 +5,14 @@
 #include <utils/hooking/hook_function.h>
 #include <utils/hooking/hooking.h>
 
+#include "game/helpers/controls.h"
+
 #include <logging/logger.h>
 
 #include "../modules/vehicle.h"
 #include "shared/modules/vehicle_sync.hpp"
+#include "shared/game_rpc/vehicle/vehicle_player_enter.h"
+#include "shared/game_rpc/vehicle/vehicle_player_leave.h"
 
 #include "sdk/entities/c_actor.h"
 #include "sdk/entities/c_car.h"
@@ -107,24 +111,65 @@ bool C_CarActionOpenCloseX__TestAction(void *pThis, SDK::C_Actor *actor) {
 typedef void(__fastcall *C_Human2CarWrapper__StartDrive_t)(SDK::C_Human2CarWrapper *, SDK::C_Actor *, bool);
 C_Human2CarWrapper__StartDrive_t C_Human2CarWrapper__StartDrive_original = nullptr;
 void C_Human2CarWrapper__StartDrive(SDK::C_Human2CarWrapper *pThis, SDK::C_Actor *pActor, bool unk) {
-    const auto seatID = pThis->GetSeatID(pActor);
+    if (!pThis->m_pUsedCar) {
+        return;
+    }
+
+    auto seatID = pThis->GetSeatID(pActor);
     if (seatID != 999) {
+        // Set the seat status to occupied
         pThis->m_pUsedCar->SetSeatStatus(reinterpret_cast<SDK::I_Human2 *>(pActor), seatID, SDK::S_BaseSeat::E_BaseSeatStatus::OCCUPIED);
+
+        // Disable the shadows and human clothes
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableShadows(false);
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableHumanClothes();
+
+        // Notify the server
+        auto const pLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
+        if (reinterpret_cast<SDK::C_Actor*>(pLocalPlayer) == pActor) {
+            const auto pVehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntity(pThis->m_pUsedCar);
+            if (!pVehicle || !pVehicle.is_valid()) {
+                return;
+            }
+
+            MafiaMP::Shared::RPC::VehiclePlayerEnter rpc;
+            rpc.vehicleId = Framework::World::ClientEngine::GetServerID(pVehicle);
+            rpc.seatIndex = seatID;
+            FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::VehiclePlayerEnter, MafiaMP::Core::gApplication->GetLocalPlayer(), rpc);
+        }
     }
 }
+
 typedef void(__fastcall *C_Human2CarWrapper__EndDrive_t)(SDK::C_Human2CarWrapper *, SDK::C_Actor *, bool, bool);
 C_Human2CarWrapper__EndDrive_t C_Human2CarWrapper__EndDrive_original = nullptr;
 void C_Human2CarWrapper__EndDrive(SDK::C_Human2CarWrapper *pThis, SDK::C_Actor *pActor, bool unk, bool unk2) {
+    if (!pThis->m_pUsedCar) {
+        return;
+    }
+
+    pThis->m_pUsedCar->GetVehicle()->SetHandbrake(1.0, true);
+
     const auto seatID = pThis->GetSeatID(pActor);
     if (seatID != 999) {
+        // Set the seat status to empty
         pThis->m_pUsedCar->SetSeatStatus(reinterpret_cast<SDK::I_Human2 *>(pActor), seatID, SDK::S_BaseSeat::E_BaseSeatStatus::EMPTY);
+
+        // Enable the shadows and human clothes
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableShadows(true);
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableHumanClothes();
-    }
-    if (pThis->m_pUsedCar != nullptr) {
-        pThis->m_pUsedCar->GetVehicle()->SetHandbrake(1.0, true);
+
+        // Notify the server
+        auto const pLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
+        if (reinterpret_cast<SDK::C_Actor *>(pLocalPlayer) == pActor) {
+            const auto pVehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntity(pThis->m_pUsedCar);
+            if (!pVehicle || !pVehicle.is_valid()) {
+                return;
+            }
+
+            MafiaMP::Shared::RPC::VehiclePlayerLeave rpc;
+            rpc.vehicleId = Framework::World::ClientEngine::GetServerID(pVehicle);
+            FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::VehiclePlayerLeave, MafiaMP::Core::gApplication->GetLocalPlayer(), rpc);
+        }
     }
 }
 

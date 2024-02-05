@@ -6,243 +6,67 @@
 
 #include "scripting/engines/node/builtins/color_rgb.h"
 #include "scripting/engines/node/builtins/color_rgba.h"
-#include "scripting/engines/node/engine.h"
-#include "scripting/engines/node/sdk.h"
-#include "shared/modules/vehicle_sync.hpp"
-#include "core/modules/vehicle.h"
-#include "shared/game_rpc/vehicle/vehicle_setprops.h"
-#include "shared/modules/vehicle_sync.hpp"
+//#include "scripting/engines/node/engine.h"
+//#include "scripting/engines/node/sdk.h"
+//#include "shared/modules/vehicle_sync.hpp"
+//#include "core/modules/vehicle.h"
+//#include "shared/game_rpc/vehicle/vehicle_setprops.h"
+//#include "shared/modules/vehicle_sync.hpp"
 
 namespace MafiaMP::Scripting {
     class Vehicle final: public Framework::Integrations::Scripting::Entity {
       public:
         Vehicle(flecs::entity_t ent): Entity(ent) {}
 
-        std::string ToString() const override {
-            std::ostringstream ss;
-            ss << "Vehicle{ id: " << _ent.id() << " }";
-            return ss.str();
-        }
+        static void EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex);
+        static void EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player);
 
-        bool GetBeaconLightsOn() {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return vehData->beaconLightsOn;
-        }
+        std::string ToString() const override;
 
-        void SetBeaconLightsOn(bool on) {
-            auto vehData            = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            vehData->beaconLightsOn = on;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.beaconLightsOn = on;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
+        bool GetBeaconLightsOn();
+        void SetBeaconLightsOn(bool on);
 
-        v8::Local<v8::Object> GetColorPrimary() {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+        v8::Local<v8::Object> GetColorPrimary();
+        void SetColorPrimary(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb);
 
-            auto colorRGB = Framework::Scripting::Engines::Node::Builtins::ColorRGB::FromVec4(vehData->colorPrimary);
-            return v8pp::class_<Framework::Scripting::Engines::Node::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
-        }
+        v8::Local<v8::Object> GetColorSecondary();
+        void SetColorSecondary(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb);
 
-        void SetColorPrimary(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb) {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+        float GetDirt();
+        void SetDirt(float dirt);
 
-            auto vec4Color = glm::vec4(rgb.GetFloatR(), rgb.GetFloatG(), rgb.GetFloatB(), 1.0f);
+        bool GetEngineOn();
+        void SetEngineOn(bool on);
 
-            vehData->colorPrimary = vec4Color;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.colorPrimary = vec4Color;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
+        float GetFuel();
+        void SetFuel(float fuel);
 
-        v8::Local<v8::Object> GetColorSecondary() {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+        std::string GetLicensePlate();
+        void SetLicensePlate(std::string plate);
 
-            auto colorRGB = Framework::Scripting::Engines::Node::Builtins::ColorRGB::FromVec4(vehData->colorSecondary);
-            return v8pp::class_<Framework::Scripting::Engines::Node::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
-        }
+        Shared::Modules::VehicleSync::LockState GetLockState();
+        void SetLockState(Shared::Modules::VehicleSync::LockState state);
 
-        void SetColorSecondary(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb) {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+        bool GetRadioOn();
+        void SetRadioOn(bool on);
 
-            auto vec4Color = glm::vec4(rgb.GetFloatR(), rgb.GetFloatG(), rgb.GetFloatB(), 1.0f);
+        int GetRadioStationId();
+        void SetRadioStationId(int id);
 
-            vehData->colorSecondary = vec4Color;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.colorSecondary = vec4Color;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
+        v8::Local<v8::Object> GetRimColor();
+        void SetRimColor(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb);
 
-        float GetDirt() {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return vehData->dirt;
-        }
+        float GetRust();
+        void SetRust(float rust);
 
-        void SetDirt(float dirt) {
-            auto vehData  = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            vehData->dirt = dirt;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.dirt = dirt;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
+        bool GetSirenOn();
+        void SetSirenOn(bool on);
 
-        float GetFuel() {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return vehData->fuel;
-        }
+        v8::Local<v8::Object> GetTireColor();
+        void SetTireColor(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb);
 
-        void SetFuel(float fuel) {
-            auto vehData  = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            vehData->fuel = fuel;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.fuel = fuel;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
-
-        std::string GetLicensePlate() {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return vehData->licensePlate;
-        }
-
-        void SetLicensePlate(std::string plate) {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            ::memcpy(vehData->licensePlate, plate.c_str(), std::min(sizeof(vehData->licensePlate), plate.length()));
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.licensePlate = plate.c_str();
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
-
-        Shared::Modules::VehicleSync::LockState GetLockState() {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return vehData->lockState;
-        }
-
-        void SetLockState(Shared::Modules::VehicleSync::LockState lockState) {
-            auto vehData       = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            vehData->lockState = lockState;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.lockState = lockState;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
-
-        bool GetRadioOn() {
-            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return syncData->radioOn;
-        }
-
-        void SetRadioOn(bool on) {
-            auto vehData     = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            vehData->radioOn = on;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.radioOn = on;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
-
-        int GetRadioStationId() {
-            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return syncData->radioStationId;
-        }
-
-        void SetRadioStationId(int id) {
-            auto vehData            = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            vehData->radioStationId = id;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.radioStationId = id;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
-
-        v8::Local<v8::Object> GetRimColor() {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-
-            auto colorRGB = Framework::Scripting::Engines::Node::Builtins::ColorRGB::FromVec4(vehData->rimColor);
-            return v8pp::class_<Framework::Scripting::Engines::Node::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
-        }
-
-        void SetRimColor(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb) {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-
-            auto vec4Color = glm::vec4(rgb.GetFloatR(), rgb.GetFloatG(), rgb.GetFloatB(), 1.0f);
-
-            vehData->rimColor = vec4Color;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.rimColor = vec4Color;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
-
-        float GetRust() {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return vehData->rust;
-        }
-
-        void SetRust(float rust) {
-            auto vehData  = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            vehData->rust = rust;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.rust = rust;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
-
-        bool GetSirenOn() {
-            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return syncData->sirenOn;
-        }
-
-        void SetSirenOn(bool on) {
-            auto vehData     = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            vehData->sirenOn = on;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.sirenOn = on;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
-
-        v8::Local<v8::Object> GetTireColor() {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-
-            auto colorRGB = Framework::Scripting::Engines::Node::Builtins::ColorRGB::FromVec4(vehData->tireColor);
-            return v8pp::class_<Framework::Scripting::Engines::Node::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
-        }
-
-        void SetTireColor(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb) {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-
-            auto vec4Color = glm::vec4(rgb.GetFloatR(), rgb.GetFloatG(), rgb.GetFloatB(), 1.0f);
-
-            vehData->tireColor = vec4Color;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.tireColor = vec4Color;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
-
-        v8::Local<v8::Object> GetWindowTint() {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-
-            auto colorRGBA = Framework::Scripting::Engines::Node::Builtins::ColorRGBA::FromVec4(vehData->windowTint);
-            return v8pp::class_<Framework::Scripting::Engines::Node::Builtins::ColorRGBA>::create_object(v8::Isolate::GetCurrent(), colorRGBA.GetR(), colorRGBA.GetG(), colorRGBA.GetB(), colorRGBA.GetA());
-        }
-
-        void SetWindowTint(Framework::Scripting::Engines::Node::Builtins::ColorRGBA rgba) {
-            auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-
-            auto vec4Color = glm::vec4(rgba.GetFloatR(), rgba.GetFloatG(), rgba.GetFloatB(), rgba.GetFloatA());
-
-            vehData->windowTint = vec4Color;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.windowTint = vec4Color;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
-
-        bool GetEngineOn() {
-            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return syncData->engineOn;
-        }
-
-        void SetEngineOn(bool on) {
-            auto vehData     = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            vehData->engineOn = on;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.engineOn = on;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
+        v8::Local<v8::Object> GetWindowTint();
+        void SetWindowTint(Framework::Scripting::Engines::Node::Builtins::ColorRGBA tint);
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
             if (!rootModule) {
