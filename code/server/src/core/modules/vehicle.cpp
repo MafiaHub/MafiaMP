@@ -138,6 +138,8 @@ namespace MafiaMP::Core::Modules {
             auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
             *updateData     = msg->GetData();
         });
+
+        InitRPCs(srv, net);
     }
 
     void Vehicle::InitRPCs(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
