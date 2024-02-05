@@ -54,5 +54,10 @@ namespace SDK {
         C_Vehicle *GetVehicle() {
             return reinterpret_cast<C_Vehicle *>((uintptr_t)this + 0xF8);
         }
+
+        bool IsEngineOn() const {
+            uint64_t flags = *reinterpret_cast<uint64_t *>((uintptr_t)this + 0x1280);
+            return (flags >> 2) & 1;
+        }
     };
 } // namespace SDK

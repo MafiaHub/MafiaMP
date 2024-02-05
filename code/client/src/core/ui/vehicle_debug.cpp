@@ -102,7 +102,7 @@ namespace MafiaMP::Core::UI {
                 currentVehicle->SetBeaconLightsOn(beaconsLight);
             }
 
-            bool isEngineOn = currentVehicle->IsEngineOn();
+            bool isEngineOn = currentCar->IsEngineOn();
             if (ImGui::Checkbox("Engine", &isEngineOn)) {
                 currentVehicle->SetEngineOn(isEngineOn, isEngineOn);
             }

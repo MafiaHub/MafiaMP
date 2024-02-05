@@ -34,9 +34,6 @@ namespace SDK {
         }
 
         void SetEngineOn(bool on, bool arg2);
-        bool IsEngineOn() const {
-            return false;
-        }
 
         void SetPower(float power);
         float GetPower() const {
