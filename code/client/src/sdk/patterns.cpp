@@ -141,6 +141,9 @@ namespace SDK {
         // C_GameFramework
         gPatterns.C_GameFramework__IsSuspended = reinterpret_cast<uint64_t>(hook::get_pattern("80 39 ? 74 ? 80 79 ? ?"));
 
+        // C_GameGfxEnvEffModule
+        gPatterns.C_GameGfxEnvEffModule__GetCurrentWeatherSetName = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 05 ? ? ? ? 48 8B 40 28 48 8B 40 28"));
+
         // C_GameGUI2Module
         uint64_t C_GameGUI2Module       = hook::get_opcode_address("E8 ? ? ? ? 41 8D 56 11");
         uint8_t *C_GameGUI2Module_Bytes = reinterpret_cast<uint8_t *>(C_GameGUI2Module);

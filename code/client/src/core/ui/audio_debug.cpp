@@ -1,5 +1,5 @@
 #include "audio_debug.h"
-#include <external/imgui/wrapper.h>
+
 #include <imgui.h>
 
 #include "sdk/c_game_audio_module.h"

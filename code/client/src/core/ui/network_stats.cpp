@@ -4,7 +4,6 @@
 #include <slikenet/peer.h>
 #include <slikenet/statistics.h>
 
-#include <external/imgui/wrapper.h>
 #include <imgui.h>
 
 #include "game/helpers/controls.h"

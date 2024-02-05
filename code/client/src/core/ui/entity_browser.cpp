@@ -1,7 +1,6 @@
 #include "entity_browser.h"
 #include "../application.h"
 
-#include <external/imgui/wrapper.h>
 #include <imgui.h>
 
 #include <sdk/entities/c_car.h>
