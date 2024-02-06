@@ -123,20 +123,6 @@ void C_Human2CarWrapper__StartDrive(SDK::C_Human2CarWrapper *pThis, SDK::C_Actor
         // Disable the shadows and human clothes
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableShadows(false);
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableHumanClothes();
-
-        // Notify the server
-        auto const pLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
-        if (reinterpret_cast<SDK::C_Actor*>(pLocalPlayer) == pActor) {
-            const auto pVehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntity(pThis->m_pUsedCar);
-            if (!pVehicle || !pVehicle.is_valid()) {
-                return;
-            }
-
-            MafiaMP::Shared::RPC::VehiclePlayerEnter rpc;
-            rpc.vehicleId = Framework::World::ClientEngine::GetServerID(pVehicle);
-            rpc.seatIndex = seatID;
-            FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::VehiclePlayerEnter, MafiaMP::Core::gApplication->GetLocalPlayer(), rpc);
-        }
     }
 }
 
@@ -157,20 +143,50 @@ void C_Human2CarWrapper__EndDrive(SDK::C_Human2CarWrapper *pThis, SDK::C_Actor *
         // Enable the shadows and human clothes
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableShadows(true);
         reinterpret_cast<SDK::C_Human2 *>(pActor)->EnableHumanClothes();
-
-        // Notify the server
-        auto const pLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
-        if (reinterpret_cast<SDK::C_Actor *>(pLocalPlayer) == pActor) {
-            const auto pVehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntity(pThis->m_pUsedCar);
-            if (!pVehicle || !pVehicle.is_valid()) {
-                return;
-            }
-
-            MafiaMP::Shared::RPC::VehiclePlayerLeave rpc;
-            rpc.vehicleId = Framework::World::ClientEngine::GetServerID(pVehicle);
-            FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::VehiclePlayerLeave, MafiaMP::Core::gApplication->GetLocalPlayer(), rpc);
-        }
     }
+}
+
+typedef int64_t(__fastcall *C_Human2CarWrapper__GetIn_t)(SDK::C_Human2CarWrapper *, SDK::C_Actor *, int, SDK::C_Human2CarWrapper::S_SeatInfo &);
+C_Human2CarWrapper__GetIn_t C_Human2CarWrapper__GetIn_original = nullptr;
+
+int64_t C_Human2CarWrapper__GetIn(SDK::C_Human2CarWrapper* pThis, SDK::C_Actor* pActor, int seatID, SDK::C_Human2CarWrapper::S_SeatInfo& seatInfo) {
+    // Notify the server
+    auto const pLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
+    if (reinterpret_cast<SDK::C_Actor *>(pLocalPlayer) == pActor) {
+        const auto pVehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntity(pThis->m_pUsedCar);
+        if (!pVehicle || !pVehicle.is_valid()) {
+            return C_Human2CarWrapper__GetIn_original(pThis, pActor, seatID, seatInfo);
+        }
+
+        MafiaMP::Shared::RPC::VehiclePlayerEnter rpc;
+        rpc.vehicleId = Framework::World::ClientEngine::GetServerID(pVehicle);
+        rpc.seatIndex = seatID;
+        FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::VehiclePlayerEnter, MafiaMP::Core::gApplication->GetLocalPlayer(), rpc);
+    }
+
+    // Return to game
+    return C_Human2CarWrapper__GetIn_original(pThis, pActor, seatID, seatInfo);
+}
+
+typedef int64_t(__fastcall *C_Human2CarWrapper__GetOut_t)(SDK::C_Human2CarWrapper *, SDK::C_Actor *);
+C_Human2CarWrapper__GetOut_t C_Human2CarWrapper__GetOut_original = nullptr;
+
+int64_t C_Human2CarWrapper__GetOut(SDK::C_Human2CarWrapper* pThis, SDK::C_Actor* pActor) {
+    // Notify the server
+    auto const pLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
+    if (reinterpret_cast<SDK::C_Actor *>(pLocalPlayer) == pActor) {
+        const auto pVehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntity(pThis->m_pUsedCar);
+        if (!pVehicle || !pVehicle.is_valid()) {
+            return C_Human2CarWrapper__GetOut_original(pThis, pActor);
+        }
+
+        MafiaMP::Shared::RPC::VehiclePlayerLeave rpc;
+        rpc.vehicleId = Framework::World::ClientEngine::GetServerID(pVehicle);
+        FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::VehiclePlayerLeave, MafiaMP::Core::gApplication->GetLocalPlayer(), rpc);
+    }
+
+    // Return to game
+    return C_Human2CarWrapper__GetOut_original(pThis, pActor);
 }
 
 static InitFunction init([]() {
@@ -199,4 +215,10 @@ static InitFunction init([]() {
 
     const auto C_CarActionBailOut__TestAction_Addr = hook::get_pattern("40 53 48 83 EC 20 48 8B DA E8 ? ? ? ? 48 8B C8 4C 8B 00 41 FF 90 ? ? ? ? 48 3B D8 75 2A");
     MH_CreateHook((LPVOID)C_CarActionBailOut__TestAction_Addr, (PBYTE)C_CarActionBailOut__TestAction, reinterpret_cast<void **>(&C_CarActionBailOut__TestAction_original));
+
+    const auto C_Human2CarWrapper__GetIn_Addr = hook::get_pattern("40 55 56 57 41 54 41 56 48 83 EC ? 33 ED");
+    MH_CreateHook((LPVOID)C_Human2CarWrapper__GetIn_Addr, (PBYTE)C_Human2CarWrapper__GetIn, reinterpret_cast<void **>(&C_Human2CarWrapper__GetIn_original));
+
+    const auto C_Human2CarWrapper__GetOut_Addr = hook::get_pattern("40 56 57 41 57 48 83 EC ? 48 8B F2 48 8B F9");
+    MH_CreateHook((LPVOID)C_Human2CarWrapper__GetOut_Addr, (PBYTE)C_Human2CarWrapper__GetOut, reinterpret_cast<void **>(&C_Human2CarWrapper__GetOut_original));
 });

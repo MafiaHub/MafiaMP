@@ -6,6 +6,9 @@
 namespace SDK {
     class C_Human2CarWrapper {
       public:
+        struct S_SeatInfo;
+
+      public:
         char pad0[0x18];                    // 0000 - 0018
         C_Car *m_pUsedCar;                  // 0018 - 0020
       public:
