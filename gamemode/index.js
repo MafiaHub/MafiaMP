@@ -306,6 +306,16 @@ sdk.on("gamemodeUnloading", () => {
     console.log("[GAMEMODE] Gamemode unloading!");
 });
 
+sdk.on("vehiclePlayerEnter", (vehicle, player, seatIndex) => {
+    console.log(`[GAMEMODE] Player ${player.nickname} entered vehicle ${vehicle.name} = ${seatIndex}!`);
+    vehicle.setEngineOn(true);
+});
+
+sdk.on("vehiclePlayerLeave", (vehicle, player) => {
+    console.log(`[GAMEMODE] Player ${player.nickname} exited vehicle ${vehicle.name}!`);
+    vehicle.setEngineOn(false);
+});
+
 sdk.on("playerConnected", (player) => {
     console.log(`[GAMEMODE] Player ${player.nickname} connected!`);
     player.sendChatToAll(`[SERVER] ${player.nickname} has joined the session!`);
