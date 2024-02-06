@@ -341,6 +341,7 @@ namespace SDK {
         uint64_t C_Vehicle__SetIndicatorLightsOn = 0x0;
         uint64_t C_Vehicle__SetInteriorColors  = 0x0;
         uint64_t C_Vehicle__SetPower           = 0x0;
+        uint64_t C_Vehicle__SetReflectorLightsOn = 0x0;
         uint64_t C_Vehicle__SetSearchLightsOn  = 0x0;
         uint64_t C_Vehicle__SetSiren           = 0x0;
         uint64_t C_Vehicle__SetSpeed           = 0x0;

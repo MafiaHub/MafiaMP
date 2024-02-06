@@ -101,6 +101,8 @@ namespace SDK {
 
         void SetIndicatorLightsOn(bool, E_VehicleIndicator);
 
+        void SetReflectorLightsOn(bool front, bool rear);
+
         void SetBeaconLightsOn(bool on);
         bool GetBeaconLightsOn() {
             return (m_uAdditionalLightFlags & E_VehicleFlags::BEACON_LIGHTS) != 0;

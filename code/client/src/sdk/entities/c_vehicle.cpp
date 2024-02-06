@@ -162,6 +162,10 @@ namespace SDK {
         return hook::this_call<bool>(gPatterns.C_Vehicle__IsAnyLightOn, this);
     }
 
+    void C_Vehicle::SetReflectorLightsOn(bool front, bool rear) {
+        hook::this_call(gPatterns.C_Vehicle__SetReflectorLightsOn, this, front, rear);
+    }
+
     void C_Vehicle::EnableRadio(bool enable) {
         // NB: Need to shift to (I assume to a radio) interface
         void *shiftedThis = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(this) + 0x268);

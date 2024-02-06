@@ -199,9 +199,6 @@ namespace MafiaMP::Core::UI {
             if (ImGui::Button("UnlockEntryPoints")) {
                 currentCar->UnlockEntryPoints();
             }
-
-            ImGui::Text("Car Ptr: %p", currentCar);
-            ImGui::Text("Vehicle Ptr: %p", currentVehicle);
         }
         else {
             ImGui::Text("You're not in a vehicle!");
