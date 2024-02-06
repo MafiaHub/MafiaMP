@@ -126,6 +126,9 @@ namespace SDK {
         // C_GameFramework
         uint64_t C_GameFramework__IsSuspended = 0x0;
 
+        // C_GameGfxEnvEffModule
+        uint64_t C_GameGfxEnvEffModule__GetCurrentWeatherSetName = 0x0;
+
         // C_GameGUI2Module
         uint64_t C_GameGUI2Module__GetGameGui2Module           = 0x0;
         uint64_t C_GameGUI2Module__Instance                    = 0x0;
@@ -317,6 +320,11 @@ namespace SDK {
 
         // C_TickedModuleManager
         uint64_t C_TickedModuleManager__GetTickedModuleManager = 0x0;
+
+        // C_TrafficSpawnManager
+        uint64_t C_TrafficSpawnManager__Populate             = 0x0;
+        uint64_t C_TrafficSpawnManager__SetTrainDensity      = 0x0;
+        uint64_t C_TrafficSpawnManager__SwitchAmbientTraffic = 0x0;
 
         // C_Vehicle
         uint64_t C_Vehicle__AddVehicleFlags    = 0x0;

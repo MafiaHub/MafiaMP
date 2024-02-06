@@ -13,43 +13,29 @@
 
 #include "game/helpers/controls.h"
 #include "game/helpers/human.h"
+#include "game/overrides/character_controller.h"
 #include "game/streaming/entity_factory.h"
 
-#include "sdk/c_game_traffic_module.h"
-#include "sdk/entities/c_car.h"
 #include "sdk/entities/c_crash_obj.h"
 #include "sdk/entities/c_player_2.h"
-#include "sdk/entities/c_vehicle.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
-#include "sdk/mafia/framework/director/c_game_director.h"
-#include "sdk/mafia/ui/c_game_gui_2_module.h"
 
-#include "game/helpers/ui.h"
-
-#include "external/imgui/widgets/corner_text.h"
+#include <imgui.h>
 
 #include <cppfs/FileHandle.h>
 #include <cppfs/fs.h>
 
 #include "shared/rpc/chat_message.h"
-#include "shared/rpc/spawn_car.h"
-
-#include "shared/game_rpc/human/human_changeskin.h"
-
-#include "modules/human.h"
-
-#include "sdk/mafia/framework/c_mafia_dbs.h"
-#include "sdk/mafia/framework/c_vehicles_database.h"
-#include "sdk/ue/sys/sodb/c_sys_odb.h"
 
 namespace MafiaMP::Core {
     DevFeatures::DevFeatures() {
-        _entityBrowser = std::make_shared<UI::EntityBrowser>();
-        _cameraStudio  = std::make_shared<UI::CameraStudio>();
         _audioDebug    = std::make_shared<UI::AudioDebug>();
+        _cameraStudio  = std::make_shared<UI::CameraStudio>();
+        _entityBrowser = std::make_shared<UI::EntityBrowser>();
+        _networkStats  = std::make_shared<UI::NetworkStats>();
         _playerDebug   = std::make_shared<UI::PlayerDebug>();
         _vehicleDebug  = std::make_shared<UI::VehicleDebug>();
-        _networkStats  = std::make_shared<UI::NetworkStats>();
+        _worldDebug    = std::make_shared<UI::WorldDebug>();
     }
 
     void DevFeatures::Init() {
@@ -58,16 +44,16 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::Update() {
+        if (_audioDebug->IsVisible()) {
+            _audioDebug->Update();
+        }
+
         if (_entityBrowser->IsVisible()) {
             _entityBrowser->Update();
         }
 
         if (_cameraStudio->IsVisible()) {
             _cameraStudio->Update();
-        }
-
-        if (_audioDebug->IsVisible()) {
-            _audioDebug->Update();
         }
 
         if (_playerDebug->IsVisible()) {
@@ -82,19 +68,35 @@ namespace MafiaMP::Core {
             _networkStats->Update();
         }
 
+        if (_worldDebug->IsVisible()) {
+            _worldDebug->Update();
+        }
+
+        /**
+         * F8 is for console
+         * F9 is for main menu
+         * F12 is for Steam screenshot
+         */
+
         if (gApplication->_input->IsKeyPressed(FW_KEY_F1)) {
-            const auto human = Game::Helpers::Controls::GetLocalPlayer();
-            if (human) {
-                const auto districtHashName = SDK::mafia::framework::director::C_GameDirector::GetInstance()->GetDistrict(human->GetPos());
-                const auto result           = *districtHashName;
-            }
+            ToggleWorldDebug();
         }
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F2)) {
-            SpawnCrashObject();
+            TogglePlayerDebug();
         }
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F3)) {
+            ToggleVehicleDebug();
+        }
+
+        if (gApplication->_input->IsKeyPressed(FW_KEY_F4)) {
+            gApplication->GetImGUI()->ShowCursor(!_cameraStudio->IsVisible());
+            MafiaMP::Game::Helpers::Controls::Lock(!_cameraStudio->IsVisible());
+            ToggleCameraStudio();
+        }
+
+        if (gApplication->_input->IsKeyPressed(FW_KEY_F5)) {
             // If human is already created, delete it first
             if (_TEMP_HUMAN) {
                 gApplication->GetEntityFactory()->ReturnEntity(_TEMP_HUMAN);
@@ -153,7 +155,7 @@ namespace MafiaMP::Core {
             _TEMP_HUMAN->SetReturnCallback(OnHumanReturned);
         }
 
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F4)) {
+        if (gApplication->_input->IsKeyPressed(FW_KEY_F6)) {
             if (!_TEMP_HUMAN) {
                 return;
             }
@@ -173,9 +175,7 @@ namespace MafiaMP::Core {
         }
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F7)) {
-            gApplication->GetImGUI()->ShowCursor(!_cameraStudio->IsVisible());
-            MafiaMP::Game::Helpers::Controls::Lock(!_cameraStudio->IsVisible());
-            ToggleCameraStudio();
+            SpawnCrashObject();
         }
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F10)) {
@@ -188,186 +188,6 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::Shutdown() {}
-
-    void DevFeatures::Disconnect() {
-        gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect();
-    }
-
-    void DevFeatures::DespawnAll() {
-        for (const auto &vehicle : _TEMP_vehicles) {
-            gApplication->GetEntityFactory()->ReturnEntity(vehicle);
-        }
-        _TEMP_vehicles.clear();
-    }
-
-    void DevFeatures::CrashMe() {
-        *(int *)5 = 5;
-    }
-
-    void DevFeatures::BreakMe() {
-        __debugbreak();
-    }
-
-    void DevFeatures::CloseGame() {
-        // very lazy game shutdown
-        // don't try at home
-        ExitProcess(0);
-    }
-
-    void DevFeatures::ToggleEntityBrowser() {
-        _entityBrowser->SetVisible(!_entityBrowser->IsVisible());
-    }
-
-    void DevFeatures::ToggleCameraStudio() {
-        _cameraStudio->SetVisible(!_playerDebug->IsVisible());
-    }
-
-    void DevFeatures::ToggleAudioDebug() {
-        _audioDebug->SetVisible(!_audioDebug->IsVisible());
-    }
-
-    void DevFeatures::TogglePlayerDebug() {
-        _playerDebug->SetVisible(!_playerDebug->IsVisible());
-    }
-
-    void DevFeatures::ToggleVehicleDebug() {
-        _vehicleDebug->SetVisible(!_vehicleDebug->IsVisible());
-    }
-
-    void DevFeatures::ToggleNetworkStats() {
-        _networkStats->SetVisible(!_networkStats->IsVisible());
-    }
-
-    void DevFeatures::SpawnCrashObject() {
-        auto info = Core::gApplication->GetEntityFactory()->RequestCrashObject("lh_city_stairs_module_a_v1");
-
-        const auto OnCrashObjRequestFinished = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
-            if (success) {
-                auto crashObj = reinterpret_cast<SDK::C_CrashObj *>(info->GetEntity());
-                if (!crashObj) {
-                    return;
-                }
-                crashObj->GameInit();
-                crashObj->Activate();
-
-                auto localPlayer = SDK::GetGame()->GetActivePlayer();
-
-                SDK::ue::sys::math::C_Vector newPos    = localPlayer->GetPos();
-                SDK::ue::sys::math::C_Quat newRot      = localPlayer->GetRot();
-                SDK::ue::sys::math::C_Matrix transform = {};
-                transform.Identity();
-                transform.SetRot(newRot);
-                transform.SetPos(newPos);
-                crashObj->SetTransform(transform);
-            }
-        };
-
-        const auto OnCrashObjReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
-            if (!info) {
-                return;
-            }
-            auto crashObj = reinterpret_cast<SDK::C_CrashObj *>(info->GetEntity());
-            if (wasCreated && crashObj) {
-                crashObj->Deactivate();
-                crashObj->GameDone();
-                crashObj->Release();
-            }
-        };
-
-        info->SetRequestFinishCallback(OnCrashObjRequestFinished);
-        info->SetReturnCallback(OnCrashObjReturned);
-    }
-
-    void DevFeatures::SpawnCar(std::string modelName) {
-        const auto net = gApplication->GetNetworkingEngine()->GetNetworkClient();
-        if (net->GetConnectionState() == Framework::Networking::CONNECTED) {
-            Shared::RPC::SpawnCar spawnCarMsg {};
-            spawnCarMsg.SetModelName(modelName);
-            net->SendRPC(spawnCarMsg);
-        }
-        else {
-            auto info = Core::gApplication->GetEntityFactory()->RequestVehicle(modelName);
-            _TEMP_vehicles.push_back(info);
-
-            const auto OnCarRequestFinish = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
-                if (success) {
-                    auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
-                    if (!car) {
-                        return;
-                    }
-                    car->GameInit();
-                    car->Activate();
-                    car->Unlock();
-
-                    auto localPlayer = SDK::GetGame()->GetActivePlayer();
-
-                    SDK::ue::sys::math::C_Vector newPos    = localPlayer->GetPos();
-                    SDK::ue::sys::math::C_Quat newRot      = localPlayer->GetRot();
-                    SDK::ue::sys::math::C_Matrix transform = {};
-                    transform.Identity();
-                    transform.SetRot(newRot);
-                    transform.SetPos(newPos);
-                    car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
-                    car->GetVehicle()->SetSPZText("DEBUG", true);
-                }
-            };
-
-            const auto OnCarReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
-                if (!info) {
-                    return;
-                }
-                auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
-                if (wasCreated && car) {
-                    car->Deactivate();
-                    car->GameDone();
-                    car->Release();
-                }
-            };
-
-            info->SetRequestFinishCallback(OnCarRequestFinish);
-            info->SetReturnCallback(OnCarReturned);
-        }
-    }
-
-    void DevFeatures::SpawnRandomCar() {
-        const auto mafiaDB = SDK::mafia::framework::GetMafiaDBs();
-        if (!mafiaDB) {
-            return;
-        }
-
-        const auto vehiclesDB = mafiaDB->GetVehiclesDatabase();
-        if (!vehiclesDB.IsValid()) {
-            return;
-        }
-
-        // TODO(Greavesy): May not be 'random' if our application does not use srand, but not important as only debug feature
-        const uint32_t randomIndex = rand() % vehiclesDB->GetVehiclesCount();
-
-        using namespace SDK::mafia::framework;
-        const C_VehiclesDatabase::TItemAccessorConst &selectedCar = vehiclesDB->GetVehicleByIndex(randomIndex);
-        if (const auto *vehicle = selectedCar.Get()) {
-            const auto vehicleID = vehicle->GetID();
-            if (vehicle->GetID() == 0) {
-                // dud index, nothing to spawn
-                return;
-            }
-
-            const char *modelName = vehicle->GetModelName();
-            if (!modelName) {
-                Framework::Logging::GetLogger("Debug")->info("Skipping ID {}, encountered m_ModelName which is nullptr", vehicleID);
-                return;
-            }
-
-            if (vehicle->HasVehicleFlags(SDK::mafia::traffic::E_TrafficVehicleFlags::E_TVF_CAR) == false) {
-                Framework::Logging::GetLogger("Debug")->info("Skipping {}, not E_TVF_CAR", modelName);
-                return;
-            }
-
-            SpawnCar(modelName);
-
-            Framework::Logging::GetLogger("Debug")->info("Spawned {}", modelName);
-        }
-    }
 
     void DevFeatures::SetupCommands() {
         gApplication->_commandProcessor->RegisterCommand(
@@ -461,7 +281,7 @@ namespace MafiaMP::Core {
             "spawnCar", {{"m,model", "model name of the car", cxxopts::value<std::string>()->default_value("berkley_810")}},
             [this](const cxxopts::ParseResult &result) {
                 std::string modelName = result["model"].as<std::string>();
-                SpawnCar(modelName);
+                _worldDebug->SpawnCar(modelName);
             },
             "spawn a car of a given model");
 
@@ -514,6 +334,13 @@ namespace MafiaMP::Core {
             "toggles entity browser dialog");
 
         gApplication->_commandProcessor->RegisterCommand(
+            "showAudioDebug", {},
+            [this](const cxxopts::ParseResult &result) {
+                ToggleAudioDebug();
+            },
+            "toggles audio debug dialog");
+
+        gApplication->_commandProcessor->RegisterCommand(
             "showCameraStudio", {},
             [this](const cxxopts::ParseResult &result) {
                 ToggleCameraStudio();
@@ -535,6 +362,13 @@ namespace MafiaMP::Core {
             "toggles vehicle debug dialog");
 
         gApplication->_commandProcessor->RegisterCommand(
+            "showWorldDebug", {},
+            [this](const cxxopts::ParseResult &result) {
+                ToggleWorldDebug();
+            },
+            "toggles world debug dialog");
+
+        gApplication->_commandProcessor->RegisterCommand(
             "showNetworkStats", {},
             [this](const cxxopts::ParseResult &result) {
                 ToggleNetworkStats();
@@ -546,23 +380,12 @@ namespace MafiaMP::Core {
         gApplication->_console->RegisterMenuBarDrawer([this]() {
             if (ImGui::BeginMenu("Debug")) {
                 if (ImGui::MenuItem("Spawn car")) {
-                    SpawnCar();
+                    _worldDebug->SpawnCar();
                 }
                 if (ImGui::MenuItem("Spawn 50 cars")) {
                     for (size_t i = 0; i < 50; i++) {
-                        SpawnCar();
+                        _worldDebug->SpawnCar();
                     }
-                }
-                if (ImGui::MenuItem("Spawn random car")) {
-                    SpawnRandomCar();
-                }
-                if (ImGui::MenuItem("Spawn 50 random cars")) {
-                    for (size_t i = 0; i < 50; i++) {
-                        SpawnRandomCar();
-                    }
-                }
-                if (ImGui::MenuItem("Despawn all")) {
-                    DespawnAll();
                 }
                 if (ImGui::MenuItem("Disconnect")) {
                     Disconnect();
@@ -578,26 +401,28 @@ namespace MafiaMP::Core {
                 }
                 ImGui::EndMenu();
             }
+
             if (ImGui::BeginMenu("Editors")) {
-                if (ImGui::MenuItem("Entity Browser", "F11")) {
-                    ToggleEntityBrowser();
+                if (ImGui::MenuItem("World debug", "F1")) {
+                    ToggleWorldDebug();
                 }
-                if (ImGui::MenuItem("Camera Studio")) {
+                if (ImGui::MenuItem("Player debug", "F2")) {
+                    TogglePlayerDebug();
+                }
+                if (ImGui::MenuItem("Vehicle debug", "F3")) {
+                    ToggleVehicleDebug();
+                }
+                if (ImGui::MenuItem("Camera Studio", "F4")) {
                     ToggleCameraStudio();
                 }
-
                 if (ImGui::MenuItem("Audio debug")) {
                     ToggleAudioDebug();
                 }
-
-                if (ImGui::MenuItem("Player debug")) {
-                    TogglePlayerDebug();
-                }
-                if (ImGui::MenuItem("Vehicle debug")) {
-                    ToggleVehicleDebug();
-                }
                 if (ImGui::MenuItem("Network stats", "F10")) {
                     ToggleNetworkStats();
+                }
+                if (ImGui::MenuItem("Entity Browser", "F11")) {
+                    ToggleEntityBrowser();
                 }
 
                 ImGui::EndMenu();
@@ -605,4 +430,89 @@ namespace MafiaMP::Core {
         });
     }
 
+    void DevFeatures::ToggleAudioDebug() {
+        _audioDebug->SetVisible(!_audioDebug->IsVisible());
+    }
+
+    void DevFeatures::ToggleEntityBrowser() {
+        _entityBrowser->SetVisible(!_entityBrowser->IsVisible());
+    }
+
+    void DevFeatures::ToggleNetworkStats() {
+        _networkStats->SetVisible(!_networkStats->IsVisible());
+    }
+
+    void DevFeatures::ToggleCameraStudio() {
+        _cameraStudio->SetVisible(!_playerDebug->IsVisible());
+    }
+
+    void DevFeatures::TogglePlayerDebug() {
+        _playerDebug->SetVisible(!_playerDebug->IsVisible());
+    }
+
+    void DevFeatures::ToggleVehicleDebug() {
+        _vehicleDebug->SetVisible(!_vehicleDebug->IsVisible());
+    }
+
+    void DevFeatures::ToggleWorldDebug() {
+        _worldDebug->SetVisible(!_worldDebug->IsVisible());
+    }
+
+    void DevFeatures::Disconnect() {
+        gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect();
+    }
+
+    void DevFeatures::CrashMe() {
+        *(int *)5 = 5;
+    }
+
+    void DevFeatures::BreakMe() {
+        __debugbreak();
+    }
+
+    void DevFeatures::CloseGame() {
+        // very lazy game shutdown
+        // don't try at home
+        ExitProcess(0);
+    }
+
+    void DevFeatures::SpawnCrashObject() {
+        auto info = Core::gApplication->GetEntityFactory()->RequestCrashObject("lh_city_stairs_module_a_v1");
+
+        const auto OnCrashObjRequestFinished = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
+            if (success) {
+                auto crashObj = reinterpret_cast<SDK::C_CrashObj *>(info->GetEntity());
+                if (!crashObj) {
+                    return;
+                }
+                crashObj->GameInit();
+                crashObj->Activate();
+
+                auto localPlayer = SDK::GetGame()->GetActivePlayer();
+
+                SDK::ue::sys::math::C_Vector newPos    = localPlayer->GetPos();
+                SDK::ue::sys::math::C_Quat newRot      = localPlayer->GetRot();
+                SDK::ue::sys::math::C_Matrix transform = {};
+                transform.Identity();
+                transform.SetRot(newRot);
+                transform.SetPos(newPos);
+                crashObj->SetTransform(transform);
+            }
+        };
+
+        const auto OnCrashObjReturned = [&](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
+            if (!info) {
+                return;
+            }
+            auto crashObj = reinterpret_cast<SDK::C_CrashObj *>(info->GetEntity());
+            if (wasCreated && crashObj) {
+                crashObj->Deactivate();
+                crashObj->GameDone();
+                crashObj->Release();
+            }
+        };
+
+        info->SetRequestFinishCallback(OnCrashObjRequestFinished);
+        info->SetReturnCallback(OnCrashObjReturned);
+    }
 } // namespace MafiaMP::Core
