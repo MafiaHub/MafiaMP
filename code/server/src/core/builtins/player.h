@@ -11,6 +11,7 @@
 
 #include "scripting/module.h"
 
+#include "core/modules/vehicle.h"
 #include "vehicle.h"
 
 namespace MafiaMP::Scripting {
@@ -71,6 +72,61 @@ namespace MafiaMP::Scripting {
             FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanSetProps, _ent, msg);
         }
 
+        /* Player NEEDS to be in a stream range of the vehicle for this action to work.
+         * Suggestion: Teleport player to car position and then enforce entrance to ensure player always succeeds at this task.
+         * Local player always waits for the vehicle to enter stream range, making the process entirely async, just like
+         * how we handle remote human car enter/exit states.
+         */
+        bool EnterVehicle(Vehicle vehicle, int seatId, bool forced) {
+            if (!vehicle.GetHandle().is_valid())
+                return false;
+            if (!vehicle.GetHandle().is_alive())
+                return false;
+            if (seatId < 0 || seatId > 3 /* TODO: use MAX_SEATS constexpr var */)
+                return false;
+            auto updateData = _ent.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+
+            if (updateData->carPassenger.carId)
+                return false;
+
+            {
+                const auto carData = vehicle.GetHandle().get<Core::Modules::Vehicle::CarData>();
+                if (!carData)
+                    return false;
+
+                if (carData->seats[seatId])
+                    return false;
+            }
+
+            updateData->carPassenger.carId  = vehicle.GetID();
+            updateData->carPassenger.seatId = seatId;
+            MafiaMP::Shared::RPC::HumanSetProps msg {};
+            MafiaMP::Shared::RPC::HumanSetProps::CarEnterExitAction carEnterExit = {};
+
+            carEnterExit.carId     = vehicle.GetID();
+            carEnterExit.seatId    = seatId;
+            carEnterExit.forced    = forced;
+            msg.carEnterExitAction = carEnterExit;
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanSetProps, _ent, msg);
+            return true;
+        }
+
+        bool ExitVehicle(bool forced) {
+            auto updateData = _ent.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+
+            if (!updateData->carPassenger.carId)
+                return false;
+
+            updateData->carPassenger = {};
+            MafiaMP::Shared::RPC::HumanSetProps msg {};
+            MafiaMP::Shared::RPC::HumanSetProps::CarEnterExitAction carEnterExit = {};
+
+            carEnterExit.forced    = forced;
+            msg.carEnterExitAction = carEnterExit;
+            FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanSetProps, _ent, msg);
+            return true;
+        }
+
         float GetHealth() const {
             auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
             return h->_healthPercent;
@@ -109,6 +165,8 @@ namespace MafiaMP::Scripting {
             cls.function("setHealth", &Human::SetHealth);
             cls.function("getHealth", &Human::GetHealth);
             cls.function("getVehicle", &Human::GetVehicle);
+            cls.function("enterVehicle", &Human::EnterVehicle);
+            cls.function("exitVehicle", &Human::ExitVehicle);
             cls.function("getVehicleSeat", &Human::GetVehicleSeat);
             cls.function("sendChat", &Human::SendChat);
             cls.function("sendChatToAll", &Human::SendChatToAll);

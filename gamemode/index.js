@@ -390,6 +390,29 @@ RegisterChatCommand("tp", (player, message, command, args) => {
     player.sendChat(`[SERVER] Teleported to ${tpDestName}!`);
 });
 
+RegisterChatCommand("tpe", (player, message, command, args) => {
+    const tpDestName = args[0];
+    const foundTpDest = TP_DESTINATIONS[tpDestName];
+
+    if (!foundTpDest) {
+        player.sendChat(`[SERVER] Teleportation failed. Unknown destination ${tpDestName}`);
+        return;
+    }
+
+    const veh = player.getVehicle();
+    veh.setPosition(foundTpDest.pos);
+    veh.setRotation(foundTpDest.rot);
+    player.sendChat(`[SERVER] Teleported to ${tpDestName}!`);
+});
+
+RegisterChatCommand("t1", (player, message, command, args) => {
+    player.exitVehicle(false);
+});
+
+RegisterChatCommand("t2", (player, message, command, args) => {
+    player.exitVehicle(true);
+});
+
 RegisterChatCommand("coords", (player, message, command, args) => {
     let x = args[0];
     let y = args[1];
