@@ -39,6 +39,10 @@ namespace SDK {
         hook::this_call(gPatterns.C_Vehicle__SetPower, this, power);
     }
 
+    void C_Vehicle::SetIndicatorLightsOn(bool state, E_VehicleIndicator index) {
+        hook::this_call(gPatterns.C_Vehicle__SetIndicatorLightsOn, this, state, index);
+    }
+
     void C_Vehicle::SetSiren(bool on) {
         hook::this_call(gPatterns.C_Vehicle__SetSiren, this, on);
     }

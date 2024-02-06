@@ -384,6 +384,7 @@ namespace SDK {
         gPatterns.C_Vehicle__SetGear            = hook::get_opcode_address("E8 ? ? ? ? C6 83 ? ? ? ? ? 80 7F ? ? 74 ? 33 D2");
         gPatterns.C_Vehicle__SetHandbrake       = hook::get_opcode_address("E8 ? ? ? ? 49 8B 86 ? ? ? ? 4D 89 BE ? ? ? ?");
         gPatterns.C_Vehicle__SetHorn            = hook::get_opcode_address("E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01 FF 50 ? 8B F0");
+        gPatterns.C_Vehicle__SetIndicatorLightsOn = reinterpret_cast<uint64_t>(hook::get_pattern("B8 ? ? ? ? 45 84 C0 41 B9"));
         gPatterns.C_Vehicle__SetInteriorColors  = hook::get_opcode_address("E8 ? ? ? ? 48 81 C4 ? ? ? ? 41 5E 41 5D 5D C3 ? ? ? ? ? ? ? ? ? ? 40 55");
         gPatterns.C_Vehicle__SetPower           = hook::get_opcode_address("E8 ? ? ? ? F3 0F 10 8B ? ? ? ? 45 33 C0 48 8B CF E8 ? ? ? ?");
         gPatterns.C_Vehicle__SetSearchLightsOn  = hook::get_opcode_address("E8 ? ? ? ? 80 7E ? ? 0F 84 ? ? ? ? E8 ? ? ? ?");

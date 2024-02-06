@@ -14,6 +14,11 @@ namespace SDK {
         TAXI_LIGHTS   = 0x80,
     };
 
+    enum E_VehicleIndicator {
+        INDICATOR_RIGHT = 0,
+        INDICATOR_LEFT  = 1,
+    };
+
     class C_Vehicle {
       public:
         void AddVehicleFlags(uint64_t);
@@ -94,9 +99,11 @@ namespace SDK {
         void SetDoorFree(int doorIdx, bool arg2, bool arg3);
         void SetGear(int gear);
 
+        void SetIndicatorLightsOn(bool, E_VehicleIndicator);
+
         void SetBeaconLightsOn(bool on);
         bool GetBeaconLightsOn() {
-            return (m_uLightFlags & E_VehicleFlags::BEACON_LIGHTS) != 0;
+            return (m_uAdditionalLightFlags & E_VehicleFlags::BEACON_LIGHTS) != 0;
         }
         void SetSearchLightsOn(bool on);
 
@@ -104,7 +111,7 @@ namespace SDK {
 
         void SetTaxiLightsOn(bool on);
         bool GetTaxiLightsOn() {
-            return (m_uLightFlags & E_VehicleFlags::TAXI_LIGHTS) != 0;
+            return (m_uAdditionalLightFlags & E_VehicleFlags::TAXI_LIGHTS) != 0;
         }
 
         void SetActive(bool active);
@@ -126,7 +133,6 @@ namespace SDK {
 #else
         char pad_base[0x40C];
 #endif
-
         ue::sys::math::C_Vector m_vVelocity;                               // 040C - 0418
         ue::sys::math::C_Vector m_vAngularVelocity;                        // 0418 - 0424
         char pad0[0x5A4];                                                  // 0424 - 09C8
@@ -153,7 +159,7 @@ namespace SDK {
         float m_fDirty;                                                    // 0C60 - 0C64
         float m_fRust;                                                     // 0C64 - 0C68
         char pad8[0x98];                                                   // 0C68 - 0D00
-        uint64_t m_uLightFlags;                                            // 0D00 - 0D08
+        uint64_t m_uAdditionalLightFlags;                                  // 0D00 - 0D08
         char pad9[0x7F0];                                                  // 0D08 - 14F8
         ue::game::audio::radio::C_RadioSound *m_pRadioSound;               // 14F8 - 1500
     };
