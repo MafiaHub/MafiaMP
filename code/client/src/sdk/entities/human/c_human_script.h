@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../ue/c_cnt_ptr.h"
+#include "../e_actor_actions.h"
 
 #include "../../ue/sys/math/c_vector.h"
 
@@ -33,6 +34,8 @@ namespace SDK {
         void ScrAim(ue::C_CntPtr<uintptr_t> &, bool);
         void ScrAimAt(ue::C_CntPtr<uintptr_t> &, C_Entity *, ue::sys::math::C_Vector const &, bool);
         void ScrAttack(C_Entity *);
+
+        void ScrDoAction(ue::C_CntPtr<uintptr_t> &, C_Actor *, E_ActorActions, unsigned int, bool, bool, E_HumanMoveMode, bool);
 
         void SetStealthMove(bool);
     };
