@@ -346,6 +346,7 @@ namespace SDK {
         uint64_t C_Vehicle__SetSpeedLimit      = 0x0;
         uint64_t C_Vehicle__SetSPZText         = 0x0;
         uint64_t C_Vehicle__SetSteer           = 0x0;
+        uint64_t C_Vehicle__SetTaxiLightsOn    = 0x0;
         uint64_t C_Vehicle__SetVehicleColor    = 0x0;
         uint64_t C_Vehicle__SetVehicleDirty    = 0x0;
         uint64_t C_Vehicle__SetVehicleMatrix   = 0x0;

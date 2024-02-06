@@ -51,6 +51,10 @@ namespace SDK {
         hook::this_call(gPatterns.C_Vehicle__SetSteer, this, steer);
     }
 
+    void C_Vehicle::SetTaxiLightsOn(bool on) {
+        hook::this_call(gPatterns.C_Vehicle__SetTaxiLightsOn, this, on);
+    }
+
     void C_Vehicle::SetHorn(bool on) {
         hook::this_call(gPatterns.C_Vehicle__SetHorn, this, on);
     }

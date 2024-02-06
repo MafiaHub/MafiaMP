@@ -11,6 +11,7 @@
 namespace SDK {
     enum E_VehicleFlags {
         BEACON_LIGHTS = 0x40,
+        TAXI_LIGHTS   = 0x80,
     };
 
     class C_Vehicle {
@@ -95,11 +96,16 @@ namespace SDK {
 
         void SetBeaconLightsOn(bool on);
         bool GetBeaconLightsOn() {
-            return (m_uFlags & E_VehicleFlags::BEACON_LIGHTS) != 0;
+            return (m_uLightFlags & E_VehicleFlags::BEACON_LIGHTS) != 0;
         }
         void SetSearchLightsOn(bool on);
 
         void SetSpeedLimiter(bool on);
+
+        void SetTaxiLightsOn(bool on);
+        bool GetTaxiLightsOn() {
+            return (m_uLightFlags & E_VehicleFlags::TAXI_LIGHTS) != 0;
+        }
 
         void SetActive(bool active);
         bool IsActive(int arg1 = 0);
@@ -147,7 +153,7 @@ namespace SDK {
         float m_fDirty;                                                    // 0C60 - 0C64
         float m_fRust;                                                     // 0C64 - 0C68
         char pad8[0x98];                                                   // 0C68 - 0D00
-        uint64_t m_uFlags;                                                 // 0D00 - 0D08
+        uint64_t m_uLightFlags;                                            // 0D00 - 0D08
         char pad9[0x7F0];                                                  // 0D08 - 14F8
         ue::game::audio::radio::C_RadioSound *m_pRadioSound;               // 14F8 - 1500
     };

@@ -392,6 +392,7 @@ namespace SDK {
         gPatterns.C_Vehicle__SetSpeedLimit      = hook::get_opcode_address("E8 ? ? ? ? 48 8B 8B ? ? ? ? 48 85 C9 74 ? 48 8B 89 ? ? ? ?");
         gPatterns.C_Vehicle__SetSPZText         = hook::get_opcode_address("E8 ? ? ? ? 48 8D 5D ? BF ? ? ? ? 0F B7 13");
         gPatterns.C_Vehicle__SetSteer           = hook::get_opcode_address("E8 ? ? ? ? 41 B1 01 89 BE ? ? ? ?");
+        gPatterns.C_Vehicle__SetTaxiLightsOn    = reinterpret_cast<uint64_t>(hook::get_pattern("81 A1 ? ? ? ? ? ? ? ? 0F B6 C2 F7 D8 25 ? ? ? ? 09 81 ? ? ? ? C3 CC CC CC CC CC F3 0F 11 89"));
         gPatterns.C_Vehicle__SetVehicleColor    = hook::get_opcode_address("E8 ? ? ? ? 8B 43 ? 89 87 ? ? ? ? 8B 43 ? 89 87 ? ? ? ? 83 7B ? ?");
         gPatterns.C_Vehicle__SetVehicleDirty    = hook::get_opcode_address("E9 ? ? ? ? ? ? ? ? ? ? ? ? ? ? 40 57 48 83 EC ? 48 8B 81 ? ? ? ?");
         gPatterns.C_Vehicle__SetVehicleMatrix   = hook::get_opcode_address("E8 ? ? ? ? 80 BD ? ? ? ? ? 74 0B");
