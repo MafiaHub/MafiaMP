@@ -30,5 +30,8 @@ namespace MafiaMP::Core::UI {
         bool _isFocused     = false;
         std::vector<std::string> _chatMessages;
         char _inputText[1024] {};
+        std::vector<std::string> _history;
+        std::string _tempInputText;
+        int _historyPos = -1;
     };
 } // namespace MafiaMP::Core::UI

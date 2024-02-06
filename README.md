@@ -1,5 +1,5 @@
 <div align="center">
-   <img src="https://user-images.githubusercontent.com/9026786/132325309-2e8ebecf-1154-45b2-b07a-ac9c0d3f6f94.png" alt="MafiaMP" />
+   <a href="https://github.com/MafiaHub/MafiaMP"><img src="https://github.com/MafiaHub/Framework/assets/9026786/43e839f2-f207-47bf-aa59-72371e8403ba" alt="MafiaMP" /></a>
 </div>
 
 <div align="center">

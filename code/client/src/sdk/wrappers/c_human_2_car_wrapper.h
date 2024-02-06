@@ -10,6 +10,7 @@ namespace SDK {
         C_Car *m_pUsedCar;                  // 0018 - 0020
       public:
         bool IsDriver(C_Actor *);
+        bool IsEngineOn();
         unsigned int GetSeatID(C_Actor *);
     };
 }

@@ -31,20 +31,32 @@ namespace SDK {
         hook::this_call(gPatterns.C_Vehicle__SetHandbrake, this, force, arg2);
     }
 
-    void C_Vehicle::SetEngineOn(bool arg1, bool arg2) {
-        hook::this_call(gPatterns.C_Vehicle__SetEngineOn, this, arg1, arg2);
+    void C_Vehicle::SetEngineOn(bool on, bool arg2) {
+        hook::this_call(gPatterns.C_Vehicle__SetEngineOn, this, on, arg2);
     }
 
     void C_Vehicle::SetPower(float power) {
         hook::this_call(gPatterns.C_Vehicle__SetPower, this, power);
     }
 
+    void C_Vehicle::SetIndicatorLightsOn(bool state, E_VehicleIndicator index) {
+        hook::this_call(gPatterns.C_Vehicle__SetIndicatorLightsOn, this, state, index);
+    }
+
     void C_Vehicle::SetSiren(bool on) {
         hook::this_call(gPatterns.C_Vehicle__SetSiren, this, on);
     }
 
+    bool C_Vehicle::IsSiren() {
+        return hook::this_call<bool>(gPatterns.C_Vehicle__IsSiren, this);
+    }
+
     void C_Vehicle::SetSteer(float steer) {
         hook::this_call(gPatterns.C_Vehicle__SetSteer, this, steer);
+    }
+
+    void C_Vehicle::SetTaxiLightsOn(bool on) {
+        hook::this_call(gPatterns.C_Vehicle__SetTaxiLightsOn, this, on);
     }
 
     void C_Vehicle::SetHorn(bool on) {
@@ -67,21 +79,26 @@ namespace SDK {
         hook::this_call(gPatterns.C_Vehicle__SetVehicleRust, this, rust);
     }
 
-    void C_Vehicle::SetVehicleColor(ue::sys::math::C_Vector4 const *color1, ue::sys::math::C_Vector4 const *color2, bool unk) {
-        hook::this_call(gPatterns.C_Vehicle__SetVehicleColor, this, color1, color2, unk);
+    void C_Vehicle::SetVehicleColor(ue::sys::math::C_Vector4 const *color1, ue::sys::math::C_Vector4 const *color2, bool metallic) {
+        hook::this_call(gPatterns.C_Vehicle__SetVehicleColor, this, color1, color2, metallic);
     }
 
     void C_Vehicle::GetVehicleColor(ue::sys::math::C_Vector4 *color1, ue::sys::math::C_Vector4 *color2) const {
-        *color1 = m_Color1;
-        *color2 = m_Color2;
+        *color1 = m_vColor1;
+        *color2 = m_vColor2;
     }
 
     void C_Vehicle::SetWindowTintColor(const ue::sys::math::C_Vector4 &color) {
         hook::this_call(gPatterns.C_Vehicle__SetWindowTintColor, this, color);
     }
 
-    void C_Vehicle::SetWheelTintColor(const ue::sys::math::C_Vector4 &color) {
-        hook::this_call(gPatterns.C_Vehicle__SetWheelTintColor, this, color);
+    void C_Vehicle::SetWheelColor(ue::sys::math::C_Vector4 const *rimColor, ue::sys::math::C_Vector4 const *tireColor) {
+        hook::this_call(gPatterns.C_Vehicle__SetWheelColor, this, rimColor, tireColor);
+    }
+
+    void C_Vehicle::GetWheelColor(ue::sys::math::C_Vector4 *rimColor, ue::sys::math::C_Vector4 *tireColor) const {
+        *rimColor  = m_vWheelColor;
+        *tireColor = m_vTireColor;
     }
 
     void C_Vehicle::SetInteriorColors(ue::sys::math::C_Vector4 const *color1, ue::sys::math::C_Vector4 const *color2, ue::sys::math::C_Vector4 const *color3, ue::sys::math::C_Vector4 const *color4, ue::sys::math::C_Vector4 const *color5) {
@@ -89,11 +106,11 @@ namespace SDK {
     }
 
     void C_Vehicle::GetInteriorColors(ue::sys::math::C_Vector4 *color1, ue::sys::math::C_Vector4 *color2, ue::sys::math::C_Vector4 *color3, ue::sys::math::C_Vector4 *color4, ue::sys::math::C_Vector4 *color5) const {
-        *color1 = m_InteriorColors[0];
-        *color2 = m_InteriorColors[1];
-        *color3 = m_InteriorColors[2];
-        *color4 = m_InteriorColors[3];
-        *color5 = m_InteriorColors[4];
+        *color1 = m_vInteriorColors[0];
+        *color2 = m_vInteriorColors[1];
+        *color3 = m_vInteriorColors[2];
+        *color4 = m_vInteriorColors[3];
+        *color5 = m_vInteriorColors[4];
     }
 
     void C_Vehicle::DamageBrakes(float brake1, float brake2) {
@@ -138,7 +155,15 @@ namespace SDK {
     }
 
     bool C_Vehicle::IsRadioOn() {
-        return (m_RadioSound && m_RadioSound->IsRadioOn());
+        return (m_pRadioSound && m_pRadioSound->IsRadioOn());
+    }
+
+    bool C_Vehicle::IsAnyLightOn() {
+        return hook::this_call<bool>(gPatterns.C_Vehicle__IsAnyLightOn, this);
+    }
+
+    void C_Vehicle::SetReflectorLightsOn(bool front, bool rear) {
+        hook::this_call(gPatterns.C_Vehicle__SetReflectorLightsOn, this, front, rear);
     }
 
     void C_Vehicle::EnableRadio(bool enable) {
@@ -155,7 +180,7 @@ namespace SDK {
 
     uint32_t C_Vehicle::GetRadioStation() {
         constexpr uint32_t RADIO_LAST = 5;
-        return m_RadioSound ? m_RadioSound->GetCurrentStation() : RADIO_LAST;
+        return m_pRadioSound ? m_pRadioSound->GetCurrentStation() : RADIO_LAST;
     }
 
     void C_Vehicle::ChangeRadioStation(uint32_t stationSelection) {

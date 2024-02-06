@@ -18,24 +18,26 @@ namespace SDK {
         uint64_t C_BehaviorCharacter__SetWAnimVariable_float = 0x0;
 
         // C_Car
-        uint64_t C_Car__CloseHood         = 0x0;
-        uint64_t C_Car__CloseTrunk        = 0x0;
-        uint64_t C_Car__ExplodeCar        = 0x0;
-        uint64_t C_Car__ExplodeCar_2      = 0x0;
-        uint64_t C_Car__GetDamage         = 0x0;
-        uint64_t C_Car__GetMotorDamage    = 0x0;
-        uint64_t C_Car__Lock              = 0x0;
-        uint64_t C_Car__LockEntryPoints   = 0x0;
-        uint64_t C_Car__OpenHood          = 0x0;
-        uint64_t C_Car__OpenTrunk         = 0x0;
-        uint64_t C_Car__PosefujZimuVShopu = 0x0;
-        uint64_t C_Car__RestoreCar        = 0x0;
-        uint64_t C_Car__SetMotorDamage    = 0x0;
-        uint64_t C_Car__SetSeatStatus     = 0x0;
-        uint64_t C_Car__SetSpeed          = 0x0;
-        uint64_t C_Car__SetTransparency   = 0x0;
-        uint64_t C_Car__Unlock            = 0x0;
-        uint64_t C_Car__UnlockEntryPoints = 0x0;
+        uint64_t C_Car__CloseHood           = 0x0;
+        uint64_t C_Car__CloseTrunk          = 0x0;
+        uint64_t C_Car__ExplodeCar          = 0x0;
+        uint64_t C_Car__ExplodeCar_2        = 0x0;
+        uint64_t C_Car__GetDamage           = 0x0;
+        uint64_t C_Car__GetFuelTankCapacity = 0x0;
+        uint64_t C_Car__GetMotorDamage      = 0x0;
+        uint64_t C_Car__Lock                = 0x0;
+        uint64_t C_Car__LockEntryPoints     = 0x0;
+        uint64_t C_Car__OpenHood            = 0x0;
+        uint64_t C_Car__OpenTrunk           = 0x0;
+        uint64_t C_Car__RestoreCar          = 0x0;
+        uint64_t C_Car__SetActualFuel       = 0x0;
+        uint64_t C_Car__SetMotorDamage      = 0x0;
+        uint64_t C_Car__SetSeatStatus       = 0x0;
+        uint64_t C_Car__SetSpeed            = 0x0;
+        uint64_t C_Car__SetTransparency     = 0x0;
+        uint64_t C_Car__SetVehicleDirty     = 0x0;
+        uint64_t C_Car__Unlock              = 0x0;
+        uint64_t C_Car__UnlockEntryPoints   = 0x0;
 
         // C_CharacterController
         uint64_t C_CharacterController__ActivateHandler                   = 0x0;
@@ -108,7 +110,6 @@ namespace SDK {
 
         // C_GameAudioModule
         uint64_t C_GameAudioModule__GetAudioModule    = 0x0;
-
         uint64_t C_GameAudioModule__SetCutsceneVolume = 0x0;
         uint64_t C_GameAudioModule__SetDialogueVolume = 0x0;
         uint64_t C_GameAudioModule__SetDynamicRange   = 0x0;
@@ -154,6 +155,7 @@ namespace SDK {
 
         // C_Human2CarWrapper
         uint64_t C_Human2CarWrapper__GetSeatID = 0x0;
+        uint64_t C_Human2CarWrapper__IsEngineOn = 0x0;
 
         // C_HumanInventory
         uint64_t C_HumanInventory__AddItem                       = 0x0;
@@ -289,6 +291,13 @@ namespace SDK {
         // C_StreamingModule
         uint64_t C_StreamingModule__SetStreamingPosSource = 0x0;
 
+        // C_StreamingTrafficModule
+        uint64_t C_StreamingTrafficModule__CloseSeason         = 0x0;
+        uint64_t C_StreamingTrafficModule__GetSeasonOpened     = 0x0;
+        uint64_t C_StreamingTrafficModule__GetInstance         = 0x0;
+        uint64_t C_StreamingTrafficModule__OpenSeason          = 0x0;
+        uint64_t C_StreamingTrafficModule__SetMaxHumanElements = 0x0;
+
         // C_StreamMap
         uint64_t C_StreamMap__CloseGame    = 0x0;
         uint64_t C_StreamMap__CloseMission = 0x0;
@@ -318,6 +327,7 @@ namespace SDK {
         uint64_t C_Vehicle__EnableRadio        = 0x0;
         uint64_t C_Vehicle__GetSPZText         = 0x0;
         uint64_t C_Vehicle__IsActive           = 0x0;
+        uint64_t C_Vehicle__IsAnyLightOn       = 0x0;
         uint64_t C_Vehicle__IsSiren            = 0x0;
         uint64_t C_Vehicle__SetActive          = 0x0;
         uint64_t C_Vehicle__SetAngularSpeed    = 0x0;
@@ -328,19 +338,22 @@ namespace SDK {
         uint64_t C_Vehicle__SetGear            = 0x0;
         uint64_t C_Vehicle__SetHandbrake       = 0x0;
         uint64_t C_Vehicle__SetHorn            = 0x0;
+        uint64_t C_Vehicle__SetIndicatorLightsOn = 0x0;
         uint64_t C_Vehicle__SetInteriorColors  = 0x0;
         uint64_t C_Vehicle__SetPower           = 0x0;
+        uint64_t C_Vehicle__SetReflectorLightsOn = 0x0;
         uint64_t C_Vehicle__SetSearchLightsOn  = 0x0;
         uint64_t C_Vehicle__SetSiren           = 0x0;
         uint64_t C_Vehicle__SetSpeed           = 0x0;
         uint64_t C_Vehicle__SetSpeedLimit      = 0x0;
         uint64_t C_Vehicle__SetSPZText         = 0x0;
         uint64_t C_Vehicle__SetSteer           = 0x0;
+        uint64_t C_Vehicle__SetTaxiLightsOn    = 0x0;
         uint64_t C_Vehicle__SetVehicleColor    = 0x0;
         uint64_t C_Vehicle__SetVehicleDirty    = 0x0;
         uint64_t C_Vehicle__SetVehicleMatrix   = 0x0;
         uint64_t C_Vehicle__SetVehicleRust     = 0x0;
-        uint64_t C_Vehicle__SetWheelTintColor  = 0x0;
+        uint64_t C_Vehicle__SetWheelColor      = 0x0;
         uint64_t C_Vehicle__SetWindowTintColor = 0x0;
         uint64_t C_Vehicle__TurnRadioOn        = 0x0;
 
@@ -354,11 +367,17 @@ namespace SDK {
         uint64_t C_WAnimPlaybackManager__PlayState = 0x0;
 
         // C_WeatherManager2
-        uint64_t C_WeatherManager2__GetDayTimeHours = 0x0;
-        uint64_t C_WeatherManager2__GetDayTimeRel   = 0x0;
-        uint64_t C_WeatherManager2__SetDayTimeHours = 0x0;
-        uint64_t C_WeatherManager2__SetDayTimeRel   = 0x0;
-        uint64_t C_WeatherManager2__SetWeatherSet   = 0x0;
+        uint64_t C_WeatherManager2__EnableTimeFlow              = 0x0;
+        uint64_t C_WeatherManager2__GetDayTimeHours             = 0x0;
+        uint64_t C_WeatherManager2__GetDayTimeRel               = 0x0;
+        uint64_t C_WeatherManager2__GetDefaultTimeFlowSpeedMult = 0x0;
+        uint64_t C_WeatherManager2__GetUserTimeFlowSpeedMult    = 0x0;
+        uint64_t C_WeatherManager2__IsTimeFlowEnabled           = 0x0;
+        uint64_t C_WeatherManager2__SetDayTimeHours             = 0x0;
+        uint64_t C_WeatherManager2__SetDayTimeSec               = 0x0;
+        uint64_t C_WeatherManager2__SetDefaultTimeFlowSpeedMult = 0x0;
+        uint64_t C_WeatherManager2__SetUserTimeFlowSpeedMult    = 0x0;
+        uint64_t C_WeatherManager2__SetWeatherSet               = 0x0;
 
         // I_Core
         uint64_t I_Core__GetInstance = 0x0;

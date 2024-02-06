@@ -16,7 +16,6 @@
 #include "shared/messages/vehicle/vehicle_spawn.h"
 #include "shared/messages/vehicle/vehicle_update.h"
 
-#include "shared/game_rpc/set_vehicledata.h"
 #include "shared/game_rpc/vehicle/vehicle_setprops.h"
 
 #include "shared/modules/mod.hpp"
@@ -37,27 +36,47 @@ namespace MafiaMP::Core::Modules {
             .each([](flecs::entity e, Tracking &tracking, Shared::Modules::VehicleSync::UpdateData &metadata, Framework::World::Modules::Base::Transform &tr) {
                 const auto myGUID = Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->GetPeer()->GetMyGUID();
                 if (tracking.car && Framework::World::Engine::IsEntityOwner(e, myGUID.g)) {
-                    const auto car                                      = tracking.car;
-                    SDK::ue::sys::math::C_Vector carPos                 = ((SDK::C_Actor *)car)->GetPos();
-                    SDK::ue::sys::math::C_Quat carRot                   = ((SDK::C_Actor *)car)->GetRot();
-                    SDK::C_Vehicle *vehicle                             = car->GetVehicle();
+                    const auto car = tracking.car;
+
+                    SDK::ue::sys::math::C_Vector carPos = ((SDK::C_Actor *)car)->GetPos();
+                    SDK::ue::sys::math::C_Quat carRot   = ((SDK::C_Actor *)car)->GetRot();
+                    SDK::C_Vehicle *vehicle             = car->GetVehicle();
+
                     SDK::ue::sys::math::C_Vector vehicleVelocity        = vehicle->GetSpeed();
                     SDK::ue::sys::math::C_Vector vehicleAngularVelocity = vehicle->GetAngularSpeed();
-                    tr.pos                                              = {carPos.x, carPos.y, carPos.z};
-                    tr.rot                                              = {carRot.w, carRot.x, carRot.y, carRot.z};
 
-                    metadata.angularVelocity   = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
-                    metadata.beaconLightsState = vehicle->AreBeaconLightsOn();
-                    metadata.brake             = vehicle->GetBrake();
-                    metadata.gear              = car->GetGear();
-                    metadata.handbrake         = vehicle->GetHandbrake();
-                    metadata.hornState         = vehicle->GetHorn();
-                    metadata.power             = vehicle->GetPower();
-                    metadata.radioId           = vehicle->GetRadioStation();
-                    metadata.radioState        = vehicle->IsRadioOn();
-                    metadata.sirenState        = vehicle->GetSiren();
-                    metadata.steer             = vehicle->GetSteer();
-                    metadata.velocity          = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
+                    SDK::ue::sys::math::C_Vector4 colorPrimary, colorSecondary;
+                    vehicle->GetVehicleColor(&colorPrimary, &colorSecondary);
+
+                    SDK::ue::sys::math::C_Vector4 rimColor, tireColor;
+                    vehicle->GetWheelColor(&rimColor, &tireColor);
+
+                    SDK::ue::sys::math::C_Vector4 windowTint = vehicle->GetWindowTintColor();
+
+                    tr.pos = {carPos.x, carPos.y, carPos.z};
+                    tr.rot = {carRot.w, carRot.x, carRot.y, carRot.z};
+
+                    metadata.angularVelocity = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
+                    metadata.beaconLightsOn  = vehicle->GetBeaconLightsOn();
+                    metadata.brake           = vehicle->GetBrake();
+                    metadata.colorPrimary    = {colorPrimary.r, colorPrimary.g, colorPrimary.b, colorPrimary.a};
+                    metadata.colorSecondary  = {colorSecondary.r, colorSecondary.g, colorSecondary.b, colorSecondary.a};
+                    metadata.dirt            = vehicle->GetVehicleDirty();
+                    metadata.fuel            = car->GetActualFuel();
+                    metadata.gear            = car->GetGear();
+                    metadata.handbrake       = vehicle->GetHandbrake();
+                    metadata.hornOn          = vehicle->GetHorn();
+                    metadata.power           = vehicle->GetPower();
+                    metadata.radioOn         = vehicle->IsRadioOn();
+                    metadata.radioStationId  = vehicle->GetRadioStation();
+                    metadata.rimColor        = {rimColor.r, rimColor.g, rimColor.b, rimColor.a};
+                    metadata.rust            = vehicle->GetVehicleRust();
+                    metadata.sirenOn         = vehicle->IsSiren();
+                    metadata.engineOn        = car->IsEngineOn();
+                    metadata.steer           = vehicle->GetSteer();
+                    metadata.tireColor       = {tireColor.r, tireColor.g, tireColor.b, tireColor.a};
+                    metadata.velocity        = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
+                    metadata.windowTint      = {windowTint.r, windowTint.g, windowTint.b, windowTint.a};
                 }
             });
 
@@ -101,8 +120,8 @@ namespace MafiaMP::Core::Modules {
 
                 const auto ent                         = info->GetNetworkEntity();
                 const auto tr                          = ent.get<Framework::World::Modules::Base::Transform>();
-                SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
                 SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
+                SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
                 SDK::ue::sys::math::C_Matrix transform = {};
                 transform.Identity();
                 transform.SetRot(newRot);
@@ -156,37 +175,56 @@ namespace MafiaMP::Core::Modules {
         const auto tr = e.get<Framework::World::Modules::Base::Transform>();
         auto interp   = e.get_mut<Interpolated>();
         if (interp) {
-            const auto vehiclePos = trackingData->car->GetPos();
             const auto vehicleRot = trackingData->car->GetRot();
-            interp->interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
+            const auto vehiclePos = trackingData->car->GetPos();
             interp->interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, tr->rot, MafiaMP::Core::gApplication->GetTickInterval());
+            interp->interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
         }
         else {
-            SDK::ue::sys::math::C_Vector newPos = {tr->pos.x, tr->pos.y, tr->pos.z};
             SDK::ue::sys::math::C_Quat newRot   = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
-            trackingData->car->SetPos(newPos);
+            SDK::ue::sys::math::C_Vector newPos = {tr->pos.x, tr->pos.y, tr->pos.z};
             trackingData->car->SetRot(newRot);
+            trackingData->car->SetPos(newPos);
         }
 
         auto updateData         = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-        SDK::C_Vehicle *vehicle = trackingData->car->GetVehicle();
-        vehicle->SetGear(updateData->gear);
-        vehicle->SetHorn(updateData->hornState);
-        vehicle->SetPower(updateData->power);
-        vehicle->SetBrake(updateData->brake, false);
-        vehicle->SetHandbrake(updateData->handbrake, false);
-        vehicle->SetSteer(updateData->steer);
-        vehicle->SetSpeed({updateData->velocity.x, updateData->velocity.y, updateData->velocity.z}, false, false);
+        SDK::C_Car *car         = trackingData->car;
+        SDK::C_Vehicle *vehicle = car->GetVehicle();
+
+        SDK::ue::sys::math::C_Vector4 colorPrimary   = {updateData->colorPrimary.r, updateData->colorPrimary.g, updateData->colorPrimary.b, updateData->colorPrimary.a};
+        SDK::ue::sys::math::C_Vector4 colorSecondary = {updateData->colorSecondary.r, updateData->colorSecondary.g, updateData->colorSecondary.b, updateData->colorSecondary.a};
+
+        SDK::ue::sys::math::C_Vector4 rimColor  = {updateData->rimColor.r, updateData->rimColor.g, updateData->rimColor.b, updateData->rimColor.a};
+        SDK::ue::sys::math::C_Vector4 tireColor = {updateData->tireColor.r, updateData->tireColor.g, updateData->tireColor.b, updateData->tireColor.a};
+
+        SDK::ue::sys::math::C_Vector4 windowTint = {updateData->windowTint.r, updateData->windowTint.g, updateData->windowTint.b, updateData->windowTint.a};
+
         vehicle->SetAngularSpeed({updateData->angularVelocity.x, updateData->angularVelocity.y, updateData->angularVelocity.z}, false);
-        vehicle->SetSiren(updateData->sirenState);
-        vehicle->SetBeaconLightsOn(updateData->beaconLightsState);
-        if (strcmp(vehicle->GetSPZText(), updateData->licensePlate)) {
+        vehicle->SetBeaconLightsOn(updateData->beaconLightsOn);
+        vehicle->SetBrake(updateData->brake, false);
+        vehicle->SetVehicleColor(&colorPrimary, &colorSecondary, false);
+        car->SetVehicleDirty(updateData->dirt); // We have to use the car to set the dirt otherwise the value is reset
+        car->SetActualFuel(updateData->fuel);
+        vehicle->SetEngineOn(updateData->engineOn, updateData->engineOn);
+        vehicle->SetGear(updateData->gear);
+        vehicle->SetHandbrake(updateData->handbrake, false);
+        vehicle->SetHorn(updateData->hornOn);
+        if (::strcmp(vehicle->GetSPZText(), updateData->licensePlate) > 0) {
             vehicle->SetSPZText(updateData->licensePlate, true);
         }
-        if (updateData->radioState != vehicle->IsRadioOn())
-            vehicle->TurnRadioOn(updateData->radioState);
-        if (vehicle->GetRadioStation() != updateData->radioId)
-            vehicle->ChangeRadioStation(updateData->radioId);
+        vehicle->SetPower(updateData->power);
+        if (vehicle->IsRadioOn() != updateData->radioOn) {
+            vehicle->TurnRadioOn(updateData->radioOn);
+        }
+        if (vehicle->GetRadioStation() != updateData->radioStationId) {
+            vehicle->ChangeRadioStation(updateData->radioStationId);
+        }
+        vehicle->SetSiren(updateData->sirenOn);
+        vehicle->SetVehicleRust(updateData->rust);
+        vehicle->SetSpeed({updateData->velocity.x, updateData->velocity.y, updateData->velocity.z}, false, false);
+        vehicle->SetSteer(updateData->steer);
+        vehicle->SetWheelColor(&rimColor, &tireColor);
+        vehicle->SetWindowTintColor(windowTint);
     }
 
     void Vehicle::SelfUpdate(flecs::entity e, MafiaMP::Shared::Modules::VehicleSync::UpdateData &updateData) {
@@ -251,17 +289,6 @@ namespace MafiaMP::Core::Modules {
     void Vehicle::InitRPCs(Application *app) {
         const auto net = app->GetNetworkingEngine()->GetNetworkClient();
 
-        net->RegisterGameRPC<Shared::RPC::SetVehicleData>([app](SLNet::RakNetGUID guid, Shared::RPC::SetVehicleData *msg) {
-            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            *updateData     = msg->GetData();
-            Update(e);
-        });
-
         net->RegisterGameRPC<Shared::RPC::VehicleSetProps>([app](SLNet::RakNetGUID guid, Shared::RPC::VehicleSetProps *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
@@ -270,31 +297,81 @@ namespace MafiaMP::Core::Modules {
 
             auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-            const auto radioState        = msg->radioState;
-            const auto radioId           = msg->radioId;
-            const auto locked            = msg->locked;
-            const auto beaconLightsState = msg->beaconLightsState;
-            const auto sirenState        = msg->sirenState;
-            const auto licensePlate      = msg->licensePlate;
+            const auto beaconLightsOn = msg->beaconLightsOn;
+            const auto colorPrimary   = msg->colorPrimary;
+            const auto colorSecondary = msg->colorSecondary;
+            const auto dirt           = msg->dirt;
+            const auto engineOn       = msg->engineOn;
+            const auto fuel           = msg->fuel;
+            const auto licensePlate   = msg->licensePlate;
+            const auto lockState      = msg->lockState;
+            const auto radioOn        = msg->radioOn;
+            const auto radioStationId = msg->radioStationId;
+            const auto rimColor       = msg->rimColor;
+            const auto rust           = msg->rust;
+            const auto sirenOn        = msg->sirenOn;
+            const auto tireColor      = msg->tireColor;
+            const auto windowTint     = msg->windowTint;
 
-            if (radioState.HasValue())
-                updateData->radioState = radioState();
+            if (beaconLightsOn.HasValue()) {
+                updateData->beaconLightsOn = beaconLightsOn();
+            }
 
-            if (radioId.HasValue())
-                updateData->radioId = radioId();
+            if (colorPrimary.HasValue()) {
+                updateData->colorPrimary = colorPrimary();
+            }
 
-            if (locked.HasValue())
-                updateData->locked = locked();
+            if (colorSecondary.HasValue()) {
+                updateData->colorSecondary = colorSecondary();
+            }
 
-            if (beaconLightsState.HasValue())
-                updateData->beaconLightsState = beaconLightsState();
+            if (dirt.HasValue()) {
+                updateData->dirt = dirt();
+            }
 
-            if (sirenState.HasValue())
-                updateData->sirenState = sirenState();
+            if (engineOn.HasValue()) {
+                updateData->engineOn = engineOn();
+            }
+
+            if (fuel.HasValue()) {
+                updateData->fuel = fuel();
+            }
 
             if (licensePlate.HasValue()) {
                 const auto plate = licensePlate().C_String();
-                ::memcpy(updateData->licensePlate, plate, strlen(plate)+1);
+                ::memcpy(updateData->licensePlate, plate, strlen(plate) + 1);
+            }
+
+            if (lockState.HasValue()) {
+                updateData->lockState = lockState();
+            }
+
+            if (radioOn.HasValue()) {
+                updateData->radioOn = radioOn();
+            }
+
+            if (radioStationId.HasValue()) {
+                updateData->radioStationId = radioStationId();
+            }
+
+            if (rimColor.HasValue()) {
+                updateData->rimColor = rimColor();
+            }
+
+            if (rust.HasValue()) {
+                updateData->rust = rust();
+            }
+
+            if (sirenOn.HasValue()) {
+                updateData->sirenOn = sirenOn();
+            }
+
+            if (tireColor.HasValue()) {
+                updateData->tireColor = tireColor();
+            }
+
+            if (windowTint.HasValue()) {
+                updateData->windowTint = windowTint();
             }
 
             Update(e);
@@ -312,16 +389,16 @@ namespace MafiaMP::Core::Modules {
         auto interp   = e.get_mut<Interpolated>();
         if (interp) {
             // TODO reset lerp
-            const auto vehiclePos = trackingData->car->GetPos();
             const auto vehicleRot = trackingData->car->GetRot();
-            interp->interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
+            const auto vehiclePos = trackingData->car->GetPos();
             interp->interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, tr->rot, MafiaMP::Core::gApplication->GetTickInterval());
+            interp->interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
         }
 
-        SDK::ue::sys::math::C_Vector newPos = {tr->pos.x, tr->pos.y, tr->pos.z};
         SDK::ue::sys::math::C_Quat newRot   = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
-        trackingData->car->SetPos(newPos);
+        SDK::ue::sys::math::C_Vector newPos = {tr->pos.x, tr->pos.y, tr->pos.z};
         trackingData->car->SetRot(newRot);
+        trackingData->car->SetPos(newPos);
     }
 
     flecs::entity Vehicle::GetCarEntity(SDK::C_Car *carPtr) {
@@ -333,6 +410,7 @@ namespace MafiaMP::Core::Modules {
         });
         return carID;
     }
+
     flecs::entity Vehicle::GetCarEntityByVehicle(SDK::C_Vehicle *vehiclePtr) {
         flecs::entity carID {};
         _findAllVehicles.each([&carID, vehiclePtr](flecs::entity e, Core::Modules::Vehicle::Tracking &trackingData) {

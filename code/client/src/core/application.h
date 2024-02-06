@@ -4,13 +4,13 @@
 
 #include <utils/safe_win32.h>
 
-#include "../game/streaming/entity_factory.h"
 #include "../game/helpers/districts.h"
+#include "../game/streaming/entity_factory.h"
 
 #include "luavm.h"
 #include "ui/chat.h"
 #include "ui/console.h"
-#include "ui/web.h"
+#include "ui/web/manager.h"
 
 #include "dev_features.h"
 
@@ -27,7 +27,7 @@ namespace MafiaMP::Core {
         std::shared_ptr<Framework::Utils::States::Machine> _stateMachine;
         std::shared_ptr<UI::MafiaConsole> _console;
         std::shared_ptr<UI::Chat> _chat;
-        std::shared_ptr<UI::Web> _web;
+        std::shared_ptr<UI::Web::Manager> _webManager;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
         std::shared_ptr<MafiaMP::Game::GameInput> _input;
@@ -36,6 +36,8 @@ namespace MafiaMP::Core {
         DevFeatures _devFeatures;
         float _tickInterval = 0.01667f;
         int _controlsLocked = 0;
+
+        int _mainMenuViewId = -1;
 
       private:
         Game::Helpers::Districts _lastDistrictID = Game::Helpers::Districts::UNSPECIFIED;
@@ -51,6 +53,9 @@ namespace MafiaMP::Core {
 
         void PimpMyImGUI();
         void LockControls(bool lock);
+        bool AreControlsLocked() const {
+            return _controlsLocked > 0;
+        }
 
         std::shared_ptr<Framework::Utils::States::Machine> GetStateMachine() const {
             return _stateMachine;
@@ -84,6 +89,10 @@ namespace MafiaMP::Core {
             return _luaVM;
         }
 
+        std::shared_ptr<UI::Web::Manager> GetWebManager() const {
+            return _webManager;
+        }
+
         flecs::entity GetLocalPlayer() const {
             return _localPlayer;
         }
@@ -97,6 +106,10 @@ namespace MafiaMP::Core {
 
         void SetLastDistrictID(Game::Helpers::Districts id) {
             _lastDistrictID = id;
+        }
+
+        int GetMainMenuViewId() const {
+            return _mainMenuViewId;
         }
     };
 

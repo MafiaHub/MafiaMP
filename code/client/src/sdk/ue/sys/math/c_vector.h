@@ -11,10 +11,10 @@ namespace SDK {
 
         class C_Vector4 {
           public:
-            float a;
             float r;
             float g;
             float b;
+            float a;
         };
 
         class C_Vector {
