@@ -116,20 +116,14 @@ namespace MafiaMP::Core::UI {
                 currentVehicle->SetEngineOn(isEngineOn, isEngineOn);
             }
 
-            if (ImGui::Button("On Left Indicator")) {
-                currentVehicle->SetIndicatorLightsOn(true, SDK::E_VehicleIndicator::INDICATOR_LEFT);
+            bool isLeftIndicatorOn = currentVehicle->IsIndicatorLightOn(SDK::E_VehicleIndicator::INDICATOR_LEFT);
+            if (ImGui::Checkbox("Left Indicator", &isLeftIndicatorOn)) {
+                currentVehicle->SetIndicatorLightsOn(isLeftIndicatorOn, SDK::E_VehicleIndicator::INDICATOR_LEFT);
             }
 
-            if (ImGui::Button("Off Left Indicator")) {
-                currentVehicle->SetIndicatorLightsOn(false, SDK::E_VehicleIndicator::INDICATOR_LEFT);
-            }
-
-            if (ImGui::Button("On Right Indicator")) {
-                currentVehicle->SetIndicatorLightsOn(true, SDK::E_VehicleIndicator::INDICATOR_RIGHT);
-            }
-
-            if (ImGui::Button("Off Right Indicator")) {
-                currentVehicle->SetIndicatorLightsOn(false, SDK::E_VehicleIndicator::INDICATOR_RIGHT);
+            bool isRightIndicatorOn = currentVehicle->IsIndicatorLightOn(SDK::E_VehicleIndicator::INDICATOR_RIGHT);
+            if (ImGui::Checkbox("Right Indicator", &isRightIndicatorOn)) {
+                currentVehicle->SetIndicatorLightsOn(isRightIndicatorOn, SDK::E_VehicleIndicator::INDICATOR_RIGHT);
             }
 
             SDK::ue::sys::math::C_Vector4 color1, color2;

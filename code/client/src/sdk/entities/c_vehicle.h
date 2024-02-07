@@ -10,8 +10,10 @@
 
 namespace SDK {
     enum E_VehicleFlags {
-        BEACON_LIGHTS = 0x40,
-        TAXI_LIGHTS   = 0x80,
+        FLAG_INDICATOR_LEFT = 0x8,
+        FLAG_INDICATOR_RIGHT = 0x10,
+        FLAG_BEACON_LIGHTS = 0x40,
+        FLAG_TAXI_LIGHTS   = 0x80,
     };
 
     enum E_VehicleIndicator {
@@ -99,13 +101,16 @@ namespace SDK {
         void SetDoorFree(int doorIdx, bool arg2, bool arg3);
         void SetGear(int gear);
 
+        bool IsIndicatorLightOn(E_VehicleIndicator indicator) {
+            return (m_uAdditionalLightFlags & (indicator == E_VehicleIndicator::INDICATOR_LEFT ? E_VehicleFlags::FLAG_INDICATOR_LEFT : E_VehicleFlags::FLAG_INDICATOR_RIGHT)) != 0;
+        }
         void SetIndicatorLightsOn(bool, E_VehicleIndicator);
 
         void SetReflectorLightsOn(bool front, bool rear);
 
         void SetBeaconLightsOn(bool on);
         bool GetBeaconLightsOn() {
-            return (m_uAdditionalLightFlags & E_VehicleFlags::BEACON_LIGHTS) != 0;
+            return (m_uAdditionalLightFlags & E_VehicleFlags::FLAG_BEACON_LIGHTS) != 0;
         }
         void SetSearchLightsOn(bool on);
 
@@ -113,7 +118,7 @@ namespace SDK {
 
         void SetTaxiLightsOn(bool on);
         bool GetTaxiLightsOn() {
-            return (m_uAdditionalLightFlags & E_VehicleFlags::TAXI_LIGHTS) != 0;
+            return (m_uAdditionalLightFlags & E_VehicleFlags::FLAG_TAXI_LIGHTS) != 0;
         }
 
         void SetActive(bool active);
