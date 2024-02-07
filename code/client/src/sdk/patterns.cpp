@@ -179,6 +179,7 @@ namespace SDK {
 
         // C_Human2CarWrapper
         gPatterns.C_Human2CarWrapper__GetSeatID = hook::get_opcode_address("E8 ? ? ? ? 3D ? ? ? ? 75 0E");
+        gPatterns.C_Human2CarWrapper__IsEngineOn = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 16 44 8B 87 ? ? ? ?");
 
         // C_HumanInventory
         gPatterns.C_HumanInventory__AddItem                       = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 41 8B D6");
@@ -374,6 +375,7 @@ namespace SDK {
         gPatterns.C_Vehicle__EnableRadio       = hook::get_opcode_address("E8 ? ? ? ? 49 8B 84 24 ? ? ? ? 49 8B F7");
         gPatterns.C_Vehicle__GetSPZText        = hook::get_opcode_address("E8 ? ? ? ? 49 8D 4F ? 48 8B D0");
         gPatterns.C_Vehicle__IsActive          = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 0A B2 01");
+        gPatterns.C_Vehicle__IsAnyLightOn      = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 81 ? ? ? ? 48 8B 89 ? ? ? ? 48 3B C1 74 18 48 8B 10"));
         gPatterns.C_Vehicle__IsSiren           = hook::get_opcode_address("E8 ? ? ? ? 0F B6 4D BF");
         gPatterns.C_Vehicle__SetActive         = hook::get_opcode_address("E8 ? ? ? ? F3 0F 59 35 ? ? ? ? 48 8D 8B ? ? ? ?");
         gPatterns.C_Vehicle__SetAngularSpeed   = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 80 BD ? ? ? ? ? 0F 85 ? ? ? ?");
@@ -385,14 +387,17 @@ namespace SDK {
         gPatterns.C_Vehicle__SetGear            = hook::get_opcode_address("E8 ? ? ? ? C6 83 ? ? ? ? ? 80 7F ? ? 74 ? 33 D2");
         gPatterns.C_Vehicle__SetHandbrake       = hook::get_opcode_address("E8 ? ? ? ? 49 8B 86 ? ? ? ? 4D 89 BE ? ? ? ?");
         gPatterns.C_Vehicle__SetHorn            = hook::get_opcode_address("E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01 FF 50 ? 8B F0");
+        gPatterns.C_Vehicle__SetIndicatorLightsOn = reinterpret_cast<uint64_t>(hook::get_pattern("B8 ? ? ? ? 45 84 C0 41 B9"));
         gPatterns.C_Vehicle__SetInteriorColors  = hook::get_opcode_address("E8 ? ? ? ? 48 81 C4 ? ? ? ? 41 5E 41 5D 5D C3 ? ? ? ? ? ? ? ? ? ? 40 55");
         gPatterns.C_Vehicle__SetPower           = hook::get_opcode_address("E8 ? ? ? ? F3 0F 10 8B ? ? ? ? 45 33 C0 48 8B CF E8 ? ? ? ?");
+        gPatterns.C_Vehicle__SetReflectorLightsOn = reinterpret_cast<uint64_t>(hook::get_pattern("48 81 C1 ? ? ? ? E9 ? ? ? ? CC CC CC CC 48 83 EC ? 4C 8B C9"));
         gPatterns.C_Vehicle__SetSearchLightsOn  = hook::get_opcode_address("E8 ? ? ? ? 80 7E ? ? 0F 84 ? ? ? ? E8 ? ? ? ?");
         gPatterns.C_Vehicle__SetSiren           = hook::get_opcode_address("E8 ? ? ? ? 33 D2 48 8B CE E8 ? ? ? ? 48 8B 0D ? ? ? ?");
         gPatterns.C_Vehicle__SetSpeed           = hook::get_opcode_address("E8 ? ? ? ? 49 8B CF E8 ? ? ? ? 45 0F 57 C9");
         gPatterns.C_Vehicle__SetSpeedLimit      = hook::get_opcode_address("E8 ? ? ? ? 48 8B 8B ? ? ? ? 48 85 C9 74 ? 48 8B 89 ? ? ? ?");
         gPatterns.C_Vehicle__SetSPZText         = hook::get_opcode_address("E8 ? ? ? ? 48 8D 5D ? BF ? ? ? ? 0F B7 13");
         gPatterns.C_Vehicle__SetSteer           = hook::get_opcode_address("E8 ? ? ? ? 41 B1 01 89 BE ? ? ? ?");
+        gPatterns.C_Vehicle__SetTaxiLightsOn    = reinterpret_cast<uint64_t>(hook::get_pattern("81 A1 ? ? ? ? ? ? ? ? 0F B6 C2 F7 D8 25 ? ? ? ? 09 81 ? ? ? ? C3 CC CC CC CC CC F3 0F 11 89"));
         gPatterns.C_Vehicle__SetVehicleColor    = hook::get_opcode_address("E8 ? ? ? ? 8B 43 ? 89 87 ? ? ? ? 8B 43 ? 89 87 ? ? ? ? 83 7B ? ?");
         gPatterns.C_Vehicle__SetVehicleDirty    = hook::get_opcode_address("E9 ? ? ? ? ? ? ? ? ? ? ? ? ? ? 40 57 48 83 EC ? 48 8B 81 ? ? ? ?");
         gPatterns.C_Vehicle__SetVehicleMatrix   = hook::get_opcode_address("E8 ? ? ? ? 80 BD ? ? ? ? ? 74 0B");
@@ -407,6 +412,12 @@ namespace SDK {
             "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 41 56 48 83 EC 20 48 8B 41 30 33 DB 41 8B F8 4C 8B F2 48 8B F1 39 58 18 76 34 0F 1F 80 00 00 00 00 8B D3 48 8B C8 E8 ? ? ? ? 33 D2 48 8B C8 4C 8B 00 41 FF 50 ? 4C 8B C0 8B 48 04 3B F9 72 2D 48 8B 46 30 2B F9 FF C3 3B 58 18 72 D3 49 C7 06 00 00 00 00 48 8B 5C 24 30 49 8B C6 48 8B 74 24 38 48 8B 7C 24 40 48 83 C4 20 41 5E C3 49 63 10 8B C7 48 69 C0 F0 00 00 00"));
         gPatterns.C_VehiclesDatabase__GetVehicleByModel = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 55 41 56 41 57 48 83 EC 20 48 8B 41"));
         gPatterns.C_VehiclesDatabase__GetVehiclesCount  = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 48 8B 4D 30 8B F8");
+
+        // C_VehicleRealLightManager
+        gPatterns.C_VehicleRealLightManager__SetLightIntensity = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 63 C2 0F 29 74 24"));
+        gPatterns.C_VehicleRealLightManager__SetPlayerLights   = reinterpret_cast<uint64_t>(hook::get_pattern("4C 8B DC 55 56 41 57 48 83 EC"));
+        gPatterns.C_VehicleRealLightManager__SetReflectorLightsOn = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? 4C 8B C9 84 D2 74 ? 45 84 C0"));
+        gPatterns.C_VehicleRealLightManager__SetVisible           = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 8B 41 ? 0F B6 FA D1 E8"));
 
         // C_WAnimPlaybackManager
         gPatterns.C_WAnimPlaybackManager__PlayState = hook::get_opcode_address("E8 ? ? ? ? 4C 39 7F 50");

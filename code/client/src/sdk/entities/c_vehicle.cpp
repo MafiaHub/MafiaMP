@@ -20,7 +20,7 @@ namespace SDK {
     }
 
     const char *C_Vehicle::GetSPZText() {
-        return hook::this_call<const char *>(gPatterns.C_Vehicle__GetSPZText, this);
+        return m_pSPZText;
     }
 
     void C_Vehicle::SetBrake(float force, bool arg2) {
@@ -39,12 +39,24 @@ namespace SDK {
         hook::this_call(gPatterns.C_Vehicle__SetPower, this, power);
     }
 
+    void C_Vehicle::SetIndicatorLightsOn(bool state, E_VehicleIndicator index) {
+        hook::this_call(gPatterns.C_Vehicle__SetIndicatorLightsOn, this, state, index);
+    }
+
     void C_Vehicle::SetSiren(bool on) {
         hook::this_call(gPatterns.C_Vehicle__SetSiren, this, on);
     }
 
+    bool C_Vehicle::IsSiren() {
+        return hook::this_call<bool>(gPatterns.C_Vehicle__IsSiren, this);
+    }
+
     void C_Vehicle::SetSteer(float steer) {
         hook::this_call(gPatterns.C_Vehicle__SetSteer, this, steer);
+    }
+
+    void C_Vehicle::SetTaxiLightsOn(bool on) {
+        hook::this_call(gPatterns.C_Vehicle__SetTaxiLightsOn, this, on);
     }
 
     void C_Vehicle::SetHorn(bool on) {
@@ -144,6 +156,14 @@ namespace SDK {
 
     bool C_Vehicle::IsRadioOn() {
         return (m_pRadioSound && m_pRadioSound->IsRadioOn());
+    }
+
+    bool C_Vehicle::IsAnyLightOn() {
+        return hook::this_call<bool>(gPatterns.C_Vehicle__IsAnyLightOn, this);
+    }
+
+    void C_Vehicle::SetReflectorLightsOn(bool front, bool rear) {
+        hook::this_call(gPatterns.C_Vehicle__SetReflectorLightsOn, this, front, rear);
     }
 
     void C_Vehicle::EnableRadio(bool enable) {

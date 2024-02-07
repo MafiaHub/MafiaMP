@@ -25,7 +25,7 @@ namespace MafiaMP::Shared::Modules {
             int gear             = 0;
             float handbrake      = 0.0f;
             bool hornOn          = false;
-            char licensePlate[7] = "M1-MP";
+            char licensePlate[7] = "AZ-000";
             LockState lockState  = LockState::Unlocked;
             float power          = 0.0f;
             bool radioOn         = false;
@@ -33,6 +33,7 @@ namespace MafiaMP::Shared::Modules {
             glm::vec4 rimColor {1.0f, 1.0f, 1.0f, 1.0f};
             float rust   = 0.0f;
             bool sirenOn = false;
+            bool engineOn = false;
             float steer  = 0.0f;
             glm::vec4 tireColor {1.0f, 1.0f, 1.0f, 1.0f};
             glm::vec3 velocity {};

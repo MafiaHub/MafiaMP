@@ -158,6 +158,7 @@ namespace SDK {
 
         // C_Human2CarWrapper
         uint64_t C_Human2CarWrapper__GetSeatID = 0x0;
+        uint64_t C_Human2CarWrapper__IsEngineOn = 0x0;
 
         // C_HumanInventory
         uint64_t C_HumanInventory__AddItem                       = 0x0;
@@ -329,6 +330,7 @@ namespace SDK {
         uint64_t C_Vehicle__EnableRadio        = 0x0;
         uint64_t C_Vehicle__GetSPZText         = 0x0;
         uint64_t C_Vehicle__IsActive           = 0x0;
+        uint64_t C_Vehicle__IsAnyLightOn       = 0x0;
         uint64_t C_Vehicle__IsSiren            = 0x0;
         uint64_t C_Vehicle__SetActive          = 0x0;
         uint64_t C_Vehicle__SetAngularSpeed    = 0x0;
@@ -339,14 +341,17 @@ namespace SDK {
         uint64_t C_Vehicle__SetGear            = 0x0;
         uint64_t C_Vehicle__SetHandbrake       = 0x0;
         uint64_t C_Vehicle__SetHorn            = 0x0;
+        uint64_t C_Vehicle__SetIndicatorLightsOn = 0x0;
         uint64_t C_Vehicle__SetInteriorColors  = 0x0;
         uint64_t C_Vehicle__SetPower           = 0x0;
+        uint64_t C_Vehicle__SetReflectorLightsOn = 0x0;
         uint64_t C_Vehicle__SetSearchLightsOn  = 0x0;
         uint64_t C_Vehicle__SetSiren           = 0x0;
         uint64_t C_Vehicle__SetSpeed           = 0x0;
         uint64_t C_Vehicle__SetSpeedLimit      = 0x0;
         uint64_t C_Vehicle__SetSPZText         = 0x0;
         uint64_t C_Vehicle__SetSteer           = 0x0;
+        uint64_t C_Vehicle__SetTaxiLightsOn    = 0x0;
         uint64_t C_Vehicle__SetVehicleColor    = 0x0;
         uint64_t C_Vehicle__SetVehicleDirty    = 0x0;
         uint64_t C_Vehicle__SetVehicleMatrix   = 0x0;
@@ -360,6 +365,12 @@ namespace SDK {
         uint64_t C_VehiclesDatabase__GetVehicleByIndex = 0x0;
         uint64_t C_VehiclesDatabase__GetVehicleByModel = 0x0;
         uint64_t C_VehiclesDatabase__GetVehiclesCount  = 0x0;
+
+        // C_VehicleRealLightManager
+        uint64_t C_VehicleRealLightManager__SetLightIntensity      = 0x0;
+        uint64_t C_VehicleRealLightManager__SetPlayerLights        = 0x0;
+        uint64_t C_VehicleRealLightManager__SetReflectorLightsOn   = 0x0;
+        uint64_t C_VehicleRealLightManager__SetVisible             = 0x0;
 
         // C_WAnimPlaybackManager
         uint64_t C_WAnimPlaybackManager__PlayState = 0x0;

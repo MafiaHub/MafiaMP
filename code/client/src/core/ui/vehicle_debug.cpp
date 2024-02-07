@@ -2,6 +2,8 @@
 
 #include <imgui.h>
 
+#include <logging/logger.h>
+
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
 #include "sdk/entities/c_vehicle.h"
@@ -20,6 +22,10 @@ namespace MafiaMP::Core::UI {
 
         if (currentCar) {
             auto currentVehicle = currentCar->GetVehicle();
+
+            if (ImGui::Button("Print Pointers")) {
+                Framework::Logging::GetLogger("bite")->info("Car Ptr: 0x{}, Vehicle Ptr: 0x{}", fmt::ptr(currentCar), fmt::ptr(currentVehicle));
+            }
 
             auto position = currentCar->GetPos();
             if (ImGui::DragFloat3("Pos", (float *)&position, 0.1f, -4500.0f, 4500.0f)) {
@@ -90,7 +96,7 @@ namespace MafiaMP::Core::UI {
                 currentVehicle->SetHorn(horn);
             }
 
-            bool siren = currentVehicle->GetSiren();
+            bool siren = currentVehicle->IsSiren();
             if (ImGui::Checkbox("Siren", &siren)) {
                 currentVehicle->SetSiren(siren);
             }
@@ -98,6 +104,26 @@ namespace MafiaMP::Core::UI {
             bool beaconsLight = currentVehicle->GetBeaconLightsOn();
             if (ImGui::Checkbox("Beacon Lights", &beaconsLight)) {
                 currentVehicle->SetBeaconLightsOn(beaconsLight);
+            }
+
+            bool taxiLights = currentVehicle->GetTaxiLightsOn();
+            if (ImGui::Checkbox("Taxi Lights", &taxiLights)) {
+                currentVehicle->SetTaxiLightsOn(taxiLights);
+            }
+
+            bool isEngineOn = currentCar->IsEngineOn();
+            if (ImGui::Checkbox("Engine", &isEngineOn)) {
+                currentVehicle->SetEngineOn(isEngineOn, isEngineOn);
+            }
+
+            bool isLeftIndicatorOn = currentVehicle->IsIndicatorLightOn(SDK::E_VehicleIndicator::INDICATOR_LEFT);
+            if (ImGui::Checkbox("Left Indicator", &isLeftIndicatorOn)) {
+                currentVehicle->SetIndicatorLightsOn(isLeftIndicatorOn, SDK::E_VehicleIndicator::INDICATOR_LEFT);
+            }
+
+            bool isRightIndicatorOn = currentVehicle->IsIndicatorLightOn(SDK::E_VehicleIndicator::INDICATOR_RIGHT);
+            if (ImGui::Checkbox("Right Indicator", &isRightIndicatorOn)) {
+                currentVehicle->SetIndicatorLightsOn(isRightIndicatorOn, SDK::E_VehicleIndicator::INDICATOR_RIGHT);
             }
 
             SDK::ue::sys::math::C_Vector4 color1, color2;
@@ -167,9 +193,6 @@ namespace MafiaMP::Core::UI {
             if (ImGui::Button("UnlockEntryPoints")) {
                 currentCar->UnlockEntryPoints();
             }
-
-            ImGui::Text("Car Ptr: %p", currentCar);
-            ImGui::Text("Vehicle Ptr: %p", currentVehicle);
         }
         else {
             ImGui::Text("You're not in a vehicle!");

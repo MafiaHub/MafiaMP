@@ -19,6 +19,7 @@ namespace MafiaMP::Shared::RPC {
         Framework::Utils::Optional<glm::vec4> rimColor;
         Framework::Utils::Optional<float> rust;
         Framework::Utils::Optional<bool> sirenOn;
+        Framework::Utils::Optional<bool> engineOn;
         Framework::Utils::Optional<glm::vec4> tireColor;
         Framework::Utils::Optional<glm::vec4> windowTint;
 
@@ -35,6 +36,7 @@ namespace MafiaMP::Shared::RPC {
             this->rimColor       = props.rimColor;
             this->rust           = props.rust;
             this->sirenOn        = props.sirenOn;
+            this->engineOn       = props.engineOn;
             this->tireColor      = props.tireColor;
             this->windowTint     = props.windowTint;
         }
@@ -52,6 +54,7 @@ namespace MafiaMP::Shared::RPC {
             rimColor.Serialize(bs, write);
             rust.Serialize(bs, write);
             sirenOn.Serialize(bs, write);
+            engineOn.Serialize(bs, write);
             tireColor.Serialize(bs, write);
             windowTint.Serialize(bs, write);
         }

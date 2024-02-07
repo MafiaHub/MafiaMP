@@ -5,11 +5,16 @@
 
 #include "world/modules/base.hpp"
 
+#include "shared/game_rpc/vehicle/vehicle_player_enter.h"
+#include "shared/game_rpc/vehicle/vehicle_player_leave.h"
+
 #include "shared/messages/vehicle/vehicle_despawn.h"
 #include "shared/messages/vehicle/vehicle_owner_update.h"
 #include "shared/messages/vehicle/vehicle_spawn.h"
 #include "shared/messages/vehicle/vehicle_update.h"
 #include "shared/modules/vehicle_sync.hpp"
+
+#include "core/builtins/vehicle.h"
 
 #include <utils/safe_string.h>
 
@@ -43,7 +48,20 @@ namespace MafiaMP::Core::Modules {
         auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
         frame->modelName = "berkley_810"; /* TODO */
 
-        e.add<Shared::Modules::VehicleSync::UpdateData>();
+        auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+
+        // generate a random license plate
+        {
+            constexpr char letters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            constexpr char numbers[] = "0123456789";
+            for (int i = 0; i < 2; i++) {
+                updateData->licensePlate[i] = letters[::rand() % (sizeof(letters) - 1)];
+            }
+            for (int i = 3; i < 6; i++) {
+                updateData->licensePlate[i] = numbers[::rand() % (sizeof(numbers) - 1)];
+            }
+        }
+
         e.add<CarData>();
         e.add<Framework::World::Modules::Base::RemovedOnGameModeReload>();
 
@@ -119,6 +137,38 @@ namespace MafiaMP::Core::Modules {
 
             auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
             *updateData     = msg->GetData();
+        });
+
+        InitRPCs(srv, net);
+    }
+
+    void Vehicle::InitRPCs(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
+        net->RegisterGameRPC<Shared::RPC::VehiclePlayerEnter>([srv](SLNet::RakNetGUID guid, Shared::RPC::VehiclePlayerEnter* msg) {
+            const auto playerEntity = srv->GetEntityByGUID(guid.g);
+            if (!playerEntity.is_alive()) {
+                return;
+            }
+
+            const auto vehicleEntity = srv->WrapEntity(msg->vehicleId);
+            if (!vehicleEntity.is_valid()) {
+                return;
+            }
+
+            Scripting::Vehicle::EventVehiclePlayerEnter(vehicleEntity, playerEntity, msg->seatIndex);
+        });
+
+        net->RegisterGameRPC<Shared::RPC::VehiclePlayerLeave>([srv](SLNet::RakNetGUID guid, Shared::RPC::VehiclePlayerLeave *msg) {
+            const auto playerEntity = srv->GetEntityByGUID(guid.g);
+            if (!playerEntity.is_alive()) {
+                return;
+            }
+
+            const auto vehicleEntity = srv->WrapEntity(msg->vehicleId);
+            if (!vehicleEntity.is_valid()) {
+                return;
+            }
+
+            Scripting::Vehicle::EventVehiclePlayerLeave(vehicleEntity, playerEntity);
         });
     }
 } // namespace MafiaMP::Core::Modules
