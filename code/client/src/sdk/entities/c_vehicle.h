@@ -1,10 +1,16 @@
 #pragma once
 
+
 #include "../ue/sys/math/c_matrix.h"
 #include "../ue/sys/math/c_vector.h"
 
 #include "../ue/game/audio/radio/c_radio_sound.h"
 #include "../ue/sys/core/c_scene_object.h"
+
+#include "../prefab/c_prefab_init_data.h"
+
+#include "../ue/game/vehicle/c_synchro_command_manager.h"
+#include "../ue/game/vehicle/c_vehicle_real_light_manager.h"
 
 #include <cstdint>
 
@@ -134,40 +140,48 @@ namespace SDK {
         uint32_t GetRadioStation();
         void ChangeRadioStation(uint32_t stationSelection);
 
+        ue::game::vehicle::C_VehicleRealLightManager* GetRealLightManager() {
+            return m_pRealLightManager;
+        }
+
       private:
-#ifdef NONSTEAM_SUPPORT
-        char pad_base[0x41C];
-#else
-        char pad_base[0x40C];
-#endif
+        char pad_base[0x270];
+        ue::game::vehicle::C_SynchroCommandManager *m_pSynchroCommandMgr;  // 0270 - 0278
+        char pad0[0xA8];                                                   // 0278 - 0320
+        prefab::S_PrefabInitData *m_pPrefabInitData;                       // 0320 - 0328
+        char pad1[0xE4];                                                   // 0328 - 040C
         ue::sys::math::C_Vector m_vVelocity;                               // 040C - 0418
         ue::sys::math::C_Vector m_vAngularVelocity;                        // 0418 - 0424
-        char pad0[0x5A4];                                                  // 0424 - 09C8
+        char pad2[0x5A4];                                                  // 0424 - 09C8
         float m_fBreak;                                                    // 09C8 - 09CC
-        char pad1[0x4];                                                    // 09CC - 09D0
+        char pad3[0x4];                                                    // 09CC - 09D0
         float m_fHandBreak;                                                // 09D0 - 09D4
         float m_fPower;                                                    // 09D4 - 09D8
-        char pad2[0x4C];                                                   // 09D8 - 0A24
+        char pad4[0x4C];                                                   // 09D8 - 0A24
         float m_fSteer;                                                    // 0A24 - 0A28
-        char pad3[0x60];                                                   // 0A28 - 0A88
+        char pad5[0x60];                                                   // 0A28 - 0A88
         bool m_bHorn;                                                      // 0A88 - 0A89
-        char pad4[0x67];                                                   // 0A89 - 0AF0
+        char pad6[0x67];                                                   // 0A89 - 0AF0
         float m_fBrakeHealth1;                                             // 0AF0 - 0AF4
         float m_fBrakeHealth2;                                             // 0AF4 - 0AF8
-        char pad5[0xB8];                                                   // 0AF8 - 0BB0
+        char pad7[0xB8];                                                   // 0AF8 - 0BB0
         ue::sys::math::C_Vector4 m_vColor1;                                // 0BB0 - 0BC0
         ue::sys::math::C_Vector4 m_vColor2;                                // 0BC0 - 0BD0
         ue::sys::math::C_Vector4 m_vWindowTint;                            // 0BD0 - 0BE0
         ue::sys::math::C_Vector4 m_vWheelColor;                            // 0BE0 - 0BF0
         ue::sys::math::C_Vector4 m_vTireColor;                             // 0BF0 - 0C00
-        char pad6[0x8];                                                    // 0C00 - 0C08
+        char pad8[0x8];                                                    // 0C00 - 0C08
         ue::sys::math::C_Vector4 m_vInteriorColors[5];                     // 0C08 - 0C58
-        char pad7[0x8];                                                    // 0C58 - 0C60
+        char pad9[0x8];                                                    // 0C58 - 0C60
         float m_fDirty;                                                    // 0C60 - 0C64
         float m_fRust;                                                     // 0C64 - 0C68
-        char pad8[0x98];                                                   // 0C68 - 0D00
+        char pad10[0x88];                                                  // 0C68 - 0CF0
+        ue::game::vehicle::C_VehicleRealLightManager *m_pRealLightManager; // 0CF0 - 0CF8
+        char pad11[0x8];                                                   // 0CF8 - 0D00
         uint64_t m_uAdditionalLightFlags;                                  // 0D00 - 0D08
-        char pad9[0x7F0];                                                  // 0D08 - 14F8
+        char pad12[0x428];                                                 // 0D08 - 1130
+        char m_pSPZText[7];                                                // 1130 - 1137
+        char pad13[0x3C1];                                                 // 1137 - 14F8
         ue::game::audio::radio::C_RadioSound *m_pRadioSound;               // 14F8 - 1500
     };
 } // namespace SDK

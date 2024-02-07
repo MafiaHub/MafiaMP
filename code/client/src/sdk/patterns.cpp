@@ -410,6 +410,12 @@ namespace SDK {
         gPatterns.C_VehiclesDatabase__GetVehicleByModel = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 55 41 56 41 57 48 83 EC 20 48 8B 41"));
         gPatterns.C_VehiclesDatabase__GetVehiclesCount  = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 48 8B 4D 30 8B F8");
 
+        // C_VehicleRealLightManager
+        gPatterns.C_VehicleRealLightManager__SetLightIntensity = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 63 C2 0F 29 74 24"));
+        gPatterns.C_VehicleRealLightManager__SetPlayerLights   = reinterpret_cast<uint64_t>(hook::get_pattern("4C 8B DC 55 56 41 57 48 83 EC"));
+        gPatterns.C_VehicleRealLightManager__SetReflectorLightsOn = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? 4C 8B C9 84 D2 74 ? 45 84 C0"));
+        gPatterns.C_VehicleRealLightManager__SetVisible           = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 8B 41 ? 0F B6 FA D1 E8"));
+
         // C_WAnimPlaybackManager
         gPatterns.C_WAnimPlaybackManager__PlayState = hook::get_opcode_address("E8 ? ? ? ? 4C 39 7F 50");
 

@@ -363,6 +363,12 @@ namespace SDK {
         uint64_t C_VehiclesDatabase__GetVehicleByModel = 0x0;
         uint64_t C_VehiclesDatabase__GetVehiclesCount  = 0x0;
 
+        // C_VehicleRealLightManager
+        uint64_t C_VehicleRealLightManager__SetLightIntensity      = 0x0;
+        uint64_t C_VehicleRealLightManager__SetPlayerLights        = 0x0;
+        uint64_t C_VehicleRealLightManager__SetReflectorLightsOn   = 0x0;
+        uint64_t C_VehicleRealLightManager__SetVisible             = 0x0;
+
         // C_WAnimPlaybackManager
         uint64_t C_WAnimPlaybackManager__PlayState = 0x0;
 

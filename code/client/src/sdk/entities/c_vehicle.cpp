@@ -20,7 +20,7 @@ namespace SDK {
     }
 
     const char *C_Vehicle::GetSPZText() {
-        return hook::this_call<const char *>(gPatterns.C_Vehicle__GetSPZText, this);
+        return m_pSPZText;
     }
 
     void C_Vehicle::SetBrake(float force, bool arg2) {
