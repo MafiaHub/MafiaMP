@@ -99,6 +99,8 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/game/traffic/c_human_spawner.cpp
     src/sdk/ue/game/traffic/c_profile_spawner.cpp
     src/sdk/ue/game/traffic/c_streaming_traffic_module.cpp
+    src/sdk/ue/game/translocator/c_translocator.cpp
+    src/sdk/ue/game/translocator/c_translocable_object_spawner.cpp
     src/sdk/ue/game/vehicle/c_vehicle_real_light_manager.cpp
     src/sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.cpp
     src/sdk/ue/gfx/environmenteffects/c_weather_manager_2.cpp

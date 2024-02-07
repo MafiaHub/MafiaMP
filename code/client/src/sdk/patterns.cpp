@@ -358,6 +358,13 @@ namespace SDK {
         // C_TickedModuleManager
         gPatterns.C_TickedModuleManager__GetTickedModuleManager = hook::get_opcode_address("E8 ? ? ? ? 45 8B 46 24");
 
+        // C_Translocator
+        gPatterns.C_Translocator__SpawnObject = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B C4 48 89 58 ? 48 89 70 ? 48 89 78 ? 4C 89 70 ? 55 48 8D 68 ? 48 81 EC ? ? ? ? 0F 29 70 ? 48 8B DA 48 8B 02"));
+        gPatterns.C_Translocator__SpawnObjects = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B D9 48 8B FA 48 8B CA E8 ? ? ? ? 84 C0 0F 85"));
+
+        // C_TranslocableObjectSpawner
+        gPatterns.C_TranslocableObjectSpawner__Spawn = reinterpret_cast<uint64_t>(hook::get_pattern("44 88 4C 24 ? 89 54 24"));
+
         // C_Vehicle
         gPatterns.C_Vehicle__AddVehicleFlags    = hook::get_opcode_address("E8 ? ? ? ? 40 F6 C7 08 74 0D");
         gPatterns.C_Vehicle__ChangeRadioStation = reinterpret_cast<uint64_t>(hook::get_pattern("40 57 48 83 EC 20 48 83 B9 90 12 00 00 00"));

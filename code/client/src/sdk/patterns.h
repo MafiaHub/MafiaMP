@@ -321,6 +321,13 @@ namespace SDK {
         // C_TickedModuleManager
         uint64_t C_TickedModuleManager__GetTickedModuleManager = 0x0;
 
+        // C_Translocator
+        uint64_t C_Translocator__SpawnObject = 0x0;
+        uint64_t C_Translocator__SpawnObjects = 0x0;
+
+        // C_TranslocableObjectSpawner
+        uint64_t C_TranslocableObjectSpawner__Spawn = 0x0;
+
         // C_Vehicle
         uint64_t C_Vehicle__AddVehicleFlags    = 0x0;
         uint64_t C_Vehicle__ChangeRadioStation = 0x0;
