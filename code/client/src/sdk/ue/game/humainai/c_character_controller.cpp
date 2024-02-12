@@ -2,7 +2,6 @@
 
 #include "c_character_state_handler_base_locomotion.h"
 
-#include <utils/hooking/hooking.h>
 #include "../../../entities/c_player_2.h"
 #include "../../../patterns.h"
 
@@ -118,4 +117,4 @@ namespace SDK {
             return hook::this_call<bool>(gPatterns.C_CharacterController__TriggerActorActionById, this, pActor, actorAction, a4, a5, a6);
         }
     } // namespace ue::game::humanai
-}
+} // namespace SDK

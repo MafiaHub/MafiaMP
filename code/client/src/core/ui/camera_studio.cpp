@@ -32,8 +32,10 @@ static InitFunction init([]() {
 });
 
 namespace MafiaMP::Core::UI {
+    CameraStudio::CameraStudio() {}
+
     void CameraStudio::Update() {
-        ImGui::Begin("Camera studio");
+        ImGui::Begin("Camera studio", &_visible);
         {
             if (ImGui::Button("Enable")) {
                 auto addr1            = hook::get_opcode_address("E8 ? ? ? ? 33 F6 EB 9F");

@@ -1,10 +1,10 @@
 #include "module.h"
 
-#include "../sdk/c_game.h"
-#include "../sdk/entities/c_car.h"
-#include "../sdk/entities/c_player_2.h"
-#include "../sdk/entities/c_vehicle.h"
-#include "../sdk/entities/human/c_human_weapon_controller.h"
+#include "sdk/c_game.h"
+#include "sdk/entities/c_car.h"
+#include "sdk/entities/c_player_2.h"
+#include "sdk/entities/c_vehicle.h"
+#include "sdk/entities/human/c_human_weapon_controller.h"
 
 #include <SDL2/SDL.h>
 #include <logging/logger.h>
@@ -28,13 +28,14 @@ namespace MafiaMP::Game {
         // Init our main application
         if (Core::gApplication && !Core::gApplication->IsInitialized()) {
             Framework::Graphics::RendererConfiguration rendererOptions = {};
-            rendererOptions.backend = Framework::Graphics::RendererBackend::BACKEND_D3D_11;
+
+            rendererOptions.backend  = Framework::Graphics::RendererBackend::BACKEND_D3D_11;
             rendererOptions.platform = Framework::Graphics::PlatformBackend::PLATFORM_WIN32;
 
             // fill out renderer info
-            rendererOptions.d3d11.device = gGlobals.renderDevice->GetDevice();
+            rendererOptions.d3d11.device        = gGlobals.renderDevice->GetDevice();
             rendererOptions.d3d11.deviceContext = gGlobals.renderDevice->GetImmediateContext();
-            rendererOptions.windowHandle = gGlobals.window;
+            rendererOptions.windowHandle        = gGlobals.window;
 
             Framework::Integrations::Client::InstanceOptions opts;
             opts.discordAppId    = 763114144454672444;
@@ -44,7 +45,10 @@ namespace MafiaMP::Game {
             opts.rendererOptions = rendererOptions;
 
             opts.gameName    = "Mafia: Definitive Edition";
-            opts.gameVersion = MafiaMP::Version::rel;
+            opts.gameVersion = "3168979183"; // TODO: get this crc32 checksum from the game executable
+            opts.modVersion  = MafiaMP::Version::rel;
+
+            // opts.modVersion = MafiaMP::Version::rel;
 
             Core::gApplication->Init(opts);
         }
@@ -84,7 +88,7 @@ namespace MafiaMP::Game {
         }
 
         mgr->AddAction(SDK::E_TmEvent::E_TMEVENT_SYSTEM_INIT, 9999, instance, (SDK::TickedModuleCallback)(&ModModule::OnSysInit), -1.0f, 0, 0, "[TM]ModModule::OnSysInit");
-        mgr->EnableAction(SDK::E_TmEvent::E_TMEVENT_GAME_PAUSED, instance, (SDK::TickedModuleCallback)(&ModModule::OnSysInit), true);
+        mgr->EnableAction(SDK::E_TmEvent::E_TMEVENT_SYSTEM_INIT, instance, (SDK::TickedModuleCallback)(&ModModule::OnSysInit), true);
 
         mgr->AddAction(SDK::E_TmEvent::E_TMEVENT_SYSTEM_DONE, 500, instance, (SDK::TickedModuleCallback)(&ModModule::OnSysShutdown), -1.0f, 0, 0, "[TM]ModModule::OnSysShutdown");
         mgr->EnableAction(SDK::E_TmEvent::E_TMEVENT_SYSTEM_DONE, instance, (SDK::TickedModuleCallback)(&ModModule::OnSysShutdown), true);

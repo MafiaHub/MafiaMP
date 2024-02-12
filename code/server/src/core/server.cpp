@@ -30,7 +30,7 @@ namespace MafiaMP {
 
         // Setup specific components - default values
         auto weather             = GetWorldEngine()->GetWorld()->get_mut<Core::Modules::Environment::Weather>();
-        weather->_weatherSetName = "mm_110_omerta_cp_010_cs_cs_park";
+        weather->_weatherSetName = "_default_game";
         weather->_dayTimeHours   = 11.0f;
     }
 
@@ -60,8 +60,6 @@ namespace MafiaMP {
 
         Core::Modules::Human::SetupMessages(this->GetWorldEngine(), net);
         Core::Modules::Vehicle::SetupMessages(this->GetWorldEngine(), net);
-
-        Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Networking messages registered!");
     }
 
     void Server::ModuleRegister(Framework::Scripting::Engines::SDKRegisterWrapper sdk) {
@@ -85,9 +83,18 @@ namespace MafiaMP {
                 return;
 
             const auto text = chatMessage->GetText();
+            std::string command;
+            std::string argsPart;
+
             if (text[0] == '/') {
-                const auto command  = text.substr(1, text.find(' ') - 1);
-                const auto argsPart = text.substr(text.find(' ') + 1);
+                if (text.find(' ') != std::string::npos) {
+                    command  = text.substr(1, text.find(' ') - 1);
+                    argsPart = text.substr(text.find(' ') + 1);
+                }
+                else {
+                    command = text.substr(1);
+                }
+
                 std::vector<std::string> args;
                 std::string arg;
                 std::istringstream iss(argsPart);

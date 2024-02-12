@@ -4,12 +4,13 @@
 
 #include "../core/application.h"
 
-#include "../sdk/c_ticked_module.h"
-#include "../sdk/c_ticked_module_manager.h"
+#include "sdk/c_ticked_module.h"
+#include "sdk/c_ticked_module_manager.h"
 
-#include "../sdk/ue/sys/render/device/c_direct_3d11_render_device.h"
+#include "sdk/ue/sys/render/device/c_direct_3d11_render_device.h"
 
 #include <functional>
+
 #include <Windows.h>
 
 #include <dxgi.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../sdk/ue/sys/math/c_vector.h"
+#include "sdk/ue/sys/math/c_vector.h"
 
 namespace MafiaMP::Game::Helpers {
     class Camera {
@@ -8,7 +8,7 @@ namespace MafiaMP::Game::Helpers {
         static bool SetFPV(bool);
         static bool SetPos(SDK::ue::sys::math::C_Vector, SDK::ue::sys::math::C_Vector, bool);
         static bool ResetBehindPlayer();
-        
+
         static bool SimpleShake();
     };
 }

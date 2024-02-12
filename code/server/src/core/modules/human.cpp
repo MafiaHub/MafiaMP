@@ -11,9 +11,9 @@
 
 #include "core/builtins/player.h"
 
-#include "shared/game_rpc/human/human_shoot.h"
-#include "shared/game_rpc/human/human_reload.h"
 #include "shared/game_rpc/human/human_death.h"
+#include "shared/game_rpc/human/human_reload.h"
+#include "shared/game_rpc/human/human_shoot.h"
 
 #include <flecs/flecs.h>
 
@@ -28,12 +28,31 @@ namespace MafiaMP::Core::Modules {
 
         e.add<Shared::Modules::HumanSync::UpdateData>();
 
+        auto er                            = e.get_mut<Framework::World::Modules::Base::Streamer>();
+        er->collectRangeExemptEntitiesProc = [](flecs::entity e, Framework::World::Modules::Base::Streamer &streamer) {
+            const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
+
+            auto carEnt = Framework::CoreModules::GetWorldEngine()->WrapEntity(updateData->carPassenger.carId);
+            if (carEnt.is_valid() && carEnt.is_alive()) {
+                streamer.rangeExemptEntities.insert(carEnt.id());
+
+                const auto carData = carEnt.get<Modules::Vehicle::CarData>();
+                if (carData) {
+                    for (int i = 0; i < 4 /* TODO: use MAX_SEATS constexpr var */; ++i) {
+                        if (e.id() != carData->seats[i])
+                            streamer.rangeExemptEntities.insert(carData->seats[i]);
+                    }
+                }
+            }
+        };
+
         auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
 
         es->modEvents.spawnProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             const auto frame = e.get<Framework::World::Modules::Base::Frame>();
+            const auto s     = e.get<Framework::World::Modules::Base::Streamer>();
             Shared::Messages::Human::HumanSpawn humanSpawn;
-            humanSpawn.FromParameters(frame->modelHash);
+            humanSpawn.FromParameters(frame->modelHash, s->nickname, s->playerIndex);
             humanSpawn.SetServerID(e.id());
 
             const auto trackingMetadata = e.get<Shared::Modules::HumanSync::UpdateData>();
@@ -80,9 +99,9 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto trackingMetadata                   = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
-            const auto newData = msg->GetData();
-            const auto& carPassenger = newData.carPassenger;
+            auto trackingMetadata    = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+            const auto newData       = msg->GetData();
+            const auto &carPassenger = newData.carPassenger;
 
             // TODO improve this code
             if (trackingMetadata->carPassenger.carId != carPassenger.carId) {

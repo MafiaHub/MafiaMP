@@ -17,7 +17,7 @@ namespace MafiaMP::Core::States {
     }
 
     bool SessionDisconnectionState::OnEnter(Framework::Utils::States::Machine *machine) {
-        machine->RequestNextState(StateIds::Menu);
+        machine->RequestNextState(StateIds::MainMenu);
         return true;
     }
 

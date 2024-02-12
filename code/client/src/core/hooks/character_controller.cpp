@@ -2,10 +2,10 @@
 #include <utils/hooking/hook_function.h>
 #include <utils/hooking/hooking.h>
 
-#include "../../sdk/c_ie.h"
-#include "../../sdk/entities/c_player_2.h"
-#include "../../sdk/ue/game/humainai/c_character_controller.h"
-#include "../../sdk/c_game.h"
+#include "sdk/c_ie.h"
+#include "sdk/entities/c_player_2.h"
+#include "sdk/ue/game/humainai/c_character_controller.h"
+#include "sdk/c_game.h"
 
 #include "../../game/overrides/character_controller.h"
 #include "../../game/overrides/scoped_entity_type_faker.h"

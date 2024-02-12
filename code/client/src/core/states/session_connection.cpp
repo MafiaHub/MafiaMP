@@ -25,7 +25,7 @@ namespace MafiaMP::Core::States {
 
         if (!MafiaMP::Core::gApplication->GetNetworkingEngine()->Connect(appState._host, appState._port, "")) {
             Framework::Logging::GetInstance()->Get("SessionConnectionState")->error("Connection to server failed");
-            machine->RequestNextState(StateIds::Menu);
+            machine->RequestNextState(StateIds::MainMenu);
             return true;
         }
         return true;

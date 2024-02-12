@@ -1,7 +1,5 @@
 #include "c_fader.h"
 
-#include <utils/hooking/hooking.h>
-
 #include "../../../patterns.h"
 
 namespace SDK {
@@ -16,4 +14,4 @@ namespace SDK {
     void mafia::ui::support::C_Fader::Reset() {
         hook::this_call(gPatterns.C_Fader__Reset, this);
     }
-}
+} // namespace SDK

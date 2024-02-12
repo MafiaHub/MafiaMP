@@ -26,9 +26,6 @@ namespace MafiaMP::Core::States {
     bool SessionOfflineDebugState::OnEnter(Framework::Utils::States::Machine *) {
         // Reset camera by player
         // TODO
-
-        // Give back controls
-        MafiaMP::Game::Helpers::Controls::Lock(false);
         return true;
     }
 
@@ -40,7 +37,7 @@ namespace MafiaMP::Core::States {
         bool shouldProceed = false;
 
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F9)) {
-            machine->RequestNextState(StateIds::Menu);
+            machine->RequestNextState(StateIds::MainMenu);
             shouldProceed = true;
         }
 

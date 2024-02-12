@@ -1,25 +1,25 @@
 #include <utils/safe_win32.h>
+
 #include <MinHook.h>
 #include <utils/hooking/hook_function.h>
 #include <utils/hooking/hooking.h>
 
+#include "sdk/c_player_teleport_module.h"
 #include "sdk/entities/c_actor.h"
 #include "sdk/entities/c_car.h"
-#include "sdk/ue/game/humainai/c_character_controller.h"
 #include "sdk/entities/c_player_2.h"
-#include "sdk/entities/c_human_2.h"
-#include "sdk/entities//human/c_human_script.h"
-#include "sdk/c_player_teleport_module.h"
+#include "sdk/ue/game/humainai/c_character_controller.h"
+
 #include "game/helpers/controls.h"
 
 #include "core/application.h"
-#include "world/client.h"
 #include "shared/game_rpc/human/human_death.h"
+#include "world/client.h"
 
-#include <logging/logger.h>
 #include "sdk/mafia/ui/c_game_gui_2_module.h"
+#include <logging/logger.h>
 
-typedef void(__fastcall *C_Human2__SetupDeath_t)(SDK::C_Human2 *_this, void*);
+typedef void(__fastcall *C_Human2__SetupDeath_t)(SDK::C_Human2 *_this, void *);
 C_Human2__SetupDeath_t C_Human2__SetupDeath_original = nullptr;
 void __fastcall C_Human2__SetupDeath(SDK::C_Human2 *pThis, void *entityMsgDamage) {
     // Is the local player ?

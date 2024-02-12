@@ -17,6 +17,7 @@ namespace MafiaMP::Core::Modules {
 
         static flecs::entity Create(MafiaMP::Server *server);
 
+        static void InitRPCs(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net);
         static void SetupMessages(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net);
     };
 } // namespace MafiaMP::Core::Modules

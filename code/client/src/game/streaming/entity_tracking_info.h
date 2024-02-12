@@ -1,11 +1,10 @@
 #pragma once
 
-#include "../../sdk/entities/c_entity.h"
+#include "sdk/entities/c_entity.h"
 
 #include <functional>
 
 #include <flecs/flecs.h>
-
 
 namespace MafiaMP::Game::Streaming {
     class EntityTrackingInfo {
@@ -13,9 +12,10 @@ namespace MafiaMP::Game::Streaming {
         friend class EntityTypeFactory;
 
       public:
-        using BeforeSpawnCallback   = std::function<void(EntityTrackingInfo*)>;
-        using RequestFinishCallback = std::function<void(EntityTrackingInfo*, bool)>;
-        using ReturnCallback        = std::function<void(EntityTrackingInfo*, bool)>;
+        using BeforeSpawnCallback   = std::function<void(EntityTrackingInfo *)>;
+        using RequestFinishCallback = std::function<void(EntityTrackingInfo *, bool)>;
+        using ReturnCallback        = std::function<void(EntityTrackingInfo *, bool)>;
+
       private:
         SDK::E_EntityType _type;
         SDK::C_Entity *_entity = nullptr;

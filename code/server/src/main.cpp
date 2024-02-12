@@ -8,15 +8,15 @@ int main(int argc, char **argv) {
     opts.bindPort      = 27015;
     opts.webBindHost   = "0.0.0.0";
     opts.webBindPort   = 27016;
-    opts.bindName      = "Mafia MP Local Dev Server";
     opts.maxPlayers    = 10;
     opts.modName       = "MafiaMP";
     opts.modSlug       = "mafiamp_server";
     opts.gameName      = "Mafia: Definitive Edition";
-    opts.gameVersion   = MafiaMP::Version::rel;
-    opts.modVersion    = "0.1.0";
+    opts.gameVersion   = "3168979183";
+    opts.modVersion    = MafiaMP::Version::rel;
     opts.bindPassword  = "";
     opts.enableSignals = true;
+    opts.bindSecretKey = "qskdnkjsqndq12312312qsdqsds";
 
     opts.argc = argc;
     opts.argv = argv;

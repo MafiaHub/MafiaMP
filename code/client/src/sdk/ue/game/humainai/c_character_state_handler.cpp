@@ -1,9 +1,9 @@
 #include "c_character_state_handler.h"
 
-#include <utils/hooking/hooking.h>
+#include "../../../patterns.h"
+
 #include "../../../entities/c_entity.h"
 #include "../../../entities/c_human_2.h"
-#include "../../../patterns.h"
 
 #include "c_character_controller.h"
 
@@ -47,4 +47,4 @@ namespace SDK {
             }
         }
     } // namespace ue::game::humanai
-}
+} // namespace SDK

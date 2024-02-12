@@ -3,25 +3,28 @@
 #include "human.h"
 
 #include <flecs/flecs.h>
+#include <glm/glm.hpp>
+#include <imgui.h>
 
-#include "sdk/c_game.h"
-#include "sdk/entities/c_car.h"
-#include "sdk/entities/c_player_2.h"
-#include "sdk/entities/c_vehicle.h"
-#include "sdk/entities/human/c_human_script.h"
-#include "sdk/entities/human/c_human_weapon_controller.h"
-#include "sdk/wrappers/c_human_2_car_wrapper.h"
-#include "sdk/c_player_teleport_module.h"
+#include <external/imgui/widgets/nametag.h>
 
 #include "game/helpers/controls.h"
 #include "game/helpers/human.h"
 #include "game/overrides/character_controller.h"
 #include "game/streaming/entity_tracking_info.h"
+#include "sdk/c_game.h"
+#include "sdk/c_player_teleport_module.h"
+#include "sdk/entities/c_car.h"
+#include "sdk/entities/c_player_2.h"
+#include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/game/camera/c_game_camera.h"
+#include "sdk/wrappers/c_human_2_car_wrapper.h"
 
-#include "shared/game_rpc/human/human_shoot.h"
-#include "shared/game_rpc/human/human_reload.h"
+#include "shared/game_rpc/add_weapon.h"
 #include "shared/game_rpc/human/human_changeskin.h"
+#include "shared/game_rpc/human/human_reload.h"
 #include "shared/game_rpc/human/human_setprops.h"
+#include "shared/game_rpc/human/human_shoot.h"
 
 #include "vehicle.h"
 #include <world/modules/base.hpp>
@@ -123,6 +126,40 @@ namespace MafiaMP::Core::Modules {
                         tracking.human->SetRot({newRot.x, newRot.y, newRot.z, newRot.w});
                     }
                 }
+
+                const auto humanPtr = tracking.human;
+                const auto hp       = updateData->_healthPercent;
+                const auto nickname = humanData->nickname;
+                const auto playerId = humanData->playerIndex;
+                gApplication->GetImGUI()->PushWidget([humanPtr, hp, nickname, playerId]() {
+                    const auto displaySize = ImGui::GetIO().DisplaySize;
+
+                    auto gameCamera = SDK::ue::game::camera::C_GameCamera::GetInstanceInternal();
+                    if (!gameCamera) {
+                        return;
+                    }
+                    auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN_1);
+                    if (!camera) {
+                        return;
+                    }
+
+                    auto camPos                          = camera->GetPos();
+                    static const auto headBoneHash       = SDK::ue::sys::utils::C_HashName::ComputeHash("Head");
+                    SDK::ue::sys::math::C_Vector headPos = humanPtr->GetBoneWorldPos(headBoneHash);
+                    float distFromCam                    = headPos.dist(camPos);
+                    if (distFromCam <= 250.0f /* @todo: make configurable */) {
+                        headPos.z += 0.335f + (distFromCam * 0.03f);
+
+                        SDK::ue::sys::math::C_Vector2 screenPos;
+                        bool onScreen = false;
+                        float unkFloat1, unkFloat2;
+                        camera->GetScreenPos(screenPos, headPos, onScreen, &unkFloat1, &unkFloat2, true);
+                        if (onScreen) {
+                            const auto playerName = fmt::format("{} ({})", nickname.empty() ? "Player" : nickname, playerId);
+                            Framework::External::ImGUI::Widgets::DrawNameTag({screenPos.x * displaySize.x, screenPos.y * displaySize.y}, playerName.c_str(), hp);
+                        }
+                    }
+                });
             }
         });
     }
@@ -164,11 +201,6 @@ namespace MafiaMP::Core::Modules {
                 trackingData->charController = reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(human->GetCharacterController());
                 assert(MafiaMP::Game::Overrides::CharacterController::IsInstanceOfClass(trackingData->charController));
 
-                // TODO(DavoSK): remove
-                Game::Helpers::Human::AddWeapon(human, 85, 200);
-                Game::Helpers::Human::AddWeapon(human, 3, 200);
-                Game::Helpers::Human::AddWeapon(human, 13, 200);
-                
                 Update(ent);
             }
         };
@@ -204,10 +236,6 @@ namespace MafiaMP::Core::Modules {
         e.add<HumanData>();
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
 
-        // TODO(DavoSK): remove
-        Game::Helpers::Human::AddWeapon(trackingData->human, 85, 200);
-        Game::Helpers::Human::AddWeapon(trackingData->human, 3, 200);
-
         const auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
         es->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
@@ -226,6 +254,11 @@ namespace MafiaMP::Core::Modules {
             return;
         }
 
+        /**
+         * Ensure remote human doesn't die on client-side due to client-only factors.
+         * This way we reflect actual health the player has and don't run into desync issue
+         * where player would die on someone else's screen even if they shouldn't.
+         */
         trackingData->human->GetHumanScript()->SetDemigod(true);
         trackingData->human->GetHumanScript()->SetInvulnerabilityByScript(true);
 
@@ -258,7 +291,7 @@ namespace MafiaMP::Core::Modules {
         // Update basic data
         const auto tr = e.get<Framework::World::Modules::Base::Transform>();
         if (e.get<Interpolated>()) {
-            auto interp   = e.get_mut<Interpolated>();
+            auto interp         = e.get_mut<Interpolated>();
             const auto humanPos = trackingData->human->GetPos();
             const auto humanRot = trackingData->human->GetRot();
             interp->interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
@@ -319,6 +352,9 @@ namespace MafiaMP::Core::Modules {
             // Setup other components
             auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
             auto humanData  = e.get_mut<HumanData>();
+
+            humanData->nickname    = msg->GetNickname();
+            humanData->playerIndex = msg->GetPlayerIndex();
 
             const auto carPassenger = msg->GetCarPassenger();
             if (carPassenger.carId) {
@@ -432,7 +468,8 @@ namespace MafiaMP::Core::Modules {
 
             if (e == gApplication->GetLocalPlayer()) {
                 Game::Helpers::Controls::PlayerChangeSpawnProfile(msg->GetSpawnProfile());
-            } else {
+            }
+            else {
                 // todo remote ped
             }
         });
@@ -447,7 +484,7 @@ namespace MafiaMP::Core::Modules {
             }
 
             auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
-            if (!trackingData && trackingData->human) {
+            if (trackingData && !trackingData->human) {
                 return;
             }
 
@@ -456,6 +493,23 @@ namespace MafiaMP::Core::Modules {
             if (setHealth.HasValue()) {
                 Game::Helpers::Human::SetHealthPercent(trackingData->human, setHealth());
             }
+        });
+
+        net->RegisterGameRPC<Shared::RPC::AddWeapon>([app](SLNet::RakNetGUID guid, Shared::RPC::AddWeapon *msg) {
+            if (!msg->Valid())
+                return;
+
+            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
+            if (!e.is_alive()) {
+                return;
+            }
+
+            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            if (trackingData && !trackingData->human) {
+                return;
+            }
+
+            trackingData->human->GetInventoryWrapper()->AddWeapon(msg->GetWeaponId(), msg->GetAmmo());
         });
     }
 
@@ -468,36 +522,49 @@ namespace MafiaMP::Core::Modules {
         // Update basic data
         const auto tr = e.get<Framework::World::Modules::Base::Transform>();
         if (e.get<Interpolated>()) {
-            auto interp   = e.get_mut<Interpolated>();
+            auto interp = e.get_mut<Interpolated>();
             // todo reset lerp
-            const auto humanPos = trackingData->human->GetPos();
             const auto humanRot = trackingData->human->GetRot();
-            interp->interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
+            const auto humanPos = trackingData->human->GetPos();
             interp->interpolator.GetRotation()->SetTargetValue({humanRot.w, humanRot.x, humanRot.y, humanRot.z}, tr->rot, MafiaMP::Core::gApplication->GetTickInterval());
+            interp->interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
         }
         else if (gApplication->GetLocalPlayer() != e.id()) {
-            SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
             SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
+            SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
             SDK::ue::sys::math::C_Matrix transform = {};
             transform.Identity();
             transform.SetRot(newRot);
             transform.SetPos(newPos);
             trackingData->human->SetTransform(transform);
-        } else {
-            SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
+        }
+        else {
             SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
+            SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
             SDK::ue::sys::math::C_Matrix transform = {};
             transform.Identity();
             transform.SetRot(newRot);
             transform.SetPos(newPos);
 
+            /**
+             * We use TeleportPlayer because it preloads the world (collisions).
+             * It also teleports the car the player is in if applicable.
+             *
+             * Since we don't know the player direction required by TeleportPlayer,
+             * we get it from the player rotation.
+             *
+             * TODO: preload the world instead of using TeleportPlayer
+             */
+            glm::mat4 rotMatrix                 = glm::mat4_cast(tr->rot);
+            SDK::ue::sys::math::C_Vector newDir = {-rotMatrix[1][0], rotMatrix[1][1], rotMatrix[1][2]};
             SDK::ue::C_CntPtr<uintptr_t> syncObject2;
-            SDK::GetPlayerTeleportModule()->TeleportPlayer(syncObject2, newPos, newPos, true, true, true, false);
+            SDK::GetPlayerTeleportModule()->TeleportPlayer(syncObject2, newPos, newDir, true, true, true, false);
+
             trackingData->human->SetTransform(transform);
         }
     }
 
-    flecs::entity Human::GetHumanEntity(SDK::C_Human2* ptr) {
+    flecs::entity Human::GetHumanEntity(SDK::C_Human2 *ptr) {
         flecs::entity foundPlayerEntity {};
         findAllHumans.each([ptr, &foundPlayerEntity](flecs::entity e, Human::Tracking &tracking) {
             if (tracking.human == ptr) {

@@ -5,7 +5,8 @@
 #include "../../core/application.h"
 
 #include "controls.h"
-#include "../../sdk/ue/game/camera/c_game_camera.h"
+
+#include "sdk/ue/game/camera/c_game_camera.h"
 
 namespace MafiaMP::Game::Helpers {
     bool Camera::SetFPV(bool toggle) {
@@ -57,4 +58,4 @@ namespace MafiaMP::Game::Helpers {
     bool Camera::SimpleShake() {
         return true;
     }
-}
+} // namespace MafiaMP::Game::Helpers

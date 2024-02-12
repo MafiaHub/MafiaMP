@@ -7,36 +7,67 @@
 namespace MafiaMP::Shared::RPC {
     class VehicleSetProps final: public Framework::Networking::RPC::IGameRPC<VehicleSetProps> {
       public:
-        Framework::Utils::Optional<bool> beaconLightsState;
+        Framework::Utils::Optional<bool> beaconLightsOn;
+        Framework::Utils::Optional<glm::vec4> colorPrimary;
+        Framework::Utils::Optional<glm::vec4> colorSecondary;
+        Framework::Utils::Optional<float> dirt;
+        Framework::Utils::Optional<float> fuel;
         Framework::Utils::Optional<SLNet::RakString> licensePlate;
-        Framework::Utils::Optional<Modules::VehicleSync::LockState> locked;
-        Framework::Utils::Optional<int> radioId;
-        Framework::Utils::Optional<bool> radioState;
-        Framework::Utils::Optional<bool> sirenState;
+        Framework::Utils::Optional<Modules::VehicleSync::LockState> lockState;
+        Framework::Utils::Optional<bool> radioOn;
+        Framework::Utils::Optional<int> radioStationId;
+        Framework::Utils::Optional<glm::vec4> rimColor;
+        Framework::Utils::Optional<float> rust;
+        Framework::Utils::Optional<bool> sirenOn;
+        Framework::Utils::Optional<bool> engineOn;
+        Framework::Utils::Optional<glm::vec4> tireColor;
+        Framework::Utils::Optional<glm::vec4> windowTint;
 
         void FromParameters(VehicleSetProps props) {
-            this->beaconLightsState = props.beaconLightsState;
-            this->licensePlate      = props.licensePlate;
-            this->locked            = props.locked;
-            this->radioId           = props.radioId;
-            this->radioState        = props.radioState;
-            this->sirenState        = props.sirenState;
+            this->beaconLightsOn = props.beaconLightsOn;
+            this->colorPrimary   = props.colorPrimary;
+            this->colorSecondary = props.colorSecondary;
+            this->dirt           = props.dirt;
+            this->fuel           = props.fuel;
+            this->licensePlate   = props.licensePlate;
+            this->lockState      = props.lockState;
+            this->radioOn        = props.radioOn;
+            this->radioStationId = props.radioStationId;
+            this->rimColor       = props.rimColor;
+            this->rust           = props.rust;
+            this->sirenOn        = props.sirenOn;
+            this->engineOn       = props.engineOn;
+            this->tireColor      = props.tireColor;
+            this->windowTint     = props.windowTint;
         }
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
-            beaconLightsState.Serialize(bs, write);
+            beaconLightsOn.Serialize(bs, write);
+            colorPrimary.Serialize(bs, write);
+            colorSecondary.Serialize(bs, write);
+            dirt.Serialize(bs, write);
+            fuel.Serialize(bs, write);
             licensePlate.Serialize(bs, write);
-            locked.Serialize(bs, write);
-            radioId.Serialize(bs, write);
-            radioState.Serialize(bs, write);
-            sirenState.Serialize(bs, write);
+            lockState.Serialize(bs, write);
+            radioOn.Serialize(bs, write);
+            radioStationId.Serialize(bs, write);
+            rimColor.Serialize(bs, write);
+            rust.Serialize(bs, write);
+            sirenOn.Serialize(bs, write);
+            engineOn.Serialize(bs, write);
+            tireColor.Serialize(bs, write);
+            windowTint.Serialize(bs, write);
         }
 
         bool Valid() const override {
-            if (radioId.HasValue() && (radioId() >= -1 && radioId() < 4 /* E_RADIO_POLICE */))
+            if (licensePlate.HasValue() && licensePlate().GetLength() > 7) {
                 return false;
-            if (licensePlate.HasValue() && licensePlate().GetLength() > 7)
+            }
+
+            if (radioStationId.HasValue() && (radioStationId() >= -1 && radioStationId() < 4 /* E_RADIO_POLICE */)) {
                 return false;
+            }
+
             return true;
         }
     };

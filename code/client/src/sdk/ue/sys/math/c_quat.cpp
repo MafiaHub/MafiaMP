@@ -3,7 +3,7 @@
 #include "utils.hpp"
 
 #include <cmath>
-#include <utils/hooking/hooking.h>
+
 #include "../../../patterns.h"
 
 namespace SDK {
@@ -85,8 +85,7 @@ namespace SDK {
         }
 
         C_Quat C_Quat::operator*(const C_Quat &rhs) const {
-            return {(rhs.w * x) + (rhs.x * w) + (rhs.y * z) - (rhs.z * y), (rhs.w * y) - (rhs.x * z) + (rhs.y * w) + (rhs.z * x),
-                    (rhs.w * z) + (rhs.x * y) - (rhs.y * x) + (rhs.z * w), (rhs.w * w) - (rhs.x * x) - (rhs.y * y) - (rhs.z * z)};
+            return {(rhs.w * x) + (rhs.x * w) + (rhs.y * z) - (rhs.z * y), (rhs.w * y) - (rhs.x * z) + (rhs.y * w) + (rhs.z * x), (rhs.w * z) + (rhs.x * y) - (rhs.y * x) + (rhs.z * w), (rhs.w * w) - (rhs.x * x) - (rhs.y * y) - (rhs.z * z)};
         }
 
         C_Quat C_Quat::operator*(float rhs) const {

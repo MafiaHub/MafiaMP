@@ -3,7 +3,7 @@
 #include <logging/logger.h>
 
 #include "states/initialize.h"
-#include "states/menu.h"
+#include "states/main_menu.h"
 #include "states/session_connected.h"
 #include "states/session_connection.h"
 #include "states/session_disconnection.h"
@@ -42,7 +42,7 @@ namespace MafiaMP::Core {
         // Create the state machine and initialize
         _stateMachine = std::make_shared<Framework::Utils::States::Machine>();
         _stateMachine->RegisterState<States::InitializeState>();
-        _stateMachine->RegisterState<States::InMenuState>();
+        _stateMachine->RegisterState<States::MainMenuState>();
         _stateMachine->RegisterState<States::SessionConnectionState>();
         _stateMachine->RegisterState<States::SessionConnectedState>();
         _stateMachine->RegisterState<States::SessionDisconnectionState>();
@@ -62,10 +62,13 @@ namespace MafiaMP::Core {
         _input            = std::make_shared<MafiaMP::Game::GameInput>();
         _console          = std::make_shared<UI::MafiaConsole>(_commandProcessor, _input);
         _chat             = std::make_shared<UI::Chat>();
-        _web              = std::make_shared<UI::Web>();
-        
-        if (_web) {
-            _web->Init();
+        _webManager              = std::make_shared<UI::Web::Manager>();
+
+        if (_webManager) {
+            if (!_webManager->Init()) {
+                Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
+                return false;
+            }
         }
 
         _chat->SetOnMessageSentCallback([this](const std::string &msg) {
@@ -100,6 +103,10 @@ namespace MafiaMP::Core {
 
         // Setup Lua VM wrapper
         _luaVM = std::make_shared<LuaVM>();
+
+        // Setup the main menu UI
+        const auto vhConfiguration = _webManager->GetViewportConfiguration();
+        _mainMenuViewId            = _webManager->CreateView("https://mafiamp.web.app", vhConfiguration.width, vhConfiguration.height);
 
         return true;
     }
@@ -166,20 +173,12 @@ namespace MafiaMP::Core {
             _input->Update();
         }
 
-        if (_web) {
-            _web->Update();
-        }
-
-        if (GetAsyncKeyState(VK_F6) & 0x1) {
-            // _web->CreateView("test", 500, 500, "https://youtube.fr");
+        if (_webManager) {
+            _webManager->Update();
         }
     }
 
-    void Application::PostRender() {
-        if (_web) {
-            _web->Render();
-        }
-    }
+    void Application::PostRender() {}
 
     void Application::InitNetworkingMessages() {
         SetOnConnectionFinalizedCallback([this](flecs::entity newPlayer, float tickInterval) {
@@ -267,8 +266,12 @@ namespace MafiaMP::Core {
     }
 
     void Application::LockControls(bool lock) {
-        if (lock) _controlsLocked++;
-        else _controlsLocked = std::max(--_controlsLocked, 0);
+        if (lock) {
+            _controlsLocked++;
+        }
+        else {
+            _controlsLocked = std::max(--_controlsLocked, 0);
+        }
 
         if (_controlsLocked) {
             // Lock game controls
@@ -332,7 +335,13 @@ namespace MafiaMP::Core {
             if (!e.is_alive()) {
                 return;
             }
+
+            auto tr = e.get_mut<Framework::World::Modules::Base::Transform>();
+            *tr     = msg->GetTransform();
+
             const auto ekind = e.get<Shared::Modules::Mod::EntityKind>();
+            if (!ekind)
+                return;
             switch (ekind->kind) {
             case Shared::Modules::Mod::MOD_PLAYER: Core::Modules::Human::UpdateTransform(e); break;
             case Shared::Modules::Mod::MOD_VEHICLE: Core::Modules::Vehicle::UpdateTransform(e); break;

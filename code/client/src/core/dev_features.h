@@ -14,29 +14,33 @@
 #include <string>
 #include <vector>
 
+#include "ui/audio_debug.h"
 #include "ui/camera_studio.h"
 #include "ui/entity_browser.h"
-#include "ui/vehicle_debug.h"
 #include "ui/network_stats.h"
+#include "ui/player_debug.h"
+#include "ui/vehicle_debug.h"
+#include "ui/world_debug.h"
 
 #include "sdk/entities/c_human_2.h"
 
 namespace MafiaMP::Core {
     class DevFeatures final {
       private:
-        std::vector<Game::Streaming::EntityTrackingInfo *> _TEMP_vehicles;
         Game::Streaming::EntityTrackingInfo *_TEMP_HUMAN = nullptr;
 
-        bool _showEntityBrowser {false};
+        std::shared_ptr<UI::AudioDebug> _audioDebug {};
+
         std::shared_ptr<UI::EntityBrowser> _entityBrowser {};
 
-        bool _showCameraStudio {false};
         std::shared_ptr<UI::CameraStudio> _cameraStudio {};
 
-        bool _showVehicledebug {false};
+        std::shared_ptr<UI::PlayerDebug> _playerDebug {};
+
         std::shared_ptr<UI::VehicleDebug> _vehicleDebug {};
 
-        bool _showNetworkStats {false};
+        std::shared_ptr<UI::WorldDebug> _worldDebug {};
+
         std::shared_ptr<UI::NetworkStats> _networkStats {};
 
       public:
@@ -48,18 +52,19 @@ namespace MafiaMP::Core {
       private:
         void SetupCommands();
         void SetupMenuBar();
+
+        void ToggleAudioDebug();
+        void ToggleCameraStudio();
+        void ToggleEntityBrowser();
+        void ToggleNetworkStats();
+        void TogglePlayerDebug();
+        void ToggleVehicleDebug();
+        void ToggleWorldDebug();
+
         void Disconnect();
-        void DespawnAll();
-        void SpawnCrashObject();
-        void SpawnCar(std::string modelName = "shubert_e_six_p");
-        void SpawnRandomCar();
         void CrashMe();
         void BreakMe();
         void CloseGame();
-
-        void ToggleEntityBrowser();
-        void ToggleCameraStudio();
-        void ToggleVehicleDebug();
-        void ToggleNetworkStats();
+        void SpawnCrashObject();
     };
 } // namespace MafiaMP::Core

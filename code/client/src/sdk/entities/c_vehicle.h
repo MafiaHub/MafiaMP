@@ -1,14 +1,32 @@
 #pragma once
 
+
 #include "../ue/sys/math/c_matrix.h"
 #include "../ue/sys/math/c_vector.h"
 
 #include "../ue/game/audio/radio/c_radio_sound.h"
 #include "../ue/sys/core/c_scene_object.h"
 
+#include "../prefab/c_prefab_init_data.h"
+
+#include "../ue/game/vehicle/c_synchro_command_manager.h"
+#include "../ue/game/vehicle/c_vehicle_real_light_manager.h"
+
 #include <cstdint>
 
 namespace SDK {
+    enum E_VehicleFlags {
+        FLAG_INDICATOR_LEFT = 0x8,
+        FLAG_INDICATOR_RIGHT = 0x10,
+        FLAG_BEACON_LIGHTS = 0x40,
+        FLAG_TAXI_LIGHTS   = 0x80,
+    };
+
+    enum E_VehicleIndicator {
+        INDICATOR_RIGHT = 0,
+        INDICATOR_LEFT  = 1,
+    };
+
     class C_Vehicle {
       public:
         void AddVehicleFlags(uint64_t);
@@ -29,10 +47,7 @@ namespace SDK {
             return m_fHandBreak;
         }
 
-        void SetEngineOn(bool arg1, bool arg2);
-        bool IsEngineOn() const {
-            return false;
-        }
+        void SetEngineOn(bool on, bool arg2);
 
         void SetPower(float power);
         float GetPower() const {
@@ -40,9 +55,7 @@ namespace SDK {
         }
 
         void SetSiren(bool on);
-        bool GetSiren() const {
-            return false;
-        }
+        bool IsSiren();
 
         void SetSteer(float steer);
         float GetSteer() const {
@@ -56,56 +69,70 @@ namespace SDK {
 
         void SetSpeed(ue::sys::math::C_Vector const &speed, bool arg2, bool arg3);
         const ue::sys::math::C_Vector &GetSpeed() const {
-            return m_Velocity;
+            return m_vVelocity;
         }
 
         void SetAngularSpeed(ue::sys::math::C_Vector const &speed, bool arg2);
         const ue::sys::math::C_Vector &GetAngularSpeed() const {
-            return m_AngularVelocity;
+            return m_vAngularVelocity;
         }
 
         void SetVehicleDirty(float level);
         float GetVehicleDirty() const {
-            return m_fDirtLevel;
+            return m_fDirty;
         }
 
         void SetVehicleRust(float rust);
         float GetVehicleRust() const {
-            return m_fRustLevel;
+            return m_fRust;
         }
 
-        void SetVehicleColor(ue::sys::math::C_Vector4 const *, ue::sys::math::C_Vector4 const *, bool);
-        void GetVehicleColor(ue::sys::math::C_Vector4 *, ue::sys::math::C_Vector4 *) const;
+        void SetVehicleColor(ue::sys::math::C_Vector4 const *color1, ue::sys::math::C_Vector4 const *color2, bool metallic);
+        void GetVehicleColor(ue::sys::math::C_Vector4 *color1, ue::sys::math::C_Vector4 *color2) const;
 
         void SetWindowTintColor(const ue::sys::math::C_Vector4 &color);
         const ue::sys::math::C_Vector4 GetWindowTintColor() const {
-            return m_WindowTint;
+            return m_vWindowTint;
         }
 
-        void SetWheelTintColor(const ue::sys::math::C_Vector4 &color);
-        const ue::sys::math::C_Vector4 GetWheelTintColor() const {
-            return m_WheelsTint;
-        }
+        void SetWheelColor(ue::sys::math::C_Vector4 const *rimColor, ue::sys::math::C_Vector4 const *tireColor);
+        void GetWheelColor(ue::sys::math::C_Vector4 *rimColor, ue::sys::math::C_Vector4 *tireColor) const;
 
-        void SetInteriorColors(ue::sys::math::C_Vector4 const *, ue::sys::math::C_Vector4 const *, ue::sys::math::C_Vector4 const *, ue::sys::math::C_Vector4 const *,
-                               ue::sys::math::C_Vector4 const *);
-
-        void GetInteriorColors(ue::sys::math::C_Vector4 *, ue::sys::math::C_Vector4 *, ue::sys::math::C_Vector4 *, ue::sys::math::C_Vector4 *, ue::sys::math::C_Vector4 *) const;
+        void SetInteriorColors(ue::sys::math::C_Vector4 const *color1, ue::sys::math::C_Vector4 const *color2, ue::sys::math::C_Vector4 const *color3, ue::sys::math::C_Vector4 const *color4, ue::sys::math::C_Vector4 const *color5);
+        void GetInteriorColors(ue::sys::math::C_Vector4 *color1, ue::sys::math::C_Vector4 *color2, ue::sys::math::C_Vector4 *color3, ue::sys::math::C_Vector4 *color4, ue::sys::math::C_Vector4 *color5) const;
 
         void GetDamageBrakes(float &brake1, float &brake2) const;
         void DamageBrakes(float brake1, float brake2);
 
         void SetDoorFree(int doorIdx, bool arg2, bool arg3);
         void SetGear(int gear);
+
+        bool IsIndicatorLightOn(E_VehicleIndicator indicator) {
+            return (m_uAdditionalLightFlags & (indicator == E_VehicleIndicator::INDICATOR_LEFT ? E_VehicleFlags::FLAG_INDICATOR_LEFT : E_VehicleFlags::FLAG_INDICATOR_RIGHT)) != 0;
+        }
+        void SetIndicatorLightsOn(bool, E_VehicleIndicator);
+
+        void SetReflectorLightsOn(bool front, bool rear);
+
         void SetBeaconLightsOn(bool on);
-        bool AreBeaconLightsOn() {
-            return false;
+        bool GetBeaconLightsOn() {
+            return (m_uAdditionalLightFlags & E_VehicleFlags::FLAG_BEACON_LIGHTS) != 0;
         }
         void SetSearchLightsOn(bool on);
+
         void SetSpeedLimiter(bool on);
+
+        void SetTaxiLightsOn(bool on);
+        bool GetTaxiLightsOn() {
+            return (m_uAdditionalLightFlags & E_VehicleFlags::FLAG_TAXI_LIGHTS) != 0;
+        }
+
         void SetActive(bool active);
         bool IsActive(int arg1 = 0);
+
         void Damage(bool arg1);
+
+        bool IsAnyLightOn();
 
         bool IsRadioOn();
         void EnableRadio(bool enable);
@@ -113,40 +140,48 @@ namespace SDK {
         uint32_t GetRadioStation();
         void ChangeRadioStation(uint32_t stationSelection);
 
+        ue::game::vehicle::C_VehicleRealLightManager* GetRealLightManager() {
+            return m_pRealLightManager;
+        }
+
       private:
-#ifdef NONSTEAM_SUPPORT
-        char pad_0000[1052];
-#else
-        char pad_0000[1036];
-#endif
-
-        // 0x268 is VTABLE for radio interface
-
-        ue::sys::math::C_Vector m_Velocity;        // 0x040C
-        ue::sys::math::C_Vector m_AngularVelocity; // 0x0418
-        char pad_0424[1444];                       // 0x0424
-        float m_fBreak;                            // 0x09C8
-        char pad_09CC[4];                          // 0x09CC
-        float m_fHandBreak;                        // 0x09D0
-        float m_fPower;                            // 0x09D4
-        char pad_09D8[76];                         // 0x09D8
-        float m_fSteer;                            // 0x0A24
-        char pad_0A88[96];
-        bool m_bHorn;                          // 0x0A88 - 0x0A89
-        char pad_0AF0[103];                    // 0x0AF0
-        float m_fBrakeHealth1;                 // 0x0AF0 - 0x0AF4
-        float m_fBrakeHealth2;                 // 0x0AF4 - 0x0AF8
-        char pad_0BB0[184];                    // 0x0AF8 - 0x0BB0
-        ue::sys::math::C_Vector4 m_Color1;     // 0x0BB0 - 0x0BC0
-        ue::sys::math::C_Vector4 m_Color2;     // 0x0BC0 - 0x0BD0
-        ue::sys::math::C_Vector4 m_WindowTint; // 0x0BD0 - 0x0BE0
-        ue::sys::math::C_Vector4 m_WheelsTint; // 0x0BE0 - 0x0BF0
-        char pad_0C08[24];
-        ue::sys::math::C_Vector4 m_InteriorColors[5]; // 0x0C08 - 0x0C58
-        char pad_0C60[8];
-        float m_fDirtLevel; // 0x0C60 - 0x0C64
-        float m_fRustLevel; // 0x0C64 - 0x0C68
-        char pad_00X0[0x890];
-        SDK::ue::game::audio::radio::C_RadioSound *m_RadioSound = nullptr; // 0x14F8 (NB: IDA says 0x1290 is the offset... yet the game says 0x14F8?
+        char pad_base[0x270];
+        ue::game::vehicle::C_SynchroCommandManager *m_pSynchroCommandMgr;  // 0270 - 0278
+        char pad0[0xA8];                                                   // 0278 - 0320
+        prefab::S_PrefabInitData *m_pPrefabInitData;                       // 0320 - 0328
+        char pad1[0xE4];                                                   // 0328 - 040C
+        ue::sys::math::C_Vector m_vVelocity;                               // 040C - 0418
+        ue::sys::math::C_Vector m_vAngularVelocity;                        // 0418 - 0424
+        char pad2[0x5A4];                                                  // 0424 - 09C8
+        float m_fBreak;                                                    // 09C8 - 09CC
+        char pad3[0x4];                                                    // 09CC - 09D0
+        float m_fHandBreak;                                                // 09D0 - 09D4
+        float m_fPower;                                                    // 09D4 - 09D8
+        char pad4[0x4C];                                                   // 09D8 - 0A24
+        float m_fSteer;                                                    // 0A24 - 0A28
+        char pad5[0x60];                                                   // 0A28 - 0A88
+        bool m_bHorn;                                                      // 0A88 - 0A89
+        char pad6[0x67];                                                   // 0A89 - 0AF0
+        float m_fBrakeHealth1;                                             // 0AF0 - 0AF4
+        float m_fBrakeHealth2;                                             // 0AF4 - 0AF8
+        char pad7[0xB8];                                                   // 0AF8 - 0BB0
+        ue::sys::math::C_Vector4 m_vColor1;                                // 0BB0 - 0BC0
+        ue::sys::math::C_Vector4 m_vColor2;                                // 0BC0 - 0BD0
+        ue::sys::math::C_Vector4 m_vWindowTint;                            // 0BD0 - 0BE0
+        ue::sys::math::C_Vector4 m_vWheelColor;                            // 0BE0 - 0BF0
+        ue::sys::math::C_Vector4 m_vTireColor;                             // 0BF0 - 0C00
+        char pad8[0x8];                                                    // 0C00 - 0C08
+        ue::sys::math::C_Vector4 m_vInteriorColors[5];                     // 0C08 - 0C58
+        char pad9[0x8];                                                    // 0C58 - 0C60
+        float m_fDirty;                                                    // 0C60 - 0C64
+        float m_fRust;                                                     // 0C64 - 0C68
+        char pad10[0x88];                                                  // 0C68 - 0CF0
+        ue::game::vehicle::C_VehicleRealLightManager *m_pRealLightManager; // 0CF0 - 0CF8
+        char pad11[0x8];                                                   // 0CF8 - 0D00
+        uint64_t m_uAdditionalLightFlags;                                  // 0D00 - 0D08
+        char pad12[0x428];                                                 // 0D08 - 1130
+        char m_pSPZText[7];                                                // 1130 - 1137
+        char pad13[0x3C1];                                                 // 1137 - 14F8
+        ue::game::audio::radio::C_RadioSound *m_pRadioSound;               // 14F8 - 1500
     };
 } // namespace SDK

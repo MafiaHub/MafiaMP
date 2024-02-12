@@ -2,8 +2,6 @@
 
 #include "../../../patterns.h"
 
-#include <utils/hooking/hooking.h>
-
 namespace SDK {
     namespace ue::sys::core {
         C_Core *I_Core::GetInstance() {

@@ -1,5 +1,3 @@
-console.log("Hello from the gamemode!");
-
 const vehicleSpawns = [
     {
         modelName: "berkley_810",
@@ -273,14 +271,15 @@ const vehicleSpawns = [
     },
 ];
 
-const weatherSets = [
-    "mm_030_molotov_cp_010_cine",
-    "mm_150_boat_cp_010",
-    "mm_210_gallery_cp_050",
-];
+const weatherSets = ["mm_030_molotov_cp_010_cine", "mm_150_boat_cp_010", "mm_210_gallery_cp_050"];
+
+const SPAWN_POINT = {
+    pos: sdk.Vector3(-985.871, -299.401, 2.1),
+    rot: sdk.Quaternion(0.291, 0, 0, -0.957),
+};
 
 sdk.on("gamemodeLoaded", () => {
-    console.log('[GAMEMODE] Gamemode loaded!')
+    console.log("[GAMEMODE] Gamemode loaded!");
 
     // Spawn vehicles
     for (const veh of vehicleSpawns) {
@@ -291,9 +290,7 @@ sdk.on("gamemodeLoaded", () => {
     console.log(`[GAMEMODE] spawned ${vehicleSpawns.length} vehicles!`);
 
     // Weather
-    const selectedSet = weatherSets[
-        Math.floor(Math.random() * weatherSets.length)
-    ];
+    const selectedSet = weatherSets[Math.floor(Math.random() * weatherSets.length)];
     sdk.Environment.setWeather(selectedSet);
 
     // Clock
@@ -305,49 +302,331 @@ sdk.on("gamemodeLoaded", () => {
     }, 1000);
 });
 
-sdk.on("playerConnected", (player) => {
-    console.log(`[GAMEMODE] Player ${player.getNickname()} connected!`);
-    player.sendChatToAll(`[SERVER] ${player.getNickname()} has joined the session!`);
+sdk.on("gamemodeUnloading", () => {
+    console.log("[GAMEMODE] Gamemode unloading!");
+});
 
-    // player.addWeapon(20, 200); // TODO: Not working yet
-    player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
-    player.sendChat(`[SERVER] Welcome ${player.getNickname()}!`)
+sdk.on("vehiclePlayerEnter", (vehicle, player, seatIndex) => {
+    console.log(`[GAMEMODE] Player ${player.nickname} entered vehicle ${vehicle.name} = ${seatIndex}!`);
+    vehicle.setEngineOn(true);
+});
+
+sdk.on("vehiclePlayerLeave", (vehicle, player) => {
+    console.log(`[GAMEMODE] Player ${player.nickname} exited vehicle ${vehicle.name}!`);
+    vehicle.setEngineOn(false);
+});
+
+sdk.on("playerConnected", (player) => {
+    console.log(`[GAMEMODE] Player ${player.nickname} connected!`);
+    player.sendChatToAll(`[SERVER] ${player.nickname} has joined the session!`);
+
+    player.addWeapon(2, 200);
+    player.setPosition(SPAWN_POINT.pos);
+    player.setRotation(SPAWN_POINT.rot);
+    player.sendChat(`[SERVER] Welcome ${player.nickname}!`);
 });
 
 sdk.on("playerDisconnected", (player) => {
-    console.log(`[GAMEMODE] Player ${player.getNickname()} disconnected!`);
-    player.sendChatToAll(`[SERVER] ${player.getNickname()} has left the session!`);
+    console.log(`[GAMEMODE] Player ${player.nickname} disconnected!`);
+    player.sendChatToAll(`[SERVER] ${player.nickname} has left the session!`);
 });
 
 sdk.on("playerDied", (player) => {
-    console.log(`[GAMEMODE] Player ${player.getNickname()} died!`);
-    player.sendChatToAll(`[SERVER] Player ${player.getNickname()} died!`);
+    console.log(`[GAMEMODE] Player ${player.nickname} died!`);
+    player.sendChatToAll(`[SERVER] Player ${player.nickname} died!`);
 
     // Respawn the player
     player.setHealth(100.0);
-    player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
+    player.setPosition(SPAWN_POINT.pos);
+    player.setRotation(SPAWN_POINT.rot);
 });
 
 sdk.on("chatMessage", (player, message) => {
-    console.log(`[GAMEMODE] Player ${player.getNickname()} said: ${message}`);
-    sdk.Chat.sendToAll(`<${player.getNickname()}>: ${message}`);
+    console.log(`[GAMEMODE] Player ${player.nickname} said: ${message}`);
+    sdk.Chat.sendToAll(`<${player.nickname}>: ${message}`);
 });
 
+const REGISTERED_CHAT_COMMANDS = new Map();
+
 sdk.on("chatCommand", (player, message, command, args) => {
-    console.log(`[GAMEMODE] Player ${player.getNickname()} used: ${command}. (${message})`);
+    console.log(`[GAMEMODE] Player ${player.nickname} used: ${command}. (${message})`);
 
-    switch (command) {
-        case 'home':
-            player.setPosition(sdk.Vector3(-989.397, -289.772, 2.805));
-            player.sendChat(`[SERVER] Teleported to home!`)
-            break
+    const foundCommand = REGISTERED_CHAT_COMMANDS.get(command);
 
-        case 'showArgs':
-            sdk.Chat.sendToAll(`[SERVER] Player ${player.getNickname()} used /showArgs with args: ${args}`);
-            break
-
-        default:
-            sdk.Chat.sendToPlayer(player, `[SERVER] Unknown command "${command}"`);
-            break
+    if (!foundCommand) {
+        sdk.Chat.sendToPlayer(player, `[SERVER] Unknown command "${command}"`);
+        return;
     }
+
+    foundCommand(player, message, command, args);
+});
+
+function RegisterChatCommand(name, handler) {
+    REGISTERED_CHAT_COMMANDS.set(name, handler);
+}
+
+RegisterChatCommand("showArgs", (player, message, command, args) => {
+    sdk.Chat.sendToAll(`[SERVER] Player ${player.nickname} used /showArgs with args: ${args}`);
+});
+
+RegisterChatCommand("heal", (player, message, command, args) => {
+    player.setHealth(100);
+    player.sendChat(`[SERVER] Health restored!`);
+});
+
+const TP_DESTINATIONS = {
+    spawn: SPAWN_POINT,
+    start: {
+        pos: sdk.Vector3(-916.0, -210.0, 2.605),
+        rot: sdk.Quaternion(0.707, 0.0, 0.0, 0.707),
+    },
+    autodrome: {
+        pos: sdk.Vector3(-1915.627, 10.715, 17.566),
+        rot: sdk.Quaternion(0.99, 0.0, 0.0, 0.139),
+    },
+};
+
+RegisterChatCommand("tp", (player, message, command, args) => {
+    const tpDestName = args[0];
+    const foundTpDest = TP_DESTINATIONS[tpDestName];
+
+    if (!foundTpDest) {
+        player.sendChat(`[SERVER] Teleportation failed. Unknown destination ${tpDestName}`);
+        return;
+    }
+
+    player.setPosition(foundTpDest.pos);
+    player.setRotation(foundTpDest.rot);
+    player.sendChat(`[SERVER] Teleported to ${tpDestName}!`);
+});
+
+RegisterChatCommand("coords", (player, message, command, args) => {
+    let x = args[0];
+    let y = args[1];
+    let z = args[2];
+
+    if (x == null || y == null || z == null) {
+        player.sendChat(`[SERVER] You must provide x, y and z!`);
+        return;
+    }
+
+    x = parseFloat(x);
+    y = parseFloat(y);
+    z = parseFloat(z);
+
+    player.setPosition(sdk.Vector3(x, y, z));
+    player.sendChat(`[SERVER] Teleported to ${x}, ${y}, ${z}!`);
+});
+
+RegisterChatCommand("pos", (player, message, command, args) => {
+    const pos = player.getPosition();
+    const rot = player.getRotation();
+
+    const parse = (x) =>
+        parseFloat(x)
+            .toFixed(3)
+            .replace(/\.?0+$/, "");
+
+    const posParsedMessage = `${parse(pos.x)}, ${parse(pos.y)}, ${parse(pos.z)}`;
+    const rotParsedMessage = `${parse(rot.w)}, ${parse(rot.x)}, ${parse(rot.y)}, ${parse(rot.z)}`;
+
+    player.sendChat(`[SERVER] Position: ${posParsedMessage}`);
+    player.sendChat(`[SERVER] Rotation: ${rotParsedMessage}`);
+
+    // Log in console for easy copy-paste
+    console.log(`[GAMEMODE] Player Position: ${posParsedMessage}`);
+    console.log(`[GAMEMODE] Player Rotation: ${rotParsedMessage}`);
+});
+
+RegisterChatCommand("veh", (player, message, command, args) => {
+    const modelName = args[0] ?? "berkley_810";
+    const veh = sdk.World.createVehicle(modelName);
+
+    if (!veh) {
+        // Condition doesn't works well yet, still an object even if the vehicle doesn't exist
+        player.sendChat(`[SERVER] Unable to create vehicle ${modelName}!`);
+        return;
+    }
+
+    veh.setPosition(player.getPosition());
+    veh.setRotation(player.getRotation());
+
+    player.sendChat(`[SERVER] Vehicle ${modelName} created!`);
+});
+
+RegisterChatCommand("vehid", (player, message, command, args) => {
+    const veh = player.getVehicle();
+
+    if (!veh) {
+        player.sendChat(`[SERVER] You're not in a vehicle!`);
+        return;
+    }
+
+    player.sendChat(`[SERVER] Vehicle id: ${veh.id}, name: ${veh.name}!`);
+});
+
+RegisterChatCommand("plate", (player, message, command, args) => {
+    const veh = player.getVehicle();
+
+    if (!veh) {
+        player.sendChat(`[SERVER] You're not in a vehicle!`);
+        return;
+    }
+
+    const licensePlate = args[0];
+    veh.setLicensePlate(licensePlate);
+
+    const newLicensePlate = veh.getLicensePlate();
+    player.sendChat(`[SERVER] License plate is ${newLicensePlate.length > 0 ? newLicensePlate : "empty"}!`);
+});
+
+RegisterChatCommand("dirt", (player, message, command, args) => {
+    const veh = player.getVehicle();
+
+    if (!veh) {
+        player.sendChat(`[SERVER] You're not in a vehicle!`);
+        return;
+    }
+
+    const dirt = parseFloat(args[0]);
+    if (isNaN(dirt)) {
+        player.sendChat(`[SERVER] You must provide a dirt value!`);
+        return;
+    }
+
+    veh.setDirt(dirt);
+    player.sendChat(`[SERVER] Dirt changed to ${veh.getDirt()}!`);
+});
+
+RegisterChatCommand("radio", (player, message, command, args) => {
+    const veh = player.getVehicle();
+
+    if (!veh) {
+        player.sendChat(`[SERVER] You're not in a vehicle!`);
+        return;
+    }
+
+    if (args[0] == null) {
+        veh.setRadioOn(!veh.getRadioOn());
+        player.sendChat(`[SERVER] Radio turned to ${veh.getRadioOn() ? "on" : "off"}!`);
+        return;
+    }
+
+    const radioStationId = parseInt(args[0], 10);
+    if (isNaN(radioStationId)) {
+        player.sendChat(`[SERVER] Wrong radio id.`);
+        return;
+    }
+
+    veh.setRadioStationId(radioStationId);
+    veh.setRadioOn(true);
+    player.sendChat(`[SERVER] Radio station setted to: ${veh.getRadioStationId()}!`);
+});
+
+RegisterChatCommand("rust", (player, message, command, args) => {
+    const veh = player.getVehicle();
+
+    if (!veh) {
+        player.sendChat(`[SERVER] You're not in a vehicle!`);
+        return;
+    }
+
+    const rust = parseFloat(args[0]);
+    if (isNaN(rust)) {
+        player.sendChat(`[SERVER] You must provide a rust value!`);
+        return;
+    }
+
+    veh.setRust(rust);
+    player.sendChat(`[SERVER] Rust changed to ${veh.getRust()}!`);
+});
+
+RegisterChatCommand("fuel", (player, message, command, args) => {
+    const veh = player.getVehicle();
+
+    if (!veh) {
+        player.sendChat(`[SERVER] You're not in a vehicle!`);
+        return;
+    }
+
+    const fuel = parseFloat(args[0]);
+    if (isNaN(fuel)) {
+        player.sendChat(`[SERVER] You must provide a fuel value!`);
+        return;
+    }
+
+    veh.setFuel(fuel);
+    player.sendChat(`[SERVER] Fuel changed to ${veh.getFuel()}!`);
+});
+
+RegisterChatCommand("colors", (player, message, command, args) => {
+    const veh = player.getVehicle();
+
+    if (!veh) {
+        player.sendChat(`[SERVER] You're not in a vehicle!`);
+        return;
+    }
+
+    const getRandomColor = () => Math.floor(Math.random() * 256);
+    const wantedColorPrimary = sdk.RGB(getRandomColor(), getRandomColor(), getRandomColor());
+    const wantedColorSecondary = sdk.RGB(getRandomColor(), getRandomColor(), getRandomColor());
+
+    veh.setColorPrimary(wantedColorPrimary);
+    veh.setColorSecondary(wantedColorSecondary);
+
+    const colorPrimary = veh.getColorPrimary();
+    player.sendChat(`[SERVER] Primary color changed to rgb: ${colorPrimary.r}, ${colorPrimary.g}, ${colorPrimary.b}`);
+
+    const colorSecondary = veh.getColorSecondary();
+    player.sendChat(
+        `[SERVER] Secondary color changed to rgb: ${colorSecondary.r}, ${colorSecondary.g}, ${colorSecondary.b}`
+    );
+});
+
+RegisterChatCommand("wheelcol", (player, message, command, args) => {
+    const veh = player.getVehicle();
+
+    if (!veh) {
+        player.sendChat(`[SERVER] You're not in a vehicle!`);
+        return;
+    }
+
+    const getRandomColor = () => Math.floor(Math.random() * 256);
+    const wantedRimColor = sdk.RGB(getRandomColor(), getRandomColor(), getRandomColor());
+    const wantedTireColor = sdk.RGB(getRandomColor(), getRandomColor(), getRandomColor());
+
+    veh.setRimColor(wantedRimColor);
+    veh.setTireColor(wantedTireColor);
+
+    const rimColor = veh.getRimColor();
+    player.sendChat(`[SERVER] Rim color changed to rgb: ${rimColor.r}, ${rimColor.g}, ${rimColor.b}`);
+
+    const tireColor = veh.getTireColor();
+    player.sendChat(`[SERVER] Tire color changed to rgb: ${tireColor.r}, ${tireColor.g}, ${tireColor.b}`);
+});
+
+RegisterChatCommand("wintint", (player, message, command, args) => {
+    const veh = player.getVehicle();
+
+    if (!veh) {
+        player.sendChat(`[SERVER] You're not in a vehicle!`);
+        return;
+    }
+
+    const getRandomColor = () => Math.floor(Math.random() * 256);
+
+    veh.setWindowTint(sdk.RGBA(getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor()));
+
+    const windowTint = veh.getWindowTint();
+    player.sendChat(
+        `[SERVER] Window tint changed to rgba: ${windowTint.r}, ${windowTint.g}, ${windowTint.b}, ${windowTint.a}`
+    );
+});
+
+RegisterChatCommand("wep", (player, message, command, args) => {
+    // TODO: doesn't works yet
+
+    const weaponId = parseInt(args[0], 10) ?? 85;
+    player.addWeapon(weaponId, 200);
+    player.sendChat(`[SERVER] Weapon (id: ${weaponId}) received!`);
 });

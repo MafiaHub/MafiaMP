@@ -1,6 +1,5 @@
 #include "c_fire.h"
 
-#include <utils/hooking/hooking.h>
 #include "../../../patterns.h"
 
 namespace SDK {
@@ -8,5 +7,5 @@ namespace SDK {
         void C_Fire::Clear() {
             hook::this_call<void>(gPatterns.C_Fire__Clear, this);
         }
-    }
-}
+    } // namespace ue::game::shotmanager
+} // namespace SDK

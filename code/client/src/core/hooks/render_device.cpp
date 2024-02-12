@@ -13,11 +13,11 @@
 
 #include "../../game/module.h"
 
-#include "../../sdk/ue/c_application_win32.h"
-#include "../../sdk/ue/sys/render/device/c_d3d11_window_context_cache.h"
-#include "../../sdk/ue/sys/render/device/c_direct_3d11_render_device.h"
-#include "../../sdk/ue/sys/render/device/c_dynamic_vi_buffer_pool.h"
-#include "../../sdk/ue/sys/render/device/s_render_device_desc.h"
+#include "sdk/ue/c_application_win32.h"
+#include "sdk/ue/sys/render/device/c_d3d11_window_context_cache.h"
+#include "sdk/ue/sys/render/device/c_direct_3d11_render_device.h"
+#include "sdk/ue/sys/render/device/c_dynamic_vi_buffer_pool.h"
+#include "sdk/ue/sys/render/device/s_render_device_desc.h"
 
 typedef bool(__fastcall *C_Direct3D11RenderDevice__Init_t)(SDK::ue::sys::render::device::C_Direct3D11RenderDevice *pThis, SDK::ue::sys::render::device::S_RenderDeviceDesc const &a2, SDK::ue::sys::render::device::C_DynamicVIBufferPool &a3, void *idk);
 C_Direct3D11RenderDevice__Init_t C_Direct3D11RenderDevice__Init_original = nullptr;
@@ -37,6 +37,7 @@ HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT fla
         const auto app = MafiaMP::Core::gApplication.get();
         if (app && app->IsInitialized()) {
             app->GetImGUI()->Render();
+            app->GetWebManager()->Render();
         }
     }
 
@@ -46,24 +47,44 @@ HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT fla
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     const auto app = MafiaMP::Core::gApplication.get();
     if (app && app->IsInitialized()) {
+        // Tick the input system from framework
         app->GetInput()->ProcessEvent(hWnd, msg, wParam, lParam);
 
-        if (app->GetImGUI()->ProcessEvent(hWnd, msg, wParam, lParam) == Framework::External::ImGUI::InputState::BLOCK) {
+        // Push the input to ImGui
+        if (app->AreControlsLocked() && app->GetImGUI()->ProcessEvent(hWnd, msg, wParam, lParam) == Framework::External::ImGUI::InputState::BLOCK) {
             return 0;
         }
     }
 
     switch (msg) {
-    /*case WM_SIZE:
-        auto gfx    = gCore->GetGfx();
-        auto device = gfx->GetDevice();
-        if (device != NULL && wParam != SIZE_MINIMIZED) {
-            auto swapchain = gfx->GetSwapChain();
-            gfx->CleanupRenderTarget();
-            swapchain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
-            gfx->CreateRenderTarget();
+    // Web handler inputs
+    case WM_MOUSEWHEEL:
+    case WM_MOUSEMOVE:
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
+    case WM_MBUTTONDOWN:
+    case WM_MBUTTONUP: {
+        if (app && app->IsInitialized()) {
+            if (app->GetWebManager()) {
+                app->GetWebManager()->ProcessMouseEvent(hWnd, msg, wParam, lParam);
+            }
         }
-        return 0;*/
+    } break;
+
+    case WM_CHAR:
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
+    case WM_KEYUP:
+    case WM_SYSKEYUP: {
+        if (app && app->IsInitialized()) {
+            if (app->GetWebManager()) {
+                app->GetWebManager()->ProcessKeyboardEvent(hWnd, msg, wParam, lParam);
+            }
+        }
+    } break;
+
     case WM_SYSCOMMAND:
         if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
             return 0;
@@ -89,7 +110,7 @@ int64_t C_WindowProcHandler__CreateMainWindow(void *_this, SDK::ue::C_Applicatio
     MafiaMP::Game::gGlobals.window = appWin32->m_pWindow;
 
     // Update the main window title asap
-    SetWindowTextA(MafiaMP::Game::gGlobals.window, "Mafia: Advanced Multiplayer Edition");
+    SetWindowTextA(MafiaMP::Game::gGlobals.window, "Mafia: Multiplayer");
 
     // Patch the wind proc handler
     g_pOriginalWndProcHandler = (WNDPROC)SetWindowLongPtrW(MafiaMP::Game::gGlobals.window, GWLP_WNDPROC, (LONG_PTR)WndProc);

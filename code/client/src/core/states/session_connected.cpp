@@ -25,9 +25,6 @@ namespace MafiaMP::Core::States {
     bool SessionConnectedState::OnEnter(Framework::Utils::States::Machine *) {
         // Reset camera by player
         //TODO
-
-        // Give back controls
-        MafiaMP::Game::Helpers::Controls::Lock(false);
         return true;
     }
 

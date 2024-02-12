@@ -1,123 +1,70 @@
 #pragma once
 
+#include "core/modules/vehicle.h"
+
 #include "integrations/server/scripting/builtins/node/entity.h"
 #include "scripting/engines/node/engine.h"
-#include "scripting/engines/node/sdk.h"
-#include "shared/modules/vehicle_sync.hpp"
-#include "core/modules/vehicle.h"
-#include "core/modules/vehicle.h"
-#include "shared/game_rpc/set_vehicledata.h"
-#include "shared/game_rpc/vehicle/vehicle_setprops.h"
+
+#include "scripting/engines/node/builtins/color_rgb.h"
+#include "scripting/engines/node/builtins/color_rgba.h"
 
 namespace MafiaMP::Scripting {
     class Vehicle final: public Framework::Integrations::Scripting::Entity {
       public:
         Vehicle(flecs::entity_t ent): Entity(ent) {}
 
-        std::string ToString() const override {
-            std::ostringstream ss;
-            ss << "Vehicle{ id: " << _ent.id() << " }";
-            return ss.str();
-        }
+        static void EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex);
+        static void EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player);
 
-        bool GetBeaconLightsEnabled() {
-            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return syncData->beaconLightsState;
-        }
+        static void Register(v8::Isolate *isolate, v8pp::module *rootModule);
 
-        void SetBeaconLightsEnabled(bool state) {
-            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            carData->beaconLightsState = state;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.beaconLightsState = state;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
+        std::string ToString() const override;
 
-        std::string GetLicensePlate() {
-            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return carData->licensePlate;
-        }
+        bool GetBeaconLightsOn();
+        void SetBeaconLightsOn(bool on);
 
-        void SetLicensePlate(std::string plate) {
-            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            ::memcpy(carData->licensePlate, plate.c_str(), std::min(sizeof(carData->licensePlate), plate.length()));
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.licensePlate = plate.c_str();
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
+        v8::Local<v8::Object> GetColorPrimary();
+        void SetColorPrimary(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb);
 
-        Shared::Modules::VehicleSync::LockState GetLockState() {
-            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return carData->locked;
-        }
+        v8::Local<v8::Object> GetColorSecondary();
+        void SetColorSecondary(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb);
 
-        void Lock(Shared::Modules::VehicleSync::LockState state) {
-            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            carData->locked = state;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.locked = state;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
+        float GetDirt();
+        void SetDirt(float dirt);
 
-        bool GetRadioEnabled() {
-            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return syncData->radioState;
-        }
+        bool GetEngineOn();
+        void SetEngineOn(bool on);
 
-        void SetRadioEnabled(bool state) {
-            auto carData     = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            carData->radioState = state;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.radioState = state;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
+        float GetFuel();
+        void SetFuel(float fuel);
 
-        int GetRadioStation() {
-            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return syncData->radioId;
-        }
+        std::string GetLicensePlate();
+        void SetLicensePlate(std::string plate);
 
-        void SetRadioStation(int id) {
-            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            carData->radioId = id;
-            MafiaMP::Shared::RPC::VehicleSetProps msg{};
-            msg.radioId = id;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
+        Shared::Modules::VehicleSync::LockState GetLockState();
+        void SetLockState(Shared::Modules::VehicleSync::LockState state);
 
-        bool GetSirenEnabled() {
-            auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            return syncData->sirenState;
-        }
+        bool GetRadioOn();
+        void SetRadioOn(bool on);
 
-       void SetSirenEnabled(bool state) {
-            auto carData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            carData->sirenState = state;
-            MafiaMP::Shared::RPC::VehicleSetProps msg {};
-            msg.sirenState = state;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-        }
+        int GetRadioStationId();
+        void SetRadioStationId(int id);
 
-        static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
-            if (!rootModule) {
-                return;
-            }
+        v8::Local<v8::Object> GetRimColor();
+        void SetRimColor(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb);
 
-            v8pp::class_<Vehicle> cls(isolate);
-            cls.inherit<Framework::Integrations::Scripting::Entity>();
-            cls.function("getBeaconLightsEnabled", &Vehicle::GetBeaconLightsEnabled);
-            cls.function("setBeaconLightsEnabled", &Vehicle::SetBeaconLightsEnabled);
-            cls.function("getLicensePlate", &Vehicle::GetLicensePlate);
-            cls.function("setLicensePlate", &Vehicle::SetLicensePlate);
-            cls.function("getLockState", &Vehicle::GetLockState);
-            cls.function("setLockState", &Vehicle::Lock);
-            cls.function("getRadioEnabled", &Vehicle::GetRadioEnabled);
-            cls.function("setRadioEnabled", &Vehicle::SetRadioEnabled);
-            cls.function("getRadioStation", &Vehicle::GetRadioStation);
-            cls.function("setRadioStation", &Vehicle::SetRadioStation);
-            cls.function("getSirenEnabled", &Vehicle::GetSirenEnabled);
-            cls.function("setSirenEnabled", &Vehicle::SetSirenEnabled);
-            rootModule->class_("Vehicle", cls);
-        }
+        float GetRust();
+        void SetRust(float rust);
+
+        bool GetSirenOn();
+        void SetSirenOn(bool on);
+
+        v8::Local<v8::Object> GetTireColor();
+        void SetTireColor(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb);
+
+        v8::Local<v8::Object> GetWindowTint();
+        void SetWindowTint(Framework::Scripting::Engines::Node::Builtins::ColorRGBA tint);
+
+
     };
 } // namespace MafiaMP::Scripting
