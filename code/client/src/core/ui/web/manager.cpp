@@ -32,7 +32,6 @@ namespace MafiaMP::Core::UI::Web {
 
         // Initialize the configuration
         ultralight::Config rendererConfig;
-        rendererConfig.force_repaint = true;
         rendererConfig.cache_path    = (gProjectPath + "/cache").c_str();
 
         // Initialize the platform
@@ -61,6 +60,7 @@ namespace MafiaMP::Core::UI::Web {
         std::lock_guard lock(_renderMutex);
         _renderer->Update();
         _renderer->Render();
+        _renderer->RefreshDisplay(0);
 
         // Update the views
         for (auto &view : _views) {
