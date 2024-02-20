@@ -75,6 +75,42 @@ namespace SDK {
         return 0.0f;
     }
 
+    int C_Car::GetColor(int kind) {
+        return hook::this_call<int>(hook::get_opcode_address("E8 ? ? ? ? 41 89 47 34"), this, kind);
+    }
+
+    void C_Car::SetColor(int colorID1, int colorID2, bool metallic) {
+        hook::this_call<void>(hook::get_opcode_address("E9 ? ? ? ? C3 E2 37"), this, colorID1, colorID2, metallic);
+    }
+
+    void C_Car::SwitchColor(bool randomize) {
+        hook::this_call<void>(reinterpret_cast<uint64_t>(hook::get_pattern("40 56 48 83 EC 20 4C 8B 81 ? ? ? ?")), this, randomize);
+    }
+
+    int C_Car::GetWindowTint() {
+        return hook::this_call<int>(hook::get_opcode_address("E8 ? ? ? ? 8D 50 01 48 8B 43 48"), this);
+    }
+
+    void C_Car::SetWindowTint(int colorID) {
+        hook::this_call<void>(hook::get_opcode_address("E8 ? ? ? ? EB 65 48 8D 8B ? ? ? ?"), this, colorID);
+    }
+
+    void C_Car::SetInteriorColorsSet(int setID) {
+        hook::this_call<void>(hook::get_opcode_address("E8 ? ? ? ? EB 71 8B D6"), this, setID);
+    }
+
+    void C_Car::SwitchInteriorColor(bool randomize) {
+        hook::this_call<void>(reinterpret_cast<uint64_t>(hook::get_pattern("40 57 48 83 EC 30 4C 8B 81 ? ? ? ?")), this, randomize);
+    }
+
+    void C_Car::SetWheelColor(int rimColorID, int tireColorID) {
+        hook::this_call<void>(hook::get_opcode_address("E8 ? ? ? ? 80 7C 24 ? ? 74 08 48 8B CF E8 ? ? ? ? 45 84 ED"), this, rimColorID, tireColorID);
+    }
+
+    void C_Car::SetPainting(char const *paintName, bool stream) {
+        hook::this_call<void>(reinterpret_cast<uint64_t>(hook::get_pattern("48 8B C4 55 56 48 8D 68 ? 48 81 EC ? ? ? ? 48 89 58 ? 48 89 78 ? 33 FF")), this, paintName, stream);
+    }
+
     void C_Car::SetActualFuel(float fuel) {
         hook::this_call<void>(gPatterns.C_Car__SetActualFuel, this, fuel);
 

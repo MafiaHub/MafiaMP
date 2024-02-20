@@ -7,7 +7,10 @@ namespace SDK {
     class I_Human2;
 
     struct S_BaseSeat {
-        enum E_BaseSeatStatus { OCCUPIED = 3, EMPTY = 4 };
+        enum E_BaseSeatStatus {
+            OCCUPIED = 3,
+            EMPTY    = 4
+        };
     };
 
     class C_Car: public C_Actor {
@@ -29,6 +32,48 @@ namespace SDK {
 
         void SetMotorDamage(float damage);
         float GetMotorDamage() const;
+
+        /**
+         * @param kind (primary: 0, secondary 1)
+         */
+        int GetColor(int kind);
+
+        void SetColor(int colorID1, int colorID2, bool metallic);
+
+        /**
+         * @param randomize If false, the default will be used.
+         */
+        void SwitchColor(bool randomize);
+
+        int GetWindowTint();
+
+        void SetWindowTint(int colorID);
+
+        /**
+         * Custom method
+         */
+        int GetInteriorColorsSet() {
+            return *(int *)(((uintptr_t)this) + 7964);
+        };
+
+        void SetInteriorColorsSet(int setID);
+
+        /**
+         * @param randomize If false, the default will be used.
+         */
+        void SwitchInteriorColor(bool randomize);
+
+        /**
+         * Custom method
+         */
+        void GetWheelColor(int *rimColorID, int *tireColorID) {
+            *rimColorID  = *(int *)(((uintptr_t)this) + 7968);
+            *tireColorID = *(int *)(((uintptr_t)this) + 7972);
+        }
+
+        void SetWheelColor(int rimColorID, int tireColorID);
+
+        void SetPainting(char const *paintName, bool stream);
 
         void SetActualFuel(float fuel);
         float GetActualFuel() const;

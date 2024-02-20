@@ -126,6 +126,77 @@ namespace MafiaMP::Core::UI {
                 currentVehicle->SetIndicatorLightsOn(isRightIndicatorOn, SDK::E_VehicleIndicator::INDICATOR_RIGHT);
             }
 
+            static bool stream = true;
+            ImGui::Checkbox("Car Painting Stream", &stream);
+
+            static const char *paintNameList[] = {"univalfa", "univchrom", "univkastle", "univnormal", "police_sign", "car_num_1---d", "car_num_2---d", "car_num_3---d", "car_num_4---d", "car_num_5---d", "car_num_6---d", "car_num_7---d", "car_num_8---d", "car_num_9---d",
+                "car_num_10---d", "car_num_11---d", "car_num_12---d", "car_num_13---d", "car_num_14---d", "car_num_15---d", "car_num_16---d", "logo_scotch01---d", "logo_uni01---d", "logo_uni02---d", "logo_uni03---d", "logo_uni04---d", "logo_uni05---d", "logo_uni06---d",
+                "logo_uni07---d", "logo_uni08---d", "logo_uni09---d"};
+
+            static const char *currentPaintName = paintNameList[0];
+            if (ImGui::BeginCombo("Car Painting Name", currentPaintName)) {
+                for (int n = 0; n < IM_ARRAYSIZE(paintNameList); n++) {
+                    const bool isSelected = (strcmp(currentPaintName, paintNameList[n]) == 0);
+
+                    if (ImGui::Selectable(paintNameList[n], isSelected)) {
+                        currentPaintName = paintNameList[n];
+                        currentCar->SetPainting(paintNameList[n], stream);
+                    }
+
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+
+            auto carColorPrimaryID   = currentCar->GetColor(0);
+            auto carColorSecondaryID = currentCar->GetColor(1);
+            if (ImGui::InputInt("Car Color Primary ID", &carColorPrimaryID)) {
+                currentCar->SetColor(carColorPrimaryID, carColorSecondaryID, false);
+            }
+
+            if (ImGui::InputInt("Car Color Secondary ID", &carColorSecondaryID)) {
+                currentCar->SetColor(carColorPrimaryID, carColorSecondaryID, false);
+            }
+
+            int rimColorID, tireColorID;
+            currentCar->GetWheelColor(&rimColorID, &tireColorID);
+
+            if (ImGui::InputInt("Car Rim Color ID", &rimColorID)) {
+                currentCar->SetWheelColor(rimColorID, tireColorID);
+            }
+
+            if (ImGui::InputInt("Car Tire Color ID", &tireColorID)) {
+                currentCar->SetWheelColor(rimColorID, tireColorID);
+            }
+
+            if (ImGui::Button("Reset Car Colors (Colors & Wheels)")) {
+                currentCar->SwitchColor(false);
+            }
+
+            if (ImGui::Button("Randomize Car Colors (Colors & Wheels)")) {
+                currentCar->SwitchColor(true);
+            }
+
+            auto carWindowTintID = currentCar->GetWindowTint();
+            if (ImGui::InputInt("Car Window Tint ID", &carWindowTintID)) {
+                currentCar->SetWindowTint(carWindowTintID);
+            }
+
+            auto carInteriorColorsSetID = currentCar->GetInteriorColorsSet();
+            if (ImGui::InputInt("Car Interior Colors Set ID", &carInteriorColorsSetID)) {
+                currentCar->SetInteriorColorsSet(carInteriorColorsSetID);
+            }
+
+            if (ImGui::Button("Reset Car Interior Colors")) {
+                currentCar->SwitchInteriorColor(false);
+            }
+
+            if (ImGui::Button("Randomize Car Interior Colors")) {
+                currentCar->SwitchInteriorColor(true);
+            }
+
             SDK::ue::sys::math::C_Vector4 color1, color2;
             currentVehicle->GetVehicleColor(&color1, &color2);
 
