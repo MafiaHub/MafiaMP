@@ -9,9 +9,9 @@
 namespace MafiaMP::Shared::Modules {
     struct VehicleSync {
         enum class LockState {
-            Unlocked,
-            Locked,
-            Breakable,
+            UNLOCKED,
+            LOCKED,
+            BREAKABLE,
         };
 
         struct UpdateData {
@@ -26,7 +26,7 @@ namespace MafiaMP::Shared::Modules {
             float handbrake      = 0.0f;
             bool hornOn          = false;
             char licensePlate[7] = "AZ-000";
-            LockState lockState  = LockState::Unlocked;
+            LockState lockState  = LockState::UNLOCKED;
             float power          = 0.0f;
             bool radioOn         = false;
             int radioStationId   = 0;
