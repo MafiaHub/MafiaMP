@@ -1,5 +1,4 @@
 #include "vehicle.h"
-#include "player.h"
 
 #include "scripting/engines/node/engine.h"
 #include "shared/game_rpc/vehicle/vehicle_setprops.h"
