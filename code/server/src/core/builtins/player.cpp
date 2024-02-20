@@ -2,9 +2,9 @@
 
 #include "vehicle.h"
 
-#include "shared/modules/human_sync.hpp"
 #include "shared/game_rpc/add_weapon.h"
 #include "shared/game_rpc/human/human_setprops.h"
+#include "shared/modules/human_sync.hpp"
 #include "shared/rpc/chat_message.h"
 
 namespace MafiaMP::Scripting {
@@ -87,6 +87,26 @@ namespace MafiaMP::Scripting {
         engine->InvokeEvent("playerDisconnected", playerObj);
     }
 
+    void Human::EventPlayerVehicleEnter(flecs::entity player, flecs::entity vehicle, int seatIndex) {
+        const auto engine = MafiaMP::Server::GetNodeEngine();
+        V8_RESOURCE_LOCK(engine);
+
+        auto vehicleObj = Vehicle::WrapVehicle(engine, vehicle);
+        auto playerObj  = WrapHuman(engine, player);
+
+        engine->InvokeEvent("playerVehicleEnter", playerObj, vehicleObj, seatIndex);
+    }
+
+    void Human::EventPlayerVehicleLeave(flecs::entity player, flecs::entity vehicle) {
+        const auto engine = MafiaMP::Server::GetNodeEngine();
+        V8_RESOURCE_LOCK(engine)
+
+        auto vehicleObj = Vehicle::WrapVehicle(engine, vehicle);
+        auto playerObj  = WrapHuman(engine, player);
+
+        engine->InvokeEvent("playerVehicleLeave", playerObj, vehicleObj);
+    }
+
     void Human::Register(v8::Isolate *isolate, v8pp::module *rootModule) {
         if (!rootModule) {
             return;
@@ -104,4 +124,4 @@ namespace MafiaMP::Scripting {
         cls.function("sendChatToAll", &Human::SendChatToAll);
         rootModule->class_("Human", cls);
     }
-}
+} // namespace MafiaMP::Scripting

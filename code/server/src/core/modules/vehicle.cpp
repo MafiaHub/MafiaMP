@@ -14,7 +14,7 @@
 #include "shared/messages/vehicle/vehicle_update.h"
 #include "shared/modules/vehicle_sync.hpp"
 
-#include "core/builtins/vehicle.h"
+#include "core/builtins/player.h"
 
 #include <utils/safe_string.h>
 
@@ -143,7 +143,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Vehicle::InitRPCs(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
-        net->RegisterGameRPC<Shared::RPC::VehiclePlayerEnter>([srv](SLNet::RakNetGUID guid, Shared::RPC::VehiclePlayerEnter* msg) {
+        net->RegisterGameRPC<Shared::RPC::VehiclePlayerEnter>([srv](SLNet::RakNetGUID guid, Shared::RPC::VehiclePlayerEnter *msg) {
             const auto playerEntity = srv->GetEntityByGUID(guid.g);
             if (!playerEntity.is_alive()) {
                 return;
@@ -154,7 +154,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            Scripting::Vehicle::EventVehiclePlayerEnter(vehicleEntity, playerEntity, msg->seatIndex);
+            Scripting::Human::EventPlayerVehicleEnter(playerEntity, vehicleEntity, msg->seatIndex);
         });
 
         net->RegisterGameRPC<Shared::RPC::VehiclePlayerLeave>([srv](SLNet::RakNetGUID guid, Shared::RPC::VehiclePlayerLeave *msg) {
@@ -168,7 +168,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            Scripting::Vehicle::EventVehiclePlayerLeave(vehicleEntity, playerEntity);
+            Scripting::Human::EventPlayerVehicleLeave(playerEntity, vehicleEntity);
         });
     }
 } // namespace MafiaMP::Core::Modules

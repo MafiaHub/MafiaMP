@@ -306,12 +306,12 @@ sdk.on("gamemodeUnloading", () => {
     console.log("[GAMEMODE] Gamemode unloading!");
 });
 
-sdk.on("vehiclePlayerEnter", (vehicle, player, seatIndex) => {
+sdk.on("playerVehicleEnter", (player, vehicle, seatIndex) => {
     console.log(`[GAMEMODE] Player ${player.nickname} entered vehicle ${vehicle.name} = ${seatIndex}!`);
     vehicle.setEngineOn(true);
 });
 
-sdk.on("vehiclePlayerLeave", (vehicle, player) => {
+sdk.on("playerVehicleLeave", (player, vehicle) => {
     console.log(`[GAMEMODE] Player ${player.nickname} exited vehicle ${vehicle.name}!`);
     vehicle.setEngineOn(false);
 });
@@ -578,9 +578,7 @@ RegisterChatCommand("colors", (player, message, command, args) => {
     player.sendChat(`[SERVER] Primary color changed to rgb: ${colorPrimary.r}, ${colorPrimary.g}, ${colorPrimary.b}`);
 
     const colorSecondary = veh.getColorSecondary();
-    player.sendChat(
-        `[SERVER] Secondary color changed to rgb: ${colorSecondary.r}, ${colorSecondary.g}, ${colorSecondary.b}`
-    );
+    player.sendChat(`[SERVER] Secondary color changed to rgb: ${colorSecondary.r}, ${colorSecondary.g}, ${colorSecondary.b}`);
 });
 
 RegisterChatCommand("wheelcol", (player, message, command, args) => {
@@ -618,15 +616,12 @@ RegisterChatCommand("wintint", (player, message, command, args) => {
     veh.setWindowTint(sdk.RGBA(getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor()));
 
     const windowTint = veh.getWindowTint();
-    player.sendChat(
-        `[SERVER] Window tint changed to rgba: ${windowTint.r}, ${windowTint.g}, ${windowTint.b}, ${windowTint.a}`
-    );
+    player.sendChat(`[SERVER] Window tint changed to rgba: ${windowTint.r}, ${windowTint.g}, ${windowTint.b}, ${windowTint.a}`);
 });
 
 RegisterChatCommand("wep", (player, message, command, args) => {
-    // TODO: doesn't works yet
-
-    const weaponId = parseInt(args[0], 10) ?? 85;
+    const wantedWeaponId = parseInt(args[0], 10);
+    const weaponId = Number.isInteger(wantedWeaponId) ? wantedWeaponId : 85;
     player.addWeapon(weaponId, 200);
     player.sendChat(`[SERVER] Weapon (id: ${weaponId}) received!`);
 });

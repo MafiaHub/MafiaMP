@@ -13,10 +13,9 @@ namespace MafiaMP::Scripting {
       public:
         Vehicle(flecs::entity_t ent): Entity(ent) {}
 
-        static void EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex);
-        static void EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player);
-
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule);
+
+        static v8::Local<v8::Object> WrapVehicle(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e);
 
         std::string ToString() const override;
 
@@ -64,7 +63,5 @@ namespace MafiaMP::Scripting {
 
         v8::Local<v8::Object> GetWindowTint();
         void SetWindowTint(Framework::Scripting::Engines::Node::Builtins::ColorRGBA tint);
-
-
     };
 } // namespace MafiaMP::Scripting
