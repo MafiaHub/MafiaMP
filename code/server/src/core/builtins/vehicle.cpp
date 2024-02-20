@@ -94,6 +94,19 @@ namespace MafiaMP::Scripting {
         FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
     }
 
+    bool Vehicle::GetEngineOn() {
+        auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+        return syncData->engineOn;
+    }
+
+    void Vehicle::SetEngineOn(bool on) {
+        auto vehData      = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+        vehData->engineOn = on;
+        MafiaMP::Shared::RPC::VehicleSetProps msg {};
+        msg.engineOn = on;
+        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+    }
+
     float Vehicle::GetFuel() {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
         return vehData->fuel;
@@ -239,19 +252,6 @@ namespace MafiaMP::Scripting {
         FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
     }
 
-    bool Vehicle::GetEngineOn() {
-        auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-        return syncData->engineOn;
-    }
-
-    void Vehicle::SetEngineOn(bool on) {
-        auto vehData      = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-        vehData->engineOn = on;
-        MafiaMP::Shared::RPC::VehicleSetProps msg {};
-        msg.engineOn = on;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
-    }
-
     void Vehicle::Register(v8::Isolate *isolate, v8pp::module *rootModule) {
         if (!rootModule) {
             return;
@@ -275,6 +275,7 @@ namespace MafiaMP::Scripting {
         cls.function("getSirenOn", &Vehicle::GetSirenOn);
         cls.function("getTireColor", &Vehicle::GetTireColor);
         cls.function("getWindowTint", &Vehicle::GetWindowTint);
+
         cls.function("setBeaconLightsOn", &Vehicle::SetBeaconLightsOn);
         cls.function("setColorPrimary", &Vehicle::SetColorPrimary);
         cls.function("setColorSecondary", &Vehicle::SetColorSecondary);
@@ -293,4 +294,4 @@ namespace MafiaMP::Scripting {
 
         rootModule->class_("Vehicle", cls);
     }
-}
+} // namespace MafiaMP::Scripting
