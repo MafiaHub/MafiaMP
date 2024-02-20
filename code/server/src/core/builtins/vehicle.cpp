@@ -5,10 +5,6 @@
 #include "shared/modules/vehicle_sync.hpp"
 
 namespace MafiaMP::Scripting {
-    v8::Local<v8::Object> Vehicle::WrapVehicle(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e) {
-        return v8pp::class_<Scripting::Vehicle>::create_object(engine->GetIsolate(), e.id());
-    }
-
     std::string Vehicle::ToString() const {
         std::ostringstream ss;
         ss << "Vehicle{ id: " << _ent.id() << " }";
@@ -276,5 +272,9 @@ namespace MafiaMP::Scripting {
         cls.function("setWindowTint", &Vehicle::SetWindowTint);
 
         rootModule->class_("Vehicle", cls);
+    }
+
+    v8::Local<v8::Object> Vehicle::WrapVehicle(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e) {
+        return v8pp::class_<Scripting::Vehicle>::create_object(engine->GetIsolate(), e.id());
     }
 } // namespace MafiaMP::Scripting

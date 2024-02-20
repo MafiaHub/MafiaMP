@@ -9,7 +9,7 @@ namespace MafiaMP {
       private:
         static inline Framework::Scripting::Engines::Node::Engine *_nodeEngine;
         void InitNetworkingMessages();
-        
+
       public:
         void PostInit() override;
 
@@ -23,7 +23,7 @@ namespace MafiaMP {
 
         static inline Server *_serverRef = nullptr;
 
-        static Framework::Scripting::Engines::Node::Engine* GetNodeEngine() {
+        static Framework::Scripting::Engines::Node::Engine *GetNodeEngine() {
             return _nodeEngine;
         }
     };

@@ -154,7 +154,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            Scripting::Human::EventPlayerVehicleEnter(playerEntity, vehicleEntity, msg->seatIndex);
+            Scripting::Player::EventPlayerVehicleEnter(playerEntity, vehicleEntity, msg->seatIndex);
         });
 
         net->RegisterGameRPC<Shared::RPC::VehiclePlayerLeave>([srv](SLNet::RakNetGUID guid, Shared::RPC::VehiclePlayerLeave *msg) {
@@ -168,7 +168,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            Scripting::Human::EventPlayerVehicleLeave(playerEntity, vehicleEntity);
+            Scripting::Player::EventPlayerVehicleLeave(playerEntity, vehicleEntity);
         });
     }
 } // namespace MafiaMP::Core::Modules
