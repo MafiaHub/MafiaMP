@@ -16,6 +16,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/ui/web/sdk.cpp
     src/core/ui/web/view.cpp
     src/core/ui/world_debug.cpp
+    src/core/states/game_ready.cpp
     src/core/states/initialize.cpp
     src/core/states/main_menu.cpp
     src/core/states/session_connected.cpp
@@ -39,7 +40,6 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/slot_wrapper.cpp
     src/core/hooks/stream_map.cpp
     src/core/hooks/tables.cpp
-    src/core/hooks/traffic.cpp
     src/core/hooks/translocator.cpp
     src/core/hooks/vehicle.cpp
     src/core/hooks/vfs.cpp

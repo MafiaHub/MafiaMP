@@ -24,7 +24,7 @@ namespace MafiaMP::Core::States {
     }
 
     bool InitializeState::OnExit(Framework::Utils::States::Machine *machine) {
-        machine->RequestNextState(StateIds::MainMenu);
+        machine->RequestNextState(StateIds::GameReady);
         return true;
     }
 
