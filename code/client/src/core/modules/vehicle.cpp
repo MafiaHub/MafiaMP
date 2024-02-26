@@ -62,6 +62,7 @@ namespace MafiaMP::Core::Modules {
                     metadata.colorPrimary    = {colorPrimary.r, colorPrimary.g, colorPrimary.b, colorPrimary.a};
                     metadata.colorSecondary  = {colorSecondary.r, colorSecondary.g, colorSecondary.b, colorSecondary.a};
                     metadata.dirt            = vehicle->GetVehicleDirty();
+                    metadata.engineOn        = car->IsEngineOn();
                     metadata.fuel            = car->GetActualFuel();
                     metadata.gear            = car->GetGear();
                     metadata.handbrake       = vehicle->GetHandbrake();
@@ -72,7 +73,6 @@ namespace MafiaMP::Core::Modules {
                     metadata.rimColor        = {rimColor.r, rimColor.g, rimColor.b, rimColor.a};
                     metadata.rust            = vehicle->GetVehicleRust();
                     metadata.sirenOn         = vehicle->IsSiren();
-                    metadata.engineOn        = car->IsEngineOn();
                     metadata.steer           = vehicle->GetSteer();
                     metadata.tireColor       = {tireColor.r, tireColor.g, tireColor.b, tireColor.a};
                     metadata.velocity        = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
@@ -204,8 +204,8 @@ namespace MafiaMP::Core::Modules {
         vehicle->SetBrake(updateData->brake, false);
         vehicle->SetVehicleColor(&colorPrimary, &colorSecondary, false);
         car->SetVehicleDirty(updateData->dirt); // We have to use the car to set the dirt otherwise the value is reset
-        car->SetActualFuel(updateData->fuel);
         vehicle->SetEngineOn(updateData->engineOn, updateData->engineOn);
+        car->SetActualFuel(updateData->fuel);
         vehicle->SetGear(updateData->gear);
         vehicle->SetHandbrake(updateData->handbrake, false);
         vehicle->SetHorn(updateData->hornOn);
