@@ -11,12 +11,16 @@
 #include "sdk/mafia/framework/c_mafia_dbs.h"
 #include "sdk/ue/game/traffic/c_streaming_traffic_module.h"
 #include "sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.h"
+#include "sdk/mafia/database/c_ui_database.h"
+#include "sdk/mafia/ui/hud/race_xbin.h"
+#include "sdk/mafia/ui/hud/c_hud_controller.h"
 
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_vehicle.h"
 
 #include "game/helpers/controls.h"
 #include "game/helpers/human.h"
+#include "../../sdk/mafia/ui/c_game_gui_2_module.h"
 
 namespace MafiaMP::Core::UI {
     WorldDebug::WorldDebug() {}
@@ -241,6 +245,63 @@ namespace MafiaMP::Core::UI {
             int m_iMaxHumanElements = streamingTrafficModule->GetMaxHumanElements();
             if (ImGui::InputInt("MaxHumanElements", &m_iMaxHumanElements)) {
                 streamingTrafficModule->SetMaxHumanElements(m_iMaxHumanElements);
+            }
+        }
+
+        if (ImGui::CollapsingHeader("Racing")) {
+            static int LapCount = 0;
+            static int CheckpointCount = 0;
+            static int CurrentPosition = 0;
+            static int CurrentCountdown = 0;
+            static bool bRaceStarted = false;
+            
+            using namespace SDK::mafia::ui;
+
+            static uint32_t DesiredCheckpointCount = 0;
+            static float DesiredTargetTime    = 0.0f;
+            static uint32_t DesiredLapCount   = 0;
+            ImGui::PushItemWidth(75.0f);
+            ImGui::PushID("NumCheckpoints");
+            ImGui::InputScalar("##num_checkpoints", ImGuiDataType_U32, &DesiredCheckpointCount);
+            ImGui::PopID();
+            ImGui::SameLine();
+            ImGui::PushID("TargetTime");
+            ImGui::InputScalar("##target_time", ImGuiDataType_Float, &DesiredTargetTime);
+            ImGui::PopID();
+            ImGui::SameLine();
+            ImGui::PushID("NumLaps");
+            ImGui::InputScalar("##num_laps", ImGuiDataType_U32, &DesiredLapCount);
+            ImGui::PopID();
+            ImGui::PopItemWidth();
+            
+            auto GameGuiModule = GetGameGui2Module();
+            auto HudController = GameGuiModule->GetHudController();
+            auto RacingTimer   = HudController->GetRacingTimer();
+
+            if (ImGui::Button("Start Race"))
+            {
+                RacingTimer->StartRace(DesiredCheckpointCount, DesiredTargetTime, DesiredLapCount);
+                RacingTimer->SetVisible(true);
+
+                bRaceStarted = true;
+            }
+
+            if (ImGui::Button("Next Lap"))
+            {
+                RacingTimer->NextLap();
+                hud::RaceXBin::SetCheckpoints(RacingTimer->GetCurrentCheckpoint());
+                hud::RaceXBin::SetLaps(RacingTimer->GetCurrentLap());
+            }
+
+            if (ImGui::Button("Test"))
+            {
+                using namespace SDK::mafia::database;
+                SDK::ue::C_WeakPtr<SDK::ue::sys::sodb::C_DatabaseInterface> result = GameGuiModule->GetDatabase();
+                if (C_UIDatabase* database = reinterpret_cast<C_UIDatabase*>(result.Get()))
+                {
+                    C_UIDatabase::C_HUDTable *hudTable = database->GetHUDTable();
+                    int z = 0;
+                }
             }
         }
 
