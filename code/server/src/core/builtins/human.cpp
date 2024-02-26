@@ -1,7 +1,5 @@
 #include "human.h"
 
-#include "core/server.h"
-
 #include "shared/game_rpc/add_weapon.h"
 #include "shared/game_rpc/human/human_setprops.h"
 #include "shared/modules/human_sync.hpp"
@@ -28,22 +26,25 @@ namespace MafiaMP::Scripting {
         FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::AddWeapon, _ent, weaponId, ammo);
     }
 
-    v8::Local<v8::Value> Human::GetVehicle() const {
-        const auto engine     = MafiaMP::Server::GetNodeEngine();
+    v8::Local<v8::Value> Human::GetVehicle(v8::Isolate *isolate) const {
         const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
+
         if (carEnt.is_valid() && carEnt.is_alive()) {
-            return Vehicle::WrapVehicle(engine->GetIsolate(), carEnt);
+            return Vehicle::WrapVehicle(isolate, carEnt);
         }
-        return v8::Undefined(engine->GetIsolate());
+
+        return v8::Undefined(isolate);
     }
 
     int Human::GetVehicleSeat() const {
         const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
+
         if (carEnt.is_valid() && carEnt.is_alive()) {
             return updateData->carPassenger.seatId;
         }
+
         return -1;
     }
 
@@ -55,6 +56,7 @@ namespace MafiaMP::Scripting {
     void Human::SetHealth(float health) {
         auto h            = _ent.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         h->_healthPercent = health;
+
         MafiaMP::Shared::RPC::HumanSetProps msg {};
         msg.health = health;
         FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanSetProps, _ent, msg);

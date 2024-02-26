@@ -18,7 +18,7 @@ namespace MafiaMP::Scripting {
 
         void AddWeapon(int weaponId, int ammo);
 
-        v8::Local<v8::Value> GetVehicle() const;
+        v8::Local<v8::Value> GetVehicle(v8::Isolate *isolate) const;
 
         int GetVehicleSeat() const;
 

@@ -473,7 +473,7 @@ RegisterChatCommand("plate", (player, message, command, args) => {
         return;
     }
 
-    const licensePlate = args[0];
+    const licensePlate = args[0] ?? "";
     veh.setLicensePlate(licensePlate);
 
     const newLicensePlate = veh.getLicensePlate();
