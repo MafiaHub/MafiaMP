@@ -1,31 +1,11 @@
 #include "vehicle.h"
-#include "player.h"
 
 #include "scripting/engines/node/engine.h"
+
 #include "shared/game_rpc/vehicle/vehicle_setprops.h"
 #include "shared/modules/vehicle_sync.hpp"
 
 namespace MafiaMP::Scripting {
-    void Vehicle::EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex) {
-        const auto engine = MafiaMP::Server::GetNodeEngine();
-        V8_RESOURCE_LOCK(engine);
-
-        auto vehicleObj = v8pp::class_<Vehicle>::create_object(engine->GetIsolate(), vehicle.id());
-        auto playerObj  = Human::WrapHuman(engine, player);
-
-        engine->InvokeEvent("vehiclePlayerEnter", vehicleObj, playerObj, seatIndex);
-    }
-
-    void Vehicle::EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player) {
-        const auto engine = MafiaMP::Server::GetNodeEngine();
-        V8_RESOURCE_LOCK(engine)
-
-        auto vehicleObj = v8pp::class_<Vehicle>::create_object(engine->GetIsolate(), vehicle.id());
-        auto playerObj  = Human::WrapHuman(engine, player);
-
-        engine->InvokeEvent("vehiclePlayerLeave", vehicleObj, playerObj);
-    }
-
     std::string Vehicle::ToString() const {
         std::ostringstream ss;
         ss << "Vehicle{ id: " << _ent.id() << " }";
@@ -293,5 +273,9 @@ namespace MafiaMP::Scripting {
         cls.function("setWindowTint", &Vehicle::SetWindowTint);
 
         rootModule->class_("Vehicle", cls);
+    }
+
+    v8::Local<v8::Object> Vehicle::WrapVehicle(v8::Isolate *isolate, flecs::entity e) {
+        return v8pp::class_<Scripting::Vehicle>::create_object(isolate, e.id());
     }
 } // namespace MafiaMP::Scripting

@@ -156,7 +156,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            Scripting::Human::EventPlayerDied(e);
+            Scripting::Player::EventPlayerDied(e);
         });
     }
 } // namespace MafiaMP::Core::Modules

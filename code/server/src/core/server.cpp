@@ -49,11 +49,11 @@ namespace MafiaMP {
             const auto weather = GetWorldEngine()->GetWorld()->get<Core::Modules::Environment::Weather>();
             FW_SEND_COMPONENT_RPC_TO(Shared::RPC::SetEnvironment, SLNet::RakNetGUID(guid), SLNet::RakString(weather->_weatherSetName.c_str()), weather->_dayTimeHours);
 
-            Scripting::Human::EventPlayerConnected(player);
+            Scripting::Player::EventPlayerConnected(player);
         });
 
         SetOnPlayerDisconnectCallback([this](flecs::entity player, uint64_t) {
-            Scripting::Human::EventPlayerDisconnected(player);
+            Scripting::Player::EventPlayerDisconnected(player);
         });
 
         InitRPCs();

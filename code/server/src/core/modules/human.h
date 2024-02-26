@@ -5,14 +5,14 @@
 
 namespace MafiaMP::Core::Modules {
     class Human {
+      private:
+        static void InitRPCs(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net);
+
       public:
         Human(flecs::world &world);
 
         static void Create(Framework::Networking::NetworkServer *net, flecs::entity e);
 
         static void SetupMessages(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net);
-
-        private:
-        static void InitRPCs(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net);
     };
-} // namespace MafiaMP
+} // namespace MafiaMP::Core::Modules
