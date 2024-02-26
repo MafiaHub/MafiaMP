@@ -1,10 +1,12 @@
 #include "human.h"
 
-#include "vehicle.h"
+#include "core/server.h"
 
 #include "shared/game_rpc/add_weapon.h"
 #include "shared/game_rpc/human/human_setprops.h"
 #include "shared/modules/human_sync.hpp"
+
+#include "vehicle.h"
 
 namespace MafiaMP::Scripting {
     std::string Human::ToString() const {
@@ -31,7 +33,7 @@ namespace MafiaMP::Scripting {
         const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
         if (carEnt.is_valid() && carEnt.is_alive()) {
-            return Vehicle::WrapVehicle(engine, carEnt);
+            return Vehicle::WrapVehicle(engine->GetIsolate(), carEnt);
         }
         return v8::Undefined(engine->GetIsolate());
     }
@@ -77,7 +79,7 @@ namespace MafiaMP::Scripting {
         rootModule->class_("Human", cls);
     }
 
-    v8::Local<v8::Object> Human::WrapHuman(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e) {
-        return v8pp::class_<Scripting::Human>::create_object(engine->GetIsolate(), e.id());
+    v8::Local<v8::Object> Human::WrapHuman(v8::Isolate *isolate, flecs::entity e) {
+        return v8pp::class_<Scripting::Human>::create_object(isolate, e.id());
     }
 } // namespace MafiaMP::Scripting

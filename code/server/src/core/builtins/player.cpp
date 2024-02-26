@@ -1,5 +1,7 @@
 #include "player.h"
 
+#include "core/server.h"
+
 #include "vehicle.h"
 
 #include "shared/rpc/chat_message.h"
@@ -14,21 +16,21 @@ namespace MafiaMP::Scripting {
     void Player::EventPlayerConnected(flecs::entity e) {
         const auto engine = MafiaMP::Server::GetNodeEngine();
         V8_RESOURCE_LOCK(engine);
-        auto playerObj = WrapPlayer(engine, e);
+        auto playerObj = WrapPlayer(engine->GetIsolate(), e);
         engine->InvokeEvent("playerConnected", playerObj);
     }
 
     void Player::EventPlayerDisconnected(flecs::entity e) {
         const auto engine = MafiaMP::Server::GetNodeEngine();
         V8_RESOURCE_LOCK(engine);
-        auto playerObj = WrapPlayer(engine, e);
+        auto playerObj = WrapPlayer(engine->GetIsolate(), e);
         engine->InvokeEvent("playerDisconnected", playerObj);
     }
 
     void Player::EventPlayerDied(flecs::entity e) {
         const auto engine = MafiaMP::Server::GetNodeEngine();
         V8_RESOURCE_LOCK(engine);
-        auto playerObj = WrapPlayer(engine, e);
+        auto playerObj = WrapPlayer(engine->GetIsolate(), e);
         engine->InvokeEvent("playerDied", playerObj);
     }
 
@@ -36,8 +38,8 @@ namespace MafiaMP::Scripting {
         const auto engine = MafiaMP::Server::GetNodeEngine();
         V8_RESOURCE_LOCK(engine);
 
-        auto vehicleObj = Vehicle::WrapVehicle(engine, vehicle);
-        auto playerObj  = WrapPlayer(engine, player);
+        auto vehicleObj = Vehicle::WrapVehicle(engine->GetIsolate(), vehicle);
+        auto playerObj  = WrapPlayer(engine->GetIsolate(), player);
 
         engine->InvokeEvent("playerVehicleEnter", playerObj, vehicleObj, seatIndex);
     }
@@ -46,8 +48,8 @@ namespace MafiaMP::Scripting {
         const auto engine = MafiaMP::Server::GetNodeEngine();
         V8_RESOURCE_LOCK(engine)
 
-        auto vehicleObj = Vehicle::WrapVehicle(engine, vehicle);
-        auto playerObj  = WrapPlayer(engine, player);
+        auto vehicleObj = Vehicle::WrapVehicle(engine->GetIsolate(), vehicle);
+        auto playerObj  = WrapPlayer(engine->GetIsolate(), player);
 
         engine->InvokeEvent("playerVehicleLeave", playerObj, vehicleObj);
     }
@@ -75,7 +77,7 @@ namespace MafiaMP::Scripting {
         rootModule->class_("Player", cls);
     }
 
-    v8::Local<v8::Object> Player::WrapPlayer(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e) {
-        return v8pp::class_<Scripting::Player>::create_object(engine->GetIsolate(), e.id());
+    v8::Local<v8::Object> Player::WrapPlayer(v8::Isolate *isolate, flecs::entity e) {
+        return v8pp::class_<Scripting::Player>::create_object(isolate, e.id());
     }
 } // namespace MafiaMP::Scripting

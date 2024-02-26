@@ -1,8 +1,5 @@
 #pragma once
 
-#include "scripting/engines/node/engine.h"
-#include "scripting/engines/node/sdk.h"
-
 #include "chat.h"
 #include "human.h"
 #include "player.h"

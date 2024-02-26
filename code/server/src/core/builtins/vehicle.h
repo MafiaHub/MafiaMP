@@ -3,7 +3,6 @@
 #include "core/modules/vehicle.h"
 
 #include "integrations/server/scripting/builtins/node/entity.h"
-#include "scripting/engines/node/engine.h"
 
 #include "scripting/engines/node/builtins/color_rgb.h"
 #include "scripting/engines/node/builtins/color_rgba.h"
@@ -77,6 +76,6 @@ namespace MafiaMP::Scripting {
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule);
 
-        static v8::Local<v8::Object> WrapVehicle(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e);
+        static v8::Local<v8::Object> WrapVehicle(v8::Isolate *isolate, flecs::entity e);
     };
 } // namespace MafiaMP::Scripting

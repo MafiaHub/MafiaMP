@@ -1,7 +1,6 @@
 #pragma once
 
 #include "integrations/server/scripting/builtins/node/entity.h"
-#include "scripting/engines/node/engine.h"
 
 namespace MafiaMP::Scripting {
     class Human: public Framework::Integrations::Scripting::Entity {
@@ -29,6 +28,6 @@ namespace MafiaMP::Scripting {
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule);
 
-        static v8::Local<v8::Object> WrapHuman(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e);
+        static v8::Local<v8::Object> WrapHuman(v8::Isolate *isolate, flecs::entity e);
     };
 } // namespace MafiaMP::Scripting

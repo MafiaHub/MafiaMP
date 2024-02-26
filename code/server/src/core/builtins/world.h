@@ -3,29 +3,23 @@
 #include "scripting/engines/node/engine.h"
 #include "scripting/engines/node/sdk.h"
 
-#include "../modules/environment.h"
-#include "../modules/vehicle.h"
+#include "modules/environment.h"
+#include "modules/vehicle.h"
 
-#include "../../shared/rpc/environment.h"
+#include "shared/rpc/environment.h"
 
 #include "vehicle.h"
-
-#include "core_modules.h"
 
 namespace MafiaMP::Scripting {
     class World final {
       public:
-        static v8::Local<v8::Object> WrapVehicle(v8::Isolate *isolate, flecs::entity e) {
-            return v8pp::class_<Scripting::Vehicle>::create_object(isolate, e.id());
-        }
-
         static v8::Local<v8::Object> CreateVehicle(v8::Isolate *isolate, std::string modelName) {
             auto e = MafiaMP::Core::Modules::Vehicle::Create(Server::_serverRef);
 
             auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelName = modelName;
 
-            return WrapVehicle(isolate, e);
+            return Vehicle::WrapVehicle(isolate, e);
         }
 
         static void SetWeather(std::string weatherSetName) {

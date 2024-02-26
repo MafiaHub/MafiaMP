@@ -1,13 +1,10 @@
 #pragma once
 
-#include "scripting/engines/node/engine.h"
-#include "scripting/engines/node/sdk.h"
+#include "core/server.h"
 
 #include "shared/rpc/chat_message.h"
 
 #include "player.h"
-
-#include "core_modules.h"
 
 namespace MafiaMP::Scripting {
     class Chat final {
@@ -15,13 +12,13 @@ namespace MafiaMP::Scripting {
         static void EventChatCommand(flecs::entity e, std::string message, std::string command, std::vector<std::string> args) {
             const auto engine = MafiaMP::Server::GetNodeEngine();
             V8_RESOURCE_LOCK(engine);
-            engine->InvokeEvent("chatCommand", Player::WrapPlayer(engine, e), message, command, args);
+            engine->InvokeEvent("chatCommand", Player::WrapPlayer(engine->GetIsolate(), e), message, command, args);
         }
 
         static void EventChatMessage(flecs::entity e, std::string message) {
             const auto engine = MafiaMP::Server::GetNodeEngine();
             V8_RESOURCE_LOCK(engine);
-            engine->InvokeEvent("chatMessage", Player::WrapPlayer(engine, e), message);
+            engine->InvokeEvent("chatMessage", Player::WrapPlayer(engine->GetIsolate(), e), message);
         }
 
         static void SendToAll(std::string message) {

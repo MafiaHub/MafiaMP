@@ -25,6 +25,6 @@ namespace MafiaMP::Scripting {
 
         static void Register(v8::Isolate *isolate, v8pp::module *rootModule);
 
-        static v8::Local<v8::Object> WrapPlayer(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e);
+        static v8::Local<v8::Object> WrapPlayer(v8::Isolate *isolate, flecs::entity e);
     };
 } // namespace MafiaMP::Scripting

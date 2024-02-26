@@ -1,6 +1,7 @@
 #include "vehicle.h"
 
 #include "scripting/engines/node/engine.h"
+
 #include "shared/game_rpc/vehicle/vehicle_setprops.h"
 #include "shared/modules/vehicle_sync.hpp"
 
@@ -274,7 +275,7 @@ namespace MafiaMP::Scripting {
         rootModule->class_("Vehicle", cls);
     }
 
-    v8::Local<v8::Object> Vehicle::WrapVehicle(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e) {
-        return v8pp::class_<Scripting::Vehicle>::create_object(engine->GetIsolate(), e.id());
+    v8::Local<v8::Object> Vehicle::WrapVehicle(v8::Isolate *isolate, flecs::entity e) {
+        return v8pp::class_<Scripting::Vehicle>::create_object(isolate, e.id());
     }
 } // namespace MafiaMP::Scripting
