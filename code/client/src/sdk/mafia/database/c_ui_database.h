@@ -16,6 +16,7 @@ namespace SDK {
                 uint16_t m_TotalPositions   = 0;
                 uint16_t m_CurCheckpoint    = 0;
                 uint16_t m_TotalCheckpoints = 0;
+                uint32_t m_Unknown          = 0;
                 uint16_t m_CurLap           = 0;
                 uint16_t m_TotalLaps        = 0;
                 uint8_t m_Countdown         = 0;
