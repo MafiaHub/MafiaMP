@@ -14,7 +14,7 @@ namespace SDK {
 
         ue::C_WeakPtr<ue::sys::sodb::C_DatabaseInterface> C_GameGUI2Module::GetDatabase() {
             ue::C_WeakPtr<ue::sys::sodb::C_DatabaseInterface> database;
-            return hook::this_call<ue::C_WeakPtr<ue::sys::sodb::C_DatabaseInterface> &>(0x142D60950, this, database);
+            return hook::this_call<ue::C_WeakPtr<ue::sys::sodb::C_DatabaseInterface> &>(gPatterns.C_GameGUI2Module__GetDatabase, this, database);
         }
 
         C_GameGUI2Module *C_GameGUI2Module::GetInstance() {

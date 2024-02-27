@@ -148,6 +148,7 @@ namespace SDK {
         uint64_t C_GameGUI2Module       = hook::get_opcode_address("E8 ? ? ? ? 41 8D 56 11");
         uint8_t *C_GameGUI2Module_Bytes = reinterpret_cast<uint8_t *>(C_GameGUI2Module);
 
+        gPatterns.C_GameGUI2Module__GetDatabase                 = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8D B9 ? ? ? ? 48 8B F2"));
         gPatterns.C_GameGUI2Module__GetGameGui2Module           = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 40 80 F6 01");
         gPatterns.C_GameGUI2Module__Instance                    = reinterpret_cast<uint64_t>(C_GameGUI2Module_Bytes + *(int32_t *)(C_GameGUI2Module_Bytes + 3) + 7);
         gPatterns.C_GameGUI2Module__SendHUDSimpleBooleanMessage = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 49 8B 97 ? ? ? ? 4C 8D 05 ? ? ? ?");

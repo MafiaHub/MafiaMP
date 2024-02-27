@@ -130,6 +130,7 @@ namespace SDK {
         uint64_t C_GameGfxEnvEffModule__GetCurrentWeatherSetName = 0x0;
 
         // C_GameGUI2Module
+        uint64_t C_GameGUI2Module__GetDatabase                 = 0x0;
         uint64_t C_GameGUI2Module__GetGameGui2Module           = 0x0;
         uint64_t C_GameGUI2Module__Instance                    = 0x0;
         uint64_t C_GameGUI2Module__SendHUDSimpleBooleanMessage = 0x0;
