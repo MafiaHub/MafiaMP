@@ -79,6 +79,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/mafia/streaming/c_actors_slot_wrapper.cpp
     src/sdk/mafia/streaming/c_slot_wrapper.cpp
     src/sdk/mafia/streaming/c_streaming_module.cpp
+    src/sdk/mafia/ui/hud/race_xbin.cpp
     src/sdk/mafia/ui/menu/c_save_menu.cpp
     src/sdk/mafia/ui/navigation/c_navigation.cpp
     src/sdk/mafia/ui/support/c_fader.cpp

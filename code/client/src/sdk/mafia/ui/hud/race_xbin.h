@@ -1,50 +1,77 @@
 #pragma once
 
-#include <utils/hooking/hooking.h>
-
 #include <stdint.h>
 
 namespace SDK {
     namespace mafia::ui::hud {
+
+        /**
+         * Handy structure which provides an API to update the Racing HUD Element.
+         * Note that there are some discrepancies with the executable code however
+         * all functionality should be the same.
+         */
         class RaceXBin {
           public:
-            // NB: This likely won't have an effect; use C_RaceTimer instead
-            static void SetVisible(bool visibility) {
-                hook::call<bool>(0x14304F6C0, visibility);
-            }
 
-            static void SetTargetTime(float time) {
-                // NB: for some reason causes compile error
-                // hook::call<float>(0x14304DA00, time);
-            }
+            /**
+             * Set the visibility of the Racing HUD Element.
+             * @param bVisibility - Should the HUD Element be visible
+             */
+            static void SetVisible(const bool bVisiblity);
 
-            static void SetPosition(uint16_t pos) {
-                hook::call<uint16_t>(0x1430496F0, pos);
-            }
+            /**
+             * Set the Target Time on the Racing HUD Element.
+             * Note that this may not have an effect (eg. appear on the HUD)
+             * @param InTargetTime - Target Time to show on the HUD
+             */
+            static void SetTargetTime(const float InTargetTime);
 
-            static void SetPositionTotal(uint16_t pos) {
-                hook::call<uint16_t>(0x143049820, pos);
-            }
+            /**
+             * Set the current Position on the Racing HUD Element.
+             * Note that 'Total Positions' may need to be set before this to have an effect.
+             * @param InPosition - The current position out of Total Positions
+             */
+            static void SetPosition(const uint16_t InPosition);
 
-            static void SetLaps(uint16_t laps) {
-                hook::call<uint16_t>(0x143047620, laps);
-            }
+            /**
+             * Set the max amount of Positions on the Racing HUD Element
+             * @param InTotalPosition - Max number of positions
+             */
+            static void SetPositionTotal(const uint16_t InTotalPosition);
 
-            static void SetLapsTotal(uint16_t laps) {
-                hook::call<uint16_t>(0x143047750, laps);
-            }
+            /**
+             * Set the current Lap on the Racing HUD Element.
+             * Note that 'Total Laps' may need to be set before this to have an effect.
+             * @param InLaps - The current Lap out of Total Laps
+             */
+            static void SetLaps(const uint16_t InLaps);
 
-            static void SetCheckpoints(uint16_t checkpoint) {
-                hook::call<uint16_t>(0x143042300, checkpoint);
-            }
+            /**
+             * Set the number of Laps on the Racing HUD Element
+             * @param InTotalPosition - Number of Laps
+             */
+            static void SetLapsTotal(const uint16_t InTotalLaps);
 
-            static void SetCheckpointsTotal(uint16_t checkpoint) {
-                hook::call<uint16_t>(0x143042430, checkpoint);
-            }
+            /**
+             * Set the current Checkpoint on the Racing HUD Element.
+             * Note that 'Total Checkpoints' may need to be set before this to have an effect.
+             * @param InPosition - The current Checkpoint out of Total Checkpoints
+             */
+            static void SetCheckpoints(const uint16_t InCheckpoint);
 
-            static void SetCountdown(uint8_t countdown) {
-                hook::call<uint8_t>(0x143042670, countdown);
-            }
+            /**
+             * Set the max amount of Checkpoints on the Racing HUD Element
+             * @param InTotalPosition - Max number of checkpoints
+             */
+            static void SetCheckpointsTotal(const uint16_t InTotalCheckpoints);
+
+            /**
+             * Set the countdown. Max is 3, Minimum is 0.
+             * The HUD automatically plays the noise when the countdown is updated.
+             * The caller will have to manage a timer for the countdown.
+             * @param InCountdown - Current step in the Countdown
+             */
+            static void SetCountdown(const uint8_t InCountdown);
         };
     } // namespace mafia::ui::hud
 } // namespace SDK

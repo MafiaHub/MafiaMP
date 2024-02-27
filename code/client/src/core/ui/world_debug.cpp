@@ -274,9 +274,18 @@ namespace MafiaMP::Core::UI {
                 ImGui::PushID("CurrentLaps");
                 ImGui::InputScalar("##curent_lap_hudtable", ImGuiDataType_U16, &hudTable->m_CurLap);
                 ImGui::PopID();
+                ImGui::PushID("TotalPositions");
+                ImGui::InputScalar("##total_position_hudtable", ImGuiDataType_U16, &hudTable->m_TotalPositions);
+                ImGui::PopID();
                 ImGui::SameLine();
+                ImGui::PushID("CurrentPositions");
+                ImGui::InputScalar("##curent_position_hudtable", ImGuiDataType_U16, &hudTable->m_CurPosition);
+                ImGui::PopID();
                 ImGui::PushID("Countdown");
                 ImGui::InputScalar("##countdown_hudtable", ImGuiDataType_U8, &hudTable->m_Countdown);
+                ImGui::PopID();
+                ImGui::PushID("Racing_Visible");
+                ImGui::Checkbox("##racing_visible_hudtable", &hudTable->m_RacingVisible);
                 ImGui::PopID();
                 ImGui::PopItemWidth();
                 ImGui::Separator();
