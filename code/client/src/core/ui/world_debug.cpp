@@ -249,71 +249,64 @@ namespace MafiaMP::Core::UI {
         }
 
         if (ImGui::CollapsingHeader("Racing")) {
-            static int LapCount         = 0;
-            static int CheckpointCount  = 0;
-            static int CurrentPosition  = 0;
-            static int CurrentCountdown = 0;
-            static bool bRaceStarted    = false;
-
             using namespace SDK::mafia::ui;
             using namespace SDK::mafia::database;
 
             auto GameGuiModule = GetGameGui2Module();
-            auto HudController = GameGuiModule->GetHudController();
-            auto RacingTimer = HudController->GetRacingTimer();
             SDK::ue::C_WeakPtr<SDK::ue::sys::sodb::C_DatabaseInterface> result = GameGuiModule->GetDatabase();
             if (C_UIDatabase *database = reinterpret_cast<C_UIDatabase *>(result.Get())) {
                 C_UIDatabase::C_HUDTable *hudTable = database->GetHUDTable();
 
-                ImGui::Text("Current Race:");
                 ImGui::PushItemWidth(75.0f);
-                ImGui::PushID("TotalLaps");
-                ImGui::InputScalar("##total_laps_hudtable", ImGuiDataType_U16, &hudTable->m_TotalLaps);
-                ImGui::PopID();
-                ImGui::SameLine();
-                ImGui::PushID("CurrentLaps");
-                ImGui::InputScalar("##curent_lap_hudtable", ImGuiDataType_U16, &hudTable->m_CurLap);
-                ImGui::PopID();
-                ImGui::PushID("TotalPositions");
-                ImGui::InputScalar("##total_position_hudtable", ImGuiDataType_U16, &hudTable->m_TotalPositions);
-                ImGui::PopID();
-                ImGui::SameLine();
-                ImGui::PushID("CurrentPositions");
-                ImGui::InputScalar("##curent_position_hudtable", ImGuiDataType_U16, &hudTable->m_CurPosition);
-                ImGui::PopID();
-                ImGui::PushID("Countdown");
-                ImGui::InputScalar("##countdown_hudtable", ImGuiDataType_U8, &hudTable->m_Countdown);
-                ImGui::PopID();
+
+                // VISIBLE
+                ImGui::Text("Racing HUDElement Visiblity");
                 ImGui::PushID("Racing_Visible");
                 ImGui::Checkbox("##racing_visible_hudtable", &hudTable->m_RacingVisible);
                 ImGui::PopID();
+
+                ImGui::Spacing();
+
+                // LAPS
+                ImGui::Text("Current Laps / Num Laps");
+                ImGui::PushID("Laps");
+                ImGui::InputScalar("##total_laps_hudtable", ImGuiDataType_U16, &hudTable->m_CurLap);
+                ImGui::SameLine();
+                ImGui::InputScalar("##curent_lap_hudtable", ImGuiDataType_U16, &hudTable->m_TotalLaps);
+                ImGui::PopID();
+
+                ImGui::Spacing();
+
+                // POSITIONS
+                ImGui::Text("Current Position / Max Position");
+                ImGui::PushID("Positions");
+                ImGui::InputScalar("##total_position_hudtable", ImGuiDataType_U16, &hudTable->m_CurPosition);
+                ImGui::SameLine();
+                ImGui::InputScalar("##curent_position_hudtable", ImGuiDataType_U16, &hudTable->m_TotalPositions);
+                ImGui::PopID();
+
+                ImGui::Spacing();
+
+                // CHECKPOINTS
+                ImGui::Text("Current Checkpoint / Max Checkpoints");
+                ImGui::PushID("Checkpoints");
+                ImGui::InputScalar("##total_checkpoint_hudtable", ImGuiDataType_U16, &hudTable->m_CurCheckpoint);
+                ImGui::SameLine();
+                ImGui::InputScalar("##curent_checkpoint_hudtable", ImGuiDataType_U16, &hudTable->m_TotalCheckpoints);
+                ImGui::PopID();
+
+                ImGui::Spacing();
+
+                // COUNTDOWN
+                ImGui::Text("Countdown");
+                ImGui::SameLine();
+                ImGui::TextDisabled("(3, 2, 1 for lights, 0 for GO). Sound is played automatically");
+                ImGui::PushID("Countdown");
+                ImGui::InputScalar("##countdown_hudtable", ImGuiDataType_U8, &hudTable->m_Countdown);
+                ImGui::PopID();
+
+
                 ImGui::PopItemWidth();
-                ImGui::Separator();
-            }
-
-            ImGui::Text("Start Race:");
-            static uint32_t DesiredCheckpointCount = 0;
-            static float DesiredTargetTime         = 0.0f;
-            static uint32_t DesiredLapCount        = 0;
-            ImGui::PushItemWidth(75.0f);
-            ImGui::PushID("NumCheckpoints");
-            ImGui::InputScalar("##num_checkpoints_desired", ImGuiDataType_U32, &DesiredCheckpointCount);
-            ImGui::PopID();
-            ImGui::SameLine();
-            ImGui::PushID("TargetTime");
-            ImGui::InputScalar("##target_time_desired", ImGuiDataType_Float, &DesiredTargetTime);
-            ImGui::PopID();
-            ImGui::SameLine();
-            ImGui::PushID("NumLaps");
-            ImGui::InputScalar("##num_laps_desired", ImGuiDataType_U32, &DesiredLapCount);
-            ImGui::PopID();
-            ImGui::PopItemWidth();
-
-            if (ImGui::Button("Start Race")) {
-                RacingTimer->StartRace(DesiredCheckpointCount, DesiredTargetTime, DesiredLapCount);
-                RacingTimer->SetVisible(true);
-
-                bRaceStarted = true;
             }
         }
 
