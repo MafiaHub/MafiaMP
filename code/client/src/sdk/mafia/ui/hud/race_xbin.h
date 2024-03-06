@@ -17,53 +17,53 @@ namespace SDK {
              * Set the visibility of the Racing HUD Element.
              * @param bVisibility - Should the HUD Element be visible
              */
-            static void SetVisible(const bool bVisiblity);
+            static void SetVisible(const bool visiblity);
 
             /**
              * Set the Target Time on the Racing HUD Element.
              * Note that this may not have an effect (eg. appear on the HUD)
              * @param InTargetTime - Target Time to show on the HUD
              */
-            static void SetTargetTime(const float InTargetTime);
+            static void SetTargetTime(const float targetTime);
 
             /**
              * Set the current Position on the Racing HUD Element.
              * Note that 'Total Positions' may need to be set before this to have an effect.
              * @param InPosition - The current position out of Total Positions
              */
-            static void SetPosition(const uint16_t InPosition);
+            static void SetPosition(const uint16_t currentPosition);
 
             /**
              * Set the max amount of Positions on the Racing HUD Element
              * @param InTotalPosition - Max number of positions
              */
-            static void SetPositionTotal(const uint16_t InTotalPosition);
+            static void SetPositionTotal(const uint16_t totalPositions);
 
             /**
              * Set the current Lap on the Racing HUD Element.
              * Note that 'Total Laps' may need to be set before this to have an effect.
              * @param InLaps - The current Lap out of Total Laps
              */
-            static void SetLaps(const uint16_t InLaps);
+            static void SetLaps(const uint16_t currentLap);
 
             /**
              * Set the number of Laps on the Racing HUD Element
              * @param InTotalPosition - Number of Laps
              */
-            static void SetLapsTotal(const uint16_t InTotalLaps);
+            static void SetLapsTotal(const uint16_t totalLaps);
 
             /**
              * Set the current Checkpoint on the Racing HUD Element.
              * Note that 'Total Checkpoints' may need to be set before this to have an effect.
              * @param InPosition - The current Checkpoint out of Total Checkpoints
              */
-            static void SetCheckpoints(const uint16_t InCheckpoint);
+            static void SetCheckpoints(const uint16_t currentCheckpoint);
 
             /**
              * Set the max amount of Checkpoints on the Racing HUD Element
              * @param InTotalPosition - Max number of checkpoints
              */
-            static void SetCheckpointsTotal(const uint16_t InTotalCheckpoints);
+            static void SetCheckpointsTotal(const uint16_t totalCheckpoints);
 
             /**
              * Set the countdown. Max is 3, Minimum is 0.
@@ -71,7 +71,7 @@ namespace SDK {
              * The caller will have to manage a timer for the countdown.
              * @param InCountdown - Current step in the Countdown
              */
-            static void SetCountdown(const uint8_t InCountdown);
+            static void SetCountdown(const uint8_t countdown);
         };
     } // namespace mafia::ui::hud
 } // namespace SDK

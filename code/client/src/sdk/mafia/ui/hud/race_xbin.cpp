@@ -7,17 +7,14 @@ namespace RaceXBinUtils
 {
     // Handy little utility function to fetch the HUDTable, for the Racing XBin.
     SDK::mafia::database::C_UIDatabase::C_HUDTable *GetHUDTable() {
-        using namespace SDK::mafia::ui;
-        using namespace SDK::mafia::database;
-        using namespace SDK::ue::sys::sodb;
 
         // Fetch database
-        C_GameGUI2Module *GameGuiModule = GetGameGui2Module();
-        SDK::ue::C_WeakPtr<C_DatabaseInterface> result = GameGuiModule->GetDatabase();
+        SDK::mafia::ui::C_GameGUI2Module *GameGuiModule = SDK::mafia::ui::GetGameGui2Module();
+        SDK::ue::C_WeakPtr<SDK::ue::sys::sodb::C_DatabaseInterface> result = GameGuiModule->GetDatabase();
 
         // need to cast to C_UIDatabase
         // TODO: Feels like this should be dynamic_cast, rather than reinterpret_cast
-        if (C_UIDatabase *database = reinterpret_cast<C_UIDatabase *>(result.Get())) {
+        if (SDK::mafia::database::C_UIDatabase *database = reinterpret_cast<SDK::mafia::database::C_UIDatabase *>(result.Get())) {
             return database->GetHUDTable();
         }
 
@@ -28,60 +25,57 @@ namespace RaceXBinUtils
 namespace SDK {
     namespace mafia::ui::hud {
 
-        // only has an effect in cpp
-        using namespace SDK::mafia::database;
-
-        void RaceXBin::SetVisible(const bool bVisiblity) {
-            if (C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
-                hudTable->m_RacingVisible = bVisiblity;
+        void RaceXBin::SetVisible(const bool visibility) {
+            if (SDK::mafia::database::C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
+                hudTable->m_bRacingVisible = visibility;
             }
         }
 
-        void RaceXBin::SetTargetTime(const float InTargetTime) {
-            if (C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
-                hudTable->m_TargetTime = InTargetTime;
+        void RaceXBin::SetTargetTime(const float targetTime) {
+            if (SDK::mafia::database::C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
+                hudTable->m_fTargetTime = targetTime;
             }
         }
 
-        void RaceXBin::SetPosition(const uint16_t InPosition) {
-            if (C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
-                hudTable->m_CurPosition = InPosition;
+        void RaceXBin::SetPosition(const uint16_t currentPosition) {
+            if (SDK::mafia::database::C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
+                hudTable->m_uCurPosition = currentPosition;
             }
         }
 
-        void RaceXBin::SetPositionTotal(const uint16_t InTotalPosition) {
-            if (C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
-                hudTable->m_TotalPositions = InTotalPosition;
+        void RaceXBin::SetPositionTotal(const uint16_t totalPositions) {
+            if (SDK::mafia::database::C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
+                hudTable->m_uTotalPositions = totalPositions;
             }
         }
 
-        void RaceXBin::SetLaps(const uint16_t InLaps) {
-            if (C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
-                hudTable->m_CurLap = InLaps;
+        void RaceXBin::SetLaps(const uint16_t currentLap) {
+            if (SDK::mafia::database::C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
+                hudTable->m_uCurLap = currentLap;
             }
         }
 
-        void RaceXBin::SetLapsTotal(const uint16_t InTotalLaps) {
-            if (C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
-                hudTable->m_TotalLaps = InTotalLaps;
+        void RaceXBin::SetLapsTotal(const uint16_t totalLaps) {
+            if (SDK::mafia::database::C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
+                hudTable->m_uTotalLaps = totalLaps;
             }
         }
 
-        void RaceXBin::SetCheckpoints(const uint16_t InCheckpoint) {
-            if (C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
-                hudTable->m_CurCheckpoint = InCheckpoint;
+        void RaceXBin::SetCheckpoints(const uint16_t currentCheckpoint) {
+            if (SDK::mafia::database::C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
+                hudTable->m_uCurCheckpoint = currentCheckpoint;
             }
         }
 
-        void RaceXBin::SetCheckpointsTotal(const uint16_t InTotalCheckpoints) {
-            if (C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
-                hudTable->m_TotalCheckpoints = InTotalCheckpoints;
+        void RaceXBin::SetCheckpointsTotal(const uint16_t totalCheckpoint) {
+            if (SDK::mafia::database::C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
+                hudTable->m_uTotalCheckpoints = totalCheckpoint;
             }
         }
 
-        void RaceXBin::SetCountdown(const uint8_t InCountdown) {
-            if (C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
-                hudTable->m_Countdown = InCountdown;
+        void RaceXBin::SetCountdown(const uint8_t countdown) {
+            if (SDK::mafia::database::C_UIDatabase::C_HUDTable *hudTable = RaceXBinUtils::GetHUDTable()) {
+                hudTable->m_uCountdown = countdown;
             }
         }
     } // namespace mafia::ui::hud

@@ -12,6 +12,7 @@
 #include "sdk/ue/game/traffic/c_streaming_traffic_module.h"
 #include "sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.h"
 #include "sdk/mafia/database/c_ui_database.h"
+#include "sdk/mafia/ui/c_game_gui_2_module.h"
 #include "sdk/mafia/ui/hud/race_xbin.h"
 #include "sdk/mafia/ui/hud/c_hud_controller.h"
 
@@ -20,7 +21,6 @@
 
 #include "game/helpers/controls.h"
 #include "game/helpers/human.h"
-#include "../../sdk/mafia/ui/c_game_gui_2_module.h"
 
 namespace MafiaMP::Core::UI {
     WorldDebug::WorldDebug() {}
@@ -249,20 +249,17 @@ namespace MafiaMP::Core::UI {
         }
 
         if (ImGui::CollapsingHeader("Racing")) {
-            using namespace SDK::mafia::ui;
-            using namespace SDK::mafia::database;
-
-            auto GameGuiModule = GetGameGui2Module();
+            SDK::mafia::ui::C_GameGUI2Module *GameGuiModule = SDK::mafia::ui::GetGameGui2Module();
             SDK::ue::C_WeakPtr<SDK::ue::sys::sodb::C_DatabaseInterface> result = GameGuiModule->GetDatabase();
-            if (C_UIDatabase *database = reinterpret_cast<C_UIDatabase *>(result.Get())) {
-                C_UIDatabase::C_HUDTable *hudTable = database->GetHUDTable();
+            if (SDK::mafia::database::C_UIDatabase *database = reinterpret_cast<SDK::mafia::database::C_UIDatabase *>(result.Get())) {
+                SDK::mafia::database::C_UIDatabase::C_HUDTable *hudTable = database->GetHUDTable();
 
                 ImGui::PushItemWidth(75.0f);
 
                 // VISIBLE
-                ImGui::Text("Racing HUDElement Visiblity");
+                ImGui::Text("Racing HUDElement Visibility");
                 ImGui::PushID("Racing_Visible");
-                ImGui::Checkbox("##racing_visible_hudtable", &hudTable->m_RacingVisible);
+                ImGui::Checkbox("##racing_visible_hudtable", &hudTable->m_bRacingVisible);
                 ImGui::PopID();
 
                 ImGui::Spacing();
@@ -270,9 +267,9 @@ namespace MafiaMP::Core::UI {
                 // LAPS
                 ImGui::Text("Current Laps / Num Laps");
                 ImGui::PushID("Laps");
-                ImGui::InputScalar("##total_laps_hudtable", ImGuiDataType_U16, &hudTable->m_CurLap);
+                ImGui::InputScalar("##total_laps_hudtable", ImGuiDataType_U16, &hudTable->m_uCurLap);
                 ImGui::SameLine();
-                ImGui::InputScalar("##curent_lap_hudtable", ImGuiDataType_U16, &hudTable->m_TotalLaps);
+                ImGui::InputScalar("##curent_lap_hudtable", ImGuiDataType_U16, &hudTable->m_uTotalLaps);
                 ImGui::PopID();
 
                 ImGui::Spacing();
@@ -280,9 +277,9 @@ namespace MafiaMP::Core::UI {
                 // POSITIONS
                 ImGui::Text("Current Position / Max Position");
                 ImGui::PushID("Positions");
-                ImGui::InputScalar("##total_position_hudtable", ImGuiDataType_U16, &hudTable->m_CurPosition);
+                ImGui::InputScalar("##total_position_hudtable", ImGuiDataType_U16, &hudTable->m_uCurPosition);
                 ImGui::SameLine();
-                ImGui::InputScalar("##curent_position_hudtable", ImGuiDataType_U16, &hudTable->m_TotalPositions);
+                ImGui::InputScalar("##curent_position_hudtable", ImGuiDataType_U16, &hudTable->m_uTotalPositions);
                 ImGui::PopID();
 
                 ImGui::Spacing();
@@ -290,9 +287,19 @@ namespace MafiaMP::Core::UI {
                 // CHECKPOINTS
                 ImGui::Text("Current Checkpoint / Max Checkpoints");
                 ImGui::PushID("Checkpoints");
-                ImGui::InputScalar("##total_checkpoint_hudtable", ImGuiDataType_U16, &hudTable->m_CurCheckpoint);
+                ImGui::InputScalar("##total_checkpoint_hudtable", ImGuiDataType_U16, &hudTable->m_uCurCheckpoint);
                 ImGui::SameLine();
-                ImGui::InputScalar("##curent_checkpoint_hudtable", ImGuiDataType_U16, &hudTable->m_TotalCheckpoints);
+                ImGui::InputScalar("##curent_checkpoint_hudtable", ImGuiDataType_U16, &hudTable->m_uTotalCheckpoints);
+                ImGui::PopID();
+
+                ImGui::Spacing();
+
+                // UNKNOWN
+                ImGui::Text("Current UNKNOWN / Max UNKNOWN");
+                ImGui::PushID("UNKNOWN");
+                ImGui::InputScalar("##total_UNKNOWN_hudtable", ImGuiDataType_U16, &hudTable->m_uUnknown1);
+                ImGui::SameLine();
+                ImGui::InputScalar("##curent_UNKNOWN_hudtable", ImGuiDataType_U16, &hudTable->m_uUnknown2);
                 ImGui::PopID();
 
                 ImGui::Spacing();
@@ -302,7 +309,7 @@ namespace MafiaMP::Core::UI {
                 ImGui::SameLine();
                 ImGui::TextDisabled("(3, 2, 1 for lights, 0 for GO). Sound is played automatically");
                 ImGui::PushID("Countdown");
-                ImGui::InputScalar("##countdown_hudtable", ImGuiDataType_U8, &hudTable->m_Countdown);
+                ImGui::InputScalar("##countdown_hudtable", ImGuiDataType_U8, &hudTable->m_uCountdown);
                 ImGui::PopID();
 
 
