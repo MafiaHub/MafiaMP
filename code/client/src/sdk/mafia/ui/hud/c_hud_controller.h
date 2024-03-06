@@ -1,5 +1,7 @@
 #pragma once
 
+#include "sdk/patterns.h"
+
 #include <utils/hooking/hooking.h>
 
 namespace SDK {
@@ -7,18 +9,17 @@ namespace SDK {
 
         class C_RaceTimer {
           public:
-            // NB: Do not use in MP!
+
             // This starts C_RaceManager!
-            // Use mafia::ui::hud::RaceXBin instead!
+            // If you do not wish to use C_RaceManager, use mafia::ui::hud::RaceXBin instead!
             void SetVisible(const bool visible) {
-                hook::this_call(0x14304F520, this, visible);
+                hook::this_call(gPatterns.C_RaceTimer_SetVisible, this, visible);
             }
 
-            // NB: Do not use in MP!
             // This starts C_RaceManager!
-            // Use mafia::ui::hud::RaceXBin instead!
+            // If you do not wish to use C_RaceManager, Use mafia::ui::hud::RaceXBin instead!
             void StartRace(const uint32_t numCheckpoints, const float targetTime, const uint32_t numLaps) {
-                hook::this_call(0x14305BF80, this, numCheckpoints, targetTime, numLaps);
+                hook::this_call(gPatterns.C_RaceTimer_StartRace, this, numCheckpoints, targetTime, numLaps);
             }
 
           private:

@@ -395,6 +395,10 @@ namespace SDK {
         uint64_t C_WeatherManager2__SetDefaultTimeFlowSpeedMult = 0x0;
         uint64_t C_WeatherManager2__SetUserTimeFlowSpeedMult    = 0x0;
         uint64_t C_WeatherManager2__SetWeatherSet               = 0x0;
+        
+        // C_RaceTimer
+        uint64_t C_RaceTimer_SetVisible = 0x0;
+        uint64_t C_RaceTimer_StartRace  = 0x0;
 
         // I_Core
         uint64_t I_Core__GetInstance = 0x0;
