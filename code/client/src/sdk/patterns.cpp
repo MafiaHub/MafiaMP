@@ -148,6 +148,7 @@ namespace SDK {
         uint64_t C_GameGUI2Module       = hook::get_opcode_address("E8 ? ? ? ? 41 8D 56 11");
         uint8_t *C_GameGUI2Module_Bytes = reinterpret_cast<uint8_t *>(C_GameGUI2Module);
 
+        gPatterns.C_GameGUI2Module__GetDatabase                 = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8D B9 ? ? ? ? 48 8B F2"));
         gPatterns.C_GameGUI2Module__GetGameGui2Module           = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 40 80 F6 01");
         gPatterns.C_GameGUI2Module__Instance                    = reinterpret_cast<uint64_t>(C_GameGUI2Module_Bytes + *(int32_t *)(C_GameGUI2Module_Bytes + 3) + 7);
         gPatterns.C_GameGUI2Module__SendHUDSimpleBooleanMessage = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 49 8B 97 ? ? ? ? 4C 8D 05 ? ? ? ?");
@@ -442,6 +443,10 @@ namespace SDK {
         gPatterns.C_WeatherManager2__SetDefaultTimeFlowSpeedMult = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 11 89 ? ? ? ? C3 CC CC CC CC CC CC CC F3 0F 11 89 ? ? ? ? C3 CC CC CC CC CC CC CC F3 0F 59 0D ? ? ? ?"));
         gPatterns.C_WeatherManager2__SetUserTimeFlowSpeedMult    = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 11 89 ? ? ? ? C3 CC CC CC CC CC CC CC 83 FA 04"));
         gPatterns.C_WeatherManager2__SetWeatherSet               = hook::get_opcode_address("E8 ? ? ? ? 48 83 7C 24 ? ? 0F 28 74 24 ?");
+
+        // C_RaceTimer
+        gPatterns.C_RaceTimer_SetVisible = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC ? 0F B6 F2"));
+        gPatterns.C_RaceTimer_StartRace = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B F9 C7 41 ? ? ? ? ? 41 0F B7 C9"));
 
         // I_Core
         gPatterns.I_Core__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 4C 8B 40 68");
