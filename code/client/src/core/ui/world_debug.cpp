@@ -8,13 +8,13 @@
 
 #include "sdk/c_game_gfx_env_eff_module.h"
 #include "sdk/entities/c_player_2.h"
-#include "sdk/mafia/framework/c_mafia_dbs.h"
-#include "sdk/ue/game/traffic/c_streaming_traffic_module.h"
-#include "sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.h"
 #include "sdk/mafia/database/c_ui_database.h"
+#include "sdk/mafia/framework/c_mafia_dbs.h"
 #include "sdk/mafia/ui/c_game_gui_2_module.h"
 #include "sdk/mafia/ui/hud/race_xbin.h"
 #include "sdk/mafia/ui/hud/c_hud_controller.h"
+#include "sdk/ue/game/traffic/c_streaming_traffic_module.h"
+#include "sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.h"
 
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_vehicle.h"
