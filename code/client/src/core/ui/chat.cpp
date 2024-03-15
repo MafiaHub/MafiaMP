@@ -1,46 +1,53 @@
 #include "chat.h"
 
-#include "core/application.h"
-#include "game/helpers/controls.h"
-
 #include <external/imgui/helpers.hpp>
 
-#include <imgui/imgui.h>
+#include "core/application.h"
+
+#include "game/helpers/controls.h"
 
 namespace MafiaMP::Core::UI {
-    void Chat::Update() {
-        ImGui::SetNextWindowSize(ImVec2(400, 300));
-        ImGui::SetNextWindowPos(ImVec2(20, 20));
-        ImGui::Begin("Chat", nullptr, ImGuiWindowFlags_NoScrollbar);
-        ImGui::BeginChild("##scrolling", ImVec2(ImGui::GetWindowWidth() * 0.95f, ImGui::GetWindowHeight() * 0.80f));
+    void Chat::OnOpen() {}
 
-        if (!_chatMessages.empty()) {
-            for (const auto &msg : _chatMessages) {
-                ImGui::TextWrapped("%s", msg.c_str());
-            }
-        }
+    void Chat::OnClose() {}
 
-        if (_newMsgArrived) {
-            if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-                ImGui::SetScrollHereY(1.0f);
-            _newMsgArrived = false;
-        }
-
+    void Chat::OnUpdate() {
         bool _wasFocused = _isFocused;
 
-        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_RETURN) && !_isFocused) {
-            _isFocused = true;
-            gApplication->LockControls(true);
-            if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-                ImGui::SetScrollHereY(1.0f);
+        ImGui::SetNextWindowSize(ImVec2(400, 300));
+        ImGui::SetNextWindowPos(ImVec2(20, 20));
+        ImGui::Begin("Chat", NULL, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+
+        {
+            ImGui::PushFontShadow(0xFF000000);
+            ImGui::BeginChild("##scrolling", ImVec2(ImGui::GetWindowWidth() * 0.95f, ImGui::GetWindowHeight() * 0.80f), false, _isFocused ? 0 : ImGuiWindowFlags_NoScrollbar);
+
+            if (!_chatMessages.empty()) {
+                for (const auto &msg : _chatMessages) {
+                    ImGui::TextWrapped("%s", msg.c_str());
+                }
+            }
+
+            if (_newMsgArrived) {
+                if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
+                    ImGui::SetScrollHereY(1.0f);
+                }
+                _newMsgArrived = false;
+            }
+
+            if (gApplication->GetInput()->IsKeyPressed(FW_KEY_RETURN) && !_isFocused) {
+                _isFocused = true;
+                LockControls(true);
+                if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
+                    ImGui::SetScrollHereY(1.0f);
+                }
+            }
+
+            ImGui::EndChild();
+            ImGui::PopFontShadow();
         }
 
-        ImGui::EndChild();
-
         if (_isFocused) {
-            ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.95f);
-            ImGui::SetKeyboardFocusHere(0);
-
             auto inputEditCallback = [&](ImGuiInputTextCallbackData *data) {
                 if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory && data->EventKey == ImGuiKey_UpArrow) {
                     if (_history.empty())
@@ -77,7 +84,9 @@ namespace MafiaMP::Core::UI {
                 return 0;
             };
 
-            ImGui::InputText("##chatinput", _inputText, sizeof(_inputText), ImGuiInputTextFlags_CallbackHistory, Framework::External::ImGUI::getCallback(inputEditCallback), &inputEditCallback);
+            ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.95f);
+            ImGui::SetKeyboardFocusHere(0);
+            ImGui::InputText("##input_text", _inputText, sizeof(_inputText), ImGuiInputTextFlags_CallbackHistory, Framework::External::ImGUI::getCallback(inputEditCallback), &inputEditCallback);
 
             if (_wasFocused && gApplication->GetInput()->IsKeyPressed(FW_KEY_RETURN)) {
                 if (strlen(_inputText)) {
@@ -87,11 +96,14 @@ namespace MafiaMP::Core::UI {
                 }
 
                 _isFocused = false;
-                gApplication->LockControls(false);
-                if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+                LockControls(false);
+
+                if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
                     ImGui::SetScrollHereY(1.0f);
+                }
             }
         }
+
         ImGui::End();
     }
 } // namespace MafiaMP::Core::UI
