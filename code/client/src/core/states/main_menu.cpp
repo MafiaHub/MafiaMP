@@ -29,7 +29,7 @@ namespace MafiaMP::Core::States {
         _shouldProceedOfflineDebug = false;
         _shouldProceedConnection   = false;
 
-        // Lock game controls
+        // Lock controls
         gApplication->LockControls(true);
 
         // Grab the view from the application
@@ -105,9 +105,7 @@ namespace MafiaMP::Core::States {
         view->Display(false);
         view->Focus(false);
 
-        // Unlock the game controls
-        Game::Helpers::Controls::Lock(false);
-
+        // Unlock controls
         gApplication->LockControls(false);
         return true;
     }

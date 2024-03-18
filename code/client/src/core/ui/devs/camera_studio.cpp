@@ -1,14 +1,13 @@
 #include "camera_studio.h"
+
+#include <MinHook.h>
+#include <utils/hooking/hooking.h>
+
 #include "game/helpers/controls.h"
 
 #include "sdk/entities/c_actor.h"
 #include "sdk/mafia/framework/c_mafia_framework.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
-
-#include <imgui/imgui.h>
-
-#include <MinHook.h>
-#include <utils/hooking/hooking.h>
 
 // todo move to hooks
 typedef void(__fastcall *C_GameCameraMafia__LockTarget_t)(void *_this, void *targetSceneObject, void *targetSceneObject2, void *unk, float distance);
@@ -31,11 +30,13 @@ static InitFunction init([]() {
     MH_CreateHook((LPVOID)C_GameCameraMafia__LockTargetAddr, (PBYTE)C_GameCameraMafia__LockTarget, reinterpret_cast<void **>(&C_GameCameraMafia__LockTarget_Original));
 });
 
-namespace MafiaMP::Core::UI {
-    CameraStudio::CameraStudio() {}
+namespace MafiaMP::Core::UI::Devs {
+    void CameraStudio::OnOpen() {}
 
-    void CameraStudio::Update() {
-        ImGui::Begin("Camera studio", &_visible);
+    void CameraStudio::OnClose() {}
+
+    void CameraStudio::OnUpdate() {
+        ImGui::Begin("Camera studio", &_open);
         {
             if (ImGui::Button("Enable")) {
                 auto addr1            = hook::get_opcode_address("E8 ? ? ? ? 33 F6 EB 9F");
@@ -123,4 +124,4 @@ namespace MafiaMP::Core::UI {
             C_GameCameraMafia__LockTarget_Original(C_GameCameraPtr, _camera, 0, 0, 0.0f);
         }
     }
-} // namespace MafiaMP::Core::UI
+} // namespace MafiaMP::Core::UI::Devs
