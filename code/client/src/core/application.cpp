@@ -159,9 +159,9 @@ namespace MafiaMP::Core {
 
             // Bypass locked controls
             if (AreControlsLocked()) {
-                DrawCornerText(CORNER_RIGHT_TOP, fmt::format("Press APPS to {} controls locked", AreControlsLockedBypassed() ? "RESTORE" : "BYPASS"));
+                DrawCornerText(CORNER_RIGHT_TOP, fmt::format("Press F1 to {} controls locked", AreControlsLockedBypassed() ? "RESTORE" : "BYPASS "));
 
-                if (_input->IsKeyPressed(FW_KEY_APPS)) {
+                if (_input->IsKeyPressed(FW_KEY_F1)) {
                     ToggleLockControlsBypass();
                 }
             }

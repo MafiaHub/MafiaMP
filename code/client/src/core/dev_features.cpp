@@ -45,24 +45,21 @@ namespace MafiaMP::Core {
         _networkStats->Update();
 
         /**
-         * F8 is for console
-         * F9 is for main menu
-         * F12 is for Steam screenshot
+         * F1 is reserved for bypassing lock controls
+         * F8 is reserved for console
+         * F9 is reserved for main menu
+         * F12 is reserved for Steam screenshot
          */
-        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F1)) {
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F2)) {
             ToggleDebugWorld();
         }
 
-        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F2)) {
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F3)) {
             ToggleDebugPlayer();
         }
 
-        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F3)) {
-            ToggleDebugVehicle();
-        }
-
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F4)) {
-            ToggleCameraStudio();
+            ToggleDebugVehicle();
         }
 
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F5)) {
@@ -363,26 +360,26 @@ namespace MafiaMP::Core {
             }
 
             if (ImGui::BeginMenu("Dialogs")) {
-                if (ImGui::MenuItem("World debug", "F1")) {
-                    ToggleDebugWorld();
-                }
-                if (ImGui::MenuItem("Player debug", "F2")) {
-                    ToggleDebugPlayer();
-                }
-                if (ImGui::MenuItem("Vehicle debug", "F3")) {
-                    ToggleDebugVehicle();
-                }
-                if (ImGui::MenuItem("Camera Studio", "F4")) {
-                    ToggleCameraStudio();
-                }
                 if (ImGui::MenuItem("Audio debug")) {
                     ToggleDebugAudio();
                 }
-                if (ImGui::MenuItem("Network stats", "F10")) {
-                    ToggleNetworkStats();
+                if (ImGui::MenuItem("Player debug", "F3")) {
+                    ToggleDebugPlayer();
+                }
+                if (ImGui::MenuItem("Vehicle debug", "F4")) {
+                    ToggleDebugVehicle();
+                }
+                if (ImGui::MenuItem("World debug", "F2")) {
+                    ToggleDebugWorld();
+                }
+                if (ImGui::MenuItem("Camera Studio")) {
+                    ToggleCameraStudio();
                 }
                 if (ImGui::MenuItem("Entity Browser", "F11")) {
                     ToggleEntityBrowser();
+                }
+                if (ImGui::MenuItem("Network stats", "F10")) {
+                    ToggleNetworkStats();
                 }
 
                 ImGui::EndMenu();
