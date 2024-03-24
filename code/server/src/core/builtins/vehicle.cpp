@@ -1,13 +1,15 @@
 #include "vehicle.h"
 #include "player.h"
 
-#include "scripting/engines/node/engine.h"
+#include "scripting/engine.h"
+#include "scripting/v8_helpers/helpers.h"
+
 #include "shared/game_rpc/vehicle/vehicle_setprops.h"
 #include "shared/modules/vehicle_sync.hpp"
 
 namespace MafiaMP::Scripting {
     void Vehicle::EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex) {
-        const auto engine = MafiaMP::Server::GetNodeEngine();
+        const auto engine = MafiaMP::Server::GetScriptingEngine();
         V8_RESOURCE_LOCK(engine);
 
         auto vehicleObj = v8pp::class_<Vehicle>::create_object(engine->GetIsolate(), vehicle.id());
@@ -17,7 +19,7 @@ namespace MafiaMP::Scripting {
     }
 
     void Vehicle::EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player) {
-        const auto engine = MafiaMP::Server::GetNodeEngine();
+        const auto engine = MafiaMP::Server::GetScriptingEngine();
         V8_RESOURCE_LOCK(engine)
 
         auto vehicleObj = v8pp::class_<Vehicle>::create_object(engine->GetIsolate(), vehicle.id());
@@ -48,11 +50,11 @@ namespace MafiaMP::Scripting {
     v8::Local<v8::Object> Vehicle::GetColorPrimary() {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-        auto colorRGB = Framework::Scripting::Engines::Node::Builtins::ColorRGB::FromVec4(vehData->colorPrimary);
-        return v8pp::class_<Framework::Scripting::Engines::Node::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
+        auto colorRGB = Framework::Scripting::Builtins::ColorRGB::FromVec4(vehData->colorPrimary);
+        return v8pp::class_<Framework::Scripting::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
     }
 
-    void Vehicle::SetColorPrimary(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb) {
+    void Vehicle::SetColorPrimary(Framework::Scripting::Builtins::ColorRGB rgb) {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
         auto vec4Color = glm::vec4(rgb.GetFloatR(), rgb.GetFloatG(), rgb.GetFloatB(), 1.0f);
@@ -66,11 +68,11 @@ namespace MafiaMP::Scripting {
     v8::Local<v8::Object> Vehicle::GetColorSecondary() {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-        auto colorRGB = Framework::Scripting::Engines::Node::Builtins::ColorRGB::FromVec4(vehData->colorSecondary);
-        return v8pp::class_<Framework::Scripting::Engines::Node::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
+        auto colorRGB = Framework::Scripting::Builtins::ColorRGB::FromVec4(vehData->colorSecondary);
+        return v8pp::class_<Framework::Scripting::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
     }
 
-    void Vehicle::SetColorSecondary(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb) {
+    void Vehicle::SetColorSecondary(Framework::Scripting::Builtins::ColorRGB rgb) {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
         auto vec4Color = glm::vec4(rgb.GetFloatR(), rgb.GetFloatG(), rgb.GetFloatB(), 1.0f);
@@ -175,11 +177,11 @@ namespace MafiaMP::Scripting {
     v8::Local<v8::Object> Vehicle::GetRimColor() {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-        auto colorRGB = Framework::Scripting::Engines::Node::Builtins::ColorRGB::FromVec4(vehData->rimColor);
-        return v8pp::class_<Framework::Scripting::Engines::Node::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
+        auto colorRGB = Framework::Scripting::Builtins::ColorRGB::FromVec4(vehData->rimColor);
+        return v8pp::class_<Framework::Scripting::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
     }
 
-    void Vehicle::SetRimColor(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb) {
+    void Vehicle::SetRimColor(Framework::Scripting::Builtins::ColorRGB rgb) {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
         auto vec4Color = glm::vec4(rgb.GetFloatR(), rgb.GetFloatG(), rgb.GetFloatB(), 1.0f);
@@ -219,11 +221,11 @@ namespace MafiaMP::Scripting {
     v8::Local<v8::Object> Vehicle::GetTireColor() {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-        auto colorRGB = Framework::Scripting::Engines::Node::Builtins::ColorRGB::FromVec4(vehData->tireColor);
-        return v8pp::class_<Framework::Scripting::Engines::Node::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
+        auto colorRGB = Framework::Scripting::Builtins::ColorRGB::FromVec4(vehData->tireColor);
+        return v8pp::class_<Framework::Scripting::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
     }
 
-    void Vehicle::SetTireColor(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb) {
+    void Vehicle::SetTireColor(Framework::Scripting::Builtins::ColorRGB rgb) {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
         auto vec4Color = glm::vec4(rgb.GetFloatR(), rgb.GetFloatG(), rgb.GetFloatB(), 1.0f);
@@ -237,11 +239,11 @@ namespace MafiaMP::Scripting {
     v8::Local<v8::Object> Vehicle::GetWindowTint() {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
-        auto colorRGBA = Framework::Scripting::Engines::Node::Builtins::ColorRGBA::FromVec4(vehData->windowTint);
-        return v8pp::class_<Framework::Scripting::Engines::Node::Builtins::ColorRGBA>::create_object(v8::Isolate::GetCurrent(), colorRGBA.GetR(), colorRGBA.GetG(), colorRGBA.GetB(), colorRGBA.GetA());
+        auto colorRGBA = Framework::Scripting::Builtins::ColorRGBA::FromVec4(vehData->windowTint);
+        return v8pp::class_<Framework::Scripting::Builtins::ColorRGBA>::create_object(v8::Isolate::GetCurrent(), colorRGBA.GetR(), colorRGBA.GetG(), colorRGBA.GetB(), colorRGBA.GetA());
     }
 
-    void Vehicle::SetWindowTint(Framework::Scripting::Engines::Node::Builtins::ColorRGBA rgba) {
+    void Vehicle::SetWindowTint(Framework::Scripting::Builtins::ColorRGBA rgba) {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
         auto vec4Color = glm::vec4(rgba.GetFloatR(), rgba.GetFloatG(), rgba.GetFloatB(), rgba.GetFloatA());

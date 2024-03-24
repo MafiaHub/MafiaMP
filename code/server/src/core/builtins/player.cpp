@@ -7,8 +7,10 @@
 #include "shared/game_rpc/human/human_setprops.h"
 #include "shared/rpc/chat_message.h"
 
+#include "scripting/v8_helpers/helpers.h"
+
 namespace MafiaMP::Scripting {
-    v8::Local<v8::Object> Human::WrapHuman(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e) {
+    v8::Local<v8::Object> Human::WrapHuman(Framework::Scripting::Engine *engine, flecs::entity e) {
         return v8pp::class_<Scripting::Human>::create_object(engine->GetIsolate(), e.id());
     }
 
@@ -67,21 +69,21 @@ namespace MafiaMP::Scripting {
     }
 
     void Human::EventPlayerDied(flecs::entity e) {
-        const auto engine = MafiaMP::Server::GetNodeEngine();
+        const auto engine = MafiaMP::Server::GetScriptingEngine();
         V8_RESOURCE_LOCK(engine);
         auto playerObj = WrapHuman(engine, e);
         engine->InvokeEvent("playerDied", playerObj);
     }
 
     void Human::EventPlayerConnected(flecs::entity e) {
-        const auto engine = MafiaMP::Server::GetNodeEngine();
+        const auto engine = MafiaMP::Server::GetScriptingEngine();
         V8_RESOURCE_LOCK(engine);
         auto playerObj = WrapHuman(engine, e);
         engine->InvokeEvent("playerConnected", playerObj);
     }
 
     void Human::EventPlayerDisconnected(flecs::entity e) {
-        const auto engine = MafiaMP::Server::GetNodeEngine();
+        const auto engine = MafiaMP::Server::GetScriptingEngine();
         V8_RESOURCE_LOCK(engine);
         auto playerObj = WrapHuman(engine, e);
         engine->InvokeEvent("playerDisconnected", playerObj);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "scripting/engines/node/engine.h"
-#include "scripting/engines/node/sdk.h"
+#include "scripting/server_engine.h"
+#include "scripting/v8_helpers/helpers.h"
 
 #include "shared/rpc/chat_message.h"
 
@@ -29,13 +29,13 @@ namespace MafiaMP::Scripting {
         }
 
         static void EventChatMessage(flecs::entity e, std::string message) {
-            const auto engine = MafiaMP::Server::GetNodeEngine();
+            const auto engine = MafiaMP::Server::GetScriptingEngine();
             V8_RESOURCE_LOCK(engine);
             engine->InvokeEvent("chatMessage", Human::WrapHuman(engine, e), message);
         }
 
         static void EventChatCommand(flecs::entity e, std::string message, std::string command, std::vector<std::string> args) {
-            const auto engine = MafiaMP::Server::GetNodeEngine();
+            const auto engine = MafiaMP::Server::GetScriptingEngine();
             V8_RESOURCE_LOCK(engine);
             engine->InvokeEvent("chatCommand", Human::WrapHuman(engine, e), message, command, args);
         }

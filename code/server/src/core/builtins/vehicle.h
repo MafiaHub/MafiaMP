@@ -3,10 +3,10 @@
 #include "core/modules/vehicle.h"
 
 #include "integrations/server/scripting/builtins/node/entity.h"
-#include "scripting/engines/node/engine.h"
 
-#include "scripting/engines/node/builtins/color_rgb.h"
-#include "scripting/engines/node/builtins/color_rgba.h"
+#include "scripting/server_engine.h"
+#include "scripting/builtins/color_rgb.h"
+#include "scripting/builtins/color_rgba.h"
 
 namespace MafiaMP::Scripting {
     class Vehicle final: public Framework::Integrations::Scripting::Entity {
@@ -24,10 +24,10 @@ namespace MafiaMP::Scripting {
         void SetBeaconLightsOn(bool on);
 
         v8::Local<v8::Object> GetColorPrimary();
-        void SetColorPrimary(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb);
+        void SetColorPrimary(Framework::Scripting::Builtins::ColorRGB rgb);
 
         v8::Local<v8::Object> GetColorSecondary();
-        void SetColorSecondary(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb);
+        void SetColorSecondary(Framework::Scripting::Builtins::ColorRGB rgb);
 
         float GetDirt();
         void SetDirt(float dirt);
@@ -51,7 +51,7 @@ namespace MafiaMP::Scripting {
         void SetRadioStationId(int id);
 
         v8::Local<v8::Object> GetRimColor();
-        void SetRimColor(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb);
+        void SetRimColor(Framework::Scripting::Builtins::ColorRGB rgb);
 
         float GetRust();
         void SetRust(float rust);
@@ -60,10 +60,10 @@ namespace MafiaMP::Scripting {
         void SetSirenOn(bool on);
 
         v8::Local<v8::Object> GetTireColor();
-        void SetTireColor(Framework::Scripting::Engines::Node::Builtins::ColorRGB rgb);
+        void SetTireColor(Framework::Scripting::Builtins::ColorRGB rgb);
 
         v8::Local<v8::Object> GetWindowTint();
-        void SetWindowTint(Framework::Scripting::Engines::Node::Builtins::ColorRGBA tint);
+        void SetWindowTint(Framework::Scripting::Builtins::ColorRGBA tint);
 
 
     };
