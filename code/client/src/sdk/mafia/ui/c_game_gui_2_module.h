@@ -7,9 +7,9 @@
 
 #include "support/c_fader.h"
 
-#include "sdk/ue/c_variant.h"
-#include "sdk/ue/c_weak_ptr.h"
-#include "sdk/ue/sys/sodb/c_database_interface.h"
+#include "../../ue/c_variant.h"
+#include "../../ue/c_weak_ptr.h"
+#include "../../ue/sys/sodb/c_database_interface.h"
 
 #include <cstdint>
 

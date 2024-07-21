@@ -1,1 +1,1 @@
-#include "sdk/mafia/database/c_ui_database.h"
+#include "c_ui_database.h"

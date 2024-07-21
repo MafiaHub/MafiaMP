@@ -258,49 +258,39 @@ namespace MafiaMP::Core::UI {
 
                 // VISIBLE
                 ImGui::Text("Racing HUDElement Visibility");
-                ImGui::PushID("Racing_Visible");
                 ImGui::Checkbox("##racing_visible_hudtable", &hudTable->m_bRacingVisible);
-                ImGui::PopID();
 
                 ImGui::Spacing();
 
                 // LAPS
                 ImGui::Text("Current Laps / Num Laps");
-                ImGui::PushID("Laps");
                 ImGui::InputScalar("##total_laps_hudtable", ImGuiDataType_U16, &hudTable->m_uCurLap);
                 ImGui::SameLine();
                 ImGui::InputScalar("##curent_lap_hudtable", ImGuiDataType_U16, &hudTable->m_uTotalLaps);
-                ImGui::PopID();
 
                 ImGui::Spacing();
 
                 // POSITIONS
                 ImGui::Text("Current Position / Max Position");
-                ImGui::PushID("Positions");
                 ImGui::InputScalar("##total_position_hudtable", ImGuiDataType_U16, &hudTable->m_uCurPosition);
                 ImGui::SameLine();
                 ImGui::InputScalar("##curent_position_hudtable", ImGuiDataType_U16, &hudTable->m_uTotalPositions);
-                ImGui::PopID();
 
                 ImGui::Spacing();
 
                 // CHECKPOINTS
                 ImGui::Text("Current Checkpoint / Max Checkpoints");
-                ImGui::PushID("Checkpoints");
                 ImGui::InputScalar("##total_checkpoint_hudtable", ImGuiDataType_U16, &hudTable->m_uCurCheckpoint);
                 ImGui::SameLine();
                 ImGui::InputScalar("##curent_checkpoint_hudtable", ImGuiDataType_U16, &hudTable->m_uTotalCheckpoints);
-                ImGui::PopID();
 
                 ImGui::Spacing();
 
                 // UNKNOWN
                 ImGui::Text("Current UNKNOWN / Max UNKNOWN");
-                ImGui::PushID("UNKNOWN");
                 ImGui::InputScalar("##total_UNKNOWN_hudtable", ImGuiDataType_U16, &hudTable->m_uUnknown1);
                 ImGui::SameLine();
                 ImGui::InputScalar("##curent_UNKNOWN_hudtable", ImGuiDataType_U16, &hudTable->m_uUnknown2);
-                ImGui::PopID();
 
                 ImGui::Spacing();
 
@@ -308,9 +298,7 @@ namespace MafiaMP::Core::UI {
                 ImGui::Text("Countdown");
                 ImGui::SameLine();
                 ImGui::TextDisabled("(3, 2, 1 for lights, 0 for GO). Sound is played automatically");
-                ImGui::PushID("Countdown");
                 ImGui::InputScalar("##countdown_hudtable", ImGuiDataType_U8, &hudTable->m_uCountdown);
-                ImGui::PopID();
 
 
                 ImGui::PopItemWidth();

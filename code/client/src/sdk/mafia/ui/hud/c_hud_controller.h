@@ -1,8 +1,6 @@
 #pragma once
 
-#include "sdk/patterns.h"
-
-#include <utils/hooking/hooking.h>
+#include "../../../patterns.h"
 
 namespace SDK {
     namespace mafia::ui::hud {

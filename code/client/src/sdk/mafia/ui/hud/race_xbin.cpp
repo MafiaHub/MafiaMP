@@ -1,7 +1,7 @@
 #include "race_xbin.h"
 
-#include "sdk/mafia/database/c_ui_database.h"
-#include "sdk/mafia/ui/c_game_gui_2_module.h"
+#include "../../database/c_ui_database.h"
+#include "../c_game_gui_2_module.h"
 
 namespace RaceXBinUtils
 {

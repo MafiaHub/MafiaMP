@@ -90,10 +90,13 @@ namespace MafiaMP::Core {
             ToggleVehicleDebug();
         }
 
+        static bool bTempLockControls = false;
         if (gApplication->_input->IsKeyPressed(FW_KEY_F4)) {
-            gApplication->GetImGUI()->ShowCursor(!_cameraStudio->IsVisible());
-            MafiaMP::Game::Helpers::Controls::Lock(!_cameraStudio->IsVisible());
-            ToggleCameraStudio();
+            //gApplication->GetImGUI()->ShowCursor(!_cameraStudio->IsVisible());
+            //MafiaMP::Game::Helpers::Controls::Lock(!_cameraStudio->IsVisible());
+            //ToggleCameraStudio();
+            bTempLockControls = !bTempLockControls;
+            gApplication->LockControls(bTempLockControls);
         }
 
         if (gApplication->_input->IsKeyPressed(FW_KEY_F5)) {
