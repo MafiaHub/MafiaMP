@@ -10,19 +10,19 @@ namespace MafiaMP::Scripting {
     void Vehicle::EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex) {
         const auto engine = MafiaMP::Server::GetScriptingEngine();
 
-        /*auto vehicleObj = v8pp::class_<Vehicle>::create_object(engine->GetIsolate(), vehicle.id());
-        auto playerObj  = Human::WrapHuman(engine, player);
+        auto vehicleObj = Vehicle(vehicle.id());
+        auto playerObj  = Human(player.id());
 
-        engine->InvokeEvent("vehiclePlayerEnter", vehicleObj, playerObj, seatIndex);*/
+        engine->InvokeEvent("vehiclePlayerEnter", vehicleObj, playerObj, seatIndex);
     }
 
     void Vehicle::EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player) {
         const auto engine = MafiaMP::Server::GetScriptingEngine();
 
-        /*auto vehicleObj = v8pp::class_<Vehicle>::create_object(engine->GetIsolate(), vehicle.id());
-        auto playerObj  = Human::WrapHuman(engine, player);
+        auto vehicleObj = Vehicle(vehicle.id());
+        auto playerObj  = Human(player.id());
 
-        engine->InvokeEvent("vehiclePlayerLeave", vehicleObj, playerObj);*/
+        engine->InvokeEvent("vehiclePlayerLeave", vehicleObj, playerObj);
     }
 
     std::string Vehicle::ToString() const {
@@ -44,12 +44,12 @@ namespace MafiaMP::Scripting {
         FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
     }
 
-    /*v8::Local<v8::Object> Vehicle::GetColorPrimary() {
+    Framework::Scripting::Builtins::ColorRGB Vehicle::GetColorPrimary() {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
         auto colorRGB = Framework::Scripting::Builtins::ColorRGB::FromVec4(vehData->colorPrimary);
-        return v8pp::class_<Framework::Scripting::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
-    }*/
+        return colorRGB;
+    }
 
     void Vehicle::SetColorPrimary(Framework::Scripting::Builtins::ColorRGB rgb) {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
@@ -62,12 +62,12 @@ namespace MafiaMP::Scripting {
         FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
     }
 
-    /*v8::Local<v8::Object> Vehicle::GetColorSecondary() {
+    Framework::Scripting::Builtins::ColorRGB Vehicle::GetColorSecondary() {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
         auto colorRGB = Framework::Scripting::Builtins::ColorRGB::FromVec4(vehData->colorSecondary);
-        return v8pp::class_<Framework::Scripting::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
-    }*/
+        return colorRGB;
+    }
 
     void Vehicle::SetColorSecondary(Framework::Scripting::Builtins::ColorRGB rgb) {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
@@ -171,12 +171,12 @@ namespace MafiaMP::Scripting {
         FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
     }
 
-    /*v8::Local<v8::Object> Vehicle::GetRimColor() {
+    Framework::Scripting::Builtins::ColorRGB Vehicle::GetRimColor() {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
         auto colorRGB = Framework::Scripting::Builtins::ColorRGB::FromVec4(vehData->rimColor);
-        return v8pp::class_<Framework::Scripting::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
-    }*/
+        return colorRGB;
+    }
 
     void Vehicle::SetRimColor(Framework::Scripting::Builtins::ColorRGB rgb) {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
@@ -215,12 +215,12 @@ namespace MafiaMP::Scripting {
         FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
     }
 
-    /*v8::Local<v8::Object> Vehicle::GetTireColor() {
+    Framework::Scripting::Builtins::ColorRGB Vehicle::GetTireColor() {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
         auto colorRGB = Framework::Scripting::Builtins::ColorRGB::FromVec4(vehData->tireColor);
-        return v8pp::class_<Framework::Scripting::Builtins::ColorRGB>::create_object(v8::Isolate::GetCurrent(), colorRGB.GetR(), colorRGB.GetG(), colorRGB.GetB());
-    }*/
+        return colorRGB;
+    }
 
     void Vehicle::SetTireColor(Framework::Scripting::Builtins::ColorRGB rgb) {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
@@ -233,12 +233,12 @@ namespace MafiaMP::Scripting {
         FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
     }
 
-    /*v8::Local<v8::Object> Vehicle::GetWindowTint() {
+    Framework::Scripting::Builtins::ColorRGBA Vehicle::GetWindowTint() {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
         auto colorRGBA = Framework::Scripting::Builtins::ColorRGBA::FromVec4(vehData->windowTint);
-        return v8pp::class_<Framework::Scripting::Builtins::ColorRGBA>::create_object(v8::Isolate::GetCurrent(), colorRGBA.GetR(), colorRGBA.GetG(), colorRGBA.GetB(), colorRGBA.GetA());
-    }*/
+        return colorRGBA;
+    }
 
     void Vehicle::SetWindowTint(Framework::Scripting::Builtins::ColorRGBA rgba) {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
@@ -255,10 +255,10 @@ namespace MafiaMP::Scripting {
         sol::usertype<Vehicle> cls = luaEngine.new_usertype<Vehicle>("Vehicle", sol::constructors<Vehicle(uint64_t)>(), sol::base_classes, sol::bases<Entity>());
         cls["getBeaconLightsOn"] = &Vehicle::GetBeaconLightsOn;
         cls["setBeaconLightsOn"] = &Vehicle::SetBeaconLightsOn;
-        //cls["getColorPrimary"] = &Vehicle::GetColorPrimary;
-        //cls["setColorPrimary"] = &Vehicle::SetColorPrimary;
-        //cls["getColorSecondary"] = &Vehicle::GetColorSecondary;
-        //cls["setColorSecondary"] = &Vehicle::SetColorSecondary;
+        cls["getColorPrimary"] = &Vehicle::GetColorPrimary;
+        cls["setColorPrimary"] = &Vehicle::SetColorPrimary;
+        cls["getColorSecondary"] = &Vehicle::GetColorSecondary;
+        cls["setColorSecondary"] = &Vehicle::SetColorSecondary;
         cls["getDirt"] = &Vehicle::GetDirt;
         cls["setDirt"] = &Vehicle::SetDirt;
         cls["getEngineOn"] = &Vehicle::GetEngineOn;
@@ -273,15 +273,15 @@ namespace MafiaMP::Scripting {
         cls["setRadioOn"] = &Vehicle::SetRadioOn;
         cls["getRadioStationId"] = &Vehicle::GetRadioStationId;
         cls["setRadioStationId"] = &Vehicle::SetRadioStationId;
-        //cls["getRimColor"] = &Vehicle::GetRimColor;
-        //cls["setRimColor"] = &Vehicle::SetRimColor;
+        cls["getRimColor"] = &Vehicle::GetRimColor;
+        cls["setRimColor"] = &Vehicle::SetRimColor;
         cls["getRust"] = &Vehicle::GetRust;
         cls["setRust"] = &Vehicle::SetRust;
         cls["getSirenOn"] = &Vehicle::GetSirenOn;
         cls["setSirenOn"] = &Vehicle::SetSirenOn;
-        //cls["getTireColor"] = &Vehicle::GetTireColor;
-        //cls["setTireColor"] = &Vehicle::SetTireColor;
-        //cls["getWindowTint"] = &Vehicle::GetWindowTint;
-        //cls["setWindowTint"] = &Vehicle::SetWindowTint;
+        cls["getTireColor"] = &Vehicle::GetTireColor;
+        cls["setTireColor"] = &Vehicle::SetTireColor;
+        cls["getWindowTint"] = &Vehicle::GetWindowTint;
+        cls["setWindowTint"] = &Vehicle::SetWindowTint;
     }
 } // namespace MafiaMP::Scripting

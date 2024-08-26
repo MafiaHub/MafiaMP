@@ -6,6 +6,7 @@
 #include "scripting/server_engine.h"
 
 namespace MafiaMP::Scripting {
+    class Vehicle;
     class Human final: public Framework::Integrations::Scripting::Entity {
       public:
         Human(flecs::entity_t ent): Entity(ent) {}
@@ -16,8 +17,6 @@ namespace MafiaMP::Scripting {
 
         static void Register(sol::state &luaEngine);
 
-        //static v8::Local<v8::Object> WrapHuman(Framework::Scripting::Engine *engine, flecs::entity e);
-
         std::string ToString() const override;
 
         void Destroy();
@@ -26,7 +25,7 @@ namespace MafiaMP::Scripting {
 
         void SendChat(std::string message);
 
-        // v8::Local<v8::Value> GetVehicle() const;
+        Vehicle GetVehicle() const;
         int GetVehicleSeat() const;
 
         static void SendChatToAll(std::string message);

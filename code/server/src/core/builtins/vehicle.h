@@ -25,10 +25,10 @@ namespace MafiaMP::Scripting {
         bool GetBeaconLightsOn();
         void SetBeaconLightsOn(bool on);
 
-        // v8::Local<v8::Object> GetColorPrimary();
+        Framework::Scripting::Builtins::ColorRGB GetColorPrimary();
         void SetColorPrimary(Framework::Scripting::Builtins::ColorRGB rgb);
 
-        // v8::Local<v8::Object> GetColorSecondary();
+        Framework::Scripting::Builtins::ColorRGB GetColorSecondary();
         void SetColorSecondary(Framework::Scripting::Builtins::ColorRGB rgb);
 
         float GetDirt();
@@ -52,7 +52,7 @@ namespace MafiaMP::Scripting {
         int GetRadioStationId();
         void SetRadioStationId(int id);
 
-        // v8::Local<v8::Object> GetRimColor();
+        Framework::Scripting::Builtins::ColorRGB GetRimColor();
         void SetRimColor(Framework::Scripting::Builtins::ColorRGB rgb);
 
         float GetRust();
@@ -61,10 +61,10 @@ namespace MafiaMP::Scripting {
         bool GetSirenOn();
         void SetSirenOn(bool on);
 
-        // v8::Local<v8::Object> GetTireColor();
+        Framework::Scripting::Builtins::ColorRGB GetTireColor();
         void SetTireColor(Framework::Scripting::Builtins::ColorRGB rgb);
 
-        // v8::Local<v8::Object> GetWindowTint();
+        Framework::Scripting::Builtins::ColorRGBA GetWindowTint();
         void SetWindowTint(Framework::Scripting::Builtins::ColorRGBA tint);
 
 

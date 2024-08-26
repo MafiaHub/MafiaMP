@@ -31,14 +31,12 @@ namespace MafiaMP::Scripting {
 
         static void EventChatMessage(flecs::entity e, std::string message) {
             const auto engine = MafiaMP::Server::GetScriptingEngine();
-            // TODO: fix
-            //engine->InvokeEvent("chatMessage", Human::WrapHuman(engine, e), message);
+            engine->InvokeEvent("chatMessage", Human(e), message);
         }
 
         static void EventChatCommand(flecs::entity e, std::string message, std::string command, std::vector<std::string> args) {
             const auto engine = MafiaMP::Server::GetScriptingEngine();
-            // TODO: fix
-            // engine->InvokeEvent("chatCommand", Human::WrapHuman(engine, e), message, command, args);
+            engine->InvokeEvent("chatCommand", Human(e), message, command, args);
         }
 
         static void Register(sol::state &luaEngine) {
