@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sol/sol.hpp>
+
 #include "integrations/server/scripting/builtins/node/entity.h"
 #include "scripting/server_engine.h"
 
@@ -12,19 +14,19 @@ namespace MafiaMP::Scripting {
         static void EventPlayerConnected(flecs::entity e);
         static void EventPlayerDisconnected(flecs::entity e);
 
-        static void Register(v8::Isolate *isolate, v8pp::module *rootModule);
+        static void Register(sol::state &luaEngine);
 
-        static v8::Local<v8::Object> WrapHuman(Framework::Scripting::Engine *engine, flecs::entity e);
+        //static v8::Local<v8::Object> WrapHuman(Framework::Scripting::Engine *engine, flecs::entity e);
 
         std::string ToString() const override;
 
-        void Destroy(v8::Isolate *isolate);
+        void Destroy();
 
         void AddWeapon(int weaponId, int ammo);
 
         void SendChat(std::string message);
 
-        v8::Local<v8::Value> GetVehicle() const;
+        // v8::Local<v8::Value> GetVehicle() const;
         int GetVehicleSeat() const;
 
         static void SendChatToAll(std::string message);

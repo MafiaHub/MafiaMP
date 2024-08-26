@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sol/sol.hpp>
+
 #include "core/modules/vehicle.h"
 
 #include "integrations/server/scripting/builtins/node/entity.h"
@@ -16,17 +18,17 @@ namespace MafiaMP::Scripting {
         static void EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex);
         static void EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player);
 
-        static void Register(v8::Isolate *isolate, v8pp::module *rootModule);
+        static void Register(sol::state &luaEngine);
 
         std::string ToString() const override;
 
         bool GetBeaconLightsOn();
         void SetBeaconLightsOn(bool on);
 
-        v8::Local<v8::Object> GetColorPrimary();
+        // v8::Local<v8::Object> GetColorPrimary();
         void SetColorPrimary(Framework::Scripting::Builtins::ColorRGB rgb);
 
-        v8::Local<v8::Object> GetColorSecondary();
+        // v8::Local<v8::Object> GetColorSecondary();
         void SetColorSecondary(Framework::Scripting::Builtins::ColorRGB rgb);
 
         float GetDirt();
@@ -50,7 +52,7 @@ namespace MafiaMP::Scripting {
         int GetRadioStationId();
         void SetRadioStationId(int id);
 
-        v8::Local<v8::Object> GetRimColor();
+        // v8::Local<v8::Object> GetRimColor();
         void SetRimColor(Framework::Scripting::Builtins::ColorRGB rgb);
 
         float GetRust();
@@ -59,10 +61,10 @@ namespace MafiaMP::Scripting {
         bool GetSirenOn();
         void SetSirenOn(bool on);
 
-        v8::Local<v8::Object> GetTireColor();
+        // v8::Local<v8::Object> GetTireColor();
         void SetTireColor(Framework::Scripting::Builtins::ColorRGB rgb);
 
-        v8::Local<v8::Object> GetWindowTint();
+        // v8::Local<v8::Object> GetWindowTint();
         void SetWindowTint(Framework::Scripting::Builtins::ColorRGBA tint);
 
 

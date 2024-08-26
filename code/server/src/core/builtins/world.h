@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sol/sol.hpp>
+
 #include "scripting/server_engine.h"
 
 #include "../modules/environment.h"
@@ -14,19 +16,6 @@
 namespace MafiaMP::Scripting {
     class World final {
       public:
-        static v8::Local<v8::Object> WrapVehicle(v8::Isolate *isolate, flecs::entity e) {
-            return v8pp::class_<Scripting::Vehicle>::create_object(isolate, e.id());
-        }
-
-        static v8::Local<v8::Object> CreateVehicle(v8::Isolate *isolate, std::string modelName) {
-            auto e = MafiaMP::Core::Modules::Vehicle::Create(Server::_serverRef);
-
-            auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
-            frame->modelName = modelName;
-
-            return WrapVehicle(isolate, e);
-        }
-
         static void SetWeather(std::string weatherSetName) {
             auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
@@ -43,17 +32,10 @@ namespace MafiaMP::Scripting {
             FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, {}, weather->_dayTimeHours);
         }
 
-        static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
-            // Create the environment module
-            v8pp::module environment(isolate);
-            environment.function("setWeather", &World::SetWeather);
-            environment.function("setDayTimeHours", &World::SetDayTimeHours);
-            rootModule->submodule("Environment", environment);
-
-            // Create the world module
-            v8pp::module world(isolate);
-            world.function("createVehicle", &World::CreateVehicle);
-            rootModule->submodule("World", world);
+        static void Register(sol::state &luaEngine) {
+            sol::usertype<World> cls = luaEngine.new_usertype<World>("World");
+            cls["setWeather"]        = &World::SetWeather;
+            cls["setDayTimeHours"]   = &World::SetDayTimeHours;
         }
     };
 } // namespace MafiaMP::Scripting

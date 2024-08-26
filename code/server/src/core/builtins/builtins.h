@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sol/sol.hpp>
+
 #include "scripting/server_engine.h"
 
 #include "chat.h"
@@ -10,11 +12,11 @@
 namespace MafiaMP::Scripting {
     class Builtins final {
       public:
-        static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
-            Scripting::Chat::Register(isolate, rootModule);
-            Scripting::Human::Register(isolate, rootModule);
-            Scripting::Vehicle::Register(isolate, rootModule);
-            Scripting::World::Register(isolate, rootModule);
+        static void Register(sol::state &luaEngine) {
+            Scripting::Chat::Register(luaEngine);
+            Scripting::Human::Register(luaEngine);
+            Scripting::Vehicle::Register(luaEngine);
+            Scripting::World::Register(luaEngine);
         }
     };
 } // namespace MafiaMP::Scripting

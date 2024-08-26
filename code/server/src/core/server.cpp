@@ -63,7 +63,7 @@ namespace MafiaMP {
     }
 
     void Server::ModuleRegister(Framework::Scripting::SDKRegisterWrapper sdk) {
-        MafiaMP::Scripting::Builtins::Register(sdk.GetEngine()->GetIsolate(), sdk.GetEngine()->GetModule());
+        MafiaMP::Scripting::Builtins::Register(sdk.GetEngine()->GetLuaEngine());
     }
 
     void Server::InitRPCs() {
