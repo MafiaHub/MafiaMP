@@ -32,10 +32,20 @@ namespace MafiaMP::Scripting {
             FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, {}, weather->_dayTimeHours);
         }
 
+        static Vehicle CreateVehicle(std::string modelName) {
+            auto e = MafiaMP::Core::Modules::Vehicle::Create(Server::_serverRef);
+
+            auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
+            frame->modelName = modelName;
+
+            return Vehicle(e);
+        }
+
         static void Register(sol::state &luaEngine) {
             sol::usertype<World> cls = luaEngine.new_usertype<World>("World");
             cls["setWeather"]        = &World::SetWeather;
             cls["setDayTimeHours"]   = &World::SetDayTimeHours;
+            cls["createVehicle"] = &World::CreateVehicle;
         }
     };
 } // namespace MafiaMP::Scripting
