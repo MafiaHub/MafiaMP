@@ -63,6 +63,7 @@ namespace MafiaMP {
     }
 
     void Server::ModuleRegister(Framework::Scripting::SDKRegisterWrapper sdk) {
+        _scriptingEngine = reinterpret_cast<Framework::Scripting::ServerEngine*>(sdk.GetEngine());
         MafiaMP::Scripting::Builtins::Register(sdk.GetEngine()->GetLuaEngine());
     }
 
