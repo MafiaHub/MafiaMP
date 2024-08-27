@@ -31,7 +31,7 @@ namespace MafiaMP::Scripting {
         const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
         if (carEnt.is_valid() && carEnt.is_alive()) {
-            return Vehicle(carEnt.id());
+            return Vehicle(carEnt);
         }
         return Vehicle(-1);
     }

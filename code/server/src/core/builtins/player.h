@@ -10,6 +10,7 @@ namespace MafiaMP::Scripting {
     class Human final: public Framework::Integrations::Scripting::Entity {
       public:
         Human(flecs::entity_t ent): Entity(ent) {}
+        Human(flecs::entity ent): Entity(ent) {}
 
         static void EventPlayerDied(flecs::entity e);
         static void EventPlayerConnected(flecs::entity e);

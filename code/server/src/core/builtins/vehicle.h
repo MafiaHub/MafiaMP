@@ -14,6 +14,7 @@ namespace MafiaMP::Scripting {
     class Vehicle final: public Framework::Integrations::Scripting::Entity {
       public:
         Vehicle(flecs::entity_t ent): Entity(ent) {}
+        Vehicle(flecs::entity ent): Entity(ent) {}
 
         static void EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex);
         static void EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player);

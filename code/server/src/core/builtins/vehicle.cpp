@@ -10,8 +10,8 @@ namespace MafiaMP::Scripting {
     void Vehicle::EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex) {
         const auto engine = MafiaMP::Server::GetScriptingEngine();
 
-        auto vehicleObj = Vehicle(vehicle.id());
-        auto playerObj  = Human(player.id());
+        auto vehicleObj = Vehicle(vehicle);
+        auto playerObj  = Human(player);
 
         engine->InvokeEvent("vehiclePlayerEnter", vehicleObj, playerObj, seatIndex);
     }
@@ -19,8 +19,8 @@ namespace MafiaMP::Scripting {
     void Vehicle::EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player) {
         const auto engine = MafiaMP::Server::GetScriptingEngine();
 
-        auto vehicleObj = Vehicle(vehicle.id());
-        auto playerObj  = Human(player.id());
+        auto vehicleObj = Vehicle(vehicle);
+        auto playerObj  = Human(player);
 
         engine->InvokeEvent("vehiclePlayerLeave", vehicleObj, playerObj);
     }
