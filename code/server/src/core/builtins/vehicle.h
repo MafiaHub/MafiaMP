@@ -13,8 +13,15 @@
 namespace MafiaMP::Scripting {
     class Vehicle final: public Framework::Integrations::Scripting::Entity {
       public:
-        Vehicle(flecs::entity_t ent): Entity(ent) {}
-        Vehicle(flecs::entity ent): Entity(ent) {}
+        Vehicle(flecs::entity_t ent) : Entity(ent) {
+            const auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+
+            if (!vehData) {
+                throw std::runtime_error(fmt::format("Entity handle '{}' is not a Vehicle!", ent));
+            }
+        }
+        
+        Vehicle(flecs::entity ent): Vehicle(ent.id()) {}
 
         static void EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex);
         static void EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player);

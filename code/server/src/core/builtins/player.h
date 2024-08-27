@@ -3,14 +3,22 @@
 #include <sol/sol.hpp>
 
 #include "integrations/server/scripting/builtins/node/entity.h"
+#include "shared/modules/human_sync.hpp"
 #include "scripting/server_engine.h"
 
 namespace MafiaMP::Scripting {
     class Vehicle;
     class Human final: public Framework::Integrations::Scripting::Entity {
       public:
-        Human(flecs::entity_t ent): Entity(ent) {}
-        Human(flecs::entity ent): Entity(ent) {}
+        Human(flecs::entity_t ent): Entity(ent) {
+            const auto humanData = _ent.get<Shared::Modules::HumanSync::UpdateData>();
+
+            if (!humanData) {
+                throw std::runtime_error(fmt::format("Entity handle '{}' is not a Human!", ent));
+            }
+        }
+
+        Human(flecs::entity ent): Human(ent.id()) {}
 
         static void EventPlayerDied(flecs::entity e);
         static void EventPlayerConnected(flecs::entity e);
