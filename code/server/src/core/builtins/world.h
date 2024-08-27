@@ -19,24 +19,24 @@ namespace MafiaMP::Scripting {
         static void SetWeather(std::string weatherSetName) {
             auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
-            auto weather             = world->get_mut<Core::Modules::Environment::Weather>();
-            weather->_weatherSetName = weatherSetName;
-            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, SLNet::RakString(weather->_weatherSetName.c_str()), {});
+            auto weather             = world->ensure<Core::Modules::Environment::Weather>();
+            weather._weatherSetName = weatherSetName;
+            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, SLNet::RakString(weather._weatherSetName.c_str()), {});
         }
 
         static void SetDayTimeHours(float dayTimeHours) {
             auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
-            auto weather           = world->get_mut<Core::Modules::Environment::Weather>();
-            weather->_dayTimeHours = dayTimeHours;
-            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, {}, weather->_dayTimeHours);
+            auto weather           = world->ensure<Core::Modules::Environment::Weather>();
+            weather._dayTimeHours = dayTimeHours;
+            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, {}, weather._dayTimeHours);
         }
 
         static Vehicle CreateVehicle(std::string modelName) {
             auto e = MafiaMP::Core::Modules::Vehicle::Create(Server::_serverRef);
 
-            auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
-            frame->modelName = modelName;
+            auto frame       = e.ensure<Framework::World::Modules::Base::Frame>();
+            frame.modelName = modelName;
 
             return Vehicle(e);
         }
