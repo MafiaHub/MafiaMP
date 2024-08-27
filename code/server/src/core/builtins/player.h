@@ -1,30 +1,32 @@
 #pragma once
 
+#include <sol/sol.hpp>
+
 #include "integrations/server/scripting/builtins/node/entity.h"
-#include "scripting/engines/node/engine.h"
+#include "scripting/server_engine.h"
 
 namespace MafiaMP::Scripting {
+    class Vehicle;
     class Human final: public Framework::Integrations::Scripting::Entity {
       public:
         Human(flecs::entity_t ent): Entity(ent) {}
+        Human(flecs::entity ent): Entity(ent) {}
 
         static void EventPlayerDied(flecs::entity e);
         static void EventPlayerConnected(flecs::entity e);
         static void EventPlayerDisconnected(flecs::entity e);
 
-        static void Register(v8::Isolate *isolate, v8pp::module *rootModule);
-
-        static v8::Local<v8::Object> WrapHuman(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e);
+        static void Register(sol::state &luaEngine);
 
         std::string ToString() const override;
 
-        void Destroy(v8::Isolate *isolate);
+        void Destroy();
 
         void AddWeapon(int weaponId, int ammo);
 
         void SendChat(std::string message);
 
-        v8::Local<v8::Value> GetVehicle() const;
+        Vehicle GetVehicle() const;
         int GetVehicleSeat() const;
 
         static void SendChatToAll(std::string message);
