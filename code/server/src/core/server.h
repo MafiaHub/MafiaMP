@@ -17,7 +17,7 @@ namespace MafiaMP {
 
         void PreShutdown() override;
 
-        void ModuleRegister(Framework::Scripting::SDKRegisterWrapper sdk) override;
+        void ModuleRegister(Framework::Scripting::ServerEngine *engine) override;
 
         void InitRPCs();
 
