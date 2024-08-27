@@ -99,11 +99,11 @@ namespace MafiaMP::Core::Modules {
 
     void Vehicle::Create(flecs::entity e, std::string modelName) {
         auto info          = Core::gApplication->GetEntityFactory()->RequestVehicle(std::move(modelName));
-        auto trackingData  = e.ensure<Core::Modules::Vehicle::Tracking>();
+        auto &trackingData  = e.ensure<Core::Modules::Vehicle::Tracking>();
         trackingData.info = info;
         trackingData.car  = nullptr;
 
-        auto interp = e.ensure<Interpolated>();
+        auto &interp = e.ensure<Interpolated>();
         interp.interpolator.GetPosition()->SetCompensationFactor(1.5f);
 
         e.add<Shared::Modules::Mod::EntityKind>();

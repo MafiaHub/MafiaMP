@@ -166,11 +166,11 @@ namespace MafiaMP::Core::Modules {
 
     void Human::Create(flecs::entity e, uint64_t spawnProfile) {
         auto info           = Core::gApplication->GetEntityFactory()->RequestHuman(spawnProfile);
-        auto trackingData   = e.ensure<Core::Modules::Human::Tracking>();
+        auto &trackingData   = e.ensure<Core::Modules::Human::Tracking>();
         trackingData.info  = info;
         trackingData.human = nullptr;
 
-        auto interp = e.ensure<Interpolated>();
+        auto &interp = e.ensure<Interpolated>();
         interp.interpolator.GetPosition()->SetCompensationFactor(1.5f);
 
         e.add<HumanData>();
@@ -228,7 +228,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::SetupLocalPlayer(Application *, flecs::entity e) {
-        auto trackingData   = e.ensure<Core::Modules::Human::Tracking>();
+        auto &trackingData   = e.ensure<Core::Modules::Human::Tracking>();
         trackingData.human = Game::Helpers::Controls::GetLocalPlayer();
         trackingData.info  = nullptr;
 
