@@ -29,9 +29,9 @@ namespace MafiaMP {
         GetWorldEngine()->GetWorld()->import <Core::Modules::Vehicle>();
 
         // Setup specific components - default values
-        auto weather             = GetWorldEngine()->GetWorld()->get_mut<Core::Modules::Environment::Weather>();
-        weather->_weatherSetName = "_default_game";
-        weather->_dayTimeHours   = 11.0f;
+        auto weather             = GetWorldEngine()->GetWorld()->ensure<Core::Modules::Environment::Weather>();
+        weather._weatherSetName = "_default_game";
+        weather._dayTimeHours   = 11.0f;
     }
 
     void Server::PostUpdate() {}
