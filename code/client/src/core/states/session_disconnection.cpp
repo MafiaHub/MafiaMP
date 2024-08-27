@@ -3,6 +3,8 @@
 
 #include <utils/states/machine.h>
 
+#include "core/application.h"
+
 namespace MafiaMP::Core::States {
     SessionDisconnectionState::SessionDisconnectionState() {}
 
@@ -18,6 +20,7 @@ namespace MafiaMP::Core::States {
 
     bool SessionDisconnectionState::OnEnter(Framework::Utils::States::Machine *machine) {
         machine->RequestNextState(StateIds::MainMenu);
+
         return true;
     }
 

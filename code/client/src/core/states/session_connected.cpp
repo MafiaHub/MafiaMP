@@ -1,8 +1,6 @@
 #include "session_connected.h"
 #include "states.h"
 
-#include "../../game/helpers/controls.h"
-
 #include <utils/states/machine.h>
 
 #include <external/imgui/widgets/corner_text.h>
@@ -23,29 +21,30 @@ namespace MafiaMP::Core::States {
     }
 
     bool SessionConnectedState::OnEnter(Framework::Utils::States::Machine *) {
-        // Reset camera by player
-        //TODO
+        // Open Chat without disabling controls
+        gApplication->GetChat()->Open(false);
+
         return true;
     }
 
     bool SessionConnectedState::OnExit(Framework::Utils::States::Machine *) {
+        gApplication->GetChat()->Close();
+
         return true;
     }
 
     bool SessionConnectedState::OnUpdate(Framework::Utils::States::Machine *) {
         gApplication->GetImGUI()->PushWidget([]() {
-            using namespace Framework::External::ImGUI::Widgets;
+            gApplication->GetChat()->Update();
 
-            if (!gApplication->GetDevConsole()->IsOpen()) {
-                gApplication->GetChat()->Update();
-            }
-
+            using namespace Framework::External::ImGUI::Widgets; // For DrawCornerText() and Corner enum
             DrawCornerText(CORNER_RIGHT_TOP, "YOU ARE CONNECTED");
             DrawCornerText(CORNER_RIGHT_TOP, "Press F9 to disconnect");
         });
 
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F9)) {
             gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect();
+            return true;
         }
         return false;
     }
