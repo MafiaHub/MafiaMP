@@ -8,6 +8,8 @@
 #include "support/c_fader.h"
 
 #include "../../ue/c_variant.h"
+#include "../../ue/c_weak_ptr.h"
+#include "../../ue/sys/sodb/c_database_interface.h"
 
 #include <cstdint>
 
@@ -39,6 +41,8 @@ namespace SDK {
             mafia::ui::menu::C_MainMenu *GetMainMenu() {
                 return *reinterpret_cast<mafia::ui::menu::C_MainMenu **>((uint64_t)this + 0x0C0);
             }
+
+             ue::C_WeakPtr<ue::sys::sodb::C_DatabaseInterface> GetDatabase();
 
             static C_GameGUI2Module *GetInstance();
         };
