@@ -1,7 +1,6 @@
 #include "console.h"
 #include "../application.h"
 #include <cxxopts/cxxopts.hpp>
-#include <external/optick/wrapper.h>
 #include <fmt/core.h>
 #include <imgui/imgui.h>
 #include <logging/logger.h>

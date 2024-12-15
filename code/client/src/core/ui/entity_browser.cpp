@@ -45,7 +45,7 @@ namespace MafiaMP::Core::UI {
                 _filterList.clear();
             }
 
-            if (ImGui::ListBoxHeader("Entity types")) {
+            if (ImGui::BeginListBox("Entity types")) {
                 size_t i = 0;
                 for (auto &[entityType, entityName] : _allTypes) {
                     if (ImGui::Checkbox(entityName.c_str(), &_checkedTypes[i])) {
@@ -58,7 +58,7 @@ namespace MafiaMP::Core::UI {
                     i++;
                 }
 
-                ImGui::ListBoxFooter();
+                ImGui::EndListBox();
             }
 
             ImGui::NewLine();
@@ -88,7 +88,7 @@ namespace MafiaMP::Core::UI {
             ImGui::Text("Name filter");
 
             const auto entityCount = entityList->GetEntityCount();
-            if (ImGui::ListBoxHeader("Entity list")) {
+            if (ImGui::BeginListBox("Entity list")) {
                 // bool first = true;
                 for (size_t i = 0; i < entityCount; i++) {
                     auto entity = entityList->GetEntityByIndex(i);
@@ -146,7 +146,7 @@ namespace MafiaMP::Core::UI {
                     }
                 }
 
-                ImGui::ListBoxFooter();
+                ImGui::EndListBox();
             }
 
             if (_selectedIndex >= 0 && _selectedIndex <= entityCount) {
