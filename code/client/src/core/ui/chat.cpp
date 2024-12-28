@@ -19,7 +19,6 @@ namespace MafiaMP::Core::UI {
         ImGui::Begin("Chat", NULL, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
         {
-            ImGui::PushFontShadow(0xFF000000);
             ImGui::BeginChild("##scrolling", ImVec2(ImGui::GetWindowWidth() * 0.95f, ImGui::GetWindowHeight() * 0.80f), false, _isFocused ? 0 : ImGuiWindowFlags_NoScrollbar);
 
             if (!_chatMessages.empty()) {
@@ -44,7 +43,6 @@ namespace MafiaMP::Core::UI {
             }
 
             ImGui::EndChild();
-            ImGui::PopFontShadow();
         }
 
         if (_isFocused) {
