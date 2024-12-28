@@ -64,17 +64,17 @@ namespace MafiaMP::Scripting {
 
     void Human::EventPlayerDied(flecs::entity e) {
         const auto engine = MafiaMP::Server::GetScriptingEngine();
-        engine->InvokeEvent("playerDied", Human(e));
+        engine->InvokeEvent("onPlayerDied", Human(e));
     }
 
     void Human::EventPlayerConnected(flecs::entity e) {
         const auto engine = MafiaMP::Server::GetScriptingEngine();
-        engine->InvokeEvent("playerConnected", Human(e));
+        engine->InvokeEvent("onPlayerConnected", Human(e));
     }
 
     void Human::EventPlayerDisconnected(flecs::entity e) {
         const auto engine = MafiaMP::Server::GetScriptingEngine();
-        engine->InvokeEvent("playerDisconnected", Human(e));
+        engine->InvokeEvent("onPlayerDisconnected", Human(e));
     }
 
     void Human::Register(sol::state &luaEngine) {

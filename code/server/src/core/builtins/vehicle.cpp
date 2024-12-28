@@ -13,7 +13,7 @@ namespace MafiaMP::Scripting {
         auto vehicleObj = Vehicle(vehicle);
         auto playerObj  = Human(player);
 
-        engine->InvokeEvent("vehiclePlayerEnter", vehicleObj, playerObj, seatIndex);
+        engine->InvokeEvent("onVehiclePlayerEnter", vehicleObj, playerObj, seatIndex);
     }
 
     void Vehicle::EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player) {
@@ -22,7 +22,7 @@ namespace MafiaMP::Scripting {
         auto vehicleObj = Vehicle(vehicle);
         auto playerObj  = Human(player);
 
-        engine->InvokeEvent("vehiclePlayerLeave", vehicleObj, playerObj);
+        engine->InvokeEvent("onVehiclePlayerLeave", vehicleObj, playerObj);
     }
 
     std::string Vehicle::ToString() const {
