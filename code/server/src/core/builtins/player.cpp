@@ -8,18 +8,14 @@
 #include "shared/rpc/chat_message.h"
 
 namespace MafiaMP::Scripting {
-    v8::Local<v8::Object> Human::WrapHuman(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e) {
-        return v8pp::class_<Scripting::Human>::create_object(engine->GetIsolate(), e.id());
-    }
-
     std::string Human::ToString() const {
         std::ostringstream ss;
         ss << "Human{ id: " << _ent.id() << " }";
         return ss.str();
     }
 
-    void Human::Destroy(v8::Isolate *isolate) {
-        isolate->ThrowException(v8::Exception::Error(v8::String::NewFromUtf8(isolate, "Human object can not be destroyed!").ToLocalChecked()));
+    void Human::Destroy() {
+        // Nothing should happen here, as the entity is destroyed by the game and network systems
     }
 
     void Human::AddWeapon(int weaponId, int ammo) {
@@ -31,13 +27,13 @@ namespace MafiaMP::Scripting {
         FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(str->guid), message);
     }
 
-    v8::Local<v8::Value> Human::GetVehicle() const {
+    Vehicle Human::GetVehicle() const {
         const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
         if (carEnt.is_valid() && carEnt.is_alive()) {
-            return v8pp::class_<Vehicle>::create_object(v8::Isolate::GetCurrent(), carEnt.id());
+            return Vehicle(carEnt);
         }
-        return v8::Undefined(v8::Isolate::GetCurrent());
+        return Vehicle(-1);
     }
 
     int Human::GetVehicleSeat() const {
@@ -67,41 +63,29 @@ namespace MafiaMP::Scripting {
     }
 
     void Human::EventPlayerDied(flecs::entity e) {
-        const auto engine = MafiaMP::Server::GetNodeEngine();
-        V8_RESOURCE_LOCK(engine);
-        auto playerObj = WrapHuman(engine, e);
-        engine->InvokeEvent("playerDied", playerObj);
+        const auto engine = MafiaMP::Server::GetScriptingEngine();
+        engine->InvokeEvent("onPlayerDied", Human(e));
     }
 
     void Human::EventPlayerConnected(flecs::entity e) {
-        const auto engine = MafiaMP::Server::GetNodeEngine();
-        V8_RESOURCE_LOCK(engine);
-        auto playerObj = WrapHuman(engine, e);
-        engine->InvokeEvent("playerConnected", playerObj);
+        const auto engine = MafiaMP::Server::GetScriptingEngine();
+        engine->InvokeEvent("onPlayerConnected", Human(e));
     }
 
     void Human::EventPlayerDisconnected(flecs::entity e) {
-        const auto engine = MafiaMP::Server::GetNodeEngine();
-        V8_RESOURCE_LOCK(engine);
-        auto playerObj = WrapHuman(engine, e);
-        engine->InvokeEvent("playerDisconnected", playerObj);
+        const auto engine = MafiaMP::Server::GetScriptingEngine();
+        engine->InvokeEvent("onPlayerDisconnected", Human(e));
     }
 
-    void Human::Register(v8::Isolate *isolate, v8pp::module *rootModule) {
-        if (!rootModule) {
-            return;
-        }
-
-        v8pp::class_<Human> cls(isolate);
-        cls.inherit<Framework::Integrations::Scripting::Entity>();
-        cls.function("destroy", &Human::Destroy);
-        cls.function("addWeapon", &Human::AddWeapon);
-        cls.function("setHealth", &Human::SetHealth);
-        cls.function("getHealth", &Human::GetHealth);
-        cls.function("getVehicle", &Human::GetVehicle);
-        cls.function("getVehicleSeat", &Human::GetVehicleSeat);
-        cls.function("sendChat", &Human::SendChat);
-        cls.function("sendChatToAll", &Human::SendChatToAll);
-        rootModule->class_("Human", cls);
+    void Human::Register(sol::state &luaEngine) {
+        sol::usertype<Human> cls = luaEngine.new_usertype<Human>("Human", sol::constructors<Human(uint64_t)>(), sol::base_classes, sol::bases<Entity>());
+        cls["destroy"] = &Human::Destroy;
+        cls["addWeapon"] = &Human::AddWeapon;
+        cls["setHealth"] = &Human::SetHealth;
+        cls["getHealth"] = &Human::GetHealth;
+        cls["getVehicle"] = &Human::GetVehicle;
+        cls["getVehicleSeat"] = &Human::GetVehicleSeat;
+        cls["sendChat"] = &Human::SendChat;
+        cls["sendChatToAll"] = &Human::SendChatToAll;
     }
 }

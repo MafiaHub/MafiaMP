@@ -321,6 +321,13 @@ namespace SDK {
         // C_TickedModuleManager
         uint64_t C_TickedModuleManager__GetTickedModuleManager = 0x0;
 
+        // C_TrafficSpawnManager
+        uint64_t C_TrafficSpawnManager__GetCivilCarDensityMult = 0x0;
+        uint64_t C_TrafficSpawnManager__Populate             = 0x0;
+        uint64_t C_TrafficSpawnManager__SetTrainDensity      = 0x0;
+        uint64_t C_TrafficSpawnManager__SwitchAmbientTraffic = 0x0;
+        uint64_t C_TrafficSpawnManager__UpdateMaxElementsCnt = 0x0;
+
         // C_Translocator
         uint64_t C_Translocator__SpawnObject = 0x0;
         uint64_t C_Translocator__SpawnObjects = 0x0;

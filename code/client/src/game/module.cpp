@@ -6,7 +6,6 @@
 #include "sdk/entities/c_vehicle.h"
 #include "sdk/entities/human/c_human_weapon_controller.h"
 
-#include <SDL2/SDL.h>
 #include <logging/logger.h>
 #include <utils/hooking/hooking.h>
 
