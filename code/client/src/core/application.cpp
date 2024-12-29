@@ -104,11 +104,9 @@ namespace MafiaMP::Core {
 
         GetWorldEngine()->SetOnEntityDestroyCallback([](flecs::entity e) {
             const auto ekind = e.get<Shared::Modules::Mod::EntityKind>();
-            if (ekind) {
-                switch (ekind->kind) {
+            switch (ekind->kind) {
                 case Shared::Modules::Mod::MOD_PLAYER: Core::Modules::Human::Remove(e); break;
                 case Shared::Modules::Mod::MOD_VEHICLE: Core::Modules::Vehicle::Remove(e); break;
-                }
             }
 
             return true;
