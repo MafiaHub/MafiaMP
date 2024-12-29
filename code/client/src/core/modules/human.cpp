@@ -238,7 +238,7 @@ namespace MafiaMP::Core::Modules {
         e.add<Shared::Modules::Mod::EntityKind>();
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
 
-        const auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
         es->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
 
