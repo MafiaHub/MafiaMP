@@ -35,6 +35,8 @@
 #include "modules/human.h"
 #include "modules/vehicle.h"
 
+#include "game/module.h"
+
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication = nullptr;
 
@@ -62,10 +64,19 @@ namespace MafiaMP::Core {
         _input            = std::make_shared<MafiaMP::Game::GameInput>();
         _console          = std::make_shared<UI::Console>(_commandProcessor);
         _chat             = std::make_shared<UI::Chat>();
-        _webManager       = std::make_shared<UI::Web::Manager>();
+        _webManager       = std::make_shared<Framework::GUI::Manager>();
 
         if (_webManager) {
-            if (!_webManager->Init()) {
+            Framework::GUI::ViewportConfiguration vhConfiguration;
+            {
+                RECT vhRect;
+                GetClientRect(Game::gGlobals.window, &vhRect);
+                vhConfiguration = {
+                    vhRect.right - vhRect.left,
+                    vhRect.bottom - vhRect.top,
+                };
+            }
+            if (!_webManager->Init(gProjectPath, vhConfiguration, GetRenderer())) {
                 Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
                 return false;
             }
