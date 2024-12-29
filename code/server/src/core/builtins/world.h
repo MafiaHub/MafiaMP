@@ -35,8 +35,8 @@ namespace MafiaMP::Scripting {
         static Vehicle CreateVehicle(std::string modelName) {
             auto e = MafiaMP::Core::Modules::Vehicle::Create(Server::_serverRef);
 
-            auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
-            frame->modelName = modelName;
+            auto &frame       = e.ensure<Framework::World::Modules::Base::Frame>();
+            frame.modelName = modelName;
 
             return Vehicle(e);
         }
