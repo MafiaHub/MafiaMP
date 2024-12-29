@@ -10,7 +10,6 @@
 #include "luavm.h"
 #include "ui/chat.h"
 #include "ui/console.h"
-#include "ui/web/manager.h"
 
 #include "dev_features.h"
 
@@ -19,6 +18,7 @@
 #include <integrations/client/instance.h>
 #include <utils/command_processor.h>
 #include <utils/states/machine.h>
+#include <gui/manager.h>
 
 namespace MafiaMP::Core {
     class Application: public Framework::Integrations::Client::Instance {
@@ -26,7 +26,7 @@ namespace MafiaMP::Core {
         std::shared_ptr<Framework::Utils::States::Machine> _stateMachine;
         std::shared_ptr<UI::Console> _console;
         std::shared_ptr<UI::Chat> _chat;
-        std::shared_ptr<UI::Web::Manager> _webManager;
+        std::shared_ptr<Framework::GUI::Manager> _webManager;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
         std::shared_ptr<MafiaMP::Game::GameInput> _input;
@@ -98,7 +98,7 @@ namespace MafiaMP::Core {
             return _luaVM;
         }
 
-        std::shared_ptr<UI::Web::Manager> GetWebManager() const {
+        std::shared_ptr<Framework::GUI::Manager> GetWebManager() const {
             return _webManager;
         }
 
