@@ -23,9 +23,8 @@
 namespace MafiaMP::Core {
     class Application: public Framework::Integrations::Client::Instance {
       private:
-        friend class DevFeatures;
         std::shared_ptr<Framework::Utils::States::Machine> _stateMachine;
-        std::shared_ptr<UI::MafiaConsole> _console;
+        std::shared_ptr<UI::Console> _console;
         std::shared_ptr<UI::Chat> _chat;
         std::shared_ptr<UI::Web::Manager> _webManager;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
@@ -34,13 +33,18 @@ namespace MafiaMP::Core {
         std::shared_ptr<LuaVM> _luaVM;
         flecs::entity _localPlayer;
         DevFeatures _devFeatures;
+
         float _tickInterval = 0.01667f;
-        int _controlsLocked = 0;
+
+        int _lockControlsCounter   = 0;
+        bool _lockControlsBypassed = false;
 
         int _mainMenuViewId = -1;
 
       private:
         Game::Helpers::Districts _lastDistrictID = Game::Helpers::Districts::UNSPECIFIED;
+
+        void ProcessLockControls(bool lock);
 
       public:
         bool PostInit() override;
@@ -52,9 +56,14 @@ namespace MafiaMP::Core {
         void InitRPCs();
 
         void PimpMyImGUI();
+
         void LockControls(bool lock);
         bool AreControlsLocked() const {
-            return _controlsLocked > 0;
+            return _lockControlsCounter > 0;
+        }
+        void ToggleLockControlsBypass();
+        bool AreControlsLockedBypassed() const {
+            return _lockControlsBypassed;
         }
 
         std::shared_ptr<Framework::Utils::States::Machine> GetStateMachine() const {
@@ -77,7 +86,7 @@ namespace MafiaMP::Core {
             return _input;
         }
 
-        std::shared_ptr<UI::MafiaConsole> GetDevConsole() const {
+        std::shared_ptr<UI::Console> GetConsole() const {
             return _console;
         }
 

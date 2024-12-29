@@ -1,18 +1,19 @@
-#include "audio_debug.h"
-
-#include <imgui.h>
+#include "debug_audio.h"
 
 #include "sdk/c_game_audio_module.h"
 
-namespace MafiaMP::Core::UI {
-    AudioDebug::AudioDebug() {}
+namespace MafiaMP::Core::UI::Devs {
+    void DebugAudio::OnOpen() {}
 
-    void AudioDebug::Update() {
+    void DebugAudio::OnClose() {}
+
+    void DebugAudio::OnUpdate() {
         const auto pAudioModule = SDK::C_GameAudioModule::GetAudioModule();
+        if (!pAudioModule) {
+            return;
+        }
 
-        ImGui::Begin("Audio debug", &_visible, ImGuiWindowFlags_AlwaysAutoResize);
-
-        if (pAudioModule) {
+        auto windowContent = [&]() {
             ImGui::Text("Audio Device Pointer : 0x%p\n", pAudioModule->m_pAudioDevice);
 
             float masterVolume = pAudioModule->m_fMasterVolume;
@@ -41,8 +42,8 @@ namespace MafiaMP::Core::UI {
             }
 
             ImGui::Text("Dynamic Range: %i\n", pAudioModule->m_iDynamicRange);
-        }
+        };
 
-        ImGui::End();
+        CreateUIWindow("Audio debug", windowContent, &_open);
     }
-}; // namespace MafiaMP::Core::UI
+}; // namespace MafiaMP::Core::UI::Devs

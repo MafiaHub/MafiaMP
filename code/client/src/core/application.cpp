@@ -60,9 +60,9 @@ namespace MafiaMP::Core {
 
         _commandProcessor = std::make_shared<Framework::Utils::CommandProcessor>();
         _input            = std::make_shared<MafiaMP::Game::GameInput>();
-        _console          = std::make_shared<UI::MafiaConsole>(_commandProcessor, _input);
+        _console          = std::make_shared<UI::Console>(_commandProcessor);
         _chat             = std::make_shared<UI::Chat>();
-        _webManager              = std::make_shared<UI::Web::Manager>();
+        _webManager       = std::make_shared<UI::Web::Manager>();
 
         if (_webManager) {
             if (!_webManager->Init()) {
@@ -144,21 +144,29 @@ namespace MafiaMP::Core {
             discordApi->SetPresence("Freeroam", "Screwing around", discord::ActivityType::Playing);
         }
 
-#if 1
+        // Console UI
         Core::gApplication->GetImGUI()->PushWidget([&]() {
-            using namespace Framework::External::ImGUI::Widgets;
-            const auto networkClient = Core::gApplication->GetNetworkingEngine()->GetNetworkClient();
-            const auto connState     = networkClient->GetConnectionState();
-            const auto ping          = networkClient->GetPing();
-
             _console->Update();
-            _devFeatures.Update();
 
             if (_input->IsKeyPressed(FW_KEY_F8)) {
                 _console->Toggle();
             }
+        });
 
-            const char *connStateNames[] = {"Connecting", "Online", "Offline"};
+#ifdef FW_DEBUG
+        Core::gApplication->GetImGUI()->PushWidget([&]() {
+            _devFeatures.Update();
+
+            using namespace Framework::External::ImGUI::Widgets; // For DrawCornerText() and Corner enum
+
+            // Bypass locked controls
+            if (AreControlsLocked()) {
+                DrawCornerText(CORNER_RIGHT_TOP, fmt::format("Press F1 to {} controls locked", AreControlsLockedBypassed() ? "RESTORE" : "BYPASS "));
+
+                if (_input->IsKeyPressed(FW_KEY_F1)) {
+                    ToggleLockControlsBypass();
+                }
+            }
 
             // versioning
             DrawCornerText(CORNER_RIGHT_BOTTOM, "Mafia: Multiplayer");
@@ -166,6 +174,11 @@ namespace MafiaMP::Core {
             DrawCornerText(CORNER_RIGHT_BOTTOM, fmt::format("MafiaMP version: {} ({})", MafiaMP::Version::rel, MafiaMP::Version::git));
 
             // connection details
+            const auto networkClient     = Core::gApplication->GetNetworkingEngine()->GetNetworkClient();
+            const auto connState         = networkClient->GetConnectionState();
+            const auto ping              = networkClient->GetPing();
+            const char *connStateNames[] = {"Connecting", "Online", "Offline"};
+
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[connState]));
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Ping: {}", ping));
         });
@@ -267,28 +280,41 @@ namespace MafiaMP::Core {
         ImGui::GetStyle().WindowTitleAlign         = {0.5f, 0.5f};
     }
 
+    void Application::ProcessLockControls(bool lock) {
+        Game::Helpers::Controls::Lock(lock);
+
+        GetImGUI()->SetProcessEventEnabled(lock);
+        GetImGUI()->ShowCursor(lock);
+    }
+
     void Application::LockControls(bool lock) {
         if (lock) {
-            _controlsLocked++;
+            if (_lockControlsCounter == 0) {
+                ProcessLockControls(true);
+            }
+
+            _lockControlsCounter++;
         }
         else {
-            _controlsLocked = std::max(--_controlsLocked, 0);
+            _lockControlsCounter = std::max(--_lockControlsCounter, 0);
+
+            if (_lockControlsCounter == 0) {
+                ProcessLockControls(false);
+
+                // Reset bypass
+                _lockControlsBypassed = false;
+            }
+        }
+    }
+
+    void Application::ToggleLockControlsBypass() {
+        if (!AreControlsLocked()) {
+            Framework::Logging::GetLogger("Application")->error("[ToggleLockControlsBypass] Controls are not locked.");
+            return;
         }
 
-        if (_controlsLocked) {
-            // Lock game controls
-            Game::Helpers::Controls::Lock(true);
-
-            // Enable cursor
-            GetImGUI()->ShowCursor(true);
-        }
-        else {
-            // Unlock game controls
-            Game::Helpers::Controls::Lock(false);
-
-            // Disable cursor
-            GetImGUI()->ShowCursor(false);
-        }
+        ProcessLockControls(_lockControlsBypassed);
+        _lockControlsBypassed = !_lockControlsBypassed;
     }
 
     uint64_t Application::GetLocalPlayerID() {

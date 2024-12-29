@@ -1,29 +1,29 @@
 #include "network_stats.h"
-#include "../application.h"
 
 #include <slikenet/peer.h>
 #include <slikenet/statistics.h>
 
-#include <imgui.h>
+#include "core/application.h"
 
 #include "game/helpers/controls.h"
 
-namespace MafiaMP::Core::UI {
-    NetworkStats::NetworkStats() {}
+namespace MafiaMP::Core::UI::Devs {
+    void NetworkStats::OnOpen() {}
 
-    void NetworkStats::Update() {
+    void NetworkStats::OnClose() {}
+
+    void NetworkStats::OnUpdate() {
         auto localPlayer = Game::Helpers::Controls::GetLocalPlayer();
-        if (!localPlayer)
+        if (!localPlayer) {
             return;
+        }
 
-        ImGui::Begin("Network Stats", &_visible, ImGuiWindowFlags_AlwaysAutoResize);
-        {
+        auto windowContent = [&]() {
             const auto net   = gApplication->GetNetworkingEngine()->GetNetworkClient();
             const auto state = net->GetConnectionState();
 
             if (state != Framework::Networking::CONNECTED) {
                 ImGui::Text("You are currently not connected to a server!");
-                ImGui::End();
                 return;
             }
 
@@ -37,7 +37,8 @@ namespace MafiaMP::Core::UI {
             }
 
             ImGui::Text("%s", _stats);
-        }
-        ImGui::End();
+        };
+
+        CreateUIWindow("Network Stats", windowContent, &_open, ImGuiWindowFlags_AlwaysAutoResize);
     }
-} // namespace MafiaMP::Core::UI
+} // namespace MafiaMP::Core::UI::Devs

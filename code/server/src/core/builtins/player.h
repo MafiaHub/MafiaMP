@@ -2,7 +2,7 @@
 
 #include <sol/sol.hpp>
 
-#include "integrations/server/scripting/builtins/node/entity.h"
+#include "integrations/server/scripting/builtins/entity.h"
 #include "shared/modules/human_sync.hpp"
 #include "scripting/server_engine.h"
 

@@ -3,19 +3,20 @@ set(MAFIAMP_CLIENT_FILES
     src/core/luavm.cpp
     src/core/application.cpp
     src/core/dev_features.cpp
-    src/core/ui/audio_debug.cpp
-    src/core/ui/console.cpp
+    src/core/ui/ui_base.cpp
     src/core/ui/chat.cpp
-    src/core/ui/camera_studio.cpp
-    src/core/ui/entity_browser.cpp
-    src/core/ui/network_stats.cpp
-    src/core/ui/player_debug.cpp
-    src/core/ui/vehicle_debug.cpp
+    src/core/ui/console.cpp
+    src/core/ui/devs/camera_studio.cpp
+    src/core/ui/devs/debug_audio.cpp
+    src/core/ui/devs/debug_player.cpp
+    src/core/ui/devs/debug_vehicle.cpp
+    src/core/ui/devs/debug_world.cpp
+    src/core/ui/devs/entity_browser.cpp
+    src/core/ui/devs/network_stats.cpp
     src/core/ui/web/manager.cpp
     src/core/ui/web/clipboard.cpp
     src/core/ui/web/sdk.cpp
     src/core/ui/web/view.cpp
-    src/core/ui/world_debug.cpp
     src/core/states/initialize.cpp
     src/core/states/main_menu.cpp
     src/core/states/session_connected.cpp
@@ -99,6 +100,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/game/traffic/c_human_spawner.cpp
     src/sdk/ue/game/traffic/c_profile_spawner.cpp
     src/sdk/ue/game/traffic/c_streaming_traffic_module.cpp
+    src/sdk/ue/game/traffic/c_traffic_spawn_manager.cpp
     src/sdk/ue/game/translocator/c_translocator.cpp
     src/sdk/ue/game/translocator/c_translocable_object_spawner.cpp
     src/sdk/ue/game/vehicle/c_vehicle_real_light_manager.cpp

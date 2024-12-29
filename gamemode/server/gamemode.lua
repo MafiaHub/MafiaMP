@@ -1,28 +1,28 @@
-function gamemodeLoaded()
-    consoleLog("Gamemode script started")
+listenEvent("onGamemodeLoaded", function ()
+    Console:log("Gamemode script started")
 
     -- Create an RGB object
     local color2 = RGB.new(255, 0, 0)
 
-    consoleLog(color2:toString())
+    Console:log(color2:toString())
     color2:add(0, 255, 0)
-    consoleLog(color2:toString())
-end
+    Console:log(color2:toString())
+end)
 
-function gamemodeUnloading()
-    consoleLog("Gamemode script stopped")
-end
+listenEvent("onGamemodeUnloading", function()
+    Console:log("Gamemode script stopped")
+end)
 
-function gamemodeUpdated()
-    -- consoleLog("Gamemode script updated")
-end
+listenEvent("onGamemodeUpdated", function()
+    -- Console:log("Gamemode script updated")
+end)
 
-function playerConnected(player)
-    consoleLog("Player connected lol")
-end
+listenEvent("onPlayerConnected", function(player)
+    Console:log("Player connected lol")
+end)
 
-function chatMessage(player, message)
-    consoleLog("Received message: " .. message)
+listenEvent("onChatMessage", function(player, message)
+    Console:log("Received message: " .. message)
     Chat:sendToAll(message)
-    consoleLog("Forwarded message to all: " .. message)
-end
+    Console:log("Forwarded message to all: " .. message)
+end)

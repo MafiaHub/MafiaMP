@@ -358,6 +358,13 @@ namespace SDK {
         // C_TickedModuleManager
         gPatterns.C_TickedModuleManager__GetTickedModuleManager = hook::get_opcode_address("E8 ? ? ? ? 45 8B 46 24");
 
+        // C_TrafficSpawnManager
+        gPatterns.C_TrafficSpawnManager__GetCivilCarDensityMult = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC 20 45 33 C0 33 D2 48 8B D9 E8 ? ? ? ? 48 8D 0D ? ? ? ?"));
+        gPatterns.C_TrafficSpawnManager__Populate             = hook::get_opcode_address("E8 ? ? ? ? 48 8B 05 ? ? ? ? 48 89 03");
+        gPatterns.C_TrafficSpawnManager__SetTrainDensity      = reinterpret_cast<uint64_t>(hook::get_pattern("74 0C 48 8B 81 ? ? ? ? F3 0F 11 48 ?"));
+        gPatterns.C_TrafficSpawnManager__SwitchAmbientTraffic = reinterpret_cast<uint64_t>(hook::get_pattern("0F 85 ? ? ? ? 38 91 ? ? ? ? 0F 84 ? ? ? ? 48 89 5C 24 ?"));
+        gPatterns.C_TrafficSpawnManager__UpdateMaxElementsCnt = hook::get_opcode_address("E9 ? ? ? ? 48 83 C4 28 C3 CC CC CC 88 51 50");
+
         // C_Translocator
         gPatterns.C_Translocator__SpawnObject = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B C4 48 89 58 ? 48 89 70 ? 48 89 78 ? 4C 89 70 ? 55 48 8D 68 ? 48 81 EC ? ? ? ? 0F 29 70 ? 48 8B DA 48 8B 02"));
         gPatterns.C_Translocator__SpawnObjects = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B D9 48 8B FA 48 8B CA E8 ? ? ? ? 84 C0 0F 85"));

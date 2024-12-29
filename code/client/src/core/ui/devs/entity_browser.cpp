@@ -1,7 +1,6 @@
 #include "entity_browser.h"
-#include "../application.h"
 
-#include <imgui.h>
+#include "core/application.h"
 
 #include <sdk/entities/c_car.h>
 #include <sdk/entities/c_entity_list.h>
@@ -10,24 +9,30 @@
 
 #include "core/modules/human.h"
 #include "core/modules/vehicle.h"
+
 #include "game/helpers/controls.h"
 
-namespace MafiaMP::Core::UI {
-    EntityBrowser::EntityBrowser() {
+namespace MafiaMP::Core::UI::Devs {
+    EntityBrowser::EntityBrowser(): UIBase() {
         InitialiseEntityTypes();
     }
 
-    void EntityBrowser::Update() {
+    void EntityBrowser::OnOpen() {}
+
+    void EntityBrowser::OnClose() {}
+
+    void EntityBrowser::OnUpdate() {
         auto entityList = SDK::GetEntityList();
-        if (!entityList)
+        if (!entityList) {
             return;
+        }
 
         auto localPlayer = Game::Helpers::Controls::GetLocalPlayer();
-        if (!localPlayer)
+        if (!localPlayer) {
             return;
+        }
 
-        ImGui::Begin("Entity Browser", &_visible);
-        {
+        auto windowContent = [&]() {
             if (ImGui::Button("Select all")) {
                 for (size_t i = 0; i < (sizeof(_checkedTypes) / sizeof(_checkedTypes[0])); i++) _checkedTypes[i] = true;
 
@@ -45,7 +50,7 @@ namespace MafiaMP::Core::UI {
                 _filterList.clear();
             }
 
-            if (ImGui::ListBoxHeader("Entity types")) {
+            if (ImGui::BeginListBox("Entity types")) {
                 size_t i = 0;
                 for (auto &[entityType, entityName] : _allTypes) {
                     if (ImGui::Checkbox(entityName.c_str(), &_checkedTypes[i])) {
@@ -58,7 +63,7 @@ namespace MafiaMP::Core::UI {
                     i++;
                 }
 
-                ImGui::ListBoxFooter();
+                ImGui::EndListBox();
             }
 
             ImGui::NewLine();
@@ -88,7 +93,7 @@ namespace MafiaMP::Core::UI {
             ImGui::Text("Name filter");
 
             const auto entityCount = entityList->GetEntityCount();
-            if (ImGui::ListBoxHeader("Entity list")) {
+            if (ImGui::BeginListBox("Entity list")) {
                 // bool first = true;
                 for (size_t i = 0; i < entityCount; i++) {
                     auto entity = entityList->GetEntityByIndex(i);
@@ -146,7 +151,7 @@ namespace MafiaMP::Core::UI {
                     }
                 }
 
-                ImGui::ListBoxFooter();
+                ImGui::EndListBox();
             }
 
             if (_selectedIndex >= 0 && _selectedIndex <= entityCount) {
@@ -186,8 +191,9 @@ namespace MafiaMP::Core::UI {
                     }
                 }
             }
-        }
-        ImGui::End();
+        };
+
+        CreateUIWindow("Entity Browser", windowContent, &_open);
     }
 
     void EntityBrowser::InitialiseEntityTypes() {
@@ -210,4 +216,4 @@ namespace MafiaMP::Core::UI {
             {E_EntityType::E_ENTITY_HEAD_QUARTERS, "E_ENTITY_HEAD_QUARTERS"}, {E_EntityType::E_ENTITY_CRIME_BUSINESS, "E_ENTITY_CRIME_BUSINESS"}, {E_EntityType::E_ENTITY_BED, "E_ENTITY_BED"}, {E_EntityType::E_ENTITY_PROJECTILE_EXPLOSIVE, "E_ENTITY_PROJECTILE_EXPLOSIVE"},
             {E_EntityType::E_ENTITY_SATCHEL_CHARGE, "E_ENTITY_SATCHEL_CHARGE"}, {E_EntityType::E_ENTITY_LAST_ID, "E_ENTITY_LAST_ID"}};
     }
-}; // namespace MafiaMP::Core::UI
+}; // namespace MafiaMP::Core::UI::Devs

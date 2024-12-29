@@ -4,7 +4,7 @@
 
 #include <flecs/flecs.h>
 #include <glm/glm.hpp>
-#include <imgui.h>
+#include <imgui/imgui.h>
 
 #include <external/imgui/widgets/nametag.h>
 
