@@ -1,5 +1,4 @@
 #include "entity_factory.h"
-#include <flecs.h>
 
 #include <utility>
 
