@@ -176,6 +176,7 @@ namespace MafiaMP::Core::Modules {
         e.add<HumanData>();
         e.add<Shared::Modules::Mod::EntityKind>();
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
+        e.add<Shared::Modules::HumanSync::UpdateData>();
 
         const auto OnHumanRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
             CreateNetCharacterController = false;
@@ -237,6 +238,7 @@ namespace MafiaMP::Core::Modules {
         e.add<HumanData>();
         e.add<Shared::Modules::Mod::EntityKind>();
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
+        e.add<Framework::World::Modules::Base::Frame>();
 
         auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
         es->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {

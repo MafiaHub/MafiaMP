@@ -108,6 +108,7 @@ namespace MafiaMP::Core::Modules {
 
         e.add<Shared::Modules::Mod::EntityKind>();
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_VEHICLE});
+        e.add<Shared::Modules::VehicleSync::UpdateData>();
 
         const auto OnVehicleRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
             if (success) {
