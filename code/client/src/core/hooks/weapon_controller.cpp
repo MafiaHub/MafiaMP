@@ -149,13 +149,13 @@ void C_HumanWeaponController__DoWeaponReloadInventory(SDK::C_HumanWeaponControll
     C_HumanWeaponController__DoWeaponReloadInventory_original(pThis, unk);
 }
 
-typedef bool(__fastcall *C_HumanInventory__CanFire_t)(SDK::C_InventoryWrapper *);
+typedef bool(__fastcall *C_HumanInventory__CanFire_t)(SDK::C_HumanInventory *);
 C_HumanInventory__CanFire_t C_HumanInventory__CanFire_original = nullptr;
-bool C_HumanInventory__CanFire(SDK::C_InventoryWrapper *pThis) {
+bool C_HumanInventory__CanFire(SDK::C_HumanInventory *pThis) {
     auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
 
     // In case it's the local player, normal behavior
-    if (gameLocalPlayer && gameLocalPlayer->GetInventoryWrapper() == pThis) {
+    if (gameLocalPlayer && gameLocalPlayer->GetHumanInventory() == pThis) {
         return C_HumanInventory__CanFire_original(pThis);
     }
 

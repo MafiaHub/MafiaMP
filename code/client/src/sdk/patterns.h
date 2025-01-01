@@ -164,6 +164,7 @@ namespace SDK {
         uint64_t C_HumanInventory__AddItem                       = 0x0;
         uint64_t C_HumanInventory__AddItemByData                 = 0x0;
         uint64_t C_HumanInventory__AddMedkits                    = 0x0;
+        uint64_t C_HumanInventory__AddMoney                      = 0x0;
         uint64_t C_HumanInventory__AddWeapon                     = 0x0;
         uint64_t C_HumanInventory__CanAddAmmoByCategoryAux       = 0x0;
         uint64_t C_HumanInventory__CanAddAmmoByCategoryAuxAndMag = 0x0;

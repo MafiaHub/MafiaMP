@@ -185,6 +185,7 @@ namespace SDK {
         gPatterns.C_HumanInventory__AddItem                       = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 41 8B D6");
         gPatterns.C_HumanInventory__AddItemByData                 = hook::get_opcode_address("E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? 48 8B 4B 18 45 33 C9");
         gPatterns.C_HumanInventory__AddMedkits                    = hook::get_opcode_address("E8 ? ? ? ? 48 8B 8B ? ? ? ? 49 BF ? ? ? ? ? ? ? ");
+        gPatterns.C_HumanInventory__AddMoney                      = reinterpret_cast <uint64_t>(hook::get_pattern("48 01 91 ? ? ? ? B0"));
         gPatterns.C_HumanInventory__AddWeapon                     = hook::get_opcode_address("E8 ? ? ? ? 84 C0 74 44 48 8B 4B 18");
         gPatterns.C_HumanInventory__CanAddAmmoByCategoryAux       = hook::get_opcode_address("E8 ? ? ? ? 85 C0 C6 84 24 ? ? ? ? ?");
         gPatterns.C_HumanInventory__CanAddAmmoByCategoryAuxAndMag = hook::get_opcode_address("E8 ? ? ? ? 85 C0 7E 20");
