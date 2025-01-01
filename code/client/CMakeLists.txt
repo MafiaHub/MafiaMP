@@ -67,7 +67,6 @@ set(MAFIAMP_SDK_FILES
     srC/sdk/entities/c_human2.cpp
     src/sdk/entities/c_player_2.cpp
     src/sdk/entities/c_vehicle.cpp
-    src/sdk/inventory/c_inventory_wrapper.cpp
     src/sdk/mafia/framework/director/c_game_director.cpp
     src/sdk/mafia/framework/c_mafia_dbs.cpp
     src/sdk/mafia/framework/c_mafia_framework.cpp
@@ -118,6 +117,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/c_game_rendering_system_module.cpp
     src/sdk/c_game_traffic_module.cpp
     src/sdk/c_ie.cpp
+    src/sdk/c_inventory_wrapper.cpp
     src/sdk/c_player_teleport_module.cpp
     src/sdk/c_stream_map.cpp
     src/sdk/c_ticked_module_manager.cpp
