@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include "../entities/human/c_human_inventory.h"
+#include "sdk/entities/human/c_human_inventory.h"
 
 namespace SDK {
     class C_InventoryWrapper {

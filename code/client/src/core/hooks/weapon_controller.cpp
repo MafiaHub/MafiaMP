@@ -9,9 +9,9 @@
 
 #include "shared/modules/human_sync.hpp"
 
+#include "sdk/c_inventory_wrapper.h"
 #include "sdk/entities/c_player_2.h"
 #include "sdk/entities/human/c_human_weapon_controller.h"
-#include "sdk/inventory/c_inventory_wrapper.h"
 #include "sdk/ue/game/humainai/c_character_state_handler_aim.h"
 #include "sdk/ue/sys/math/c_vector.h"
 

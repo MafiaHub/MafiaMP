@@ -7,7 +7,7 @@
 #include "../c_weapon_emitter.h"
 #include "../game/ai/hear/c_actorear.h"
 #include "../game/ai/sight/c_actor_emitter.h"
-#include "../inventory/c_inventory_wrapper.h"
+#include "sdk/c_inventory_wrapper.h"
 #include "../mafia/health_system/c_health_system.h"
 #include "../ue/c_ptr.h"
 #include "../ue/game/audio/radio/c_radio_sound.h"
