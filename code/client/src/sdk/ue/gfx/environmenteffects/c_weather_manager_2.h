@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../c_string.h"
+#include "sdk/ue/c_string.h"
 
 namespace SDK {
     namespace ue::gfx::environmenteffects {
