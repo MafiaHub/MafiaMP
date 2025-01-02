@@ -33,6 +33,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/navigation.cpp
     src/core/hooks/player.cpp
     src/core/hooks/render_device.cpp
+    src/core/hooks/resource_list.cpp
     src/core/hooks/slot_wrapper.cpp
     src/core/hooks/stream_map.cpp
     src/core/hooks/tables.cpp
