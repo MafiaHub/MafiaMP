@@ -168,39 +168,6 @@ namespace MafiaMP::Core {
             "prints all available commands");
 
         gApplication->GetCommandProcessor()->RegisterCommand(
-            "test", {{"a,aargument", "Test argument 1", cxxopts::value<std::string>()}, {"b,bargument", "Test argument 2", cxxopts::value<int>()}},
-            [this](const cxxopts::ParseResult &result) {
-                if (result.count("aargument")) {
-                    std::string argument1 = result["aargument"].as<std::string>();
-                    Framework::Logging::GetLogger("Debug")->info("aargument - {}", argument1);
-                }
-                if (result.count("bargument")) {
-                    int argument2 = result["bargument"].as<int>();
-                    Framework::Logging::GetLogger("Debug")->info("bargument - {}", argument2);
-                }
-            },
-            "Testing command");
-
-        gApplication->GetCommandProcessor()->RegisterCommand(
-            "test", {},
-            [this](cxxopts::ParseResult &) {
-
-            },
-            "crashes the game");
-
-        gApplication->GetCommandProcessor()->RegisterCommand(
-            "echo", {},
-            [this](const cxxopts::ParseResult &result) {
-                std::string argsConcat;
-                cxxopts::PositionalList args = result.unmatched();
-                for (auto &arg : args) {
-                    argsConcat += arg + " ";
-                }
-                Framework::Logging::GetLogger("Debug")->info(argsConcat);
-            },
-            "[args] - prints the arguments back");
-
-        gApplication->GetCommandProcessor()->RegisterCommand(
             "exit", {},
             [this](cxxopts::ParseResult &) {
                 CloseGame();
