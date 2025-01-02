@@ -12,5 +12,7 @@ namespace SDK {
             ue::game::translocator::C_TranslocableObjectSpawner* m_pTranslocableObjectSpawner;  // 0008 - 0010
             ue::game::translocator::C_Translocator* m_pTranslocator;                            // 0010 - 0018
         };
+
+        C_TranslocatorModule *GetTranslocatorModule();
     }
 }
