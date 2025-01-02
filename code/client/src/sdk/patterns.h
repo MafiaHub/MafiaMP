@@ -427,6 +427,9 @@ namespace SDK {
         uint64_t renameme__SpawnObject2 = 0x0;
         uint64_t renameme__SpawnObject3 = 0x0;
 
+        // Script
+        uint64_t Script__GetWeaponIdByName = 0x0;
+
         static void InitPatterns();
     };
 

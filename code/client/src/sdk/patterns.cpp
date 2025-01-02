@@ -474,5 +474,8 @@ namespace SDK {
         gPatterns.renameme__SpawnObject  = hook::get_opcode_address("E8 ? ? ? ? 33 F6 EB 9F");
         gPatterns.renameme__SpawnObject2 = hook::get_opcode_address("E8 ? ? ? ? 49 8B 4C 3F ?");
         gPatterns.renameme__SpawnObject3 = hook::get_opcode_address("E8 ? ? ? ? 4C 8B E8 49 8B CD");
+
+        // script
+        gPatterns.Script__GetWeaponIdByName = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? 48 85 C9 0F 84 ? ? ? ? 80 39"));
     }
 }; // namespace SDK
