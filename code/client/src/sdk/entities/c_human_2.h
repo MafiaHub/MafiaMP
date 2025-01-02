@@ -27,6 +27,7 @@
 #include "human/c_human_script.h"
 #include "human/c_human_weapon_controller.h"
 #include "c_entity_ownership_human_car.h"
+#include "sdk/c_inventory_wrapper.h"
 
 #include <cstdint>
 
@@ -185,6 +186,10 @@ namespace SDK {
       public:
         C_HumanInventory *GetHumanInventory() {
             return m_pHumanInventory;
+        }
+
+        C_InventoryWrapper *GetInventoryWrapper() {
+            return reinterpret_cast<C_InventoryWrapper *>(m_pHumanInventory);
         }
 
         C_HumanWeaponController *GetHumanWeaponController() {
