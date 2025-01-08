@@ -45,7 +45,7 @@ namespace MafiaMP::Core::Modules {
         const auto net = server->GetNetworkingEngine()->GetNetworkServer();
         auto e         = server->GetWorldEngine()->CreateEntity();
         server->GetStreamingFactory()->SetupServer(e, SLNet::UNASSIGNED_RAKNET_GUID.g);
-        auto& frame       = e.ensure<Framework::World::Modules::Base::Frame>();
+        auto &frame     = e.ensure<Framework::World::Modules::Base::Frame>();
         frame.modelName = "berkley_810"; /* TODO */
 
         auto updateData = e.ensure<Shared::Modules::VehicleSync::UpdateData>();
@@ -143,7 +143,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Vehicle::InitRPCs(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
-        net->RegisterGameRPC<Shared::RPC::VehiclePlayerEnter>([srv](SLNet::RakNetGUID guid, Shared::RPC::VehiclePlayerEnter* msg) {
+        net->RegisterGameRPC<Shared::RPC::VehiclePlayerEnter>([srv](SLNet::RakNetGUID guid, Shared::RPC::VehiclePlayerEnter *msg) {
             const auto playerEntity = srv->GetEntityByGUID(guid.g);
             if (!playerEntity.is_alive()) {
                 return;
