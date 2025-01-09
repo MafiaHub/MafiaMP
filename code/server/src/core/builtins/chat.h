@@ -1,7 +1,8 @@
 #pragma once
 
-#include "scripting/engines/node/engine.h"
-#include "scripting/engines/node/sdk.h"
+#include <sol/sol.hpp>
+
+#include "scripting/server_engine.h"
 
 #include "shared/rpc/chat_message.h"
 
@@ -29,22 +30,19 @@ namespace MafiaMP::Scripting {
         }
 
         static void EventChatMessage(flecs::entity e, std::string message) {
-            const auto engine = MafiaMP::Server::GetNodeEngine();
-            V8_RESOURCE_LOCK(engine);
-            engine->InvokeEvent("chatMessage", Human::WrapHuman(engine, e), message);
+            const auto engine = MafiaMP::Server::GetScriptingEngine();
+            engine->InvokeEvent("chatMessage", Human(e), message);
         }
 
         static void EventChatCommand(flecs::entity e, std::string message, std::string command, std::vector<std::string> args) {
-            const auto engine = MafiaMP::Server::GetNodeEngine();
-            V8_RESOURCE_LOCK(engine);
-            engine->InvokeEvent("chatCommand", Human::WrapHuman(engine, e), message, command, args);
+            const auto engine = MafiaMP::Server::GetScriptingEngine();
+            engine->InvokeEvent("chatCommand", Human(e), message, command, args);
         }
 
-        static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
-            v8pp::module chat(isolate);
-            chat.function("sendToPlayer", &Chat::SendToPlayer);
-            chat.function("sendToAll", &Chat::SendToAll);
-            rootModule->submodule("Chat", chat);
+        static void Register(sol::state &luaEngine) {
+            sol::usertype<Chat> cls = luaEngine.new_usertype<Chat>("Chat");
+            cls["sendToPlayer"] = &Chat::SendToPlayer;
+            cls["sendToAll"]    = &Chat::SendToAll;
         }
     };
 } // namespace MafiaMP::Scripting

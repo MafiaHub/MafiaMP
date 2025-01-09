@@ -62,14 +62,9 @@ namespace MafiaMP {
         Core::Modules::Vehicle::SetupMessages(this->GetWorldEngine(), net);
     }
 
-    void Server::ModuleRegister(Framework::Scripting::Engines::SDKRegisterWrapper sdk) {
-        if (sdk.GetKind() != Framework::Scripting::ENGINE_NODE)
-            return;
-
-        _nodeEngine = sdk.GetNodeEngine();
-
-        const auto nodeSDK = sdk.GetNodeSDK();
-        MafiaMP::Scripting::Builtins::Register(nodeSDK->GetIsolate(), nodeSDK->GetModule());
+    void Server::ModuleRegister(Framework::Scripting::ServerEngine *engine) {
+        _scriptingEngine = engine;
+        MafiaMP::Scripting::Builtins::Register(_scriptingEngine->GetLuaEngine());
     }
 
     void Server::InitRPCs() {
