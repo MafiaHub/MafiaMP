@@ -1,17 +1,18 @@
 #include "vehicle.h"
-#include "player.h"
 
-#include "scripting/engine.h"
+#include "core/server.h"
 
 #include "shared/game_rpc/vehicle/vehicle_setprops.h"
 #include "shared/modules/vehicle_sync.hpp"
+
+#include "player.h"
 
 namespace MafiaMP::Scripting {
     void Vehicle::EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex) {
         const auto engine = MafiaMP::Server::GetScriptingEngine();
 
         auto vehicleObj = Vehicle(vehicle);
-        auto playerObj  = Human(player);
+        auto playerObj  = Player(player);
 
         engine->InvokeEvent("onVehiclePlayerEnter", vehicleObj, playerObj, seatIndex);
     }
@@ -20,7 +21,7 @@ namespace MafiaMP::Scripting {
         const auto engine = MafiaMP::Server::GetScriptingEngine();
 
         auto vehicleObj = Vehicle(vehicle);
-        auto playerObj  = Human(player);
+        auto playerObj  = Player(player);
 
         engine->InvokeEvent("onVehiclePlayerLeave", vehicleObj, playerObj);
     }
@@ -253,35 +254,35 @@ namespace MafiaMP::Scripting {
 
     void Vehicle::Register(sol::state &luaEngine) {
         sol::usertype<Vehicle> cls = luaEngine.new_usertype<Vehicle>("Vehicle", sol::constructors<Vehicle(uint64_t)>(), sol::base_classes, sol::bases<Entity>());
-        cls["getBeaconLightsOn"] = &Vehicle::GetBeaconLightsOn;
-        cls["setBeaconLightsOn"] = &Vehicle::SetBeaconLightsOn;
-        cls["getColorPrimary"] = &Vehicle::GetColorPrimary;
-        cls["setColorPrimary"] = &Vehicle::SetColorPrimary;
-        cls["getColorSecondary"] = &Vehicle::GetColorSecondary;
-        cls["setColorSecondary"] = &Vehicle::SetColorSecondary;
-        cls["getDirt"] = &Vehicle::GetDirt;
-        cls["setDirt"] = &Vehicle::SetDirt;
-        cls["getEngineOn"] = &Vehicle::GetEngineOn;
-        cls["setEngineOn"] = &Vehicle::SetEngineOn;
-        cls["getFuel"] = &Vehicle::GetFuel;
-        cls["setFuel"] = &Vehicle::SetFuel;
-        cls["getLicensePlate"] = &Vehicle::GetLicensePlate;
-        cls["setLicensePlate"] = &Vehicle::SetLicensePlate;
-        cls["getLockState"] = &Vehicle::GetLockState;
-        cls["setLockState"] = &Vehicle::SetLockState;
-        cls["getRadioOn"] = &Vehicle::GetRadioOn;
-        cls["setRadioOn"] = &Vehicle::SetRadioOn;
-        cls["getRadioStationId"] = &Vehicle::GetRadioStationId;
-        cls["setRadioStationId"] = &Vehicle::SetRadioStationId;
-        cls["getRimColor"] = &Vehicle::GetRimColor;
-        cls["setRimColor"] = &Vehicle::SetRimColor;
-        cls["getRust"] = &Vehicle::GetRust;
-        cls["setRust"] = &Vehicle::SetRust;
-        cls["getSirenOn"] = &Vehicle::GetSirenOn;
-        cls["setSirenOn"] = &Vehicle::SetSirenOn;
-        cls["getTireColor"] = &Vehicle::GetTireColor;
-        cls["setTireColor"] = &Vehicle::SetTireColor;
-        cls["getWindowTint"] = &Vehicle::GetWindowTint;
-        cls["setWindowTint"] = &Vehicle::SetWindowTint;
+        cls["getBeaconLightsOn"]   = &Vehicle::GetBeaconLightsOn;
+        cls["setBeaconLightsOn"]   = &Vehicle::SetBeaconLightsOn;
+        cls["getColorPrimary"]     = &Vehicle::GetColorPrimary;
+        cls["setColorPrimary"]     = &Vehicle::SetColorPrimary;
+        cls["getColorSecondary"]   = &Vehicle::GetColorSecondary;
+        cls["setColorSecondary"]   = &Vehicle::SetColorSecondary;
+        cls["getDirt"]             = &Vehicle::GetDirt;
+        cls["setDirt"]             = &Vehicle::SetDirt;
+        cls["getEngineOn"]         = &Vehicle::GetEngineOn;
+        cls["setEngineOn"]         = &Vehicle::SetEngineOn;
+        cls["getFuel"]             = &Vehicle::GetFuel;
+        cls["setFuel"]             = &Vehicle::SetFuel;
+        cls["getLicensePlate"]     = &Vehicle::GetLicensePlate;
+        cls["setLicensePlate"]     = &Vehicle::SetLicensePlate;
+        cls["getLockState"]        = &Vehicle::GetLockState;
+        cls["setLockState"]        = &Vehicle::SetLockState;
+        cls["getRadioOn"]          = &Vehicle::GetRadioOn;
+        cls["setRadioOn"]          = &Vehicle::SetRadioOn;
+        cls["getRadioStationId"]   = &Vehicle::GetRadioStationId;
+        cls["setRadioStationId"]   = &Vehicle::SetRadioStationId;
+        cls["getRimColor"]         = &Vehicle::GetRimColor;
+        cls["setRimColor"]         = &Vehicle::SetRimColor;
+        cls["getRust"]             = &Vehicle::GetRust;
+        cls["setRust"]             = &Vehicle::SetRust;
+        cls["getSirenOn"]          = &Vehicle::GetSirenOn;
+        cls["setSirenOn"]          = &Vehicle::SetSirenOn;
+        cls["getTireColor"]        = &Vehicle::GetTireColor;
+        cls["setTireColor"]        = &Vehicle::SetTireColor;
+        cls["getWindowTint"]       = &Vehicle::GetWindowTint;
+        cls["setWindowTint"]       = &Vehicle::SetWindowTint;
     }
 } // namespace MafiaMP::Scripting

@@ -10,7 +10,7 @@ namespace MafiaMP::Core::Modules {
       public:
         // server only data
         struct CarData {
-            uint64_t seats[4]{};
+            uint64_t seats[4] {};
         };
 
         Vehicle(flecs::world &world);

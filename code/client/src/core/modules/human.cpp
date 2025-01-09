@@ -20,7 +20,7 @@
 #include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
 
-#include "shared/game_rpc/add_weapon.h"
+#include "shared/game_rpc/human/human_add_weapon.h"
 #include "shared/game_rpc/human/human_changeskin.h"
 #include "shared/game_rpc/human/human_reload.h"
 #include "shared/game_rpc/human/human_setprops.h"
@@ -165,8 +165,8 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::Create(flecs::entity e, uint64_t spawnProfile) {
-        auto info           = Core::gApplication->GetEntityFactory()->RequestHuman(spawnProfile);
-        auto &trackingData   = e.ensure<Core::Modules::Human::Tracking>();
+        auto info          = Core::gApplication->GetEntityFactory()->RequestHuman(spawnProfile);
+        auto &trackingData = e.ensure<Core::Modules::Human::Tracking>();
         trackingData.info  = info;
         trackingData.human = nullptr;
 
@@ -229,7 +229,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::SetupLocalPlayer(Application *, flecs::entity e) {
-        auto &trackingData   = e.ensure<Core::Modules::Human::Tracking>();
+        auto &trackingData = e.ensure<Core::Modules::Human::Tracking>();
         trackingData.human = Game::Helpers::Controls::GetLocalPlayer();
         trackingData.info  = nullptr;
 
@@ -240,7 +240,7 @@ namespace MafiaMP::Core::Modules {
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
         e.add<Framework::World::Modules::Base::Frame>();
 
-        auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        auto es                  = e.get_mut<Framework::World::Modules::Base::Streamable>();
         es->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
 
@@ -499,7 +499,7 @@ namespace MafiaMP::Core::Modules {
             }
         });
 
-        net->RegisterGameRPC<Shared::RPC::AddWeapon>([app](SLNet::RakNetGUID guid, Shared::RPC::AddWeapon *msg) {
+        net->RegisterGameRPC<Shared::RPC::HumanAddWeapon>([app](SLNet::RakNetGUID guid, Shared::RPC::HumanAddWeapon *msg) {
             if (!msg->Valid())
                 return;
 

@@ -6,7 +6,7 @@
 #include <string>
 
 namespace MafiaMP::Shared::RPC {
-    class AddWeapon final: public Framework::Networking::RPC::IGameRPC<AddWeapon> {
+    class HumanAddWeapon final: public Framework::Networking::RPC::IGameRPC<HumanAddWeapon> {
       private:
         int weaponId;
         int ammo;
