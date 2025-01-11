@@ -93,7 +93,8 @@ namespace MafiaMP::Core::UI {
                     strcpy(_inputText, "");
                 }
 
-                _isFocused = false;
+                _historyPos = -1;
+                _isFocused  = false;
                 LockControls(false);
 
                 if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
