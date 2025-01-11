@@ -1,4 +1,8 @@
 {
-    "client_files": [],
-    "server_files": ["gamemode.lua"]
+  "client_files": [
+    "main.lua"
+  ],
+  "server_files": [
+    "main.lua"
+  ]
 }
