@@ -4,7 +4,7 @@
 
 #include <flecs/flecs.h>
 #include <glm/glm.hpp>
-#include <imgui.h>
+#include <imgui/imgui.h>
 
 #include <external/imgui/widgets/nametag.h>
 
@@ -20,7 +20,7 @@
 #include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
 
-#include "shared/game_rpc/add_weapon.h"
+#include "shared/game_rpc/human/human_add_weapon.h"
 #include "shared/game_rpc/human/human_changeskin.h"
 #include "shared/game_rpc/human/human_reload.h"
 #include "shared/game_rpc/human/human_setprops.h"
@@ -165,16 +165,18 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::Create(flecs::entity e, uint64_t spawnProfile) {
-        auto info           = Core::gApplication->GetEntityFactory()->RequestHuman(spawnProfile);
-        auto trackingData   = e.get_mut<Core::Modules::Human::Tracking>();
-        trackingData->info  = info;
-        trackingData->human = nullptr;
+        auto info          = Core::gApplication->GetEntityFactory()->RequestHuman(spawnProfile);
+        auto &trackingData = e.ensure<Core::Modules::Human::Tracking>();
+        trackingData.info  = info;
+        trackingData.human = nullptr;
 
-        auto interp = e.get_mut<Interpolated>();
-        interp->interpolator.GetPosition()->SetCompensationFactor(1.5f);
+        auto &interp = e.ensure<Interpolated>();
+        interp.interpolator.GetPosition()->SetCompensationFactor(1.5f);
 
         e.add<HumanData>();
+        e.add<Shared::Modules::Mod::EntityKind>();
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
+        e.add<Shared::Modules::HumanSync::UpdateData>();
 
         const auto OnHumanRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
             CreateNetCharacterController = false;
@@ -227,16 +229,18 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::SetupLocalPlayer(Application *, flecs::entity e) {
-        auto trackingData   = e.get_mut<Core::Modules::Human::Tracking>();
-        trackingData->human = Game::Helpers::Controls::GetLocalPlayer();
-        trackingData->info  = nullptr;
+        auto &trackingData = e.ensure<Core::Modules::Human::Tracking>();
+        trackingData.human = Game::Helpers::Controls::GetLocalPlayer();
+        trackingData.info  = nullptr;
 
         e.add<Shared::Modules::HumanSync::UpdateData>();
         e.add<Core::Modules::Human::LocalPlayer>();
         e.add<HumanData>();
+        e.add<Shared::Modules::Mod::EntityKind>();
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
+        e.add<Framework::World::Modules::Base::Frame>();
 
-        const auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        auto es                  = e.get_mut<Framework::World::Modules::Base::Streamable>();
         es->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
 
@@ -495,7 +499,7 @@ namespace MafiaMP::Core::Modules {
             }
         });
 
-        net->RegisterGameRPC<Shared::RPC::AddWeapon>([app](SLNet::RakNetGUID guid, Shared::RPC::AddWeapon *msg) {
+        net->RegisterGameRPC<Shared::RPC::HumanAddWeapon>([app](SLNet::RakNetGUID guid, Shared::RPC::HumanAddWeapon *msg) {
             if (!msg->Valid())
                 return;
 

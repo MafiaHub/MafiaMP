@@ -1,6 +1,6 @@
 #include "c_inventory_wrapper.h"
 
-#include "../patterns.h"
+#include "sdk/patterns.h"
 
 namespace SDK {
     void C_InventoryWrapper::AddMoney(uint64_t money) {

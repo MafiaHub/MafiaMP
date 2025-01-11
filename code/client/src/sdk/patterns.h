@@ -165,6 +165,7 @@ namespace SDK {
         uint64_t C_HumanInventory__AddItem                       = 0x0;
         uint64_t C_HumanInventory__AddItemByData                 = 0x0;
         uint64_t C_HumanInventory__AddMedkits                    = 0x0;
+        uint64_t C_HumanInventory__AddMoney                      = 0x0;
         uint64_t C_HumanInventory__AddWeapon                     = 0x0;
         uint64_t C_HumanInventory__CanAddAmmoByCategoryAux       = 0x0;
         uint64_t C_HumanInventory__CanAddAmmoByCategoryAuxAndMag = 0x0;
@@ -326,6 +327,13 @@ namespace SDK {
         // C_TickedModuleManager
         uint64_t C_TickedModuleManager__GetTickedModuleManager = 0x0;
 
+        // C_TrafficSpawnManager
+        uint64_t C_TrafficSpawnManager__GetCivilCarDensityMult = 0x0;
+        uint64_t C_TrafficSpawnManager__Populate             = 0x0;
+        uint64_t C_TrafficSpawnManager__SetTrainDensity      = 0x0;
+        uint64_t C_TrafficSpawnManager__SwitchAmbientTraffic = 0x0;
+        uint64_t C_TrafficSpawnManager__UpdateMaxElementsCnt = 0x0;
+
         // C_Translocator
         uint64_t C_Translocator__SpawnObject = 0x0;
         uint64_t C_Translocator__SpawnObjects = 0x0;
@@ -423,6 +431,9 @@ namespace SDK {
         uint64_t renameme__SpawnObject  = 0x0;
         uint64_t renameme__SpawnObject2 = 0x0;
         uint64_t renameme__SpawnObject3 = 0x0;
+
+        // Script
+        uint64_t Script__GetWeaponIdByName = 0x0;
 
         static void InitPatterns();
     };

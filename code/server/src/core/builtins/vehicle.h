@@ -4,7 +4,7 @@
 
 #include "core/modules/vehicle.h"
 
-#include "integrations/server/scripting/builtins/node/entity.h"
+#include "integrations/server/scripting/builtins/entity.h"
 
 #include "scripting/server_engine.h"
 #include "scripting/builtins/color_rgb.h"

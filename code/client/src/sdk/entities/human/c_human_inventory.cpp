@@ -7,6 +7,10 @@ namespace SDK {
         hook::this_call(gPatterns.C_HumanInventory__AddMedkits, this, amount);
     }
 
+    void C_HumanInventory::AddMoney(long long amnt) {
+        hook::this_call(gPatterns.C_HumanInventory__AddMoney, this, amnt);
+    }
+
     bool C_HumanInventory::CanFire() {
         return hook::this_call<bool>(gPatterns.C_HumanInventory__CanFire, this);
     }

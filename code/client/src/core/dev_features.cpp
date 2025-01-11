@@ -1,12 +1,9 @@
-/*
- * MafiaHub OSS license
- * Copyright (c) 2022, MafiaHub. All rights reserved.
- *
- * This file comes from MafiaHub, hosted at https://github.com/MafiaHub/Framework.
- * See LICENSE file in the source repository for information regarding licensing.
- */
-
 #include "dev_features.h"
+
+#include <cppfs/FileHandle.h>
+#include <cppfs/fs.h>
+#include <imgui/imgui.h>
+
 #include "application.h"
 
 #include <logging/logger.h>
@@ -20,22 +17,17 @@
 #include "sdk/entities/c_player_2.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
-#include <imgui.h>
-
-#include <cppfs/FileHandle.h>
-#include <cppfs/fs.h>
-
 #include "shared/rpc/chat_message.h"
 
 namespace MafiaMP::Core {
     DevFeatures::DevFeatures() {
-        _audioDebug    = std::make_shared<UI::AudioDebug>();
-        _cameraStudio  = std::make_shared<UI::CameraStudio>();
-        _entityBrowser = std::make_shared<UI::EntityBrowser>();
-        _networkStats  = std::make_shared<UI::NetworkStats>();
-        _playerDebug   = std::make_shared<UI::PlayerDebug>();
-        _vehicleDebug  = std::make_shared<UI::VehicleDebug>();
-        _worldDebug    = std::make_shared<UI::WorldDebug>();
+        _cameraStudio  = std::make_shared<UI::Devs::CameraStudio>();
+        _debugAudio    = std::make_shared<UI::Devs::DebugAudio>();
+        _debugPlayer   = std::make_shared<UI::Devs::DebugPlayer>();
+        _debugVehicle  = std::make_shared<UI::Devs::DebugVehicle>();
+        _debugWorld    = std::make_shared<UI::Devs::DebugWorld>();
+        _entityBrowser = std::make_shared<UI::Devs::EntityBrowser>();
+        _networkStats  = std::make_shared<UI::Devs::NetworkStats>();
     }
 
     void DevFeatures::Init() {
@@ -44,62 +36,33 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::Update() {
-        if (_audioDebug->IsVisible()) {
-            _audioDebug->Update();
-        }
-
-        if (_entityBrowser->IsVisible()) {
-            _entityBrowser->Update();
-        }
-
-        if (_cameraStudio->IsVisible()) {
-            _cameraStudio->Update();
-        }
-
-        if (_playerDebug->IsVisible()) {
-            _playerDebug->Update();
-        }
-
-        if (_vehicleDebug->IsVisible()) {
-            _vehicleDebug->Update();
-        }
-
-        if (_networkStats->IsVisible()) {
-            _networkStats->Update();
-        }
-
-        if (_worldDebug->IsVisible()) {
-            _worldDebug->Update();
-        }
+        _cameraStudio->Update();
+        _debugAudio->Update();
+        _debugPlayer->Update();
+        _debugVehicle->Update();
+        _debugWorld->Update();
+        _entityBrowser->Update();
+        _networkStats->Update();
 
         /**
-         * F8 is for console
-         * F9 is for main menu
-         * F12 is for Steam screenshot
+         * F1 is reserved for bypassing lock controls
+         * F8 is reserved for console
+         * F9 is reserved for main menu
+         * F12 is reserved for Steam screenshot
          */
-
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F1)) {
-            ToggleWorldDebug();
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F2)) {
+            ToggleDebugWorld();
         }
 
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F2)) {
-            TogglePlayerDebug();
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F3)) {
+            ToggleDebugPlayer();
         }
 
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F3)) {
-            ToggleVehicleDebug();
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F4)) {
+            ToggleDebugVehicle();
         }
 
-        static bool bTempLockControls = false;
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F4)) {
-            //gApplication->GetImGUI()->ShowCursor(!_cameraStudio->IsVisible());
-            //MafiaMP::Game::Helpers::Controls::Lock(!_cameraStudio->IsVisible());
-            //ToggleCameraStudio();
-            bTempLockControls = !bTempLockControls;
-            gApplication->LockControls(bTempLockControls);
-        }
-
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F5)) {
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F5)) {
             // If human is already created, delete it first
             if (_TEMP_HUMAN) {
                 gApplication->GetEntityFactory()->ReturnEntity(_TEMP_HUMAN);
@@ -158,7 +121,7 @@ namespace MafiaMP::Core {
             _TEMP_HUMAN->SetReturnCallback(OnHumanReturned);
         }
 
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F6)) {
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F6)) {
             if (!_TEMP_HUMAN) {
                 return;
             }
@@ -177,15 +140,15 @@ namespace MafiaMP::Core {
             Framework::Logging::GetLogger("Playground")->debug("Aiming : {}", human->GetHumanWeaponController()->IsAiming());
         }
 
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F7)) {
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F7)) {
             SpawnCrashObject();
         }
 
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F10)) {
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F10)) {
             ToggleNetworkStats();
         }
 
-        if (gApplication->_input->IsKeyPressed(FW_KEY_F11)) {
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F11)) {
             ToggleEntityBrowser();
         }
     }
@@ -193,70 +156,37 @@ namespace MafiaMP::Core {
     void DevFeatures::Shutdown() {}
 
     void DevFeatures::SetupCommands() {
-        gApplication->_commandProcessor->RegisterCommand(
+        gApplication->GetCommandProcessor()->RegisterCommand(
             "help", {},
             [this](cxxopts::ParseResult &) {
                 std::stringstream ss;
-                for (const auto &name : gApplication->_commandProcessor->GetCommandNames()) {
-                    ss << fmt::format("{} {:>8}\n", name, gApplication->_commandProcessor->GetCommandInfo(name)->options->help());
+                for (const auto &name : gApplication->GetCommandProcessor()->GetCommandNames()) {
+                    ss << fmt::format("{} {:>8}\n", name, gApplication->GetCommandProcessor()->GetCommandInfo(name)->options->help());
                 }
                 Framework::Logging::GetLogger("Debug")->info("Available commands:\n{}", ss.str());
             },
             "prints all available commands");
 
-        gApplication->_commandProcessor->RegisterCommand(
-            "test", {{"a,aargument", "Test argument 1", cxxopts::value<std::string>()}, {"b,bargument", "Test argument 2", cxxopts::value<int>()}},
-            [this](const cxxopts::ParseResult &result) {
-                if (result.count("aargument")) {
-                    std::string argument1 = result["aargument"].as<std::string>();
-                    Framework::Logging::GetLogger("Debug")->info("aargument - {}", argument1);
-                }
-                if (result.count("bargument")) {
-                    int argument2 = result["bargument"].as<int>();
-                    Framework::Logging::GetLogger("Debug")->info("bargument - {}", argument2);
-                }
-            },
-            "Testing command");
-
-        gApplication->_commandProcessor->RegisterCommand(
-            "test", {},
-            [this](cxxopts::ParseResult &) {
-
-            },
-            "crashes the game");
-
-        gApplication->_commandProcessor->RegisterCommand(
-            "echo", {},
-            [this](const cxxopts::ParseResult &result) {
-                std::string argsConcat;
-                cxxopts::PositionalList args = result.unmatched();
-                for (auto &arg : args) {
-                    argsConcat += arg + " ";
-                }
-                Framework::Logging::GetLogger("Debug")->info(argsConcat);
-            },
-            "[args] - prints the arguments back");
-
-        gApplication->_commandProcessor->RegisterCommand(
+        gApplication->GetCommandProcessor()->RegisterCommand(
             "exit", {},
             [this](cxxopts::ParseResult &) {
                 CloseGame();
             },
             "quits the game");
 
-        gApplication->_commandProcessor->RegisterCommand(
+        gApplication->GetCommandProcessor()->RegisterCommand(
             "disconnect", {},
             [this](const cxxopts::ParseResult &) {
                 Disconnect();
             },
             "disconnect from server");
 
-        gApplication->_commandProcessor->RegisterCommand(
+        gApplication->GetCommandProcessor()->RegisterCommand(
             "lua", {{"c,command", "command to execute", cxxopts::value<std::string>()->default_value("")}, {"f,file", "file to execute", cxxopts::value<std::string>()->default_value("")}},
             [this](const cxxopts::ParseResult &result) {
                 std::string command = result["command"].as<std::string>();
                 if (!command.empty()) {
-                    gApplication->_luaVM->ExecuteString(command.c_str());
+                    gApplication->GetLuaVM()->ExecuteString(command.c_str());
                 }
                 std::string filename = result["file"].as<std::string>();
                 if (!filename.empty()) {
@@ -275,27 +205,12 @@ namespace MafiaMP::Core {
                         Framework::Logging::GetLogger(LOG_LUA)->warn("Script is empty");
                         return;
                     }
-                    gApplication->_luaVM->ExecuteString(content.c_str());
+                    gApplication->GetLuaVM()->ExecuteString(content.c_str());
                 }
             },
             "executes Lua commands");
 
-        gApplication->_commandProcessor->RegisterCommand(
-            "spawnCar", {{"m,model", "model name of the car", cxxopts::value<std::string>()->default_value("berkley_810")}},
-            [this](const cxxopts::ParseResult &result) {
-                std::string modelName = result["model"].as<std::string>();
-                _worldDebug->SpawnCar(modelName);
-            },
-            "spawn a car of a given model");
-
-        gApplication->_commandProcessor->RegisterCommand(
-            "spawnCrashObject", {},
-            [this](const cxxopts::ParseResult &result) {
-                SpawnCrashObject();
-            },
-            "spawn a crash object");
-
-        gApplication->_commandProcessor->RegisterCommand(
+        gApplication->GetCommandProcessor()->RegisterCommand(
             "chat", {{"m,msg", "message to send", cxxopts::value<std::string>()->default_value("")}},
             [this](const cxxopts::ParseResult &result) {
                 const auto net = gApplication->GetNetworkingEngine()->GetNetworkClient();
@@ -307,7 +222,22 @@ namespace MafiaMP::Core {
             },
             "sends a chat message");
 
-        gApplication->_commandProcessor->RegisterCommand(
+        gApplication->GetCommandProcessor()->RegisterCommand(
+            "spawnCar", {{"m,model", "model name of the car", cxxopts::value<std::string>()->default_value("berkley_810")}},
+            [this](const cxxopts::ParseResult &result) {
+                std::string modelName = result["model"].as<std::string>();
+                _debugWorld->SpawnCar(modelName);
+            },
+            "spawn a car of a given model");
+
+        gApplication->GetCommandProcessor()->RegisterCommand(
+            "spawnCrashObject", {},
+            [this](const cxxopts::ParseResult &result) {
+                SpawnCrashObject();
+            },
+            "spawn a crash object");
+
+        gApplication->GetCommandProcessor()->RegisterCommand(
             "wep", {{"w,wep", "weapon id", cxxopts::value<int>()->default_value("85")}, {"a,ammo", "ammo count", cxxopts::value<int>()->default_value("200")}},
             [this](const cxxopts::ParseResult &result) {
                 const auto human = Game::Helpers::Controls::GetLocalPlayer();
@@ -320,58 +250,49 @@ namespace MafiaMP::Core {
             },
             "give weapon");
 
-        /*gApplication->_commandProcessor->RegisterCommand(
-            "camFPV", {},
-            [this](const cxxopts::ParseResult &result) {
-                static bool fpvOn = false;
-                fpvOn = !fpvOn;
-                MafiaMP::Game::Helpers::Camera::SetFPV(fpvOn);
-            },
-            "toggles camera first person view");*/
-
-        gApplication->_commandProcessor->RegisterCommand(
-            "showEntityBrowser", {},
-            [this](const cxxopts::ParseResult &result) {
-                ToggleEntityBrowser();
-            },
-            "toggles entity browser dialog");
-
-        gApplication->_commandProcessor->RegisterCommand(
-            "showAudioDebug", {},
-            [this](const cxxopts::ParseResult &result) {
-                ToggleAudioDebug();
-            },
-            "toggles audio debug dialog");
-
-        gApplication->_commandProcessor->RegisterCommand(
+        gApplication->GetCommandProcessor()->RegisterCommand(
             "showCameraStudio", {},
             [this](const cxxopts::ParseResult &result) {
                 ToggleCameraStudio();
             },
             "toggles camera studio dialog");
 
-        gApplication->_commandProcessor->RegisterCommand(
-            "showPlayerDebug", {},
+        gApplication->GetCommandProcessor()->RegisterCommand(
+            "showDebugAudio", {},
             [this](const cxxopts::ParseResult &result) {
-                TogglePlayerDebug();
+                ToggleDebugAudio();
+            },
+            "toggles audio debug dialog");
+
+        gApplication->GetCommandProcessor()->RegisterCommand(
+            "showDebugPlayer", {},
+            [this](const cxxopts::ParseResult &result) {
+                ToggleDebugPlayer();
             },
             "toggles player debug dialog");
 
-        gApplication->_commandProcessor->RegisterCommand(
-            "showVehicleDebug", {},
+        gApplication->GetCommandProcessor()->RegisterCommand(
+            "showDebugVehicle", {},
             [this](const cxxopts::ParseResult &result) {
-                ToggleVehicleDebug();
+                ToggleDebugVehicle();
             },
             "toggles vehicle debug dialog");
 
-        gApplication->_commandProcessor->RegisterCommand(
-            "showWorldDebug", {},
+        gApplication->GetCommandProcessor()->RegisterCommand(
+            "showDebugWorld", {},
             [this](const cxxopts::ParseResult &result) {
-                ToggleWorldDebug();
+                ToggleDebugWorld();
             },
             "toggles world debug dialog");
 
-        gApplication->_commandProcessor->RegisterCommand(
+        gApplication->GetCommandProcessor()->RegisterCommand(
+            "showEntityBrowser", {},
+            [this](const cxxopts::ParseResult &result) {
+                ToggleEntityBrowser();
+            },
+            "toggles entity browser dialog");
+
+        gApplication->GetCommandProcessor()->RegisterCommand(
             "showNetworkStats", {},
             [this](const cxxopts::ParseResult &result) {
                 ToggleNetworkStats();
@@ -380,14 +301,14 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::SetupMenuBar() {
-        gApplication->_console->RegisterMenuBarDrawer([this]() {
-            if (ImGui::BeginMenu("Debug")) {
+        gApplication->GetConsole()->RegisterMenuBarDrawer([this]() {
+            if (ImGui::BeginMenu("Quick commands")) {
                 if (ImGui::MenuItem("Spawn car")) {
-                    _worldDebug->SpawnCar();
+                    _debugWorld->SpawnCar();
                 }
                 if (ImGui::MenuItem("Spawn 50 cars")) {
                     for (size_t i = 0; i < 50; i++) {
-                        _worldDebug->SpawnCar();
+                        _debugWorld->SpawnCar();
                     }
                 }
                 if (ImGui::MenuItem("Disconnect")) {
@@ -405,27 +326,27 @@ namespace MafiaMP::Core {
                 ImGui::EndMenu();
             }
 
-            if (ImGui::BeginMenu("Editors")) {
-                if (ImGui::MenuItem("World debug", "F1")) {
-                    ToggleWorldDebug();
-                }
-                if (ImGui::MenuItem("Player debug", "F2")) {
-                    TogglePlayerDebug();
-                }
-                if (ImGui::MenuItem("Vehicle debug", "F3")) {
-                    ToggleVehicleDebug();
-                }
-                if (ImGui::MenuItem("Camera Studio", "F4")) {
-                    ToggleCameraStudio();
-                }
+            if (ImGui::BeginMenu("Dialogs")) {
                 if (ImGui::MenuItem("Audio debug")) {
-                    ToggleAudioDebug();
+                    ToggleDebugAudio();
                 }
-                if (ImGui::MenuItem("Network stats", "F10")) {
-                    ToggleNetworkStats();
+                if (ImGui::MenuItem("Player debug", "F3")) {
+                    ToggleDebugPlayer();
+                }
+                if (ImGui::MenuItem("Vehicle debug", "F4")) {
+                    ToggleDebugVehicle();
+                }
+                if (ImGui::MenuItem("World debug", "F2")) {
+                    ToggleDebugWorld();
+                }
+                if (ImGui::MenuItem("Camera Studio")) {
+                    ToggleCameraStudio();
                 }
                 if (ImGui::MenuItem("Entity Browser", "F11")) {
                     ToggleEntityBrowser();
+                }
+                if (ImGui::MenuItem("Network stats", "F10")) {
+                    ToggleNetworkStats();
                 }
 
                 ImGui::EndMenu();
@@ -433,32 +354,32 @@ namespace MafiaMP::Core {
         });
     }
 
-    void DevFeatures::ToggleAudioDebug() {
-        _audioDebug->SetVisible(!_audioDebug->IsVisible());
+    void DevFeatures::ToggleCameraStudio() {
+        _cameraStudio->Toggle();
+    }
+
+    void DevFeatures::ToggleDebugAudio() {
+        _debugAudio->Toggle();
+    }
+
+    void DevFeatures::ToggleDebugPlayer() {
+        _debugPlayer->Toggle();
+    }
+
+    void DevFeatures::ToggleDebugVehicle() {
+        _debugVehicle->Toggle();
+    }
+
+    void DevFeatures::ToggleDebugWorld() {
+        _debugWorld->Toggle();
     }
 
     void DevFeatures::ToggleEntityBrowser() {
-        _entityBrowser->SetVisible(!_entityBrowser->IsVisible());
+        _entityBrowser->Toggle();
     }
 
     void DevFeatures::ToggleNetworkStats() {
-        _networkStats->SetVisible(!_networkStats->IsVisible());
-    }
-
-    void DevFeatures::ToggleCameraStudio() {
-        _cameraStudio->SetVisible(!_playerDebug->IsVisible());
-    }
-
-    void DevFeatures::TogglePlayerDebug() {
-        _playerDebug->SetVisible(!_playerDebug->IsVisible());
-    }
-
-    void DevFeatures::ToggleVehicleDebug() {
-        _vehicleDebug->SetVisible(!_vehicleDebug->IsVisible());
-    }
-
-    void DevFeatures::ToggleWorldDebug() {
-        _worldDebug->SetVisible(!_worldDebug->IsVisible());
+        _networkStats->Toggle();
     }
 
     void DevFeatures::Disconnect() {

@@ -39,6 +39,6 @@ namespace MafiaMP::Game::Helpers {
         if (!human)
             return;
 
-        human->m_pHumanInventory->AddWeapon(weapon, ammo);
+        human->GetInventoryWrapper()->AddWeapon(weapon, ammo);
     }
 } // namespace MafiaMP::Game::Helpers

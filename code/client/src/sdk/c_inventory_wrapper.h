@@ -1,21 +1,18 @@
 #pragma once
 
 #include <cstdint>
-#include "../entities/human/c_human_inventory.h"
+#include "sdk/entities/human/c_human_inventory.h"
 
 namespace SDK {
     class C_InventoryWrapper {
-      public:
-        C_HumanInventory *m_pHumanInventory;
-
       public:
         void AddMoney(uint64_t);
         void AddWeapon(int, int);
 
         uint64_t TellMoney();
 
-        C_HumanInventory *GetHumanInventory() {
-            return m_pHumanInventory;
+        C_HumanInventory *GetAsHumanInventory() {
+            return reinterpret_cast<C_HumanInventory*>(this);
         }
     };
 }

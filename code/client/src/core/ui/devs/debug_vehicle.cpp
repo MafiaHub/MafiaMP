@@ -1,6 +1,4 @@
-#include "vehicle_debug.h"
-
-#include <imgui.h>
+#include "debug_vehicle.h"
 
 #include <logging/logger.h>
 
@@ -11,20 +9,25 @@
 
 #include "game/helpers/controls.h"
 
-namespace MafiaMP::Core::UI {
-    VehicleDebug::VehicleDebug() {}
+namespace MafiaMP::Core::UI::Devs {
+    void DebugVehicle::OnOpen() {}
 
-    void VehicleDebug::Update() {
+    void DebugVehicle::OnClose() {}
+
+    void DebugVehicle::OnUpdate() {
         const auto pActivePlayer = Game::Helpers::Controls::GetLocalPlayer();
         SDK::C_Car *currentCar   = pActivePlayer ? reinterpret_cast<SDK::C_Car *>(pActivePlayer->GetOwner()) : nullptr;
 
-        ImGui::Begin("Vehicle debug", &_visible, ImGuiWindowFlags_AlwaysAutoResize);
+        auto windowContent = [&]() {
+            if (!currentCar) {
+                ImGui::Text("You're not in a vehicle!");
+                return;
+            }
 
-        if (currentCar) {
             auto currentVehicle = currentCar->GetVehicle();
 
             if (ImGui::Button("Print Pointers")) {
-                Framework::Logging::GetLogger("bite")->info("Car Ptr: 0x{}, Vehicle Ptr: 0x{}", fmt::ptr(currentCar), fmt::ptr(currentVehicle));
+                Framework::Logging::GetLogger("debug")->info("Car Ptr: 0x{}, Vehicle Ptr: 0x{}", fmt::ptr(currentCar), fmt::ptr(currentVehicle));
             }
 
             auto position = currentCar->GetPos();
@@ -193,11 +196,8 @@ namespace MafiaMP::Core::UI {
             if (ImGui::Button("UnlockEntryPoints")) {
                 currentCar->UnlockEntryPoints();
             }
-        }
-        else {
-            ImGui::Text("You're not in a vehicle!");
-        }
+        };
 
-        ImGui::End();
+        CreateUIWindow("Vehicle debug", windowContent, &_open, ImGuiWindowFlags_AlwaysAutoResize);
     }
-}; // namespace MafiaMP::Core::UI
+}; // namespace MafiaMP::Core::UI::Devs
