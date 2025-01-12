@@ -14,12 +14,17 @@ namespace MafiaMP::Core::UI {
     void Chat::OnUpdate() {
         bool _wasFocused = _isFocused;
 
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_RETURN) && !_isFocused) {
+            _isFocused = true;
+            LockControls(true);
+        }
+
         ImGui::SetNextWindowSize(ImVec2(400, 300));
         ImGui::SetNextWindowPos(ImVec2(20, 20));
-        ImGui::Begin("Chat", NULL, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+        ImGui::Begin("Chat", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
         {
-            ImGui::BeginChild("##scrolling", ImVec2(ImGui::GetWindowWidth() * 0.95f, ImGui::GetWindowHeight() * 0.80f), false, _isFocused ? 0 : ImGuiWindowFlags_NoScrollbar);
+            ImGui::BeginChild("##messages", ImVec2(ImGui::GetWindowWidth() * 0.95f, ImGui::GetWindowHeight() * 0.80f), 0, _isFocused ? 0 : ImGuiWindowFlags_NoScrollbar);
 
             if (!_chatMessages.empty()) {
                 for (const auto &msg : _chatMessages) {
@@ -27,19 +32,11 @@ namespace MafiaMP::Core::UI {
                 }
             }
 
-            if (_newMsgArrived) {
-                if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
-                    ImGui::SetScrollHereY(1.0f);
-                }
-                _newMsgArrived = false;
-            }
+            ImGui::Spacing();
 
-            if (gApplication->GetInput()->IsKeyPressed(FW_KEY_RETURN) && !_isFocused) {
-                _isFocused = true;
-                LockControls(true);
-                if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
-                    ImGui::SetScrollHereY(1.0f);
-                }
+            if (_newMsgArrived) {
+                ImGui::SetScrollHereY(1.0f);
+                _newMsgArrived = false;
             }
 
             ImGui::EndChild();
@@ -95,10 +92,6 @@ namespace MafiaMP::Core::UI {
 
                 _isFocused = false;
                 LockControls(false);
-
-                if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
-                    ImGui::SetScrollHereY(1.0f);
-                }
             }
         }
 
