@@ -99,9 +99,9 @@ namespace MafiaMP::Core::Modules {
 
     void Vehicle::Create(flecs::entity e, std::string modelName) {
         auto info          = Core::gApplication->GetEntityFactory()->RequestVehicle(std::move(modelName));
-        auto &trackingData  = e.ensure<Core::Modules::Vehicle::Tracking>();
-        trackingData.info = info;
-        trackingData.car  = nullptr;
+        auto &trackingData = e.ensure<Core::Modules::Vehicle::Tracking>();
+        trackingData.info  = info;
+        trackingData.car   = nullptr;
 
         auto &interp = e.ensure<Interpolated>();
         interp.interpolator.GetPosition()->SetCompensationFactor(1.5f);
@@ -211,7 +211,7 @@ namespace MafiaMP::Core::Modules {
         vehicle->SetGear(updateData->gear);
         vehicle->SetHandbrake(updateData->handbrake, false);
         vehicle->SetHorn(updateData->hornOn);
-        if (::strcmp(vehicle->GetSPZText(), updateData->licensePlate) > 0) {
+        if (std::strcmp(vehicle->GetSPZText(), updateData->licensePlate) != 0) {
             vehicle->SetSPZText(updateData->licensePlate, true);
         }
         vehicle->SetPower(updateData->power);
@@ -341,7 +341,7 @@ namespace MafiaMP::Core::Modules {
 
             if (licensePlate.HasValue()) {
                 const auto plate = licensePlate().C_String();
-                ::memcpy(updateData->licensePlate, plate, strlen(plate) + 1);
+                std::memcpy(updateData->licensePlate, plate, strlen(plate) + 1);
             }
 
             if (lockState.HasValue()) {
