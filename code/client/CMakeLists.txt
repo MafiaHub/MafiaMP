@@ -68,6 +68,8 @@ set(MAFIAMP_SDK_FILES
     srC/sdk/entities/c_human2.cpp
     src/sdk/entities/c_player_2.cpp
     src/sdk/entities/c_vehicle.cpp
+    src/sdk/c_inventory_wrapper.cpp
+    src/sdk/mafia/database/c_ui_database.cpp
     src/sdk/mafia/framework/director/c_game_director.cpp
     src/sdk/mafia/framework/c_mafia_dbs.cpp
     src/sdk/mafia/framework/c_mafia_framework.cpp
@@ -75,6 +77,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/mafia/streaming/c_actors_slot_wrapper.cpp
     src/sdk/mafia/streaming/c_slot_wrapper.cpp
     src/sdk/mafia/streaming/c_streaming_module.cpp
+    src/sdk/mafia/ui/hud/race_xbin.cpp
     src/sdk/mafia/ui/menu/c_save_menu.cpp
     src/sdk/mafia/ui/navigation/c_navigation.cpp
     src/sdk/mafia/ui/support/c_fader.cpp

@@ -148,6 +148,7 @@ namespace SDK {
         uint64_t C_GameGUI2Module       = hook::get_opcode_address("E8 ? ? ? ? 41 8D 56 11");
         uint8_t *C_GameGUI2Module_Bytes = reinterpret_cast<uint8_t *>(C_GameGUI2Module);
 
+        gPatterns.C_GameGUI2Module__GetDatabase                 = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8D B9 ? ? ? ? 48 8B F2"));
         gPatterns.C_GameGUI2Module__GetGameGui2Module           = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 40 80 F6 01");
         gPatterns.C_GameGUI2Module__Instance                    = reinterpret_cast<uint64_t>(C_GameGUI2Module_Bytes + *(int32_t *)(C_GameGUI2Module_Bytes + 3) + 7);
         gPatterns.C_GameGUI2Module__SendHUDSimpleBooleanMessage = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 49 8B 97 ? ? ? ? 4C 8D 05 ? ? ? ?");
@@ -312,6 +313,10 @@ namespace SDK {
 
         // C_Quat
         gPatterns.C_Quat__SetDir = hook::get_opcode_address("E8 ? ? ? ? F3 44 0F 59 5D ?");
+        
+        // C_RaceTimer
+        gPatterns.C_RaceTimer_SetVisible = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC ? 0F B6 F2"));
+        gPatterns.C_RaceTimer_StartRace  = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B F9 C7 41 ? ? ? ? ? 41 0F B7 C9"));
 
         // C_SceneObject
         gPatterns.C_SceneObject__SetTransform = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8D 41 ? 48 8B D9 0F 10 02"));

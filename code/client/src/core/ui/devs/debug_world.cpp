@@ -8,7 +8,11 @@
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
 #include "sdk/entities/c_vehicle.h"
+#include "sdk/mafia/database/c_ui_database.h"
 #include "sdk/mafia/framework/c_mafia_dbs.h"
+#include "sdk/mafia/ui/c_game_gui_2_module.h"
+#include "sdk/mafia/ui/hud/race_xbin.h"
+#include "sdk/mafia/ui/hud/c_hud_controller.h"
 #include "sdk/ue/game/traffic/c_streaming_traffic_module.h"
 #include "sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.h"
 
@@ -240,6 +244,62 @@ namespace MafiaMP::Core::UI::Devs {
                 int m_iMaxHumanElements = streamingTrafficModule->GetMaxHumanElements();
                 if (ImGui::InputInt("MaxHumanElements", &m_iMaxHumanElements)) {
                     streamingTrafficModule->SetMaxHumanElements(m_iMaxHumanElements);
+                }
+            }
+            
+            if (ImGui::CollapsingHeader("Racing")) {
+                SDK::mafia::ui::C_GameGUI2Module *GameGuiModule = SDK::mafia::ui::GetGameGui2Module();
+                SDK::ue::C_WeakPtr<SDK::ue::sys::sodb::C_DatabaseInterface> result = GameGuiModule->GetDatabase();
+                if (SDK::mafia::database::C_UIDatabase *database = reinterpret_cast<SDK::mafia::database::C_UIDatabase *>(result.Get())) {
+                    SDK::mafia::database::C_UIDatabase::C_HUDTable *hudTable = database->GetHUDTable();
+
+                    ImGui::PushItemWidth(75.0f);
+
+                    // VISIBLE
+                    ImGui::Text("Racing HUDElement Visibility");
+                    ImGui::Checkbox("##racing_visible_hudtable", &hudTable->m_bRacingVisible);
+
+                    ImGui::Spacing();
+
+                    // LAPS
+                    ImGui::Text("Current Laps / Num Laps");
+                    ImGui::InputScalar("##total_laps_hudtable", ImGuiDataType_U16, &hudTable->m_uCurLap);
+                    ImGui::SameLine();
+                    ImGui::InputScalar("##curent_lap_hudtable", ImGuiDataType_U16, &hudTable->m_uTotalLaps);
+
+                    ImGui::Spacing();
+
+                    // POSITIONS
+                    ImGui::Text("Current Position / Max Position");
+                    ImGui::InputScalar("##total_position_hudtable", ImGuiDataType_U16, &hudTable->m_uCurPosition);
+                    ImGui::SameLine();
+                    ImGui::InputScalar("##curent_position_hudtable", ImGuiDataType_U16, &hudTable->m_uTotalPositions);
+
+                    ImGui::Spacing();
+
+                    // CHECKPOINTS
+                    ImGui::Text("Current Checkpoint / Max Checkpoints");
+                    ImGui::InputScalar("##total_checkpoint_hudtable", ImGuiDataType_U16, &hudTable->m_uCurCheckpoint);
+                    ImGui::SameLine();
+                    ImGui::InputScalar("##curent_checkpoint_hudtable", ImGuiDataType_U16, &hudTable->m_uTotalCheckpoints);
+
+                    ImGui::Spacing();
+
+                    // UNKNOWN
+                    ImGui::Text("Current UNKNOWN / Max UNKNOWN");
+                    ImGui::InputScalar("##total_UNKNOWN_hudtable", ImGuiDataType_U16, &hudTable->m_uUnknown1);
+                    ImGui::SameLine();
+                    ImGui::InputScalar("##curent_UNKNOWN_hudtable", ImGuiDataType_U16, &hudTable->m_uUnknown2);
+
+                    ImGui::Spacing();
+
+                    // COUNTDOWN
+                    ImGui::Text("Countdown");
+                    ImGui::SameLine();
+                    ImGui::TextDisabled("(3, 2, 1 for lights, 0 for GO). Sound is played automatically");
+                    ImGui::InputScalar("##countdown_hudtable", ImGuiDataType_U8, &hudTable->m_uCountdown);
+
+                    ImGui::PopItemWidth();
                 }
             }
         };
