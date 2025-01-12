@@ -1,0 +1,29 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "client"
+    },
+    {
+      "path": "server"
+    },
+    {
+      "path": "shared"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "server/": true,
+      "client/": true,
+      "shared/": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "editorconfig.editorconfig",
+      "sumneko.lua"
+    ]
+  }
+}
