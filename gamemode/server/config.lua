@@ -284,9 +284,10 @@ CONFIG.WEATHER_SETS = {
   "_default_game",
   "_default_game_cloudy",
   "_default_game_foggy",
-  "_default_game_morning_sunny",
   "_default_game_overcast",
   "_default_game_rainy",
+  "_test_jakub",
+  "day_cycle_01"
 }
 
 CONFIG.TP_DESTINATIONS = {
