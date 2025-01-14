@@ -23,7 +23,7 @@ if (CONFIG.ENABLE_DEBUG) then
     Console.log("[DEBUG][onVehiclePlayerEnter] vehicle id: ", vehicle.id, " | type: ", type(vehicle.id))
     Console.log("[DEBUG][onVehiclePlayerEnter] vehicle name: ", vehicle.name, " | type: ", type(vehicle.name))
     Console.log("[DEBUG][onVehiclePlayerEnter] vehicle nickname: ", vehicle.nickname, " | type: ", type(vehicle.nickname))
-    Console.log("[DEBUG][onVehiclePlayerEnter] vehicle player seat: ", seatIndex, " | type: ", type(seatIndex))
+    Console.log("[DEBUG][onVehiclePlayerEnter] vehicle player seat index: ", seatIndex, " | type: ", type(seatIndex))
     Console.log("[DEBUG][onVehiclePlayerEnter] player id: ", player.id, " | type: ", type(player.id))
     Console.log("[DEBUG][onPlayerConnected] vehicle modelHash: ",
                 vehicle:getModelHash(),
@@ -46,7 +46,12 @@ if (CONFIG.ENABLE_DEBUG) then
     Console.log("[DEBUG][onChatCommand] owner: " .. player.nickname)
     Console.log("[DEBUG][onChatCommand] message: " .. message)
     Console.log("[DEBUG][onChatCommand] command: " .. command)
-    Console.log("[DEBUG][onChatCommand] args: " .. table.concat(args, ", "), " | type: ", type(args), " | length: ",
-      #args)
+    Console.log(
+      "[DEBUG][onChatCommand] args: " .. table.concat(args, ", "),
+      " | type: ",
+      type(args),
+      " | length: ",
+      #args
+    )
   end)
 end

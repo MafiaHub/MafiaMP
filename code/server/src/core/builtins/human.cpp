@@ -42,7 +42,7 @@ namespace MafiaMP::Scripting {
         return Vehicle(-1);
     }
 
-    int Human::GetVehicleSeat() const {
+    int Human::GetVehicleSeatIndex() const {
         const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
         if (carEnt.is_valid() && carEnt.is_alive()) {
@@ -52,11 +52,11 @@ namespace MafiaMP::Scripting {
     }
 
     void Human::Register(sol::state &luaEngine) {
-        sol::usertype<Human> cls = luaEngine.new_usertype<Human>("Human", sol::constructors<Human(uint64_t)>(), sol::base_classes, sol::bases<Entity>());
-        cls["addWeapon"]         = &Human::AddWeapon;
-        cls["getHealth"]         = &Human::GetHealth;
-        cls["setHealth"]         = &Human::SetHealth;
-        cls["getVehicle"]        = &Human::GetVehicle;
-        cls["getVehicleSeat"]    = &Human::GetVehicleSeat;
+        sol::usertype<Human> cls   = luaEngine.new_usertype<Human>("Human", sol::constructors<Human(uint64_t)>(), sol::base_classes, sol::bases<Entity>());
+        cls["addWeapon"]           = &Human::AddWeapon;
+        cls["getHealth"]           = &Human::GetHealth;
+        cls["setHealth"]           = &Human::SetHealth;
+        cls["getVehicle"]          = &Human::GetVehicle;
+        cls["getVehicleSeatIndex"] = &Human::GetVehicleSeatIndex;
     }
 } // namespace MafiaMP::Scripting
