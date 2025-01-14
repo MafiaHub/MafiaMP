@@ -2,6 +2,7 @@
 
 #include <logging/logger.h>
 
+#include "sdk/constants.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
 #include "sdk/entities/c_vehicle.h"
@@ -88,9 +89,9 @@ namespace MafiaMP::Core::UI::Devs {
             }
 
             const char *licensePlate = currentVehicle->GetSPZText();
-            char wantedCurrentLicense[7];
+            char wantedCurrentLicense[SDK::Constants::VEHICLE_LICENSE_PLATE_MAX_LENGTH];
             strcpy(wantedCurrentLicense, licensePlate);
-            if (ImGui::InputText("Licence plate", wantedCurrentLicense, sizeof(wantedCurrentLicense))) {
+            if (ImGui::InputText("License plate", wantedCurrentLicense, sizeof(wantedCurrentLicense))) {
                 currentVehicle->SetSPZText(wantedCurrentLicense, true);
             }
 

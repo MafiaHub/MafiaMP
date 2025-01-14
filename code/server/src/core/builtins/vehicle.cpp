@@ -2,6 +2,7 @@
 
 #include "core/server.h"
 
+#include "shared/constants.h"
 #include "shared/game_rpc/vehicle/vehicle_setprops.h"
 #include "shared/modules/vehicle_sync.hpp"
 
@@ -127,7 +128,7 @@ namespace MafiaMP::Scripting {
 
     void Vehicle::SetLicensePlate(std::string plate) {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-        std::memcpy(vehData->licensePlate, plate.c_str(), std::min<size_t>(Shared::Modules::VehicleSync::LICENSE_PLATE_MAX_LENGTH - 1, plate.length()));
+        std::memcpy(vehData->licensePlate, plate.c_str(), std::min<size_t>(Shared::Constants::VEHICLE_LICENSE_PLATE_MAX_LENGTH - 1, plate.length()));
 
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.licensePlate = plate.c_str();

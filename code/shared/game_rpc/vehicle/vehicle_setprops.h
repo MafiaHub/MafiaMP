@@ -1,5 +1,6 @@
 #pragma once
 
+#include "shared/constants.h"
 #include "shared/modules/vehicle_sync.hpp"
 #include "src/networking/rpc/game_rpc.h"
 #include "utils/optional.h"
@@ -60,7 +61,7 @@ namespace MafiaMP::Shared::RPC {
         }
 
         bool Valid() const override {
-            if (licensePlate.HasValue() && licensePlate().GetLength() > Modules::VehicleSync::LICENSE_PLATE_MAX_LENGTH) {
+            if (licensePlate.HasValue() && licensePlate().GetLength() > Constants::VEHICLE_LICENSE_PLATE_MAX_LENGTH) {
                 return false;
             }
 
