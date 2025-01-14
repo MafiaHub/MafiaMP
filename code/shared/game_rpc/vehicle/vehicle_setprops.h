@@ -60,7 +60,7 @@ namespace MafiaMP::Shared::RPC {
         }
 
         bool Valid() const override {
-            if (licensePlate.HasValue() && licensePlate().GetLength() > 7) {
+            if (licensePlate.HasValue() && licensePlate().GetLength() > Modules::VehicleSync::LICENSE_PLATE_MAX_LENGTH) {
                 return false;
             }
 

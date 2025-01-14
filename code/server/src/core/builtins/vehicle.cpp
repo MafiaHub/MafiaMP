@@ -127,7 +127,8 @@ namespace MafiaMP::Scripting {
 
     void Vehicle::SetLicensePlate(std::string plate) {
         auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-        ::memcpy(vehData->licensePlate, plate.c_str(), std::min(sizeof(vehData->licensePlate), plate.length()));
+        std::memcpy(vehData->licensePlate, plate.c_str(), std::min<size_t>(Shared::Modules::VehicleSync::LICENSE_PLATE_MAX_LENGTH - 1, plate.length()));
+
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.licensePlate = plate.c_str();
         FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);

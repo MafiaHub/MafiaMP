@@ -48,20 +48,6 @@ namespace MafiaMP::Core::Modules {
         auto &frame     = e.ensure<Framework::World::Modules::Base::Frame>();
         frame.modelName = "berkley_810"; /* TODO */
 
-        auto updateData = e.ensure<Shared::Modules::VehicleSync::UpdateData>();
-
-        // generate a random license plate
-        {
-            constexpr char letters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            constexpr char numbers[] = "0123456789";
-            for (int i = 0; i < 2; i++) {
-                updateData.licensePlate[i] = letters[::rand() % (sizeof(letters) - 1)];
-            }
-            for (int i = 3; i < 6; i++) {
-                updateData.licensePlate[i] = numbers[::rand() % (sizeof(numbers) - 1)];
-            }
-        }
-
         e.add<CarData>();
         e.add<Framework::World::Modules::Base::RemovedOnGameModeReload>();
 
