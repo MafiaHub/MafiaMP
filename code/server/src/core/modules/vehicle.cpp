@@ -48,6 +48,7 @@ namespace MafiaMP::Core::Modules {
         auto &frame     = e.ensure<Framework::World::Modules::Base::Frame>();
         frame.modelName = "berkley_810"; /* TODO */
 
+        e.add<Shared::Modules::VehicleSync::UpdateData>();
         e.add<CarData>();
         e.add<Framework::World::Modules::Base::RemovedOnGameModeReload>();
 
