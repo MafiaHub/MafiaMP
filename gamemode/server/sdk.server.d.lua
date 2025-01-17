@@ -114,9 +114,9 @@ function Human:getHealth () end
 ---@return Vehicle # The vehicle the Human is in.
 function Human:getVehicle () end
 
----Retrieves the seat the Human occupies in the vehicle.
----@return integer # The seat ID the Human occupies. Returns -1 if the Human is not in a vehicle.
-function Human:getVehicleSeat () end
+---Retrieves the seat index the Human occupies in the vehicle.
+---@return integer # The seat index the Human occupies. Returns -1 if the Human is not in a vehicle.
+function Human:getVehicleSeatIndex () end
 
 ---@class Player: Human
 Player = {}

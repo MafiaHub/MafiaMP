@@ -30,7 +30,7 @@ namespace MafiaMP::Scripting {
 
         Vehicle GetVehicle() const;
 
-        int GetVehicleSeat() const;
+        int GetVehicleSeatIndex() const;
 
         static void Register(sol::state &luaEngine);
     };
