@@ -54,11 +54,11 @@ namespace MafiaMP::Core::UI::Devs {
             return;
         }
 
-        SDK::ue::sys::math::C_Vector vec1 = {};
-        SDK::ue::sys::math::C_Vector vec2 = {};
+        SDK::ue::sys::math::C_Vector pos = {};
+        SDK::ue::sys::math::C_Vector dir = {};
         SDK::ue::sys::math::C_Vector vec3 = {};
 
-        pPlayerCamera->GetCurrentVectors(vec1, vec2, vec3);
+        pPlayerCamera->GetPosDir(pos, dir);
 
         auto windowContent = [&]() {
             {
@@ -77,16 +77,18 @@ namespace MafiaMP::Core::UI::Devs {
                 ImGui::Text("PlayerCamera IsEnabled = %s\n", pPlayerCamera->IsEnabled() ? "true" : "false");
                 ImGui::Text("PlayerCamera Mode Active Type = %d (%s)\n", pPlayerCamera->ModeGetActiveTypeTop(), SDK::ue::game::camera::GetGameCameraModeString(pPlayerCamera->ModeGetActiveTypeTop()));
 
-                if (ImGui::DragFloat3("Vec 1", (float *)&vec1, 0.1f, -4500.0f, 4500.0f)) {}
+                if (ImGui::DragFloat3("Position", (float *)&pos, 0.1f, -4500.0f, 4500.0f)) {}
 
-                if (ImGui::DragFloat3("Vec 2", (float *)&vec2, 0.1f, -4500.0f, 4500.0f)) {}
-
-                if (ImGui::DragFloat3("Vec 3", (float *)&vec3, 0.1f, -4500.0f, 4500.0f)) {}
+                if (ImGui::DragFloat3("Direction", (float *)&dir, 0.1f, -4500.0f, 4500.0f)) {}
             }
 
             ImGui::Separator();
 
             {
+                if (ImGui::Button("Toggle")) {
+                    pPlayerCamera->Enable(!pPlayerCamera->IsEnabled());
+                }
+                ImGui::SameLine();
                 if (ImGui::Button("Reset Behind Player")) {
                     pPlayerCamera->ModePopImmediate(true, SDK::ue::game::camera::E_GameCameraLayer::LAYER_ACTOR, true);
                 }
