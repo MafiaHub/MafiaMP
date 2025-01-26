@@ -7,6 +7,7 @@
 
 #include "sdk/entities/c_actor.h"
 #include "sdk/c_mafia_camera_module.h"
+#include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/mafia/framework/c_mafia_framework.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
@@ -38,23 +39,30 @@ namespace MafiaMP::Core::UI::Devs {
     void CameraStudio::OnClose() {}
 
     void CameraStudio::OnUpdate() {
+        const auto pGameCamera    = SDK::ue::game::camera::C_GameCamera::GetInstanceInternal();
+        if (!pGameCamera) {
+            return;
+        }
+
         const auto pCameraModule = SDK::GetMafiaCameraModule();
         if (!pCameraModule) {
             return;
         }
 
         const auto pPlayerCamera = pCameraModule->GetPlayerCamera();
+        if (!pPlayerCamera) {
+            return;
+        }
 
         auto windowContent = [&]() {
-            ImGui::Text("PlayerCamera Ptr : 0x%p\n", pPlayerCamera);
-            ImGui::Text("PlayerCamera BaseObject Ptr: 0x%p\n", pPlayerCamera->m_pBaseObject);
-            ImGui::Text("PlayerCamera RenderHelper Ptr: 0x%p\n", pPlayerCamera->m_pRenderHelper);
-            ImGui::Text("PlayerCamera CameraEffectManager Ptr: 0x%p\n", pPlayerCamera->m_pCameraEffectManager);
-
+            ImGui::Text("GameCamera Ptr : 0x%p\n", pGameCamera);
+            ImGui::Text("GameCamera BaseObject Ptr: 0x%p\n", pGameCamera->m_pBaseObject);
+            ImGui::Text("GameCamera RenderHelper Ptr: 0x%p\n", pGameCamera->m_pRenderHelper);
+            ImGui::Text("GameCamera CameraEffectManager Ptr: 0x%p\n", pGameCamera->m_pCameraEffectManager);
+            ImGui::Text("Aspect Ratio: %f\n", pGameCamera->m_fAspectRatio);
+            ImGui::Text("PlayerCamera Cameras Count: %i\n", pGameCamera->m_vCameras.size());
             ImGui::Separator();
-
-            ImGui::Text("Aspect Ratio: %f\n", pPlayerCamera->m_fAspectRatio);
-            ImGui::Text("PlayerCamera Cameras Count: %i\n", pPlayerCamera->m_vCameras.size());
+            ImGui::Text("PlayerCamera Ptr : 0x%p\n", pPlayerCamera);
         };
 
         CreateUIWindow("Camera Studio", windowContent, &_open);

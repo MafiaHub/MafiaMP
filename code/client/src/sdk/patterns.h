@@ -119,6 +119,7 @@ namespace SDK {
 
         // C_GameCamera
         uint64_t C_GameCamera__GetInstanceInternal = 0x0;
+        uint64_t C_GameCamera__GetCamera           = 0x0;
 
         // C_GameDirector
         uint64_t C_GameDirector__GetDistrict = 0x0;

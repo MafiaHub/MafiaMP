@@ -134,6 +134,7 @@ namespace SDK {
 
         // C_GameCamera
         gPatterns.C_GameCamera__GetInstanceInternal = hook::get_opcode_address("E8 ? ? ? ? 48 8B C8 4C 8D 4D 30");
+        gPatterns.C_GameCamera__GetCamera           = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 41 ? 4C 8B 41 ? 49 3B C0 73"));
 
         // C_GameDirector
         gPatterns.C_GameDirector__GetDistrict = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 50 F2 0F 10 02"));

@@ -15,7 +15,7 @@ namespace MafiaMP::Game::Helpers {
             return false;
         }
 
-        const auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN_1);
+        const auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN);
         if (!camera) {
             return false;
         }
@@ -45,7 +45,7 @@ namespace MafiaMP::Game::Helpers {
             return false;
         }
 
-        const auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN_1);
+        const auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN);
         if (!camera) {
             return false;
         }

@@ -11,15 +11,16 @@
 namespace SDK {
     namespace ue::game::camera {
         enum class E_GameCameraID : int32_t {
-            CAMERA_UNK,
-            CAMERA_PLAYER_MAIN_1,
-            CAMERA_PLAYER_MAIN_2,
-            CAMERA_PLAYER_MAIN_3,
-            CAMERA_PLAYER_MAIN_4,
-            CAMERA_PLAYER_SMALL_1,
-            CAMERA_PLAYER_SMALL_2,
-            CAMERA_PLAYER_SMALL_3,
-            CAMERA_PLAYER_SMALL_4
+            CAMERA_PLAYER_MAIN = 1,
+        };
+
+        enum class E_GameCameraInitType : int32_t {
+            INIT_TYPE_UNK_1 = 1,
+            INIT_TYPE_UNK_2 = 2,
+            INIT_TYPE_UNK_3 = 3,
+            INIT_TYPE_UNK_4 = 4,
+            INIT_TYPE_UNK_5 = 5,
+            INIT_TYPE_UNK_6 = 6,
         };
 
         class I_GameCamera {
@@ -40,7 +41,8 @@ namespace SDK {
 
           public:
             static C_GameCamera *GetInstanceInternal();
-            virtual C_Camera *GetCamera(E_GameCameraID camID) = 0;
+
+            C_Camera *GetCamera(E_GameCameraID camID);
         };
     }
 }

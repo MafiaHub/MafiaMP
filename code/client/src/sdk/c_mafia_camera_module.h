@@ -1,7 +1,7 @@
 #pragma once
 
 #include "c_ticked_module.h"
-#include "sdk/ue/game/camera/c_game_camera.h"
+#include "sdk/ue/game/camera/c_camera.h"
 #include "sdk/ue/game/camera/c_car_back_mirror.h"
 
 namespace SDK {
@@ -11,7 +11,7 @@ namespace SDK {
         ue::game::camera::C_CarBackMirror *m_pCarBackMirror;        // 0030 - 0038
 
       public:
-        ue::game::camera::C_GameCamera *GetPlayerCamera();
+        ue::game::camera::C_Camera *GetPlayerCamera();
     };
 
     C_MafiaCameraModule *GetMafiaCameraModule();

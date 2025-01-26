@@ -3,8 +3,8 @@
 #include "patterns.h"
 
 namespace SDK {
-    ue::game::camera::C_GameCamera* C_MafiaCameraModule::GetPlayerCamera() {
-        return hook::this_call<ue::game::camera::C_GameCamera *>(gPatterns.C_MafiaCameraModule__GetPlayerCamera, this);
+    ue::game::camera::C_Camera* C_MafiaCameraModule::GetPlayerCamera() {
+        return hook::this_call<ue::game::camera::C_Camera *>(gPatterns.C_MafiaCameraModule__GetPlayerCamera, this);
     }
 
     C_MafiaCameraModule *GetMafiaCameraModule() {

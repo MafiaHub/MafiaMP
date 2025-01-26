@@ -138,7 +138,7 @@ namespace MafiaMP::Core::Modules {
                     if (!gameCamera) {
                         return;
                     }
-                    auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN_1);
+                    auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN);
                     if (!camera) {
                         return;
                     }
