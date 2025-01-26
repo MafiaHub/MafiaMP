@@ -123,6 +123,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/c_game_traffic_module.cpp
     src/sdk/c_ie.cpp
     src/sdk/c_inventory_wrapper.cpp
+    src/sdk/c_mafia_camera_module.cpp
     src/sdk/c_player_teleport_module.cpp
     src/sdk/c_stream_map.cpp
     src/sdk/c_ticked_module_manager.cpp

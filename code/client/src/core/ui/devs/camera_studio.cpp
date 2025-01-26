@@ -6,6 +6,7 @@
 #include "game/helpers/controls.h"
 
 #include "sdk/entities/c_actor.h"
+#include "sdk/c_mafia_camera_module.h"
 #include "sdk/mafia/framework/c_mafia_framework.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
@@ -37,7 +38,28 @@ namespace MafiaMP::Core::UI::Devs {
     void CameraStudio::OnClose() {}
 
     void CameraStudio::OnUpdate() {
-        ImGui::Begin("Camera studio", &_open);
+        const auto pCameraModule = SDK::GetMafiaCameraModule();
+        if (!pCameraModule) {
+            return;
+        }
+
+        const auto pPlayerCamera = pCameraModule->GetPlayerCamera();
+
+        auto windowContent = [&]() {
+            ImGui::Text("PlayerCamera Ptr : 0x%p\n", pPlayerCamera);
+            ImGui::Text("PlayerCamera BaseObject Ptr: 0x%p\n", pPlayerCamera->m_pBaseObject);
+            ImGui::Text("PlayerCamera RenderHelper Ptr: 0x%p\n", pPlayerCamera->m_pRenderHelper);
+            ImGui::Text("PlayerCamera CameraEffectManager Ptr: 0x%p\n", pPlayerCamera->m_pCameraEffectManager);
+
+            ImGui::Separator();
+
+            ImGui::Text("Aspect Ratio: %f\n", pPlayerCamera->m_fAspectRatio);
+            ImGui::Text("PlayerCamera Cameras Count: %i\n", pPlayerCamera->m_vCameras.size());
+        };
+
+        CreateUIWindow("Camera Studio", windowContent, &_open);
+
+        /* ImGui::Begin("Camera studio", &_open);
         {
             if (ImGui::Button("Enable")) {
                 auto addr1            = hook::get_opcode_address("E8 ? ? ? ? 33 F6 EB 9F");
@@ -123,6 +145,6 @@ namespace MafiaMP::Core::UI::Devs {
                 auto result = streamingModule->RequestLoadAreasInRadius(currentPos, 100.0f, 8);
             }
             C_GameCameraMafia__LockTarget_Original(C_GameCameraPtr, _camera, 0, 0, 0.0f);
-        }
+        }*/
     }
 } // namespace MafiaMP::Core::UI::Devs

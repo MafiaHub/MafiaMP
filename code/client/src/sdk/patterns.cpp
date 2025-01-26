@@ -246,6 +246,11 @@ namespace SDK {
         gPatterns.C_InventoryWrapper__AddWeapon = hook::get_opcode_address("E8 ? ? ? ? 41 38 76 4C 74 0C");
         gPatterns.C_InventoryWrapper__TellMoney = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC 28 48 8B 41 68 80 78 18 09"));
 
+        // C_MafiaCameraModule
+        gPatterns.C_MafiaCameraModule__GetMafiaCameraModule = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 8D 05 ? ? ? ? C3 CC CC CC CC CC CC CC CC 48 89 5C 24 ? 57 48 83 EC ? 48 8B FA 48 8B D9 E8 ? ? ? ? 48 85 C0 75 ? 48 8B 4B ? 48 85 C9 74 ? 48 8B 01 48 8B D7 48 8B 5C 24 ? 48 83 C4 ? 5F 48 FF 60 ? 33 C0 48 8B 5C 24 ? 48 83 C4 ? 5F C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 89 5C 24"));
+        gPatterns.C_MafiaCameraModule__GetPlayerCamera      = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? E8 ? ? ? ? BA ? ? ? ? 48 8B C8 4C 8B 00 48 83 C4"));
+
         // C_MafiaDBs
         gPatterns.C_MafiaDBs__GetMafiaDBs         = hook::get_opcode_address("E8 ? ? ? ? 48 8D 55 87 48 8B C8");
         gPatterns.C_MafiaDBs__GetTablesDatabase   = hook::get_opcode_address("E8 ? ? ? ? 48 8B F8 49 8B C7");
