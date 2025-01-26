@@ -86,6 +86,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/game/camera/c_camera.cpp
     src/sdk/ue/game/camera/c_game_camera.cpp
     src/sdk/ue/game/camera/c_cm_player_alternate.cpp
+    src/sdk/ue/game/camera/e_game_camera_mode_id.cpp
     src/sdk/ue/game/humainai/c_character_controller.cpp
     src/sdk/ue/game/humainai/c_character_state_handler.cpp
     src/sdk/ue/game/humainai/c_character_state_handler_aim.cpp

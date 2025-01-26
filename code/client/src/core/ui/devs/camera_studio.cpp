@@ -64,6 +64,7 @@ namespace MafiaMP::Core::UI::Devs {
             ImGui::Separator();
             ImGui::Text("PlayerCamera Ptr : 0x%p\n", pPlayerCamera);
             ImGui::Text("PlayerCamera IsEnabled = %s\n", pPlayerCamera->IsEnabled() ? "true" : "false");
+            ImGui::Text("PlayerCamera Mode Active Type = %d (%s)\n", pPlayerCamera->ModeGetActiveTypeTop(), SDK::ue::game::camera::GetGameCameraModeString(pPlayerCamera->ModeGetActiveTypeTop()));
         };
 
         CreateUIWindow("Camera Studio", windowContent, &_open);

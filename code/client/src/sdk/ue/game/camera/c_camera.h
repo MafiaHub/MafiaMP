@@ -5,6 +5,8 @@
 #include "../../sys/math/c_matrix.h"
 #include "../../sys/core/c_scene_object.h"
 
+#include "e_game_camera_mode_id.h"
+
 namespace SDK {
         namespace ue::game::camera {
             typedef unsigned int E_CameraBlendMode;
@@ -15,65 +17,6 @@ namespace SDK {
                 CAMCOMMAND_LOCKCONTROL = 1282368363,
                 CAMCOMMAND_GAMEOVER    = 1381191748,
                 CAMCOMMAND_SHAKE       = 1399349587,
-            };
-
-            enum class E_GameCameraModeID {
-                E_GCM_NONE                        = 0,
-                E_GCM_MAFIA_LADDER                = 0,
-                E_GCM_DEBUG                       = 1,
-                E_GCM_DEBUG_ALTERNATE             = 2,
-                E_GCM_CUTSCENE                    = 3,
-                E_GCM_DIALOG                      = 4,
-                E_GCM_ANIMATED                    = 5,
-                E_GCM_AIDEBUG                     = 6,
-                E_GCM_MAFIA_ENUMBEGIN             = 7,
-                E_GCM_MAFIA_LIMITEDCONTROL        = 8,
-                E_GCM_MAFIA_PLAYER                = 9,
-                E_GCM_MAFIA_BONE                  = 10,
-                E_GCM_MAFIA_COVER                 = 11,
-                E_GCM_MAFIA_AIM                   = 12,
-                E_GCM_MAFIA_RAIL                  = 13,
-                E_GCM_MAFIA_CAR_STATIC_BUMPER     = 14,
-                E_GCM_MAFIA_CAR_STATIC_WHEEL      = 15,
-                E_GCM_MAFIA_CAR_STATIC_HOOD       = 16,
-                E_GCM_MAFIA_CAR_STATIC_LOOKBACK   = 17,
-                E_GCM_MAFIA_CAR_DRIVERSHOOTFOLLOW = 18,
-                E_GCM_MAFIA_CAR_PASSENGERSHOOT    = 19,
-                E_GCM_MAFIA_CAR_CARGOSPACESHOOT   = 20,
-                E_GCM_MAFIA_CAR_CARGOSPACELIMITED = 21,
-                E_GCM_MAFIA_CAR_FOLLOW            = 22,
-                E_GCM_MAFIA_TRUCK_FOLLOW          = 23,
-                E_GCM_MAFIA_MOTORCYCLE_FOLLOW     = 24,
-                E_GCM_MAFIA_MOTORCYCLE_RIDER      = 25,
-                E_GCM_MAFIA_MOTORCYCLE_LOOKBACK   = 26,
-                E_GCM_MAFIA_TRAIN_INTERNAL_FOLLOW = 27,
-                E_GCM_MAFIA_TRAIN_EXTERNAL_DOOR   = 28,
-                E_GCM_MAFIA_MELEE                 = 29,
-                E_GCM_MAFIA_CAR                   = 30,
-                E_GCM_MAFIA_GARAGE                = 31,
-                E_GCM_SHOP_MENU                   = 32,
-                E_GCM_SCRIPT                      = 33,
-                E_GCM_SCRIPTOVER                  = 34,
-                E_GCM_SCRIPTFRAME                 = 35,
-                E_GCM_STATIC                      = 36,
-                E_GCM_FPV                         = 37,
-                E_GCM_DEATH                       = 38,
-                E_GCM_OPEN_AUTOMATE               = 39,
-                E_GCM_MAFIA_CAR_INITIAL           = 40,
-                E_GCM_MAFIA_BOAT                  = 41,
-                E_GCM_MAFIA_BOAT_FOLLOW           = 42,
-                E_GCM_MAFIA_BOAT_BOW              = 43,
-                E_GCM_MAFIA_BOAT_GUNWALE          = 44,
-                E_GCM_MAFIA_BOAT_ROOF             = 45,
-                E_GCM_MAFIA_BOAT_LOOKBACK         = 46,
-                E_GCM_MAFIA_BOAT_DRIVERSHOOT      = 47,
-                E_GCM_MAFIA_BOAT_PASSENGERSHOOT   = 48,
-                E_GCM_VEHICLE_DEBUG               = 49,
-                E_GCM_BOAT_DEBUG                  = 50,
-                E_GCM_TRAP_CAMERA                 = 51,
-                E_GCM_LADDER                      = 52,
-                E_GCM_SWIM                        = 53,
-                E_GCM_LAST                        = 54,
             };
 
             enum class E_GameCameraLayer : unsigned int { LAYER_ACTOR = 1, LAYER_UNKNOWN = 2 };
