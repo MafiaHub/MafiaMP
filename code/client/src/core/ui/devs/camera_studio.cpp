@@ -63,6 +63,7 @@ namespace MafiaMP::Core::UI::Devs {
             ImGui::Text("PlayerCamera Cameras Count: %i\n", pGameCamera->m_vCameras.size());
             ImGui::Separator();
             ImGui::Text("PlayerCamera Ptr : 0x%p\n", pPlayerCamera);
+            ImGui::Text("PlayerCamera IsEnabled = %s\n", pPlayerCamera->IsEnabled() ? "true" : "false");
         };
 
         CreateUIWindow("Camera Studio", windowContent, &_open);

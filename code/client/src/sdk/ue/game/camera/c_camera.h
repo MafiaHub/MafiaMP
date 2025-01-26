@@ -99,6 +99,10 @@ namespace SDK {
 
             class C_Camera {
               public:
+                char pad0[0x10];                // 0000 - 0010
+                bool m_bEnabled;                // 0010 - 0011
+
+              public:
                 virtual void GetPosDir(sys::math::C_Vector &pos, sys::math::C_Vector &dir)                                                                              = 0;
                 virtual const sys::math::C_Vector GetPos()                                                                                                              = 0;
                 virtual void *GetTarget()                                                                                                                               = 0;
@@ -113,7 +117,7 @@ namespace SDK {
                 virtual const float GetMaxDistance()                                                                                                                    = 0;
                 virtual void GetScreenPos(ue::sys::math::C_Vector2 &screenPos, ue::sys::math::C_Vector const &worldPos, bool &isVisible, float *, float *, bool) const  = 0;
                 virtual void Enable(bool enable)                                                                                                                        = 0;
-                virtual const bool Enabled() const                                                                                                                      = 0;
+                virtual const bool IsEnabled() const                                                                                                                      = 0;
                 virtual const sys::math::C_Matrix &GetViewMatrix()                                                                                                      = 0;
                 virtual const sys::math::C_Matrix &GetProjectionMatrix()                                                                                                = 0;
                 virtual const sys::math::C_Matrix &GetViewProjMatrix()                                                                                                  = 0;
