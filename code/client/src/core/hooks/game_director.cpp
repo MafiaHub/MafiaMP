@@ -15,4 +15,5 @@ void __fastcall C_GameDirector__OnActiveCityChanged(void *_this, char const *act
 static InitFunction init([]() {
     const auto C_GameDirector__OnActiveCityChanged_Addr = hook::get_opcode_address("E8 ? ? ? ? 80 BE ? ? ? ? ? 0F 84 ? ? ? ? 48 89 5C 24 ?");
     MH_CreateHook((LPVOID)C_GameDirector__OnActiveCityChanged_Addr, (PBYTE)C_GameDirector__OnActiveCityChanged, reinterpret_cast<void **>(&C_GameDirector__OnActiveCityChanged_original));
-});
+    },
+    "GameDirector");

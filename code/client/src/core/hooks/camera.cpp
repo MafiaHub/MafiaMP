@@ -26,4 +26,5 @@ static InitFunction init([]() {
 
     const auto sendCommandPattern = reinterpret_cast<uint64_t>(hook::pattern("48 8B 81 ? ? ? ? 48 8B 48 F8 48 8B 01 48 FF A0 D8 01 00 00").get_first());
     MH_CreateHook((LPVOID)sendCommandPattern, (PBYTE)C_Camera__SendCommand, reinterpret_cast<void **>(&C_Camera__SendCommand_original));
-});
+    },
+    "Camera");

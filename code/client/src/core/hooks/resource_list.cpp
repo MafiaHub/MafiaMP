@@ -46,4 +46,5 @@ static InitFunction init([]() {
 
     // const auto C_ResourceList__IsResourceLoaded_Addr = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B 12 48 8B F9 48 85 D2 48 8D 4C 24").get_first());
     // MH_CreateHook((LPVOID)C_ResourceList__IsResourceLoaded_Addr, (PBYTE)C_ResourceList__IsResourceLoaded, reinterpret_cast<void **>(&C_ResourceList__IsResourceLoaded_original));
-});
+    },
+    "ResourceList");

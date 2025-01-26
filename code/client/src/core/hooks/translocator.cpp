@@ -18,4 +18,5 @@ void C_Translocator__SpawnObject(void *pThis, SDK::ue::game::translocator::C_Tra
 static InitFunction init([]() {
     // const auto C_Translocator__SpawnObject_Addr = hook::get_opcode_address("E8 ? ? ? ? 48 83 43 ? ? 48 8B 43 50");
     // MH_CreateHook((LPVOID)C_Translocator__SpawnObject_Addr, (PBYTE)C_Translocator__SpawnObject, reinterpret_cast<void **>(&C_Translocator__SpawnObject_original));
-});
+    },
+    "Translocator");

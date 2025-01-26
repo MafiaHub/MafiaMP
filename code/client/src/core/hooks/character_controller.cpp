@@ -221,4 +221,5 @@ static InitFunction init([]() {
 
     const auto C_CharacterStateHandlerAim__IsAimAllowed_Addr = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 31 48 8B 47 08");
     MH_CreateHook((LPVOID)C_CharacterStateHandlerAim__IsAimAllowed_Addr, (PBYTE)C_CharacterStateHandlerAim__IsAimAllowed, reinterpret_cast<void **>(&C_CharacterStateHandlerAim__IsAimAllowed_original));
-});
+    },
+    "CharacterController");

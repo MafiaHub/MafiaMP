@@ -28,7 +28,8 @@ static POINT GetMouseXY(VOID) {
 static InitFunction init([]() {
     auto C_GameCameraMafia__LockTargetAddr = reinterpret_cast<uint64_t>(hook::pattern("48 85 D2 0F 84 ? ? ? ? 48 8B C4 48 89 58 18").get_first());
     MH_CreateHook((LPVOID)C_GameCameraMafia__LockTargetAddr, (PBYTE)C_GameCameraMafia__LockTarget, reinterpret_cast<void **>(&C_GameCameraMafia__LockTarget_Original));
-});
+    },
+    "CameraStudio");
 
 namespace MafiaMP::Core::UI::Devs {
     void CameraStudio::OnOpen() {}

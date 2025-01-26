@@ -52,4 +52,5 @@ static InitFunction init([]() {
     // Make sure C_AICommand_AimAt::C_AICommand_AimAt always try to use position and not entity
     // TODO make it pattern based
     hook::nop(0x0000001427DC07C, 0x4F);
-});
+    },
+    "Human");

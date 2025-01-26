@@ -221,4 +221,5 @@ static InitFunction init([]() {
 
     const auto C_Human2CarWrapper__GetOut_Addr = hook::get_pattern("40 56 57 41 57 48 83 EC ? 48 8B F2 48 8B F9");
     MH_CreateHook((LPVOID)C_Human2CarWrapper__GetOut_Addr, (PBYTE)C_Human2CarWrapper__GetOut, reinterpret_cast<void **>(&C_Human2CarWrapper__GetOut_original));
-});
+    },
+    "Vehicle");
