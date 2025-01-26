@@ -54,17 +54,49 @@ namespace MafiaMP::Core::UI::Devs {
             return;
         }
 
+        SDK::ue::sys::math::C_Vector vec1 = {};
+        SDK::ue::sys::math::C_Vector vec2 = {};
+        SDK::ue::sys::math::C_Vector vec3 = {};
+
+        pPlayerCamera->GetCurrentVectors(vec1, vec2, vec3);
+
         auto windowContent = [&]() {
-            ImGui::Text("GameCamera Ptr : 0x%p\n", pGameCamera);
-            ImGui::Text("GameCamera BaseObject Ptr: 0x%p\n", pGameCamera->m_pBaseObject);
-            ImGui::Text("GameCamera RenderHelper Ptr: 0x%p\n", pGameCamera->m_pRenderHelper);
-            ImGui::Text("GameCamera CameraEffectManager Ptr: 0x%p\n", pGameCamera->m_pCameraEffectManager);
-            ImGui::Text("Aspect Ratio: %f\n", pGameCamera->m_fAspectRatio);
-            ImGui::Text("PlayerCamera Cameras Count: %i\n", pGameCamera->m_vCameras.size());
+            {
+                ImGui::Text("GameCamera Ptr : 0x%p\n", pGameCamera);
+                ImGui::Text("GameCamera BaseObject Ptr: 0x%p\n", pGameCamera->m_pBaseObject);
+                ImGui::Text("GameCamera RenderHelper Ptr: 0x%p\n", pGameCamera->m_pRenderHelper);
+                ImGui::Text("GameCamera CameraEffectManager Ptr: 0x%p\n", pGameCamera->m_pCameraEffectManager);
+                ImGui::Text("Aspect Ratio: %f\n", pGameCamera->m_fAspectRatio);
+                ImGui::Text("PlayerCamera Cameras Count: %i\n", pGameCamera->m_vCameras.size());
+            }
+
             ImGui::Separator();
-            ImGui::Text("PlayerCamera Ptr : 0x%p\n", pPlayerCamera);
-            ImGui::Text("PlayerCamera IsEnabled = %s\n", pPlayerCamera->IsEnabled() ? "true" : "false");
-            ImGui::Text("PlayerCamera Mode Active Type = %d (%s)\n", pPlayerCamera->ModeGetActiveTypeTop(), SDK::ue::game::camera::GetGameCameraModeString(pPlayerCamera->ModeGetActiveTypeTop()));
+
+            {
+                ImGui::Text("PlayerCamera Ptr : 0x%p\n", pPlayerCamera);
+                ImGui::Text("PlayerCamera IsEnabled = %s\n", pPlayerCamera->IsEnabled() ? "true" : "false");
+                ImGui::Text("PlayerCamera Mode Active Type = %d (%s)\n", pPlayerCamera->ModeGetActiveTypeTop(), SDK::ue::game::camera::GetGameCameraModeString(pPlayerCamera->ModeGetActiveTypeTop()));
+
+                if (ImGui::DragFloat3("Vec 1", (float *)&vec1, 0.1f, -4500.0f, 4500.0f)) {}
+
+                if (ImGui::DragFloat3("Vec 2", (float *)&vec2, 0.1f, -4500.0f, 4500.0f)) {}
+
+                if (ImGui::DragFloat3("Vec 3", (float *)&vec3, 0.1f, -4500.0f, 4500.0f)) {}
+            }
+
+            ImGui::Separator();
+
+            {
+                if (ImGui::Button("Reset Behind Player")) {
+                    pPlayerCamera->ModePopImmediate(true, SDK::ue::game::camera::E_GameCameraLayer::LAYER_ACTOR, true);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("FPV Mode")) {
+                    pPlayerCamera->ModeChangeImmediate(SDK::ue::game::camera::E_GameCameraModeID::E_GCM_FPV, nullptr, true, true, true);
+                }
+            }
+
+
         };
 
         CreateUIWindow("Camera Studio", windowContent, &_open);
