@@ -15,31 +15,25 @@ namespace SDK {
             typedef void *I_CameraDataProvider;
 
             enum class E_CameraCommandID {
+                CCM_UNK_0 = 0,
+                CCM_UNK_1 = 1,
+                CCM_UNK_2 = 2,
+                CCM_UNK_3 = 3,
+                CCM_UNK_4 = 4,
                 CCM_POINT_AT_VEC = 5,
+                CCM_UNK_9 = 9,
+                CCM_UNK_10 = 10,
+                CCM_UNK_11 = 11,
+                CCM_UNK_12 = 12,
+                CCM_UNK_13 = 13,
                 CCM_SET_SHAKE_PARAMS = 14,
                 CCM_SET_SHAKE_ENABLED = 15,
+                CCM_UNK_16 = 16,
+                CCM_UNK_17 = 17,
+                CCM_UNK_18 = 18,
             };
 
             enum class E_GameCameraLayer : unsigned int { LAYER_ACTOR = 1, LAYER_UNKNOWN = 2 };
-
-            enum class E_CameraCommandSetPosMode : unsigned int { CAMCOMMAND_SETPOS_MODE_DIRECT = 0, CAMCOMMAND_SETPOS_MODE_INTERPOLATE = 1 };
-
-            struct S_CameraCommandSetPosData {
-                ue::sys::math::C_Vector start;  // 0000 - 000C
-                ue::sys::math::C_Vector end;    // 000C - 0018
-                uint32_t flags;                 // 0018 - 001C
-                uint32_t unk3;                  // 001C - 0020
-                int32_t unk4;                   // 0020 - 0024
-                uintptr_t *unk5;                // 0024 - 0028
-                uintptr_t *unk6;                // 0028 - 002C
-                E_CameraCommandSetPosMode mode; // 002C - 0030
-            };
-
-            struct S_CameraCommandShakeData {
-                float speed;    // 0000 - 0004
-                float strength; // 0004 - 0008
-                float duration; // 0008 - 000C
-            };
 
             // HINT: this + 0x37 is probably C_CameraMode
             class C_Camera {
