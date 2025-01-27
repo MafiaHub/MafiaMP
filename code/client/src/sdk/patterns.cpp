@@ -70,7 +70,12 @@ namespace SDK {
         gPatterns.C_CharacterStateHandlerMove__SharpTurnTransitionActive = hook::get_opcode_address("E8 ? ? ? ? 84 C0 74 60 40 84 FF");
 
         // C_CommandLine
-        gPatterns.C_CommandLine__FindCommand = hook::get_opcode_address("E8 ? ? ? ? 40 88 7D BB");
+        gPatterns.C_CommandLine__FindCommand = reinterpret_cast<uint64_t>(hook::get_pattern("83 C8 ? C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 54"));
+        gPatterns.C_CommandLine__GetCommandLineFileName = reinterpret_cast<uint64_t>(hook::get_pattern("40 57 48 83 EC ? 48 8B FA 48 C7 02"));
+        gPatterns.C_CommandLine__GetCommandLineFromFile = reinterpret_cast<uint64_t>(hook::get_pattern("40 55 41 56 48 83 EC ? 4C 8B F2 48 C7 02"));
+        gPatterns.C_CommandLine__GetCommandParam        = reinterpret_cast<uint64_t>(hook::get_pattern("85 D2 78 ? 48 8B 41 ? 48 2B 41 ? 48 C1 F8 ? 3B D0 7D ? 45 85 C0"));
+        gPatterns.C_CommandLine__GetCommandParamsCount  = reinterpret_cast<uint64_t>(hook::get_pattern("4C 8B C1 85 D2 78 ? 48 8B 41 ? 48 2B 41 ? 48 C1 F8 ? 3B D0 7D ? 49 8B 40 ? 48 63 CA 48 C1 E1"));
+        gPatterns.C_CommandLine__ProcessCommandLine     = reinterpret_cast<uint64_t>(hook::get_pattern("48 85 D2 0F 84 ? ? ? ? 55 57 41 54"));
 
         // C_Ctx
         gPatterns.C_Ctx__BeginUpdate = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B D9 48 89 51 ? 48 8D 4C 24 ?"));

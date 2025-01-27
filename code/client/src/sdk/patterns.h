@@ -57,6 +57,11 @@ namespace SDK {
 
         // C_CommandLine
         uint64_t C_CommandLine__FindCommand = 0x0;
+        uint64_t C_CommandLine__GetCommandLineFileName = 0x0;
+        uint64_t C_CommandLine__GetCommandLineFromFile = 0x0;
+        uint64_t C_CommandLine__GetCommandParam        = 0x0;
+        uint64_t C_CommandLine__GetCommandParamsCount  = 0x0;
+        uint64_t C_CommandLine__ProcessCommandLine     = 0x0;
 
         // C_Ctx
         uint64_t C_Ctx__BeginUpdate = 0x0;

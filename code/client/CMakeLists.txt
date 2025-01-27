@@ -116,6 +116,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/sys/sodb/c_database_system.cpp
     src/sdk/ue/c_string.cpp
     src/sdk/wrappers/c_human_2_car_wrapper.cpp
+    src/sdk/c_command_line.cpp
     src/sdk/c_entity_factory.cpp
     src/sdk/c_game.cpp
     src/sdk/c_game_audio_module.cpp
