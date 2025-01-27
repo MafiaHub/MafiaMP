@@ -15,10 +15,7 @@ namespace SDK {
             typedef void *I_CameraDataProvider;
 
             enum class E_CameraCommandID {
-                CAMCOMMAND_SETPOS      = 2,
-                CAMCOMMAND_LOCKCONTROL = 1282368363,
-                CAMCOMMAND_GAMEOVER    = 1381191748,
-                CAMCOMMAND_SHAKE       = 1399349587,
+                CCM_POINT_AT_VEC = 5,
             };
 
             enum class E_GameCameraLayer : unsigned int { LAYER_ACTOR = 1, LAYER_UNKNOWN = 2 };

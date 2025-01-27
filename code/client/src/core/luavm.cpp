@@ -1,11 +1,12 @@
 #include "luavm.h"
 
+#include <sstream>
+
 #include "sdk/patterns.h"
 
 #include <MinHook.h>
+#include <utils/hooking/hook_function.h>
 #include <logging/logger.h>
-
-#include <sstream>
 
 #define LUA_MULTRET (-1)
 

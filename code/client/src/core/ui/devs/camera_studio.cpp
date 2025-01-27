@@ -3,11 +3,13 @@
 #include <MinHook.h>
 #include <utils/hooking/hooking.h>
 
+#include "core/application.h"
 #include "game/helpers/controls.h"
 
 #include "sdk/entities/c_actor.h"
 #include "sdk/c_mafia_camera_module.h"
 #include "sdk/ue/game/camera/c_game_camera.h"
+#include "sdk/ue/game/camera/commands.h"
 #include "sdk/mafia/framework/c_mafia_framework.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
@@ -96,6 +98,26 @@ namespace MafiaMP::Core::UI::Devs {
                 ImGui::SameLine();
                 if (ImGui::Button("FPV Mode")) {
                     pPlayerCamera->ModeChangeImmediate(SDK::ue::game::camera::E_GameCameraModeID::E_GCM_FPV, nullptr, true, true, true);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Set Pos")) {
+                    SDK::ue::sys::math::C_Vector finalVec = {pos.x + dir.x, pos.y + dir.y, pos.z + dir.z};
+                    SDK::ue::game::camera::PointAtVecCommand cmd;
+                    cmd.targetPosition    = finalVec;
+                    cmd.upVector          = SDK::ue::sys::math::C_Vector::C_Vector();
+                    cmd.flags             = 0;
+                    cmd.callback          = nullptr;
+                    cmd.callbackData      = 0;
+                    cmd.handle            = nullptr;
+                    cmd.someData          = 0;
+                    cmd.lockFlags         = 0;
+                    cmd.rotationParams[0] = 1;
+                    cmd.rotationParams[1] = 1;
+                    cmd.rotationParams[2] = 1;
+                    cmd.lockTime          = 1;
+                    cmd.unknown           = 0;
+
+                    pPlayerCamera->SendCommand(SDK::ue::game::camera::E_CameraCommandID::CCM_POINT_AT_VEC, &cmd, nullptr);
                 }
             }
 
