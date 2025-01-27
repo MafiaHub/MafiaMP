@@ -76,6 +76,7 @@ namespace MafiaMP::Core::UI::Devs {
                 ImGui::Text("PlayerCamera Ptr : 0x%p\n", pPlayerCamera);
                 ImGui::Text("PlayerCamera IsEnabled = %s\n", pPlayerCamera->IsEnabled() ? "true" : "false");
                 ImGui::Text("PlayerCamera Mode Active Type = %d (%s)\n", pPlayerCamera->ModeGetActiveTypeTop(), SDK::ue::game::camera::GetGameCameraModeString(pPlayerCamera->ModeGetActiveTypeTop()));
+                ImGui::Text("PlayerCamera Object : %s\n", pPlayerCamera->m_sCameraObject);
 
                 if (ImGui::DragFloat3("Position", (float *)&pos, 0.1f, -4500.0f, 4500.0f)) {}
 

@@ -4,6 +4,8 @@
 #include "../../sys/math/c_vector.h"
 #include "../../sys/math/c_matrix.h"
 #include "../../sys/core/c_scene_object.h"
+#include "sdk/ue/sys/core/c_camera_component.h"
+#include "sdk/ue/sys/render/c_render_context.h"
 
 #include "e_game_camera_mode_id.h"
 
@@ -40,10 +42,16 @@ namespace SDK {
                 float duration; // 0008 - 000C
             };
 
+            // HINT: this + 0x37 is probably C_CameraMode
             class C_Camera {
               public:
-                char pad0[0x10];                // 0000 - 0010
-                bool m_bEnabled;                // 0010 - 0011
+                char pad0[0x10];                                                    // 0000 - 0010
+                bool m_bEnabled;                                                    // 0010 - 0011
+                char pad1[0x33];                                                    // 0011 - 0044
+                ue::sys::render::C_RenderContext *m_pRenderContext;                 // 0044 - 004C
+                char pad2[0x1BC];                                                   // 004C - 0208
+                char *m_sCameraObject;                                              // 0208 - 0210
+                ue::sys::core::C_CameraComponent *m_pCameraComponent;               // 0210 - 0218
 
               public:
                 virtual void GetPosDir(sys::math::C_Vector &pos, sys::math::C_Vector &dir)                                                                              = 0;
@@ -122,7 +130,7 @@ namespace SDK {
                 virtual bool HasRequests(void)                                                                                  = 0;
                 virtual void *GetModeStack(void)                                                                                = 0;
                 virtual void *GetRenderDestination()                                                                            = 0;
-                virtual void *GetRenderContext()                                                                                = 0;
+                virtual ue::sys::render::C_RenderContext *GetRenderContext()                                                    = 0;
                 virtual void *GetScene()                                                                                        = 0;
                 virtual void MapScreenTarget(float &x, float &y)                                                                = 0;
                 virtual void GetCurrentVectors(ue::sys::math::C_Vector &, ue::sys::math::C_Vector &, ue::sys::math::C_Vector &) = 0;
