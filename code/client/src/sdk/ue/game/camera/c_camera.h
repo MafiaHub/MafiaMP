@@ -16,6 +16,8 @@ namespace SDK {
 
             enum class E_CameraCommandID {
                 CCM_POINT_AT_VEC = 5,
+                CCM_SET_SHAKE_PARAMS = 14,
+                CCM_SET_SHAKE_ENABLED = 15,
             };
 
             enum class E_GameCameraLayer : unsigned int { LAYER_ACTOR = 1, LAYER_UNKNOWN = 2 };

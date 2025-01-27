@@ -10,6 +10,8 @@
 #include "sdk/c_mafia_camera_module.h"
 #include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/ue/game/camera/commands.h"
+#include "sdk/ue/game/camera/helpers.hpp"
+#include "sdk/ue/game/camera/s_shake.h"
 #include "sdk/mafia/framework/c_mafia_framework.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
@@ -100,7 +102,7 @@ namespace MafiaMP::Core::UI::Devs {
                     pPlayerCamera->ModeChangeImmediate(SDK::ue::game::camera::E_GameCameraModeID::E_GCM_FPV, nullptr, true, true, true);
                 }
                 ImGui::SameLine();
-                if (ImGui::Button("Set Pos")) {
+                if (ImGui::Button("Point At Vec")) {
                     SDK::ue::sys::math::C_Vector finalVec = {pos.x + dir.x, pos.y + dir.y, pos.z + dir.z};
                     SDK::ue::game::camera::PointAtVecCommand cmd;
                     cmd.targetPosition    = finalVec;
@@ -118,6 +120,54 @@ namespace MafiaMP::Core::UI::Devs {
                     cmd.unknown           = 0;
 
                     pPlayerCamera->SendCommand(SDK::ue::game::camera::E_CameraCommandID::CCM_POINT_AT_VEC, &cmd, nullptr);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Shake")) {
+                    SDK::ue::sys::math::C_Vector amplitude(0.0f, 0.0f, 0.5f); // Half unit amplitude on Z axis
+                    SDK::ue::sys::math::C_Vector frequency(0.0f, 0.0f, 10.0f); // 10 Hz on Z axis
+                    SDK::ue::sys::math::C_Vector direction(0.0f, 0.0f, 1.0f);  // Shake along Z axis
+                    float duration  = 1.0f;               // 1 second duration
+                    float intensity = 1.0f;               // Full intensity
+
+                    SDK::ue::game::camera::S_Shake cmd = {};
+
+                    // Convert input vectors
+                    SDK::ue::sys::math::C_Vector convAmplitude;
+                    SDK::ue::sys::math::C_Vector convFrequency;
+                    SDK::ue::sys::math::C_Vector convDirection;
+
+                    SDK::ue::game::camera::ConvertSineWaveShakeEasyVec(&convAmplitude, &amplitude, true);
+                    SDK::ue::game::camera::ConvertSineWaveShakeEasyVec(&convFrequency, &frequency, true);
+                    SDK::ue::game::camera::ConvertSineWaveShakeEasyVec(&convDirection, &direction, true);
+
+                    // Set all converted vectors (based on the constructor)
+                    cmd.baseAmplitude = convAmplitude;
+                    cmd.amplitudeMod1 = convAmplitude;
+                    cmd.amplitudeMod2 = convAmplitude;
+
+                    cmd.baseFrequency = convFrequency;
+                    cmd.frequencyMod1 = convFrequency;
+                    cmd.frequencyMod2 = convFrequency;
+
+                    cmd.baseDirection = convDirection;
+                    cmd.directionMod1 = convDirection;
+                    cmd.directionMod2 = convDirection;
+
+                    // Initialize other fields as seen in the constructor
+                    cmd.state     = 0;
+                    cmd.duration  = 10.0f;
+                    cmd.intensity = 10.0f;
+
+                    // Set all intensity modifiers to 1.0f (3F800000h in hex)
+                    for (int i = 0; i < 8; i++) {
+                        cmd.intensityMods[i] = 1.0f;
+                    }
+
+                    cmd.flags = 3;
+
+                    bool enableShake = true;
+                    pPlayerCamera->SendCommand(SDK::ue::game::camera::E_CameraCommandID::CCM_SET_SHAKE_ENABLED, &enableShake, nullptr);
+                    pPlayerCamera->SendCommand(SDK::ue::game::camera::E_CameraCommandID::CCM_SET_SHAKE_PARAMS, &cmd, nullptr);
                 }
             }
 
