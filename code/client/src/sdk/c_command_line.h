@@ -4,18 +4,19 @@
 #include <string>
 #include <vector>
 
+#include "sdk/ue/c_string.h"
+
 namespace SDK {
     class C_CommandLine {
       public:
         struct Command {
-            std::vector<std::string> parameters;    // 0x00 - 0x18
-            uint32_t flags;                         // 0x18 - 0x1C
-            uint8_t pad[4];                         // 0x1C - 0x20
-            // Size: 0x20 (32 bytes per command)
-        };
+            std::vector<ue::C_String> parameters; // 0x00-0x18
+            void *padding[3];                     // 0x18-0x20
+        }; // Size: 0x20 (32 bytes)
 
-        std::vector<Command> m_vCommands;           // 0x00 - 0x18
-        std::string m_commandLineFile;              // 0x18 - ????
+        ue::C_String m_CommandLine;       // 0x00-0x08
+        std::vector<Command> m_vCommands; // 0x08-0x20
+        ue::C_String m_CommandFile;       // 0x20-0x28
 
       public:
         int FindCommand(const char *name) const;
