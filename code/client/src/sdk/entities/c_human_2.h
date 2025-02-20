@@ -14,7 +14,7 @@
 #include "sdk/ue/game/humainai/c_character_state.h"
 #include "sdk/ue/game/human/c_agent.h"
 #include "sdk/ue/game/human/c_behavior_character.h"
-#include "sdk/ue/game/injury/c_injuryanalyser.h"
+#include "sdk/ue/game/injury/c_injury_analyser.h"
 #include "sdk/ue/sys/core/c_model_component.h"
 #include "sdk/ue/sys/core/c_scene_object.h"
 #include "sdk/ue/sys/math/c_matrix.h"

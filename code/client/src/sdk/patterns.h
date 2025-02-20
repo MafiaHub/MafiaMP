@@ -226,6 +226,9 @@ namespace SDK {
         uint64_t C_IE__Alloc = 0x0;
         uint64_t C_IE__Free  = 0x0;
 
+        // C_InjuryAnalyser
+        uint64_t C_InjuryAnalyser__AddInjury = 0x0;
+
         // C_InventoryWrapper
         uint64_t C_InventoryWrapper__AddMoney  = 0x0;
         uint64_t C_InventoryWrapper__AddWeapon = 0x0;

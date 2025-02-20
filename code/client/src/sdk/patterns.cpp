@@ -247,6 +247,9 @@ namespace SDK {
         gPatterns.C_IE__Alloc = hook::get_opcode_address("48 ? ? 48 ? ? ? ? B9 04 14 00 00 E8 ? ? ? ? 48", 0xD);
         gPatterns.C_IE__Free  = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 41 B8 0D 00 00 00 48 ? ? ? ? ? ? 48");
 
+        // C_InjuryAnalyzer
+        gPatterns.C_InjuryAnalyser__AddInjury = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B C4 48 89 58 ? 48 89 70 ? 48 89 78 ? 4C 89 60 ? 55 41 56 41 57 48 8D 68 ? 48 81 EC ? ? ? ? 0F 29 70 ? 0F 28 C1"));
+
         // C_InventoryWrapper
         gPatterns.C_InventoryWrapper__AddMoney  = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC 20 48 8B 41 68 48 8B DA 80 78 18 09 75 4E"));
         gPatterns.C_InventoryWrapper__AddWeapon = hook::get_opcode_address("E8 ? ? ? ? 41 38 76 4C 74 0C");
