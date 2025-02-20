@@ -33,13 +33,13 @@ namespace MafiaMP::Scripting {
         FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanSetProps, _ent, msg);
     }
 
-    Vehicle Human::GetVehicle() const {
+    sol::optional<Vehicle> Human::GetVehicle() const {
         const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
         if (carEnt.is_valid() && carEnt.is_alive()) {
             return Vehicle(carEnt);
         }
-        return Vehicle(-1);
+        return sol::nullopt;
     }
 
     int Human::GetVehicleSeatIndex() const {

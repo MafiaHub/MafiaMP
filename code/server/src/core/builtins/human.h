@@ -28,7 +28,7 @@ namespace MafiaMP::Scripting {
 
         void SetHealth(float health);
 
-        Vehicle GetVehicle() const;
+        sol::optional<Vehicle> GetVehicle() const;
 
         int GetVehicleSeatIndex() const;
 
