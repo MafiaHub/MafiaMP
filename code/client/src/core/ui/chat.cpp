@@ -85,7 +85,9 @@ namespace MafiaMP::Core::UI {
 
             if (_wasFocused && gApplication->GetInput()->IsKeyPressed(FW_KEY_RETURN)) {
                 if (strlen(_inputText)) {
-                    onMessageSentProc(_inputText);
+                    if (!ProcessBuiltinCommand()) {
+                        onMessageSentProc(_inputText);
+                    }
                     _history.emplace(_history.begin(), _inputText);
                     strcpy(_inputText, "");
                 }
@@ -97,5 +99,18 @@ namespace MafiaMP::Core::UI {
         }
 
         ImGui::End();
+    }
+
+    void Chat::Clear() {
+        _chatMessages.clear();
+    }
+
+    bool Chat::ProcessBuiltinCommand() {
+        if (std::strcmp(_inputText, "/clear") == 0 || std::strcmp(_inputText, "/cls") == 0) {
+            Clear();
+            return true;
+        }
+
+        return false;
     }
 } // namespace MafiaMP::Core::UI
