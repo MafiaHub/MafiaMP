@@ -45,5 +45,8 @@ namespace MafiaMP::Core::UI {
             _chatMessages.push_back(msg);
             _newMsgArrived = true;
         }
+
+        void Clear();
+        bool ProcessBuiltinCommand();
     };
 } // namespace MafiaMP::Core::UI
