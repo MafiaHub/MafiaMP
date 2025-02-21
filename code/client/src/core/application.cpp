@@ -167,9 +167,10 @@ namespace MafiaMP::Core {
             _devFeatures.Update();
 
             using namespace Framework::External::ImGUI::Widgets; // For DrawCornerText() and Corner enum
+            const auto net = GetNetworkingEngine()->GetNetworkClient();
 
             // Bypass locked controls
-            if (AreControlsLocked()) {
+            if (AreControlsLocked() && net->GetConnectionState() != Framework::Networking::CONNECTING) {
                 DrawCornerText(CORNER_RIGHT_TOP, fmt::format("Press F1 to {} controls locked", AreControlsLockedBypassed() ? "RESTORE" : "BYPASS "));
 
                 if (_input->IsKeyPressed(FW_KEY_F1)) {

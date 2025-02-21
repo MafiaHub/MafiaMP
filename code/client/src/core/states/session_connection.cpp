@@ -5,6 +5,8 @@
 
 #include <logging/logger.h>
 
+#include <external/imgui/widgets/corner_text.h>
+
 #include <utils/states/machine.h>
 
 namespace MafiaMP::Core::States {
@@ -38,6 +40,10 @@ namespace MafiaMP::Core::States {
     }
 
     bool SessionConnectionState::OnUpdate(Framework::Utils::States::Machine *) {
-        return true;
+        gApplication->GetImGUI()->PushWidget([&]() {
+            using namespace Framework::External::ImGUI::Widgets;
+            DrawCornerText(CORNER_RIGHT_TOP, "CONNECTING...");
+        });
+        return false;
     }
 } // namespace MafiaMP::Core::States
