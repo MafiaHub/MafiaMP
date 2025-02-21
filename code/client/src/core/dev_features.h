@@ -55,5 +55,6 @@ namespace MafiaMP::Core {
         void BreakMe();
         void CloseGame();
         void SpawnCrashObject();
+        void RedownloadAssets();
     };
 } // namespace MafiaMP::Core

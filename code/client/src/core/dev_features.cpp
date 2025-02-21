@@ -311,6 +311,9 @@ namespace MafiaMP::Core {
                         _debugWorld->SpawnCar();
                     }
                 }
+                if (ImGui::MenuItem("Re-download assets")) {
+                    RedownloadAssets();
+                }
                 if (ImGui::MenuItem("Disconnect")) {
                     Disconnect();
                 }
@@ -438,5 +441,8 @@ namespace MafiaMP::Core {
 
         info->SetRequestFinishCallback(OnCrashObjRequestFinished);
         info->SetReturnCallback(OnCrashObjReturned);
+    }
+    void DevFeatures::RedownloadAssets() {
+        Core::gApplication->DownloadsAssetsFromConnectedServer();
     }
 } // namespace MafiaMP::Core
