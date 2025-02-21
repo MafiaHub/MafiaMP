@@ -178,6 +178,15 @@ namespace MafiaMP::Core::Modules {
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
         e.add<Shared::Modules::HumanSync::UpdateData>();
 
+        // Ensure we hook up remote human events for special cases
+        auto streamable = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        streamable->modEvents.disconnectProc = [](flecs::entity e) {
+            Remove(e);
+        };
+        streamable->modEvents.updateTransformProc = [](flecs::entity e) {
+            UpdateTransform(e);
+        };
+
         const auto OnHumanRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
             CreateNetCharacterController = false;
             if (success) {
@@ -249,6 +258,9 @@ namespace MafiaMP::Core::Modules {
             humanUpdate.SetData(*updateData);
             peer->Send(humanUpdate, guid);
             return true;
+        };
+        es->modEvents.updateTransformProc = [](flecs::entity e) {
+            UpdateTransform(e);
         };
     }
 

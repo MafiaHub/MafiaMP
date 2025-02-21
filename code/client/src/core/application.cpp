@@ -102,16 +102,6 @@ namespace MafiaMP::Core {
         GetWorldEngine()->GetWorld()->import <Modules::Human>();
         GetWorldEngine()->GetWorld()->import <Modules::Vehicle>();
 
-        GetWorldEngine()->SetOnEntityDestroyCallback([](flecs::entity e) {
-            const auto ekind = e.get<Shared::Modules::Mod::EntityKind>();
-            switch (ekind->kind) {
-            case Shared::Modules::Mod::MOD_PLAYER: Core::Modules::Human::Remove(e); break;
-            case Shared::Modules::Mod::MOD_VEHICLE: Core::Modules::Vehicle::Remove(e); break;
-            }
-
-            return true;
-        });
-
         // Setup Lua VM wrapper
         _luaVM = std::make_shared<LuaVM>();
 
@@ -373,16 +363,7 @@ namespace MafiaMP::Core {
                 return;
             }
 
-            auto tr = e.get_mut<Framework::World::Modules::Base::Transform>();
-            *tr     = msg->GetTransform();
-
-            const auto ekind = e.get<Shared::Modules::Mod::EntityKind>();
-            if (!ekind)
-                return;
-            switch (ekind->kind) {
-            case Shared::Modules::Mod::MOD_PLAYER: Core::Modules::Human::UpdateTransform(e); break;
-            case Shared::Modules::Mod::MOD_VEHICLE: Core::Modules::Vehicle::UpdateTransform(e); break;
-            }
+            GetWorldEngine()->UpdateEntityTransform(e, msg->GetTransform());
         });
     }
 

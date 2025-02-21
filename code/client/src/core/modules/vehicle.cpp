@@ -110,6 +110,15 @@ namespace MafiaMP::Core::Modules {
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_VEHICLE});
         e.add<Shared::Modules::VehicleSync::UpdateData>();
 
+        // Ensure we hook up vehicle events for special cases
+        auto streamable                      = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        streamable->modEvents.disconnectProc = [](flecs::entity e) {
+            Remove(e);
+        };
+        streamable->modEvents.updateTransformProc = [](flecs::entity e) {
+            UpdateTransform(e);
+        };
+
         const auto OnVehicleRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
             if (success) {
                 auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
