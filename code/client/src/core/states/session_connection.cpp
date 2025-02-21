@@ -22,6 +22,7 @@ namespace MafiaMP::Core::States {
 
     bool SessionConnectionState::OnEnter(Framework::Utils::States::Machine *machine) {
         const auto appState = MafiaMP::Core::gApplication->GetCurrentState();
+        gApplication->LockControls(true);
 
         if (!MafiaMP::Core::gApplication->GetNetworkingEngine()->Connect(appState._host, appState._port, "")) {
             Framework::Logging::GetInstance()->Get("SessionConnectionState")->error("Connection to server failed");
@@ -32,6 +33,7 @@ namespace MafiaMP::Core::States {
     }
 
     bool SessionConnectionState::OnExit(Framework::Utils::States::Machine *) {
+        gApplication->LockControls(false);
         return true;
     }
 
