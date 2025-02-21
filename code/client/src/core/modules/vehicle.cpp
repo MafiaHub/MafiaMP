@@ -139,6 +139,9 @@ namespace MafiaMP::Core::Modules {
                 transform.SetPos(newPos);
                 car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
 
+                const auto vehicleData = ent.get<Shared::Modules::VehicleSync::UpdateData>();
+                car->GetVehicle()->SetBrake(vehicleData->brake, true);
+
                 auto trackingData = ent.get_mut<Core::Modules::Vehicle::Tracking>();
                 trackingData->car = car;
 

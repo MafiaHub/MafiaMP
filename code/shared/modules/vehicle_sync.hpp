@@ -17,7 +17,7 @@ namespace MafiaMP::Shared::Modules {
         struct UpdateData {
             glm::vec3 angularVelocity {};
             bool beaconLightsOn = false;
-            float brake         = 0.0f;
+            float brake         = 1.0f;
             glm::vec4 colorPrimary {1.0f, 1.0f, 1.0f, 1.0f};
             glm::vec4 colorSecondary {1.0f, 1.0f, 1.0f, 1.0f};
             float dirt                                                     = 0.0f;
