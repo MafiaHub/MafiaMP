@@ -206,6 +206,8 @@ jobs:
         title: "New Release Published! 🎉"
         description: |
           **Version:** ${{ steps.version.outputs.VERSION }}
+
+          **Patch Notes:** https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.VERSION }}
           
           **Download:** https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.VERSION }}/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
         color: 0x00ff00
