@@ -53,10 +53,15 @@ namespace MafiaMP::Core::Modules {
         world.system<Tracking, Shared::Modules::HumanSync::UpdateData, LocalPlayer, Framework::World::Modules::Base::Transform>("UpdateLocalPlayer")
             .each([](flecs::entity e, Tracking &tracking, Shared::Modules::HumanSync::UpdateData &metadata, LocalPlayer &lp, Framework::World::Modules::Base::Transform &tr) {
                 if (tracking.human) {
+                    // Compute position and rotation
                     SDK::ue::sys::math::C_Vector newPos = tracking.human->GetPos();
                     SDK::ue::sys::math::C_Quat newRot   = tracking.human->GetRot();
                     tr.pos                              = {newPos.x, newPos.y, newPos.z};
                     tr.rot                              = {newRot.w, newRot.x, newRot.y, newRot.z};
+
+                    // Acquire the aiming direction
+                    SDK::ue::sys::math::C_Vector aimDir;
+                    tracking.human->GetHumanWeaponController()->GetAimDir(&aimDir);
 
                     // Store the required metadata for onfoot sync
                     auto charController            = tracking.human->GetCharacterController();
@@ -65,6 +70,8 @@ namespace MafiaMP::Core::Modules {
                     metadata._isStalking           = charController->IsStalkMove();
                     metadata._isSprinting          = charController->IsSprinting();
                     metadata._sprintSpeed          = charController->GetSprintMoveSpeed();
+                    metadata.weaponData.aimDir          = {aimDir.x, aimDir.y, aimDir.z};
+                    metadata.weaponData.currentWeaponId = tracking.human->GetHumanWeaponController()->GetRightHandWeaponID();
                     metadata.weaponData.isAiming   = tracking.human->GetHumanWeaponController()->IsAiming();
 
                     // Current state-specific sync data

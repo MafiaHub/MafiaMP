@@ -237,6 +237,7 @@ namespace SDK {
         gPatterns.C_HumanWeaponController__DoWeaponReloadInventory    = reinterpret_cast<uint64_t>(hook::get_pattern("33 C0 44 8B C2 48 89 81 ? ? ? ?"));
         gPatterns.C_HumanWeaponController__DoWeaponReloadShowMagazine = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4F 08 4C 8B C6 BA ? ? ? ? E8 ? ? ? ? 45 33 F6");
         gPatterns.C_HumanWeaponController__DoWeaponSelectByItemId     = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40 48 8B 81 60"));
+        gPatterns.C_HumanWeaponController__GetAimDir                  = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B 81 ? ? ? ? 48 8B DA 80 78"));
         gPatterns.C_HumanWeaponController__GetRightHandWeaponID       = hook::get_opcode_address("E8 ? ? ? ? 3B 46 78");
         gPatterns.C_HumanWeaponController__GetShotPosDir              = hook::get_opcode_address("E8 ? ? ? ? F2 0F 10 44 24 ? 48 8B CF");
         gPatterns.C_HumanWeaponController__IsThrownWeapon             = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 81 ? ? ? ? 8B 40 48"));
