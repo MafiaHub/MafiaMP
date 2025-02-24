@@ -168,21 +168,21 @@ jobs:
       shell: cmd
       working-directory: fwk
       run: |
-        powershell Compress-Archive -Path build\bin\* -DestinationPath mafiamp_release_${{ env.new_tag }}.zip
+        powershell Compress-Archive -Path build\bin\* -DestinationPath mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
 
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
         name: mafiamp-release
-        path: fwk/mafiamp_release_${{ env.new_tag }}.zip
+        path: fwk/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
 
         
     - name: Create semver tag and release
       if: env.RELEASE_NEEDED == 'true'
       uses: actions/create-release@v1
       with:
-         tag_name: ${{ env.new_tag }}
-         release_name: ${{ env.new_tag }}
+         tag_name: v${{ steps.version.outputs.VERSION }}
+         release_name: v${{ steps.version.outputs.VERSION }}
          draft: false
          prerelease: false
          generate_release_notes: true
@@ -193,8 +193,8 @@ jobs:
       if: ${{ env.SKIP_RELEASE == 'false' }}
       uses: softprops/action-gh-release@v1
       with:
-        files: fwk/mafiamp_release_${{ steps.version.outputs.VERSION }}.zip
-        tag_name: ${{ env.new_tag }}
+        files: fwk/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
+        tag_name: v${{ steps.version.outputs.VERSION }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -207,6 +207,6 @@ jobs:
         description: |
           **Version:** ${{ steps.version.outputs.VERSION }}
           
-          **Download:** https://github.com/${{ github.repository }}/releases/download/${{ env.new_tag }}/mafiamp_release_${{ env.new_tag }}.zip
+          **Download:** https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.VERSION }}/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
         color: 0x00ff00
         username: MafiaMP Release Bot
