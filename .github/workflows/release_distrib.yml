@@ -56,15 +56,15 @@ jobs:
       shell: cmd
       working-directory: fwk
       run: |
-        xcopy /E /I code\projects\mafiamp\gamemode bin\gamemode
-        copy code\projects\mafiamp\LICENSE.txt bin\
-        copy code\projects\mafiamp\NOTICE.txt bin\
+        xcopy /E /I code\projects\mafiamp\gamemode build\bin\gamemode
+        copy code\projects\mafiamp\LICENSE.txt build\bin\
+        copy code\projects\mafiamp\NOTICE.txt build\bin\
         
     - name: Create Archive
       shell: cmd
       working-directory: fwk
       run: |
-        powershell Compress-Archive -Path bin\* -DestinationPath mafiamp_release.zip
+        powershell Compress-Archive -Path build\bin\* -DestinationPath mafiamp_release.zip
         
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
@@ -86,3 +86,16 @@ jobs:
         tag_name: ${{ steps.version.outputs.VERSION }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Send Discord Notification
+      if: ${{ success() && inputs.skip_release == 'false' }}
+      uses: sarisia/actions-status-discord@v1
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "New Release Published! 🎉"
+        description: |
+          **Version:** ${{ steps.version.outputs.VERSION }}
+          
+          **Download:** https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.VERSION }}/mafiamp_release.zip
+        color: 0x00ff00
+        username: MafiaMP Release Bot
