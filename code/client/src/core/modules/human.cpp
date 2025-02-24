@@ -72,7 +72,8 @@ namespace MafiaMP::Core::Modules {
                     metadata._sprintSpeed          = charController->GetSprintMoveSpeed();
                     metadata.weaponData.aimDir          = {aimDir.x, aimDir.y, aimDir.z};
                     metadata.weaponData.currentWeaponId = tracking.human->GetHumanWeaponController()->GetRightHandWeaponID();
-                    metadata.weaponData.isAiming   = tracking.human->GetHumanWeaponController()->IsAiming();
+                    metadata.weaponData.isAiming        = tracking.human->GetHumanWeaponController()->IsAiming();
+                    metadata.weaponData.isFiring        = tracking.human->GetHumanWeaponController()->m_bFirePressed;
 
                     // Current state-specific sync data
                     switch (metadata._charStateHandlerType) {

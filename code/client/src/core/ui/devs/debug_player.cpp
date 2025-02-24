@@ -68,6 +68,8 @@ namespace MafiaMP::Core::UI::Devs {
             ImGui::Text("IsCrouch: %s\n", pActivePlayer->IsCrouch() ? "true" : "false");
 
             ImGui::Text("IsAiming: %s\n", pActivePlayer->GetHumanWeaponController()->IsAiming() ? "true" : "false");
+            ImGui::Text("IsFirePressed: %s\n", pActivePlayer->GetHumanWeaponController()->m_bFirePressed ? "true" : "false");
+            ImGui::Text("IsFireHeld: %s\n", pActivePlayer->GetHumanWeaponController()->m_bFireHeld ? "true" : "false");
 
             ImGui::Text("IsInCover: %s\n", pActivePlayer->IsInCover() ? "true" : "false");
             ImGui::Text("IsInCoverFull(true): %s\n", pActivePlayer->IsInCoverFull(true) ? "true" : "false");
