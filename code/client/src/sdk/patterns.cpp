@@ -207,6 +207,10 @@ namespace SDK {
         gPatterns.C_HumanInventory__DoReload                      = hook::get_opcode_address("E8 ? ? ? ? 49 8B D4 48 8D 8E ? ? ? ?");
         gPatterns.C_HumanInventory__DoShot                        = hook::get_opcode_address("E8 ? ? ? ? F7 87 ? ? ? ? ? ? ? ? 74 1B");
         gPatterns.C_HumanInventory__DuplicateWeaponModel          = hook::get_opcode_address("E8 ? ? ? ? 48 8B D8 48 8D 45 97");
+        gPatterns.C_HumanInventory__GetLeftHandWeaponTableItem    = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 89 74 24 ? 57 48 83 EC ? 48 8B FA 8B 51 ? E8 ? ? ? ? 48 8B F0 48 85 C0 74 ? 4C 8B 00 48 8B C8 48 89 5C 24 ? 41 FF 50 ? 48 8B D8 E8 ? ? ? ? 48 8B D3 48 8B C8 E8 ? ? ? ? 33 C9 48 8B D7 84 C0 48 0F 45 CE E8 ? ? ? ? 48 8B 5C 24 ? 48 8B C7 48 8B 74 24 ? 48 83 C4 ? 5F C3 48 8B 74 24 ? 33 C9 48 89 0F 48 8B C7 48 83 C4 ? 5F C3 CC CC CC CC CC CC CC CC CC CC CC 48 89 5C 24"));
+        gPatterns.C_HumanInventory__GetRightHandWeaponTableItem   = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 89 74 24 ? 57 48 83 EC ? 48 8B FA 8B 51 ? E8 ? ? ? ? 48 8B F0 48 85 C0 74 ? 4C 8B 00 48 8B C8 48 89 5C 24 ? 41 FF 50 ? 48 8B D8 E8 ? ? ? ? 48 8B D3 48 8B C8 E8 ? ? ? ? 33 C9 48 8B D7 84 C0 48 0F 45 CE E8 ? ? ? ? 48 8B 5C 24 ? 48 8B C7 48 8B 74 24 ? 48 83 C4 ? 5F C3 48 8B 74 24 ? 33 C9 48 89 0F 48 8B C7 48 83 C4 ? 5F C3 CC CC CC CC CC CC CC CC CC CC CC 40 57"));
         gPatterns.C_HumanInventory__GetSelectedAmmoCategory       = hook::get_opcode_address("E8 ? ? ? ? 3B C3 74 04");
         gPatterns.C_HumanInventory__SelectAnimSetting             = hook::get_opcode_address("E8 ? ? ? ? 84 C0 74 B6 B0 01");
         gPatterns.C_HumanInventory__SelectByItemID                = hook::get_opcode_address("E8 ? ? ? ? 48 8B 87 ? ? ? ? 48 8D 55 20");
@@ -233,7 +237,7 @@ namespace SDK {
         gPatterns.C_HumanWeaponController__DoWeaponReloadInventory    = reinterpret_cast<uint64_t>(hook::get_pattern("33 C0 44 8B C2 48 89 81 ? ? ? ?"));
         gPatterns.C_HumanWeaponController__DoWeaponReloadShowMagazine = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4F 08 4C 8B C6 BA ? ? ? ? E8 ? ? ? ? 45 33 F6");
         gPatterns.C_HumanWeaponController__DoWeaponSelectByItemId     = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40 48 8B 81 60"));
-        gPatterns.C_HumanWeaponController__GetRightHandWeaponID       = hook::get_opcode_address("E8 ? ? ? ? 3B 46 78 ");
+        gPatterns.C_HumanWeaponController__GetRightHandWeaponID       = hook::get_opcode_address("E8 ? ? ? ? 3B 46 78");
         gPatterns.C_HumanWeaponController__GetShotPosDir              = hook::get_opcode_address("E8 ? ? ? ? F2 0F 10 44 24 ? 48 8B CF");
         gPatterns.C_HumanWeaponController__IsThrownWeapon             = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 81 ? ? ? ? 8B 40 48"));
         gPatterns.C_HumanWeaponController__ResetScatterCoef           = reinterpret_cast<uint64_t>(hook::get_pattern("40 57 48 83 EC 30 48 8B F9 0F 29 74 24 ?"));

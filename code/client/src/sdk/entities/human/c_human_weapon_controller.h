@@ -8,9 +8,19 @@ namespace SDK {
     class C_Entity;
     class C_HumanWeaponController {
       public:
+        char pad0[0x270];                   // 0000 - 0270
+        int *m_iRightHandWeaponID;          // 0270 - 0278
+
+
+      public:
         bool DoWeaponSelectByItemId(unsigned int, bool);
 
-        int GetRightHandWeaponID();
+        int GetRightHandWeaponID() {
+            if (m_iRightHandWeaponID) {
+                return *m_iRightHandWeaponID;
+            }
+            return -1;
+        }
 
         void GetShotPosDir(SDK::ue::sys::math::C_Vector *, SDK::ue::sys::math::C_Vector *, float *);
 

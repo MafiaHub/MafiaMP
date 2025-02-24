@@ -186,6 +186,8 @@ namespace SDK {
         uint64_t C_HumanInventory__DoReload                      = 0x0;
         uint64_t C_HumanInventory__DoShot                        = 0x0;
         uint64_t C_HumanInventory__DuplicateWeaponModel          = 0x0;
+        uint64_t C_HumanInventory__GetLeftHandWeaponTableItem    = 0x0;
+        uint64_t C_HumanInventory__GetRightHandWeaponTableItem   = 0x0;
         uint64_t C_HumanInventory__GetSelectedAmmoCategory       = 0x0;
         uint64_t C_HumanInventory__SelectAnimSetting             = 0x0;
         uint64_t C_HumanInventory__SelectByItemID                = 0x0;

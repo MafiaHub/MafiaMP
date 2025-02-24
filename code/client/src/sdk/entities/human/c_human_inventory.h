@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "sdk/c_inventory.h"
+#include "sdk/c_weapon_item.h"
 
 namespace SDK {
     class C_HumanInventory : public C_Inventory {
@@ -26,6 +27,9 @@ namespace SDK {
 
         bool DoReload(int, int);
         bool DoShot();
+
+        C_WeaponItem *GetLeftHandWeaponTableItem(C_WeaponItem *);
+        C_WeaponItem *GetRightHandWeaponTableItem(C_WeaponItem *);
 
         void RemoveMedkits(int);
 

@@ -31,6 +31,14 @@ namespace SDK {
         return hook::this_call<bool>(gPatterns.C_HumanInventory__DoShot, this);
     }
 
+    C_WeaponItem *C_HumanInventory::GetLeftHandWeaponTableItem(C_WeaponItem *weapon) {
+        return hook::this_call<C_WeaponItem *>(gPatterns.C_HumanInventory__GetLeftHandWeaponTableItem, this, weapon);
+    }
+
+    C_WeaponItem *C_HumanInventory::GetRightHandWeaponTableItem(C_WeaponItem *weapon) {
+        return hook::this_call<C_WeaponItem *>(gPatterns.C_HumanInventory__GetRightHandWeaponTableItem, this, weapon);
+    }
+
     void C_HumanInventory::RemoveMedkits(int amount) {
         // TODO: implement
     }
