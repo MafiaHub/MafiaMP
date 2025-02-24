@@ -91,18 +91,6 @@ jobs:
             echo "RELEASE_NEEDED=true" >> $GITHUB_ENV
             echo "new_tag=v${NEW_VERSION}" >> $GITHUB_ENV
           fi
-
-      - name: Create semver tag and release
-        if: env.RELEASE_NEEDED == 'true'
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ env.new_tag }}
-          release_name: ${{ env.new_tag }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
   build:
     runs-on: windows-latest
@@ -180,20 +168,33 @@ jobs:
       shell: cmd
       working-directory: fwk
       run: |
-        powershell Compress-Archive -Path build\bin\* -DestinationPath mafiamp_release_${{ steps.version.outputs.VERSION }}.zip
+        powershell Compress-Archive -Path build\bin\* -DestinationPath mafiamp_release_${{ env.new_tag }}.zip
 
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
         name: mafiamp-release
-        path: fwk/mafiamp_release_${{ steps.version.outputs.VERSION }}.zip
+        path: fwk/mafiamp_release_${{ env.new_tag }}.zip
+
+        
+    - name: Create semver tag and release
+      if: env.RELEASE_NEEDED == 'true'
+      uses: actions/create-release@v1
+      with:
+         tag_name: ${{ env.new_tag }}
+         release_name: ${{ env.new_tag }}
+         draft: false
+         prerelease: false
+         generate_release_notes: true
+      env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Attach to Release
       if: ${{ env.SKIP_RELEASE == 'false' }}
       uses: softprops/action-gh-release@v1
       with:
         files: fwk/mafiamp_release_${{ steps.version.outputs.VERSION }}.zip
-        tag_name: ${{ steps.version.outputs.VERSION }}
+        tag_name: ${{ env.new_tag }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -206,6 +207,6 @@ jobs:
         description: |
           **Version:** ${{ steps.version.outputs.VERSION }}
           
-          **Download:** https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.VERSION }}/mafiamp_release_${{ steps.version.outputs.VERSION }}.zip
+          **Download:** https://github.com/${{ github.repository }}/releases/download/${{ env.new_tag }}/mafiamp_release_${{ env.new_tag }}.zip
         color: 0x00ff00
         username: MafiaMP Release Bot
