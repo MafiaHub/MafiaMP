@@ -55,6 +55,10 @@ namespace MafiaMP::Core::UI::Devs {
             ImGui::Text("RightHandWeaponID: %i\n", pActivePlayer->GetHumanWeaponController()->GetRightHandWeaponID());
             ImGui::Text("IsThrownWeapon: %s\n", pActivePlayer->GetHumanWeaponController()->IsThrownWeapon() ? "true" : "false");
 
+            SDK::ue::sys::math::C_Vector aimDirection;
+            pActivePlayer->GetHumanWeaponController()->GetAimDir(&aimDirection);
+            ImGui::DragFloat3("Aim Direction", (float *)&aimDirection, 0.1f, -4500.0f, 4500.0f);
+
             ImGui::Text("IsDeath: %s\n", pActivePlayer->IsDeath() ? "true" : "false");
 
             ImGui::Text("IsInVehicle: %s\n", pActivePlayer->IsInVehicle() ? "true" : "false");
