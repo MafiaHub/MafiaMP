@@ -105,7 +105,7 @@ jobs:
   
   build:
     runs-on: windows-latest
-    needs: [check_branch, bump-semver, evaluate-release]
+    needs: [check-branch, bump-semver, evaluate-release]
     if: |
       always() &&
       (needs.check-branch.result == 'success') &&
