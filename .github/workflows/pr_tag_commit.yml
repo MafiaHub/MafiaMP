@@ -15,8 +15,20 @@ on:
           - 'false'
 
 jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    outputs:
+      is_master: ${{ steps.check.outputs.is_master }}
+    steps:
+      - name: Check branch
+        id: check
+        run: |
+          echo "is_master=${{ github.ref == 'refs/heads/master' }}" >> $GITHUB_OUTPUT
+
   bump-semver:
     runs-on: ubuntu-latest
+    needs: [check-branch]
+    if: needs.check-branch.outputs.is_master == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,7 +51,8 @@ jobs:
 
   evaluate-release:
     runs-on: ubuntu-latest
-    needs: bump-semver
+    needs: [check-branch, bump-semver]
+    if: needs.check-branch.outputs.is_master == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -92,7 +105,12 @@ jobs:
   
   build:
     runs-on: windows-latest
-    needs: evaluate-release
+    needs: [check_branch, bump-semver, evaluate-release]
+    if: |
+      always() &&
+      (needs.check-branch.result == 'success') &&
+      (needs.bump-semver.result == 'success' || needs.bump-semver.result == 'skipped') &&
+      (needs.evaluate-release.result == 'success' || needs.evaluate-release.result == 'skipped')
     env:
       SKIP_RELEASE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_release || 'false' }}
     steps:
@@ -105,11 +123,20 @@ jobs:
     - name: Checkout Framework
       uses: actions/checkout@v4
       with:
+        ref: develop
         repository: 'MafiaHub/Framework'
         path: 'fwk'
         
+    - name: Checkout Current Repository (modified)
+      uses: actions/checkout@v4
+      if: needs.check-branch.outputs.is_master == 'true'
+      with:
+        ref: master
+        path: 'temp_repo'
+
     - name: Checkout Current Repository
       uses: actions/checkout@v4
+      if: needs.check-branch.outputs.is_master != 'true'
       with:
         path: 'temp_repo'
         
