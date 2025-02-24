@@ -152,7 +152,6 @@ namespace MafiaMP::Core {
             }
         });
 
-#ifdef FW_DEBUG
         Core::gApplication->GetImGUI()->PushWidget([&]() {
             _devFeatures.Update();
 
@@ -182,7 +181,6 @@ namespace MafiaMP::Core {
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[connState]));
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Ping: {}", ping));
         });
-#endif
 
         if (_input) {
             _input->Update();
