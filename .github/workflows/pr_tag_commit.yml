@@ -92,6 +92,7 @@ jobs:
   
   build:
     runs-on: windows-latest
+    needs: evaluate-release
     env:
       SKIP_RELEASE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_release || 'false' }}
     steps:
