@@ -76,7 +76,10 @@ jobs:
       if: ${{ inputs.skip_release == 'false' }}
       id: version
       working-directory: temp_repo
-      run: echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
+      shell: cmd
+      run: |
+        set /p VERSION=<VERSION
+        echo VERSION=%VERSION% >> %GITHUB_OUTPUT%
       
     - name: Attach to Release
       if: ${{ inputs.skip_release == 'false' }}
