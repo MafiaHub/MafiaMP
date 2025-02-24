@@ -80,16 +80,15 @@ jobs:
         run: |
           NEW_VERSION=${{ steps.version.outputs.raw_version }}
           PREV_VERSION=${{ steps.previous-tag.outputs.prev_version }}
-
-          IFS='.' read -ra NEW <<< "$NEW_VERSION"
-          IFS='.' read -ra PREV <<< "$PREV_VERSION"
-
-          # Major/minor check (ignore patch)
-          #if [[ ${NEW[0]} -gt ${PREV[0]} || (${NEW[0]} -eq ${PREV[0]} && ${NEW[1]} -gt ${PREV[1]}) ]];
-          #then
+          
+          if [ "$NEW_VERSION" = "$PREV_VERSION" ]; then
+            echo "build_needed=false" >> $GITHUB_OUTPUT
+            echo "No new version detected, skipping build"
+          else
+            echo "build_needed=true" >> $GITHUB_OUTPUT
             echo "RELEASE_NEEDED=true" >> $GITHUB_ENV
             echo "new_tag=v${NEW_VERSION}" >> $GITHUB_ENV
-          #fi
+          fi
 
       - name: Create semver tag and release
         if: env.RELEASE_NEEDED == 'true'
@@ -110,7 +109,8 @@ jobs:
       always() &&
       (needs.check-branch.result == 'success') &&
       (needs.bump-semver.result == 'success' || needs.bump-semver.result == 'skipped') &&
-      (needs.evaluate-release.result == 'success' || needs.evaluate-release.result == 'skipped')
+      (needs.evaluate-release.result == 'success' || needs.evaluate-release.result == 'skipped') &&
+      (needs.check-branch.outputs.is_master != 'true' || needs.evaluate-release.outputs.build_needed == 'true')
     env:
       SKIP_RELEASE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_release || 'false' }}
     steps:
@@ -165,33 +165,32 @@ jobs:
         xcopy /E /I code\projects\mafiamp\gamemode build\bin\gamemode
         copy code\projects\mafiamp\LICENSE.txt build\bin\
         copy code\projects\mafiamp\NOTICE.txt build\bin\
-        
-    - name: Create Archive
-      shell: cmd
-      working-directory: fwk
-      run: |
-        powershell Compress-Archive -Path build\bin\* -DestinationPath mafiamp_release.zip
-        
-    - name: Upload Build Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: mafiamp-release
-        path: fwk/mafiamp_release.zip
-        
+
     - name: Read Version
-      if: ${{ env.SKIP_RELEASE == 'false' }}
       id: version
       working-directory: temp_repo
       shell: cmd
       run: |
-        set /p VERSION=<VERSION
-        echo VERSION=%VERSION% >> %GITHUB_OUTPUT%
-      
+        for /f "delims=" %%i in (VERSION) do set VERSION=%%i
+        echo VERSION=%VERSION%>> %GITHUB_OUTPUT%
+    
+    - name: Create Archive
+      shell: cmd
+      working-directory: fwk
+      run: |
+        powershell Compress-Archive -Path build\bin\* -DestinationPath mafiamp_release_${{ steps.version.outputs.VERSION }}.zip
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: mafiamp-release
+        path: fwk/mafiamp_release_${{ steps.version.outputs.VERSION }}.zip
+
     - name: Attach to Release
       if: ${{ env.SKIP_RELEASE == 'false' }}
       uses: softprops/action-gh-release@v1
       with:
-        files: fwk/mafiamp_release.zip
+        files: fwk/mafiamp_release_${{ steps.version.outputs.VERSION }}.zip
         tag_name: ${{ steps.version.outputs.VERSION }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -205,6 +204,6 @@ jobs:
         description: |
           **Version:** ${{ steps.version.outputs.VERSION }}
           
-          **Download:** https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.VERSION }}/mafiamp_release.zip
+          **Download:** https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.VERSION }}/mafiamp_release_${{ steps.version.outputs.VERSION }}.zip
         color: 0x00ff00
         username: MafiaMP Release Bot
