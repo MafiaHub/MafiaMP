@@ -1,0 +1,88 @@
+name: Build MafiaMP
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_release:
+        description: 'Skip release attachment'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Setup VS Dev Environment
+      uses: microsoft/setup-msbuild@v1.1
+      
+    - name: Install Visual C++ components
+      uses: ilammy/msvc-dev-cmd@v1
+      
+    - name: Checkout Framework
+      uses: actions/checkout@v3
+      with:
+        repository: 'MafiaHub/Framework'
+        path: 'fwk'
+        
+    - name: Checkout Current Repository
+      uses: actions/checkout@v3
+      with:
+        path: 'temp_repo'
+        
+    - name: Setup Project Structure
+      shell: cmd
+      run: |
+        cd fwk
+        mkdir code\projects
+        xcopy /E /I ..\temp_repo code\projects\mafiamp
+        
+    - name: Configure CMake
+      shell: cmd
+      working-directory: fwk
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        
+    - name: Build Project
+      shell: cmd
+      working-directory: fwk
+      run: cmake --build build --config Release
+        
+    - name: Prepare Release Package
+      shell: cmd
+      working-directory: fwk
+      run: |
+        xcopy /E /I code\projects\mafiamp\gamemode build\bin\gamemode
+        copy code\projects\mafiamp\LICENSE.txt build\bin\
+        copy code\projects\mafiamp\NOTICE.txt build\bin\
+        
+    - name: Create Archive
+      shell: cmd
+      working-directory: fwk
+      run: |
+        powershell Compress-Archive -Path build\bin\* -DestinationPath mafiamp_release.zip
+        
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: mafiamp-release
+        path: fwk/mafiamp_release.zip
+        
+    - name: Read Version
+      if: ${{ inputs.skip_release == 'false' }}
+      id: version
+      working-directory: temp_repo
+      run: echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
+      
+    - name: Attach to Release
+      if: ${{ inputs.skip_release == 'false' }}
+      uses: softprops/action-gh-release@v1
+      with:
+        files: fwk/mafiamp_release.zip
+        tag_name: ${{ steps.version.outputs.VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
