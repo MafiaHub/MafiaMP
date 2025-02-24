@@ -45,7 +45,7 @@ jobs:
       shell: cmd
       working-directory: fwk
       run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake -B build -DCMAKE_BUILD_TYPE=Release -G "Ninja"
         
     - name: Build Project
       shell: cmd
