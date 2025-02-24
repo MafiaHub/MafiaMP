@@ -214,6 +214,7 @@ namespace SDK {
         uint64_t C_HumanWeaponController__DoWeaponReloadInventory    = 0x0;
         uint64_t C_HumanWeaponController__DoWeaponReloadShowMagazine = 0x0;
         uint64_t C_HumanWeaponController__DoWeaponSelectByItemId     = 0x0;
+        uint64_t C_HumanWeaponController__GetAimDir                  = 0x0;
         uint64_t C_HumanWeaponController__GetRightHandWeaponID       = 0x0;
         uint64_t C_HumanWeaponController__GetShotPosDir              = 0x0;
         uint64_t C_HumanWeaponController__IsThrownWeapon             = 0x0;

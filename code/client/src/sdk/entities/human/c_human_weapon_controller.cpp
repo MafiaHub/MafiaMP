@@ -12,6 +12,10 @@ namespace SDK {
         return hook::this_call<bool>(gPatterns.C_HumanWeaponController__DoWeaponSelectByItemId, this, weaponId, unk);
     }
 
+    void C_HumanWeaponController::GetAimDir(SDK::ue::sys::math::C_Vector *outDirection) {
+        hook::this_call<void>(gPatterns.C_HumanWeaponController__GetAimDir, this, outDirection);
+    }
+
     void C_HumanWeaponController::GetShotPosDir(SDK::ue::sys::math::C_Vector *outPosition, SDK::ue::sys::math::C_Vector *outDirection, float *unknown) {
         hook::this_call<void>(gPatterns.C_HumanWeaponController__GetShotPosDir, this, outPosition, outDirection, unknown);
     }
