@@ -19,7 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       is_master: ${{ steps.check.outputs.is_master }}
-      build_needed: ${{ steps.version-check.outputs.build_needed }}
     steps:
       - name: Check branch
         id: check
@@ -83,10 +82,10 @@ jobs:
           PREV_VERSION=${{ steps.previous-tag.outputs.prev_version }}
           
           if [ "$NEW_VERSION" = "$PREV_VERSION" ]; then
-            echo "build_needed=false" >> $GITHUB_OUTPUT
+            echo "BUILD_NEEDED=false" >> $GITHUB_ENV
             echo "No new version detected, skipping build"
           else
-            echo "build_needed=true" >> $GITHUB_OUTPUT
+            echo "BUILD_NEEDED=true" >> $GITHUB_ENV
             echo "RELEASE_NEEDED=true" >> $GITHUB_ENV
             echo "new_tag=v${NEW_VERSION}" >> $GITHUB_ENV
           fi
@@ -111,7 +110,7 @@ jobs:
       (needs.check-branch.result == 'success') &&
       (needs.bump-semver.result == 'success' || needs.bump-semver.result == 'skipped') &&
       (needs.evaluate-release.result == 'success' || needs.evaluate-release.result == 'skipped') &&
-      (needs.check-branch.outputs.is_master != 'true' || needs.evaluate-release.outputs.build_needed == 'true')
+      (needs.check-branch.outputs.is_master != 'true' || env.BUILD_NEEDED == 'true')
     env:
       SKIP_RELEASE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_release || 'false' }}
     steps:
