@@ -41,8 +41,7 @@ namespace MafiaMP::Core::States {
 
     bool SessionConnectionState::OnUpdate(Framework::Utils::States::Machine *) {
         gApplication->GetImGUI()->PushWidget([&]() {
-            using namespace Framework::External::ImGUI::Widgets;
-            DrawCornerText(CORNER_RIGHT_TOP, "CONNECTING...");
+            Framework::External::ImGUI::Widgets::DrawCornerText(Framework::External::ImGUI::Widgets::CORNER_RIGHT_TOP, "CONNECTING...");
         });
         return false;
     }
