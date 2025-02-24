@@ -33,7 +33,7 @@ namespace SDK {
     }
 
     bool C_HumanWeaponController::IsAiming() {
-        return (*(BYTE *)(this + 892) & 1) != 0;
+        return (m_uAimingFlag & 1) != 0;
     }
 
     void C_HumanWeaponController::SetCoverFlag(const bool bIsActive) {
