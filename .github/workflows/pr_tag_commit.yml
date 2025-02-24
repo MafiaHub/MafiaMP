@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       is_master: ${{ steps.check.outputs.is_master }}
+      build_needed: ${{ steps.version-check.outputs.build_needed }}
     steps:
       - name: Check branch
         id: check
