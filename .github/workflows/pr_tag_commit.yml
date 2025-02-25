@@ -13,7 +13,14 @@ on:
         options:
           - 'true'
           - 'false'
-
+      stable_release:
+        description: 'Publish a stable release'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 jobs:
   check-branch:
     runs-on: ubuntu-latest
@@ -103,6 +110,7 @@ jobs:
       (needs.check-branch.outputs.is_master != 'true' || needs.evaluate-release.outputs.build_needed == 'true')
     env:
       SKIP_RELEASE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_release || 'false' }}
+      STABLE_RELEASE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.stable_release || 'false' }}
     steps:
     - name: Setup VS Dev Environment
       uses: microsoft/setup-msbuild@v1.1
@@ -176,8 +184,21 @@ jobs:
         name: mafiamp-release
         path: fwk/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
 
+    - name: Attach to Release (Stable)
+      if: ${{ env.SKIP_RELEASE == 'false' && env.STABLE_RELEASE == 'true' }}
+      uses: softprops/action-gh-release@v1
+      with:
+        prerelease: false
+        make_latest: true
+        generate_release_notes: true
+        files: fwk/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
+        tag_name: v${{ steps.version.outputs.VERSION }}
+        name: Stable v${{ steps.version.outputs.VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Attach to Release
-      if: ${{ env.SKIP_RELEASE == 'false' }}
+      if: ${{ env.SKIP_RELEASE == 'false' && env.STABLE_RELEASE == 'false' }}
       uses: softprops/action-gh-release@v1
       with:
         prerelease: true
@@ -188,8 +209,24 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Send Discord Notification (Stable)
+      if: ${{ success() && env.SKIP_RELEASE == 'false' && env.STABLE_RELEASE == 'true' }}
+      uses: sarisia/actions-status-discord@v1
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "Stable Release Published! 🎉"
+        nodetail: true
+        description: |
+          **Version:** Stable ${{ steps.version.outputs.VERSION }}
+
+          **Patch Notes:** https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.VERSION }}
+          
+          **Download:** https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.VERSION }}/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
+        color: 0x301934
+        username: NIGHTLY builds
+
     - name: Send Discord Notification
-      if: ${{ success() && env.SKIP_RELEASE == 'false' }}
+      if: ${{ success() && env.SKIP_RELEASE == 'false' && env.STABLE_RELEASE == 'false' }}
       uses: sarisia/actions-status-discord@v1
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
