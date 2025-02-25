@@ -124,6 +124,7 @@ jobs:
         ref: develop
         repository: 'MafiaHub/Framework'
         path: 'fwk'
+        fetch-depth: 1
         
     - name: Checkout Current Repository (modified)
       uses: actions/checkout@v4
@@ -131,12 +132,14 @@ jobs:
       with:
         ref: master
         path: 'temp_repo'
+        fetch-depth: 1
 
     - name: Checkout Current Repository
       uses: actions/checkout@v4
       if: needs.check-branch.outputs.is_master != 'true'
       with:
         path: 'temp_repo'
+        fetch-depth: 1
         
     - name: Setup Project Structure
       shell: cmd
