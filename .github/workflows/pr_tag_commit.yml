@@ -166,6 +166,7 @@ jobs:
         xcopy /E /I code\projects\mafiamp\gamemode build\bin\gamemode
         copy code\projects\mafiamp\LICENSE.txt build\bin\
         copy code\projects\mafiamp\NOTICE.txt build\bin\
+        copy code\projects\mafiamp\VERSION build\bin\
 
     - name: Read Version
       id: version
