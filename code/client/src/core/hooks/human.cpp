@@ -8,7 +8,7 @@
 #include "sdk/entities/c_actor.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
-#include "sdk/ue/game/humainai/c_character_controller.h"
+#include "sdk/ue/game/humanai/c_character_controller.h"
 
 #include "game/helpers/controls.h"
 
@@ -44,10 +44,11 @@ void __fastcall C_Human2__SetupDeath(SDK::C_Human2 *pThis, void *entityMsgDamage
     return C_Human2__SetupDeath_original(pThis, entityMsgDamage);
 }
 
-static InitFunction init([]() {
-    // Hook the local player death so we can actually respawn it without the blue screen of the death
-    const auto C_Human2__SetupDeath_addr = hook::pattern("48 8B C4 55 56 41 56 48 8D 68 ? 48 81 EC ? ? ? ? C7 45 ? ? ? ? ?").get_first();
-    MH_CreateHook((LPVOID)C_Human2__SetupDeath_addr, (PBYTE)C_Human2__SetupDeath, reinterpret_cast<void **>(&C_Human2__SetupDeath_original));
+static InitFunction init(
+    []() {
+        // Hook the local player death so we can actually respawn it without the blue screen of the death
+        const auto C_Human2__SetupDeath_addr = hook::pattern("48 8B C4 55 56 41 56 48 8D 68 ? 48 81 EC ? ? ? ? C7 45 ? ? ? ? ?").get_first();
+        MH_CreateHook((LPVOID)C_Human2__SetupDeath_addr, (PBYTE)C_Human2__SetupDeath, reinterpret_cast<void **>(&C_Human2__SetupDeath_original));
 
     // Make sure C_AICommand_AimAt::C_AICommand_AimAt always try to use position and not entity
     // TODO make it pattern based
