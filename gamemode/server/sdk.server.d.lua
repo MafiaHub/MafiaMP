@@ -102,6 +102,21 @@ Human = {}
 ---@param ammo integer # The amount of ammo for the weapon.
 function Human:addWeapon (weaponId, ammo) end
 
+---Gets current aim direction
+function Human:getAimDir () end
+
+---Gets current aim hit position
+function Human:getAimPos () end
+
+---Gets current weaponId
+function Human:getWeapon () end
+
+---Gets whether human is aiming
+function Human:isAiming () end
+
+---Gets whether human is firing
+function Human:isFiring () end
+
 ---Sets the Human's health.
 ---@param health number # The health value to set (0.0 to 100.0).
 function Human:setHealth (health) end
