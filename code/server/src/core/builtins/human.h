@@ -3,6 +3,7 @@
 #include <sol/sol.hpp>
 
 #include "integrations/server/scripting/builtins/entity.h"
+#include "scripting/builtins/vector_3.h"
 
 #include "shared/modules/human_sync.hpp"
 
@@ -24,7 +25,17 @@ namespace MafiaMP::Scripting {
 
         void AddWeapon(int weaponId, int ammo);
 
+        Framework::Scripting::Builtins::Vector3 GetAimDir() const;
+
+        Framework::Scripting::Builtins::Vector3 GetAimPos() const;
+
         float GetHealth() const;
+
+        uint16_t GetWeapon() const;
+
+        bool IsAiming() const;
+
+        bool IsFiring() const;
 
         void SetHealth(float health);
 
