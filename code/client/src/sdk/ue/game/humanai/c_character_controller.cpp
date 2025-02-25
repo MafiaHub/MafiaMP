@@ -2,8 +2,8 @@
 
 #include "c_character_state_handler_base_locomotion.h"
 
-#include "../../../entities/c_player_2.h"
-#include "../../../patterns.h"
+#include "sdk/entities/c_player_2.h"
+#include "sdk/patterns.h"
 
 namespace SDK {
     namespace ue::game::humanai {

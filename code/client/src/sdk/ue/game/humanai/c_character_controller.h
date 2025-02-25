@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include "../../../entities/c_actor.h"
+
+#include "sdk/entities/c_actor.h"
 #include "c_character_state_handler.h"
 
 #include "c_character_state_handler_aim.h"
