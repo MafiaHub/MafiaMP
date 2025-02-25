@@ -192,7 +192,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         prerelease: false
-        make_latest: true
+        make_latest: 'true'
         generate_release_notes: true
         files: fwk/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
         tag_name: v${{ steps.version.outputs.VERSION }}
