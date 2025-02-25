@@ -176,25 +176,15 @@ jobs:
         name: mafiamp-release
         path: fwk/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
 
-        
-    - name: Create semver tag and release
-      if: env.RELEASE_NEEDED == 'true'
-      uses: actions/create-release@v1
-      with:
-         tag_name: v${{ steps.version.outputs.VERSION }}
-         release_name: v${{ steps.version.outputs.VERSION }}
-         draft: false
-         prerelease: true
-         generate_release_notes: true
-      env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Attach to Release
       if: ${{ env.SKIP_RELEASE == 'false' }}
       uses: softprops/action-gh-release@v1
       with:
+        prerelease: true
+        generate_release_notes: true
         files: fwk/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
         tag_name: v${{ steps.version.outputs.VERSION }}
+        name: Nightly v${{ steps.version.outputs.VERSION }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -203,12 +193,15 @@ jobs:
       uses: sarisia/actions-status-discord@v1
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "New Release Published! 🎉"
+        title: "Nightly Release Published! 🎉"
+        nodetail: true
         description: |
-          **Version:** ${{ steps.version.outputs.VERSION }}
+          **Version:** Nightly ${{ steps.version.outputs.VERSION }}
+
+          This is a NIGHTLY automated build, not a full stable release! No support will be provided.
 
           **Patch Notes:** https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.VERSION }}
           
           **Download:** https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.VERSION }}/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
-        color: 0x00ff00
-        username: MafiaMP Release Bot
+        color: 0x301934
+        username: NIGHTLY builds
