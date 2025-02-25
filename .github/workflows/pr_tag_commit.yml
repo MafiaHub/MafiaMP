@@ -225,7 +225,7 @@ jobs:
           **Patch Notes:** https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.VERSION }}
           
           **Download:** https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.VERSION }}/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
-        color: 0x301934
+        color: 0x440000
         username: STABLE builds
 
     - name: Send Discord Notification
