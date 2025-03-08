@@ -16,7 +16,8 @@ listenEvent("onGamemodeLoaded", function ()
   -- WeatherSet
   local weatherSet = utils.getRandomInTable(CONFIG.WEATHER_SETS)
   if (weatherSet) then
-    World.setWeather(weatherSet)
+    World.setWeatherSet(weatherSet)
+    Console.log("[GAMEMODE] Weather set changed to " .. weatherSet .. ".")
   end
 end)
 
