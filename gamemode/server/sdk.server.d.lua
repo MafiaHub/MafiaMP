@@ -286,18 +286,26 @@ function Chat.sendToAll (message) end
 ---@type table World
 World = {}
 
----Sets the weather based on the given weather set name.
----@param weatherSetName string # The name of the weather set to apply.
-function World.setWeather (weatherSetName) end
-
----Sets the daytime hours (0.0 to 24.0).
----@param dayTimeHours number # The time of day in hours (0.0-24.0).
-function World.setDayTimeHours (dayTimeHours) end
-
 ---Creates a new vehicle with the given model name.
 ---@param modelName string # The model name of the vehicle.
 ---@return Vehicle # The created vehicle object.
 function World.createVehicle (modelName) end
+
+---Gets the current time of day in hours (0.0 to 24.0).
+---@return number # The time of day in hours (0.0-24.0).
+function World.getDayTimeHours () end
+
+---Sets the time of day in hours (0.0 to 24.0).
+---@param dayTimeHours number # The time of day in hours (0.0-24.0).
+function World.setDayTimeHours (dayTimeHours) end
+
+---Gets the current weather set.
+---@return string
+function World.getWeatherSet () end
+
+---Sets the weather set based on the given weather set name.
+---@param weatherSetName string # The name of the weather set to apply.
+function World.setWeatherSet (weatherSetName) end
 
 ---Callback definition for onGamemodeLoaded event.
 ---@alias OnGamemodeLoadedCallback fun()
