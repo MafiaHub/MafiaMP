@@ -16,6 +16,16 @@ namespace MafiaMP::Scripting {
         return ss.str();
     }
 
+    bool Human::IsAiming() const {
+        const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+        return h->weaponData.isAiming;
+    }
+
+    bool Human::IsFiring() const {
+        const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+        return h->weaponData.isFiring;
+    }
+
     void Human::AddWeapon(int weaponId, int ammo) {
         FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanAddWeapon, _ent, weaponId, ammo);
     }
@@ -32,21 +42,6 @@ namespace MafiaMP::Scripting {
         return Framework::Scripting::Builtins::Vector3(pos.x, pos.y, pos.z);
     }
 
-    uint16_t Human::GetWeapon() const {
-        const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-        return h->weaponData.currentWeaponId;
-    }
-
-    bool Human::IsAiming() const {
-        const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-        return h->weaponData.isAiming;
-    }
-
-    bool Human::IsFiring() const {
-        const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-        return h->weaponData.isFiring;
-    }
-
     float Human::GetHealth() const {
         const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         return h->_healthPercent;
@@ -58,6 +53,11 @@ namespace MafiaMP::Scripting {
         MafiaMP::Shared::RPC::HumanSetProps msg {};
         msg.health = health;
         FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanSetProps, _ent, msg);
+    }
+
+    uint16_t Human::GetWeaponId() const {
+        const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+        return h->weaponData.currentWeaponId;
     }
 
     sol::optional<Vehicle> Human::GetVehicle() const {
@@ -80,15 +80,15 @@ namespace MafiaMP::Scripting {
 
     void Human::Register(sol::state &luaEngine) {
         sol::usertype<Human> cls   = luaEngine.new_usertype<Human>("Human", sol::constructors<Human(uint64_t)>(), sol::base_classes, sol::bases<Entity>());
+        cls["isAiming"]            = &Human::IsAiming;
+        cls["isFiring"]            = &Human::IsFiring;
         cls["addWeapon"]           = &Human::AddWeapon;
         cls["getAimDir"]           = &Human::GetAimDir;
         cls["getAimPos"]           = &Human::GetAimPos;
-        cls["getWeapon"]           = &Human::GetWeapon;
-        cls["isAiming"]            = &Human::IsAiming;
-        cls["isFiring"]            = &Human::IsFiring;
         cls["getHealth"]           = &Human::GetHealth;
         cls["setHealth"]           = &Human::SetHealth;
         cls["getVehicle"]          = &Human::GetVehicle;
         cls["getVehicleSeatIndex"] = &Human::GetVehicleSeatIndex;
+        cls["getWeaponId"]         = &Human::GetWeaponId;
     }
 } // namespace MafiaMP::Scripting
