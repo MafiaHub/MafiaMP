@@ -1,7 +1,7 @@
 local CONFIG = require("gamemode/server/config")
 
 if (CONFIG.ENABLE_DEBUG) then
-  listenEvent("onPlayerConnected", function (player)
+  Event.on("onPlayerConnected", function (player)
     Console.log("[DEBUG][onPlayerConnected] player: ", player:toString())
     Console.log("[DEBUG][onPlayerConnected] player id: ", player.id, " | type: ", type(player.id))
     Console.log("[DEBUG][onPlayerConnected] player name: ", player.name, " | type: ", type(player.name))
@@ -18,7 +18,7 @@ if (CONFIG.ENABLE_DEBUG) then
     )
   end)
 
-  listenEvent("onVehiclePlayerEnter", function (vehicle, player, seatIndex)
+  Event.on("onVehiclePlayerEnter", function (vehicle, player, seatIndex)
     Console.log("[DEBUG][onVehiclePlayerEnter] vehicle: ", vehicle:toString())
     Console.log("[DEBUG][onVehiclePlayerEnter] vehicle id: ", vehicle.id, " | type: ", type(vehicle.id))
     Console.log("[DEBUG][onVehiclePlayerEnter] vehicle name: ", vehicle.name, " | type: ", type(vehicle.name))
@@ -42,7 +42,7 @@ if (CONFIG.ENABLE_DEBUG) then
     )
   end)
 
-  listenEvent("onChatCommand", function (player, message, command, args)
+  Event.on("onChatCommand", function (player, message, command, args)
     Console.log("[DEBUG][onChatCommand] owner: " .. player.nickname)
     Console.log("[DEBUG][onChatCommand] message: " .. message)
     Console.log("[DEBUG][onChatCommand] command: " .. command)
