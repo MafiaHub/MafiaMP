@@ -23,6 +23,10 @@ namespace MafiaMP::Scripting {
 
         std::string ToString() const override;
 
+        bool IsAiming() const;
+
+        bool IsFiring() const;
+
         void AddWeapon(int weaponId, int ammo);
 
         Framework::Scripting::Builtins::Vector3 GetAimDir() const;
@@ -30,18 +34,13 @@ namespace MafiaMP::Scripting {
         Framework::Scripting::Builtins::Vector3 GetAimPos() const;
 
         float GetHealth() const;
-
-        uint16_t GetWeapon() const;
-
-        bool IsAiming() const;
-
-        bool IsFiring() const;
-
         void SetHealth(float health);
 
         sol::optional<Vehicle> GetVehicle() const;
 
         int GetVehicleSeatIndex() const;
+
+        uint16_t GetWeaponId() const;
 
         static void Register(sol::state &luaEngine);
     };
