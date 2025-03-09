@@ -22,7 +22,7 @@ function Event.on (eventName, eventCallback) end
 
 ---Emits a custom event.
 ---@param eventName string # The name of the custom event.
----@param ... any # The function to execute when the event occurs.
+---@param ... any # The arguments to pass to the event callback.
 function Event.emit (eventName, ...) end
 
 ---@class RGB
