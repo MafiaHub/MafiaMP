@@ -458,6 +458,13 @@ namespace SDK {
         gPatterns.C_VehicleRealLightManager__SetReflectorLightsOn = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? 4C 8B C9 84 D2 74 ? 45 84 C0"));
         gPatterns.C_VehicleRealLightManager__SetVisible           = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 8B 41 ? 0F B6 FA D1 E8"));
 
+        // C_VirtualFileSystem
+        gPatterns.C_VirtualFileSystem__Mount = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 4C 24 ? 55 53 57 41 54 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 4D 8B F8"));
+        gPatterns.C_VirtualFileSystem__Open = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC ? 48 8B 41 ? 48 8B E9"));
+        
+        // C_VirtualFileSystemCache
+        gPatterns.C_VirtualFileSystemCache__AddDirectoryContentToCache = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 80 B9 ? ? ? ? ? 48 8B F2 48 8B F9 74"));
+
         // C_WAnimPlaybackManager
         gPatterns.C_WAnimPlaybackManager__PlayState = hook::get_opcode_address("E8 ? ? ? ? 4C 39 7F 50");
 
