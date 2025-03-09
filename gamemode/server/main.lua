@@ -74,8 +74,10 @@ Event.on("onChatMessage", function (player, message)
 end)
 
 ---@param player Player
-Event.on("myCustomEvent", function (player)
-  Console.log("[GAMEMODE] " .. player.nickname .. " triggered a custom event!")
+---@param foo string
+Event.on("myCustomEvent", function (player, foo)
+  Console.log("[GAMEMODE] " .. player.nickname .. " triggered a custom event with foo: " .. foo)
+  player:sendChat("[SERVER] You triggered a custom event with foo: " .. foo)
 end)
 
 ---@type { [string]: OnChatCommandCallback}
@@ -341,4 +343,8 @@ RegisterChatCommand("time", function (player, message, command, args)
   end
 
   World.setDayTimeHours(time)
+end)
+
+RegisterChatCommand("customevent", function (player, message, command, args)
+  Event.emit("myCustomEvent", player, "bar")
 end)
