@@ -56,6 +56,7 @@ namespace MafiaMP::Core {
         void InitRPCs();
 
         void PimpMyImGUI();
+        void UpdateCursorStyle();
 
         void LockControls(bool lock);
         bool AreControlsLocked() const {
