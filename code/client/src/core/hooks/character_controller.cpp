@@ -163,30 +163,44 @@ bool __fastcall C_CharacterStateHandlerMove__IsSprinting(SDK::ue::game::humanai:
 
 typedef bool(__fastcall *C_CharacterStateHandlerWeapon__SetupReload_t)(SDK::ue::game::humanai::C_CharacterStateHandlerWeapon *, bool);
 C_CharacterStateHandlerWeapon__SetupReload_t C_CharacterStateHandlerWeapon__SetupReload_original = nullptr;
-bool C_CharacterStateHandlerWeapon__SetupReload(SDK::ue::game::humanai::C_CharacterStateHandlerWeapon *pThis, bool a2) {
+bool C_CharacterStateHandlerWeapon__SetupReload(SDK::ue::game::humanai::C_CharacterStateHandlerWeapon *pWeaponHandler, bool a2) {
     Framework::Logging::GetLogger("Hooks")->debug("C_CharacterStateHandlerWeapon__SetupReload {}", a2);
-    return C_CharacterStateHandlerWeapon__SetupReload_original(pThis, a2);
+
+    SDK::C_Human2 *pCharacter = pWeaponHandler->GetCharacter();
+    if (SDK::GetGame()->GetActivePlayer() != pCharacter) {
+        MafiaMP::Game::Overrides::ScopedEntityTypeFaker restore(pCharacter, SDK::E_EntityType::E_ENTITY_HUMAN);
+        return C_CharacterStateHandlerWeapon__SetupReload_original(pWeaponHandler, a2);
+    }
+    else
+        return C_CharacterStateHandlerWeapon__SetupReload_original(pWeaponHandler, a2);
 }
 
 typedef int64_t(__fastcall *C_CharacterStateHandlerWeapon__StopReload_t)(SDK::ue::game::humanai::C_CharacterStateHandlerWeapon *);
 C_CharacterStateHandlerWeapon__StopReload_t C_CharacterStateHandlerWeapon__StopReload_original = nullptr;
-int64_t C_CharacterStateHandlerWeapon__StopReload(SDK::ue::game::humanai::C_CharacterStateHandlerWeapon *pThis) {
+int64_t C_CharacterStateHandlerWeapon__StopReload(SDK::ue::game::humanai::C_CharacterStateHandlerWeapon *pWeaponHandler) {
     Framework::Logging::GetLogger("Hooks")->debug("C_CharacterStateHandlerWeapon__StopReload");
-    return C_CharacterStateHandlerWeapon__StopReload_original(pThis);
+    
+    SDK::C_Human2 *pCharacter = pWeaponHandler->GetCharacter();
+    if (SDK::GetGame()->GetActivePlayer() != pCharacter) {
+        MafiaMP::Game::Overrides::ScopedEntityTypeFaker restore(pCharacter, SDK::E_EntityType::E_ENTITY_HUMAN);
+        return C_CharacterStateHandlerWeapon__StopReload_original(pWeaponHandler);
+    }
+    else
+        return C_CharacterStateHandlerWeapon__StopReload_original(pWeaponHandler);
 }
 
+// These are just stubs to prevent the game blocking the actions on a remote entity
+// It has no effect over the local player entity
 typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimAllowed_t)(void *);
 C_CharacterStateHandlerAim__IsAimAllowed_t C_CharacterStateHandlerAim__IsAimAllowed_original = nullptr;
 bool __fastcall C_CharacterStateHandlerAim__IsAimAllowed(SDK::ue::game::humanai::C_CharacterStateHandler *pAimHandler) {
     return true;
 }
-
 typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimBlocked_t)(void *);
 C_CharacterStateHandlerAim__IsAimBlocked_t C_CharacterStateHandlerAim__IsAimBlocked_original = nullptr;
 bool __fastcall C_CharacterStateHandlerAim__IsAimBlocked(SDK::ue::game::humanai::C_CharacterStateHandler *pAimHandler) {
     return false;
 }
-
 typedef bool(__fastcall *C_CharacterLocomotionController__IsFreeFire_t)(void *);
 C_CharacterLocomotionController__IsFreeFire_t C_CharacterLocomotionController__IsFreeFire_original = nullptr;
 bool C_CharacterLocomotionController__IsFreeFire(void* pThis) {

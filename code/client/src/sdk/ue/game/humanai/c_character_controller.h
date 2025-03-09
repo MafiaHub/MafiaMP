@@ -181,6 +181,9 @@ namespace SDK {
             C_CharacterStateHandler *GetCurrentStateHandler() {
                 return m_pCurrentStateHandler;
             }
+            C_CharacterStateHandlerWeapon *GetWeaponHandler() {
+                return m_pWeaponStateHandler;
+            }
             C_CharacterStateHandler::E_State_Handler_Type GetCurrentStateHandlerType() const;
             C_CharacterStateHandler *GetHandlerByType(C_CharacterStateHandler::E_State_Handler_Type type);
             uintptr_t GetCharacterLocomotionController() {
