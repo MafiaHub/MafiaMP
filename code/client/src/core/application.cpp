@@ -76,7 +76,7 @@ namespace MafiaMP::Core {
                     vhRect.bottom - vhRect.top,
                 };
             }
-            if (!_webManager->Init(gProjectPath, vhConfiguration, GetRenderer(), true)) {
+            if (!_webManager->Init(gProjectPath, vhConfiguration, GetRenderer(), false)) {
                 Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
                 return false;
             }
@@ -153,6 +153,11 @@ namespace MafiaMP::Core {
         });
 
         Core::gApplication->GetImGUI()->PushWidget([&]() {
+            // Do not show MP details and debug info in main menu
+            if (gApplication->GetStateMachine()->GetCurrentState()->GetId() == States::MainMenu) {
+                return;
+            }
+
             _devFeatures.Update();
 
             using namespace Framework::External::ImGUI::Widgets; // For DrawCornerText() and Corner enum
