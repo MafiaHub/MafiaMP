@@ -318,7 +318,7 @@ function World.setWeatherSet (weatherSetName) end
 --- Registers a callback to be invoked when the gamemode is loaded.
 ---@param eventName "onGamemodeLoaded" # The name of the event.
 ---@param eventCallback OnGamemodeLoadedCallback # The function to execute when the event occurs.
-function listenEvent (eventName, eventCallback) end
+function Event.on (eventName, eventCallback) end
 
 ---Callback definition for onGamemodeUnloading event.
 ---@alias OnGamemodeUnloadingCallback fun()
@@ -326,7 +326,7 @@ function listenEvent (eventName, eventCallback) end
 --- Registers a callback to be invoked before the gamemode is unloaded.
 ---@param eventName "onGamemodeUnloading" # The name of the event.
 ---@param eventCallback OnGamemodeUnloadingCallback # The function to execute when the event occurs.
-function listenEvent (eventName, eventCallback) end
+function Event.on (eventName, eventCallback) end
 
 ---Callback definition for onGamemodeUpdated event.
 ---@alias OnGamemodeUpdatedCallback fun()
@@ -335,7 +335,7 @@ function listenEvent (eventName, eventCallback) end
 ---WARNING: This event is called every frame, so be cautious with the code you put here.
 ---@param eventName "onGamemodeUpdated" # The name of the event.
 ---@param eventCallback OnGamemodeUpdatedCallback # The function to execute when the event occurs.
-function listenEvent (eventName, eventCallback) end
+function Event.on (eventName, eventCallback) end
 
 ---Callback definition for onPlayerConnected event.
 ---@alias OnPlayerConnectedCallback fun(player: Player)
@@ -343,7 +343,7 @@ function listenEvent (eventName, eventCallback) end
 ---Registers a callback to be invoked when a player connects to the server.
 ---@param eventName "onPlayerConnected" # The name of the event.
 ---@param eventCallback OnPlayerConnectedCallback # The function to execute when the event occurs.
-function listenEvent (eventName, eventCallback) end
+function Event.on (eventName, eventCallback) end
 
 ---Callback definition for onPlayerDisconnected event.
 ---@alias OnPlayerDisconnectedCallback fun(player: Player)
@@ -351,7 +351,7 @@ function listenEvent (eventName, eventCallback) end
 ---Registers a callback to be invoked when a player disconnects from the server.
 ---@param eventName "onPlayerDisconnected" # The name of the event.
 ---@param eventCallback OnPlayerDisconnectedCallback # The function to execute when the event occurs.
-function listenEvent (eventName, eventCallback) end
+function Event.on (eventName, eventCallback) end
 
 ---Callback definition for onPlayerDied event.
 ---@alias OnPlayerDiedCallback fun(player: Player)
@@ -359,7 +359,7 @@ function listenEvent (eventName, eventCallback) end
 ---Registers a callback to be invoked when a player dies.
 ---@param eventName "onPlayerDied" # The name of the event.
 ---@param eventCallback OnPlayerDiedCallback # The function to execute when the event occurs.
-function listenEvent (eventName, eventCallback) end
+function Event.on (eventName, eventCallback) end
 
 ---Callback definition for onChatMessage event.
 ---@alias OnChatMessageCallback fun(player: Player, message: string)
@@ -367,7 +367,7 @@ function listenEvent (eventName, eventCallback) end
 ---Registers a callback to be invoked when a player sends a chat message.
 ---@param eventName "onChatMessage" # The name of the event.
 ---@param eventCallback OnChatMessageCallback # The function to execute when the event occurs.
-function listenEvent (eventName, eventCallback) end
+function Event.on (eventName, eventCallback) end
 
 ---Callback definition for onChatCommand event.
 ---@alias OnChatCommandCallback fun(player: Player, message: string, command: string, args: string[])
@@ -375,7 +375,7 @@ function listenEvent (eventName, eventCallback) end
 ---Registers a callback to be invoked when a player issues a chat command.
 ---@param eventName "onChatCommand" # The name of the event.
 ---@param eventCallback OnChatCommandCallback # The function to execute when the event occurs.
-function listenEvent (eventName, eventCallback) end
+function Event.on (eventName, eventCallback) end
 
 ---Callback definition for onVehiclePlayerEnter event.
 ---@alias OnVehiclePlayerEnterCallback fun(vehicle: Vehicle, player: Player, seatIndex: integer)
@@ -383,7 +383,7 @@ function listenEvent (eventName, eventCallback) end
 ---Registers a callback to be invoked when a player enters a vehicle.
 ---@param eventName "onVehiclePlayerEnter" # The name of the event.
 ---@param eventCallback OnVehiclePlayerEnterCallback # The function to execute when the event occurs.
-function listenEvent (eventName, eventCallback) end
+function Event.on (eventName, eventCallback) end
 
 ---Callback definition for onVehiclePlayerLeave event.
 ---@alias OnVehiclePlayerLeaveCallback fun(vehicle: Vehicle, player: Player)
@@ -391,12 +391,4 @@ function listenEvent (eventName, eventCallback) end
 ---Registers a callback to be invoked when a player leaves a vehicle.
 ---@param eventName "onVehiclePlayerLeave" # The name of the event.
 ---@param eventCallback OnVehiclePlayerLeaveCallback # The function to execute when the event occurs.
-function listenEvent (eventName, eventCallback) end
-
----Callback definition for custom events.
----@alias OnCustomEventCallback fun(...: any)
-
----Registers a callback for a custom event.
----@param eventName string # The name of the custom event.
----@param eventCallback OnCustomEventCallback # The function to execute when the event occurs.
-function listenEvent (eventName, eventCallback) end
+function Event.on (eventName, eventCallback) end

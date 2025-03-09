@@ -1,5 +1,30 @@
 ---@meta _
 
+---@type table Console
+Console = {}
+
+---Logs a message to the console.
+---Accepts a variable number of arguments, all of which are converted to strings and concatenated.
+---@param ... any # The arguments to be logged, automatically converted to strings.
+---@return string
+function Console.log (...) end
+
+---@type table Event
+Event = {}
+
+---Callback definition for custom events.
+---@alias OnCustomEventCallback fun(...: any)
+
+---Registers a callback for a custom event.
+---@param eventName string # The name of the custom event.
+---@param eventCallback OnCustomEventCallback # The function to execute when the event occurs.
+function Event.on (eventName, eventCallback) end
+
+---Emits a custom event.
+---@param eventName string # The name of the custom event.
+---@param ... any # The arguments to pass to the event callback.
+function Event.emit (eventName, ...) end
+
 ---@class RGB
 ---@field r integer # Read-only. Red value (0-255).
 ---@field g integer # Read-only. Green value (0-255).
@@ -99,15 +124,6 @@ function RGBA:mul (r, g, b, a) end
 ---@param b integer # Blue value (0-255).
 ---@param a integer # Alpha value (0-255).
 function RGBA:div (r, g, b, a) end
-
----@type table Console
-Console = {}
-
----Logs a message to the console.
----Accepts a variable number of arguments, all of which are converted to strings and concatenated.
----@param ... any # The arguments to be logged, automatically converted to strings.
----@return string
-function Console.log (...) end
 
 ---@class Quaternion
 ---@field w number # Read-only. The w value of the quaternion.

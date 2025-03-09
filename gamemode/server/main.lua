@@ -3,7 +3,7 @@ local utils = require("gamemode/shared/utils")
 
 require("gamemode/server/debug")
 
-listenEvent("onGamemodeLoaded", function ()
+Event.on("onGamemodeLoaded", function ()
   Console.log("[GAMEMODE] Gamemode loaded!")
 
   -- Spawn vehicles
@@ -21,11 +21,11 @@ listenEvent("onGamemodeLoaded", function ()
   end
 end)
 
-listenEvent("onGamemodeUnloading", function ()
+Event.on("onGamemodeUnloading", function ()
   Console.log("[GAMEMODE] Gamemode unloading!")
 end)
 
-listenEvent("onVehiclePlayerEnter", function (vehicle, player, seatIndex)
+Event.on("onVehiclePlayerEnter", function (vehicle, player, seatIndex)
   Console.log(
     "[GAMEMODE] Player " .. player.nickname ..
     " entered vehicle " .. vehicle:getModelName() .. " (id: " .. vehicle.id .. ") at seat " .. seatIndex .. "."
@@ -34,7 +34,7 @@ listenEvent("onVehiclePlayerEnter", function (vehicle, player, seatIndex)
   vehicle:setEngineOn(true)
 end)
 
-listenEvent("onVehiclePlayerLeave", function (vehicle, player)
+Event.on("onVehiclePlayerLeave", function (vehicle, player)
   Console.log(
     "[GAMEMODE] Player " .. player.nickname ..
     " exited vehicle " .. vehicle:getModelName() .. " (id: " .. vehicle.id .. ")."
@@ -43,7 +43,7 @@ listenEvent("onVehiclePlayerLeave", function (vehicle, player)
   vehicle:setEngineOn(false)
 end)
 
-listenEvent("onPlayerConnected", function (player)
+Event.on("onPlayerConnected", function (player)
   Console.log("[GAMEMODE] Player " .. player.nickname .. " connected!")
   player:sendChatToAll("[SERVER] " .. player.nickname .. " has joined the session!")
 
@@ -53,12 +53,12 @@ listenEvent("onPlayerConnected", function (player)
   player:sendChat("[SERVER] Welcome " .. player.nickname .. "!")
 end)
 
-listenEvent("onPlayerDisconnected", function (player)
+Event.on("onPlayerDisconnected", function (player)
   Console.log("[GAMEMODE] Player " .. player.nickname .. " disconnected.")
   player:sendChatToAll("[SERVER] " .. player.nickname .. " has left the session.")
 end)
 
-listenEvent("onPlayerDied", function (player)
+Event.on("onPlayerDied", function (player)
   Console.log("[GAMEMODE] Player " .. player.nickname .. " died.")
   player:sendChatToAll("[SERVER] " .. player.nickname .. " died.")
 
@@ -68,14 +68,16 @@ listenEvent("onPlayerDied", function (player)
   player:setRotation(CONFIG.SPAWN_POINT.ROTATION)
 end)
 
-listenEvent("onChatMessage", function (player, message)
+Event.on("onChatMessage", function (player, message)
   Console.log("[GAMEMODE] Player " .. player.nickname .. " said: " .. message)
   Chat.sendToAll("<" .. player.nickname .. ">: " .. message)
 end)
 
 ---@param player Player
-listenEvent("myCustomEvent", function (player)
-  Console.log("[GAMEMODE] " .. player.nickname .. " triggered a custom event!")
+---@param foo string
+Event.on("myCustomEvent", function (player, foo)
+  Console.log("[GAMEMODE] " .. player.nickname .. " triggered a custom event with foo: " .. foo)
+  player:sendChat("[SERVER] " .. player.nickname .. " triggered a custom event with foo: " .. foo)
 end)
 
 ---@type { [string]: OnChatCommandCallback}
@@ -87,7 +89,7 @@ function RegisterChatCommand (name, handler)
   REGISTERED_CHAT_COMMANDS[name] = handler
 end
 
-listenEvent("onChatCommand", function (player, message, command, args)
+Event.on("onChatCommand", function (player, message, command, args)
   Console.log("[GAMEMODE] Player " .. player.nickname .. " used command: \"" .. command .. "\". (" .. message .. ").")
 
   local foundCommand = REGISTERED_CHAT_COMMANDS[command]
@@ -341,4 +343,8 @@ RegisterChatCommand("time", function (player, message, command, args)
   end
 
   World.setDayTimeHours(time)
+end)
+
+RegisterChatCommand("customevent", function (player, message, command, args)
+  Event.emit("myCustomEvent", player, "bar")
 end)
