@@ -97,33 +97,34 @@ function Entity:toString () end
 ---@class Human: Entity
 Human = {}
 
+---Gets whether human is aiming
+---@return boolean
+function Human:isAiming () end
+
+---Gets whether human is firing
+---@return boolean
+function Human:isFiring () end
+
 ---Adds a weapon to the Human.
 ---@param weaponId integer # The weapon ID to add.
 ---@param ammo integer # The amount of ammo for the weapon.
 function Human:addWeapon (weaponId, ammo) end
 
 ---Gets current aim direction
+---@return Vector3
 function Human:getAimDir () end
 
 ---Gets current aim hit position
+---@return Vector3
 function Human:getAimPos () end
-
----Gets current weaponId
-function Human:getWeapon () end
-
----Gets whether human is aiming
-function Human:isAiming () end
-
----Gets whether human is firing
-function Human:isFiring () end
-
----Sets the Human's health.
----@param health number # The health value to set (0.0 to 100.0).
-function Human:setHealth (health) end
 
 ---Gets the Human's current health.
 ---@return number # The current health value (0.0 to 100.0).
 function Human:getHealth () end
+
+---Sets the Human's health.
+---@param health number # The health value to set (0.0 to 100.0).
+function Human:setHealth (health) end
 
 ---Retrieves the vehicle the Human is in.
 ---@return Vehicle # The vehicle the Human is in.
@@ -132,6 +133,10 @@ function Human:getVehicle () end
 ---Retrieves the seat index the Human occupies in the vehicle.
 ---@return integer # The seat index the Human occupies. Returns -1 if the Human is not in a vehicle.
 function Human:getVehicleSeatIndex () end
+
+---Gets current weapon ID
+---@return number
+function Human:getWeaponId () end
 
 ---@class Player: Human
 Player = {}
