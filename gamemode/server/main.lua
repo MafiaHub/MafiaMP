@@ -77,7 +77,7 @@ end)
 ---@param foo string
 Event.on("myCustomEvent", function (player, foo)
   Console.log("[GAMEMODE] " .. player.nickname .. " triggered a custom event with foo: " .. foo)
-  player:sendChat("[SERVER] You triggered a custom event with foo: " .. foo)
+  player:sendChat("[SERVER] " .. player.nickname .. " triggered a custom event with foo: " .. foo)
 end)
 
 ---@type { [string]: OnChatCommandCallback}
