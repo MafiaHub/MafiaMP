@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#include "controllers/c_mouse_cursor_controller.h"
 #include "menu/c_main_menu.h"
 #include "menu/c_menu_base.h"
 #include "hud/c_hud_controller.h"
@@ -17,15 +18,17 @@ namespace SDK {
     namespace mafia::ui {
         class C_GameGUI2Module : public C_TickedModule {
           public:
-            char pad0[0x70];                                        // 0008 - 0078
-            dialog::C_UIGameDialogManager *m_pDialogManager;        // 0078 - 0080
-            ui::menu::C_MenuBase *m_pMenuBase;                      // 0080 - 0088
-            char pad1[0x38];                                        // 0088 - 00C0
-            ui::menu::C_MainMenu *m_pMainMenu;                      // 00C0 - 00C8
-            char pad2[0x150];                                       // 00C8 - 0218
-            hud::C_HudController *m_pHudController;                 // 0218 - 0220
-            char pad3[0x1E0];                                       // 0220 - 0400
-            support::C_Fader *m_pFader;                             // 0400 - 0408
+            char pad0[0x70];                                                    // 0008 - 0078
+            dialog::C_UIGameDialogManager *m_pDialogManager;                    // 0078 - 0080
+            ui::menu::C_MenuBase *m_pMenuBase;                                  // 0080 - 0088
+            char pad1[0x38];                                                    // 0088 - 00C0
+            ui::menu::C_MainMenu *m_pMainMenu;                                  // 00C0 - 00C8
+            char pad2[0x150];                                                   // 00C8 - 0218
+            hud::C_HudController *m_pHudController;                             // 0218 - 0220
+            char pad3[0x60];                                                    // 0220 - 0280
+            controllers::C_MouseCursorController *m_pMouseCursorController;     // 0280 - 0288
+            char pad4[0x178];                                                   // 0288 - 0400
+            support::C_Fader *m_pFader;                                         // 0400 - 0408
 
           public:
             void SendHUDSimpleBooleanMessage(char const *, bool);

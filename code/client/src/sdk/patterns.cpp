@@ -176,6 +176,10 @@ namespace SDK {
 
         gPatterns.C_GfxEnvironmentEffects__Instance = reinterpret_cast<uint64_t>(C_GfxEnvironmentEffects_Bytes + *(int32_t *)(C_GfxEnvironmentEffects_Bytes + 3) + 7);
 
+        // C_GSMouseCursorIface
+        gPatterns.C_GSMouseCursorIface__Hide = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 49 ? FF 49"));
+        gPatterns.C_GSMouseCursorIface__Show = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 49 ? FF 41 ? E9"));
+
         // C_HashName
         gPatterns.C_HashName__ComputeHash = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 74 24 ? 41 56 48 83 EC ? 4C 8B F2 48 8B F1 48 85 C9"));
         gPatterns.C_HashName__SetName     = reinterpret_cast<uint64_t>(hook::get_pattern("44 0F B6 11 4C 8B C2"));

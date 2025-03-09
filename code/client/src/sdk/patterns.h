@@ -155,6 +155,10 @@ namespace SDK {
         // C_GfxEnvironmentEffects
         uint64_t C_GfxEnvironmentEffects__Instance = 0x0;
 
+        // C_GSMouseCursorIface
+        uint64_t C_GSMouseCursorIface__Hide = 0x0;
+        uint64_t C_GSMouseCursorIface__Show = 0x0;
+
         // C_HashName
         uint64_t C_HashName__ComputeHash = 0x0;
         uint64_t C_HashName__SetName     = 0x0;
