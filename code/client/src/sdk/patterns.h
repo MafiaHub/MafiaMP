@@ -355,7 +355,10 @@ namespace SDK {
         uint64_t C_Translocator__SpawnObjects = 0x0;
 
         // C_TranslocableObjectSpawner
+        uint64_t C_TranslocableObjectSpawner__BeginUpdate = 0x0;
+        uint64_t C_TranslocableObjectSpawner__EndUpdate   = 0x0;
         uint64_t C_TranslocableObjectSpawner__Spawn = 0x0;
+        uint64_t C_TranslocableObjectSpawner__Update      = 0x0;
 
         // C_Vehicle
         uint64_t C_Vehicle__AddVehicleFlags    = 0x0;

@@ -395,7 +395,10 @@ namespace SDK {
         gPatterns.C_Translocator__SpawnObjects = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B D9 48 8B FA 48 8B CA E8 ? ? ? ? 84 C0 0F 85"));
 
         // C_TranslocableObjectSpawner
+        gPatterns.C_TranslocableObjectSpawner__BeginUpdate = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B F9 48 8B DA 48 8B 49 ? E8 ? ? ? ? 48 8B 4F"));
+        gPatterns.C_TranslocableObjectSpawner__EndUpdate   = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B D9 48 8B 49 ? E8 ? ? ? ? 48 8B 4B ? 48 83 C4 ? 5B E9 ? ? ? ? 48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24"));
         gPatterns.C_TranslocableObjectSpawner__Spawn = reinterpret_cast<uint64_t>(hook::get_pattern("44 88 4C 24 ? 89 54 24"));
+        gPatterns.C_TranslocableObjectSpawner__Update      = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B D9 48 8B 49 ? E8 ? ? ? ? 48 8D 4C 24"));
 
         // C_Vehicle
         gPatterns.C_Vehicle__AddVehicleFlags    = hook::get_opcode_address("E8 ? ? ? ? 40 F6 C7 08 74 0D");
