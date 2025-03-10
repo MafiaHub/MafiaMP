@@ -21,16 +21,16 @@ namespace SDK {
 
     class C_Game : public I_Game {
         public:
-            ue::C_MafiaGameUpContext *m_pGameUpContext;         // 0008 - 0010
-            char pad0[0x38];                                    // 0010 - 0048
-            ue::game::framework::C_GameContext *m_pGameContext; // 0048 - 0050
-            char pad2[0x30];                                    // 0050 - 0080
-            float m_fPlayerSpeedCff;                            // 0080 - 0084
-            int32_t m_iTimeFromStart;                           // 0084 - 0088
-            uint64_t m_iPlayTime;                               // 0088 - 0090
-            I_Game::E_GameUpState m_eGameUpState;               // 0090 - 0094
-            char pad4[0x4];                                     // 0094 - 0098
-            C_Player2 *m_pActivePlayer;                         // 0098 - 00A0
+            ue::C_MafiaGameUpContext *m_pGameUpContext;             // 0008 - 0010
+            char pad0[0x38];                                        // 0010 - 0048
+            ue::game::framework::C_Game_Context *m_pGameContext;    // 0048 - 0050
+            char pad2[0x30];                                        // 0050 - 0080
+            float m_fPlayerSpeedCff;                                // 0080 - 0084
+            int32_t m_iTimeFromStart;                               // 0084 - 0088
+            uint64_t m_iPlayTime;                                   // 0088 - 0090
+            I_Game::E_GameUpState m_eGameUpState;                   // 0090 - 0094
+            char pad4[0x4];                                         // 0094 - 0098
+            C_Player2 *m_pActivePlayer;                             // 0098 - 00A0
 
         public:
             C_Player2* GetActivePlayer();

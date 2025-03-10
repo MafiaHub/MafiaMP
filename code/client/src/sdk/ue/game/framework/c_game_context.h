@@ -2,6 +2,6 @@
 
 namespace SDK {
     namespace ue::game::framework {
-        class C_GameContext {};
+        class C_Game_Context {};
     }
 }
