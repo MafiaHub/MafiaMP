@@ -76,7 +76,7 @@ namespace MafiaMP::Core {
                     vhRect.bottom - vhRect.top,
                 };
             }
-            if (!_webManager->Init(gProjectPath, vhConfiguration, GetRenderer())) {
+            if (!_webManager->Init(gProjectPath, vhConfiguration, GetRenderer(), true)) {
                 Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
                 return false;
             }
@@ -153,6 +153,13 @@ namespace MafiaMP::Core {
         });
 
         Core::gApplication->GetImGUI()->PushWidget([&]() {
+            UpdateCursorStyle();
+
+            // Do not show MP details and debug info in main menu
+            if (gApplication->GetStateMachine()->GetCurrentState()->GetId() == States::MainMenu) {
+                return;
+            }
+
             _devFeatures.Update();
 
             using namespace Framework::External::ImGUI::Widgets; // For DrawCornerText() and Corner enum
@@ -276,6 +283,66 @@ namespace MafiaMP::Core {
         ImGui::GetStyle().WindowRounding           = 0.5f;
         ImGui::GetStyle().WindowMenuButtonPosition = ImGuiDir_Right;
         ImGui::GetStyle().WindowTitleAlign         = {0.5f, 0.5f};
+    }
+
+    void Application::UpdateCursorStyle() {
+        const auto mainView = GetWebManager()->GetView(GetMainMenuViewId());
+        if (!mainView || !mainView->HasFocus()) {
+            return;
+        }
+        ultralight::Cursor mainViewCursor = mainView->GetCursor();
+        ImGuiMouseCursor cursor;
+        switch (mainViewCursor) {
+        case ultralight::Cursor::kCursor_Pointer:
+            cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_Cross: cursor = ImGuiMouseCursor_TextInput; break;
+        case ultralight::Cursor::kCursor_Hand: cursor = ImGuiMouseCursor_Hand; break;
+        case ultralight::Cursor::kCursor_IBeam: cursor = ImGuiMouseCursor_TextInput; break;
+        case ultralight::Cursor::kCursor_Wait: cursor = ImGuiMouseCursor_NotAllowed; break;
+        case ultralight::Cursor::kCursor_Help: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_EastResize:
+        case ultralight::Cursor::kCursor_WestResize:
+        case ultralight::Cursor::kCursor_EastWestResize: cursor = ImGuiMouseCursor_ResizeEW; break;
+
+        case ultralight::Cursor::kCursor_NorthResize:
+        case ultralight::Cursor::kCursor_SouthResize:
+        case ultralight::Cursor::kCursor_NorthSouthResize: cursor = ImGuiMouseCursor_ResizeNS; break;
+
+        case ultralight::Cursor::kCursor_NorthEastResize:
+        case ultralight::Cursor::kCursor_SouthWestResize:
+        case ultralight::Cursor::kCursor_NorthEastSouthWestResize: cursor = ImGuiMouseCursor_ResizeNESW; break;
+
+        case ultralight::Cursor::kCursor_NorthWestResize:
+        case ultralight::Cursor::kCursor_SouthEastResize:
+        case ultralight::Cursor::kCursor_NorthWestSouthEastResize: cursor = ImGuiMouseCursor_ResizeNWSE; break;
+
+        // Column/Row resize could map to directional resize
+        case ultralight::Cursor::kCursor_ColumnResize: cursor = ImGuiMouseCursor_ResizeEW; break;
+        case ultralight::Cursor::kCursor_RowResize: cursor = ImGuiMouseCursor_ResizeNS; break;
+
+        // Panning cursors have no direct equivalent in ImGui
+        case ultralight::Cursor::kCursor_Move: cursor = ImGuiMouseCursor_ResizeAll; break;
+
+        // Other cursors - map to closest equivalents
+        case ultralight::Cursor::kCursor_VerticalText: cursor = ImGuiMouseCursor_TextInput; break;
+        case ultralight::Cursor::kCursor_Cell: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_ContextMenu: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_Alias: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_Progress: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_NoDrop: cursor = ImGuiMouseCursor_NotAllowed; break;
+        case ultralight::Cursor::kCursor_Copy: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_None: cursor = ImGuiMouseCursor_None; break;
+        case ultralight::Cursor::kCursor_NotAllowed: cursor = ImGuiMouseCursor_NotAllowed; break;
+        case ultralight::Cursor::kCursor_ZoomIn: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_ZoomOut: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_Grab: cursor = ImGuiMouseCursor_Hand; break;
+        case ultralight::Cursor::kCursor_Grabbing: cursor = ImGuiMouseCursor_Hand; break;
+        case ultralight::Cursor::kCursor_Custom: cursor = ImGuiMouseCursor_Arrow; break;
+
+        default: cursor = ImGuiMouseCursor_Arrow; break;
+        }
+
+        ImGui::SetMouseCursor(cursor);
     }
 
     void Application::ProcessLockControls(bool lock) {
