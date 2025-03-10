@@ -237,6 +237,10 @@ namespace SDK {
         uint64_t C_InventoryWrapper__AddWeapon = 0x0;
         uint64_t C_InventoryWrapper__TellMoney = 0x0;
 
+        // C_Keyboard
+        uint64_t C_Keyboard__GetActiveModifiers = 0x0;
+        uint64_t C_Keyboard__ToString           = 0x0;
+
         // C_MafiaCameraModule
         uint64_t C_MafiaCameraModule__GetMafiaCameraModule = 0x0;
         uint64_t C_MafiaCameraModule__GetPlayerCamera      = 0x0;

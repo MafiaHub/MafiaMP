@@ -260,6 +260,10 @@ namespace SDK {
         gPatterns.C_InventoryWrapper__AddWeapon = hook::get_opcode_address("E8 ? ? ? ? 41 38 76 4C 74 0C");
         gPatterns.C_InventoryWrapper__TellMoney = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC 28 48 8B 41 68 80 78 18 09"));
 
+        // C_Keyboard
+        gPatterns.C_Keyboard__GetActiveModifiers = reinterpret_cast<uint64_t>(hook::get_pattern("33 C0 4C 8B C1 80 B9"));
+        gPatterns.C_Keyboard__ToString           = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 54 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? B8"));
+
         // C_MafiaCameraModule
         gPatterns.C_MafiaCameraModule__GetMafiaCameraModule = reinterpret_cast<uint64_t>(hook::get_pattern(
             "48 8D 05 ? ? ? ? C3 CC CC CC CC CC CC CC CC 48 89 5C 24 ? 57 48 83 EC ? 48 8B FA 48 8B D9 E8 ? ? ? ? 48 85 C0 75 ? 48 8B 4B ? 48 85 C9 74 ? 48 8B 01 48 8B D7 48 8B 5C 24 ? 48 83 C4 ? 5F 48 FF 60 ? 33 C0 48 8B 5C 24 ? 48 83 C4 ? 5F C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 89 5C 24"));
