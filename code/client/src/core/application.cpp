@@ -76,7 +76,7 @@ namespace MafiaMP::Core {
                     vhRect.bottom - vhRect.top,
                 };
             }
-            if (!_webManager->Init(gProjectPath, vhConfiguration, GetRenderer(), true)) {
+            if (!_webManager->Init(gProjectPath, vhConfiguration, GetRenderer(), false)) {
                 Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
                 return false;
             }
