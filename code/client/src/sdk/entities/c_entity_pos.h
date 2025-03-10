@@ -3,7 +3,5 @@
 #include "c_entity.h"
 
 namespace SDK {
-    class C_EntityPos : public C_Entity {
-
-    };
-}
+    class C_EntityPos: public C_Entity {};
+} // namespace SDK
