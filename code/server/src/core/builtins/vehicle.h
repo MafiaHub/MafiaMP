@@ -26,7 +26,7 @@ namespace MafiaMP::Scripting {
         static void EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex);
         static void EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player);
 
-        static void Register(sol::state &luaEngine);
+        static void Register(sol::state *luaEngine);
 
         std::string ToString() const override;
 

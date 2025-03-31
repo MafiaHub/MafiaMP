@@ -40,8 +40,8 @@ namespace MafiaMP::Scripting {
         FW_SEND_COMPONENT_RPC(Shared::RPC::ChatMessage, message);
     }
 
-    void Player::Register(sol::state &luaEngine) {
-        sol::usertype<Player> cls = luaEngine.new_usertype<Player>("Player", sol::constructors<Player(uint64_t)>(), sol::base_classes, sol::bases<Human, Entity>());
+    void Player::Register(sol::state *luaEngine) {
+        sol::usertype<Player> cls = luaEngine->new_usertype<Player>("Player", sol::constructors<Player(uint64_t)>(), sol::base_classes, sol::bases<Human, Entity>());
         cls["destroy"]            = &Player::Destroy;
         cls["sendChat"]           = &Player::SendChat;
         cls["sendChatToAll"]      = &Player::SendChatToAll;

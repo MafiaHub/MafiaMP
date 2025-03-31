@@ -13,7 +13,7 @@
 namespace MafiaMP::Scripting {
     class Builtins final {
       public:
-        static void Register(sol::state &luaEngine) {
+        static void Register(sol::state *luaEngine) {
             Scripting::Chat::Register(luaEngine);
             Scripting::Human::Register(luaEngine);
             Scripting::Player::Register(luaEngine);
