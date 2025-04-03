@@ -7,17 +7,17 @@
 
 namespace MafiaMP::Scripting {
     void Player::EventPlayerConnected(flecs::entity e) {
-        const auto engine = MafiaMP::Server::GetScriptingEngine();
+        const auto engine = Framework::CoreModules::GetScriptingEngine();
         engine->InvokeEvent("onPlayerConnected", Player(e));
     }
 
     void Player::EventPlayerDisconnected(flecs::entity e) {
-        const auto engine = MafiaMP::Server::GetScriptingEngine();
+        const auto engine = Framework::CoreModules::GetScriptingEngine();
         engine->InvokeEvent("onPlayerDisconnected", Player(e));
     }
 
     void Player::EventPlayerDied(flecs::entity e) {
-        const auto engine = MafiaMP::Server::GetScriptingEngine();
+        const auto engine = Framework::CoreModules::GetScriptingEngine();
         engine->InvokeEvent("onPlayerDied", Player(e));
     }
 

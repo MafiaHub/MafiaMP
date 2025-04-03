@@ -63,8 +63,7 @@ namespace MafiaMP {
     }
 
     void Server::ModuleRegister(Framework::Scripting::Engine *engine) {
-        _scriptingEngine = reinterpret_cast<Framework::Scripting::ServerEngine*>(engine);
-        MafiaMP::Scripting::Builtins::Register(_scriptingEngine->GetLuaEngine());
+        MafiaMP::Scripting::Builtins::Register(GetScriptingModule()->GetEngine()->GetLuaEngine());
     }
 
     void Server::InitRPCs() {
