@@ -55,6 +55,10 @@ namespace MafiaMP::Scripting {
         }
 
         static void Register(sol::state *luaEngine) {
+            if (!luaEngine) {
+                return;
+            }
+
             sol::usertype<World> cls = luaEngine->new_usertype<World>("World");
             cls["createVehicle"]     = &World::CreateVehicle;
             cls["getDayTimeHours"]   = &World::GetDayTimeHours;

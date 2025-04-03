@@ -79,6 +79,10 @@ namespace MafiaMP::Scripting {
     }
 
     void Human::Register(sol::state *luaEngine) {
+        if (!luaEngine) {
+            return;
+        }
+
         sol::usertype<Human> cls   = luaEngine->new_usertype<Human>("Human", sol::constructors<Human(uint64_t)>(), sol::base_classes, sol::bases<Entity>());
         cls["isAiming"]            = &Human::IsAiming;
         cls["isFiring"]            = &Human::IsFiring;

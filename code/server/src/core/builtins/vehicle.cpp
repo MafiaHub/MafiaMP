@@ -255,6 +255,10 @@ namespace MafiaMP::Scripting {
     }
 
     void Vehicle::Register(sol::state *luaEngine) {
+        if (!luaEngine) {
+            return;
+        }
+
         sol::usertype<Vehicle> cls = luaEngine->new_usertype<Vehicle>("Vehicle", sol::constructors<Vehicle(uint64_t)>(), sol::base_classes, sol::bases<Entity>());
         cls["getBeaconLightsOn"]   = &Vehicle::GetBeaconLightsOn;
         cls["setBeaconLightsOn"]   = &Vehicle::SetBeaconLightsOn;

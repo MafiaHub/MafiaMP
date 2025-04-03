@@ -41,6 +41,10 @@ namespace MafiaMP::Scripting {
     }
 
     void Player::Register(sol::state *luaEngine) {
+        if (!luaEngine) {
+            return;
+        }
+
         sol::usertype<Player> cls = luaEngine->new_usertype<Player>("Player", sol::constructors<Player(uint64_t)>(), sol::base_classes, sol::bases<Human, Entity>());
         cls["destroy"]            = &Player::Destroy;
         cls["sendChat"]           = &Player::SendChat;

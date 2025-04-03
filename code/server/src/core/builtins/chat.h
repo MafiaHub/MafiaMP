@@ -38,6 +38,10 @@ namespace MafiaMP::Scripting {
         }
 
         static void Register(sol::state *luaEngine) {
+            if (!luaEngine) {
+                return;
+            }
+
             sol::usertype<Chat> cls = luaEngine->new_usertype<Chat>("Chat");
             cls["sendToAll"]        = &Chat::SendToAll;
             cls["sendToPlayer"]     = &Chat::SendToPlayer;
