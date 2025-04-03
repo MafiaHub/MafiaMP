@@ -45,22 +45,22 @@ end)
 
 Event.on("onPlayerConnected", function (player)
   Console.log("[GAMEMODE] Player " .. player.nickname .. " connected!")
-  player:sendChatToAll("[SERVER] " .. player.nickname .. " has joined the session!")
+  Chat.sendToAll("[SERVER] " .. player.nickname .. " has joined the session!")
 
   player:addWeapon(2, 200)
   player:setPosition(CONFIG.SPAWN_POINT.POSITION)
   player:setRotation(CONFIG.SPAWN_POINT.ROTATION)
-  player:sendChat("[SERVER] Welcome " .. player.nickname .. "!")
+  Chat.sendToPlayer(player, "[SERVER] Welcome " .. player.nickname .. "!")
 end)
 
 Event.on("onPlayerDisconnected", function (player)
   Console.log("[GAMEMODE] Player " .. player.nickname .. " disconnected.")
-  player:sendChatToAll("[SERVER] " .. player.nickname .. " has left the session.")
+  Chat.sendToAll("[SERVER] " .. player.nickname .. " has left the session.")
 end)
 
 Event.on("onPlayerDied", function (player)
   Console.log("[GAMEMODE] Player " .. player.nickname .. " died.")
-  player:sendChatToAll("[SERVER] " .. player.nickname .. " died.")
+  Chat.sendToAll("[SERVER] " .. player.nickname .. " died.")
 
   -- Reset the player
   player:setHealth(100.0)
