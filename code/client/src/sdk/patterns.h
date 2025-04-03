@@ -440,6 +440,9 @@ namespace SDK {
         // I_VirtualFileSystemCache
         uint64_t I_VirtualFileSystemCache__GetInstance = 0x0;
 
+        // I_StreamMap
+        uint64_t I_StreamMap__GetInstance = 0x0;
+
         // Lua
         uint64_t Lua__isstring   = 0x0;
         uint64_t Lua__loadbuffer = 0x0;

@@ -491,6 +491,9 @@ namespace SDK {
         // I_VirtualFileSystemCache
         gPatterns.I_VirtualFileSystemCache__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 41 0F B7 CF");
 
+        // I_StreamMap
+        gPatterns.I_StreamMap__GetInstance = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 05 ? ? ? ? 48 85 C0 74 ? 48 83 C0 ? C3 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0"));
+
         // Lua
         gPatterns.Lua__isstring   = hook::get_opcode_address("E8 ? ? ? ? 85 C0 74 5E 8B D3");
         gPatterns.Lua__loadbuffer = hook::get_opcode_address("E8 ? ? ? ? 85 C0 74 2F 48 8B 47 48");
