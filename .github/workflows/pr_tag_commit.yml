@@ -125,6 +125,8 @@ jobs:
         repository: 'MafiaHub/Framework'
         path: 'fwk'
         fetch-depth: 1
+        token: ${{ secrets.GITHUB_TOKEN }}
+        submodules: true
         
     - name: Checkout Current Repository (modified)
       uses: actions/checkout@v4
