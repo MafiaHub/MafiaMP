@@ -42,6 +42,6 @@ namespace MafiaMP::Scripting {
 
         uint16_t GetWeaponId() const;
 
-        static void Register(sol::state &luaEngine);
+        static void Register(sol::state *luaEngine);
     };
 } // namespace MafiaMP::Scripting

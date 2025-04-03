@@ -25,6 +25,6 @@ namespace MafiaMP::Scripting {
 
         static void SendChatToAll(std::string message);
 
-        static void Register(sol::state &luaEngine);
+        static void Register(sol::state *luaEngine);
     };
 } // namespace MafiaMP::Scripting

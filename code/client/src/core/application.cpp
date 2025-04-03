@@ -32,6 +32,7 @@
 
 #include "world/game_rpc/set_transform.h"
 
+#include "builtins/builtins.h"
 #include "modules/human.h"
 #include "modules/vehicle.h"
 
@@ -199,6 +200,10 @@ namespace MafiaMP::Core {
     }
 
     void Application::PostRender() {}
+
+    void Application::ModuleRegister(Framework::Scripting::Engine *engine) {
+        MafiaMP::Scripting::Builtins::Register(GetScriptingModule()->GetEngine()->GetLuaEngine());
+    }
 
     void Application::InitNetworkingMessages() {
         SetOnConnectionFinalizedCallback([this](flecs::entity newPlayer, float tickInterval) {

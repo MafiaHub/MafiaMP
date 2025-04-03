@@ -52,6 +52,8 @@ namespace MafiaMP::Core {
         void PostUpdate() override;
         void PostRender() override;
 
+        void ModuleRegister(Framework::Scripting::Engine *engine) override;
+
         void InitNetworkingMessages();
         void InitRPCs();
 
