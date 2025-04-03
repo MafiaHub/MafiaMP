@@ -28,12 +28,13 @@ namespace MafiaMP::Scripting {
         static void SendToPlayer(Player *player, std::string message) {
             if (player) {
                 const auto ent = player->GetHandle();
-                const auto str = ent.get<Framework::World::Modules::Base::Streamer>();
+                const auto streamer = ent.get<Framework::World::Modules::Base::Streamer>();
 
-                if (!str)
+                if (!streamer) {
                     return;
+                }
 
-                FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(str->guid), message);
+                FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(streamer->guid), message);
             }
         }
 
