@@ -65,9 +65,8 @@ namespace MafiaMP::Core {
         _input            = std::make_shared<MafiaMP::Game::GameInput>();
         _console          = std::make_shared<UI::Console>(_commandProcessor);
         _chat             = std::make_shared<UI::Chat>();
-        _webManager       = std::make_shared<Framework::GUI::Manager>();
 
-        if (_webManager) {
+        if (GetWebManager()) {
             Framework::GUI::ViewportConfiguration vhConfiguration;
             {
                 RECT vhRect;
@@ -77,7 +76,7 @@ namespace MafiaMP::Core {
                     vhRect.bottom - vhRect.top,
                 };
             }
-            if (!_webManager->Init(gProjectPath, vhConfiguration, GetRenderer(), false)) {
+            if (!GetWebManager()->Init(gProjectPath, vhConfiguration, GetRenderer(), false)) {
                 Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
                 return false;
             }
@@ -107,8 +106,8 @@ namespace MafiaMP::Core {
         _luaVM = std::make_shared<LuaVM>();
 
         // Setup the main menu UI
-        const auto vhConfiguration = _webManager->GetViewportConfiguration();
-        _mainMenuViewId            = _webManager->CreateView("https://mafiamp.web.app", vhConfiguration.width, vhConfiguration.height);
+        const auto vhConfiguration = GetWebManager()->GetViewportConfiguration();
+        _mainMenuViewId            = GetWebManager()->CreateView("https://mafiamp.web.app", vhConfiguration.width, vhConfiguration.height);
 
         return true;
     }
@@ -192,10 +191,6 @@ namespace MafiaMP::Core {
 
         if (_input) {
             _input->Update();
-        }
-
-        if (_webManager) {
-            _webManager->Update();
         }
     }
 
