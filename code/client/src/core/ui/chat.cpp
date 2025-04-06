@@ -14,7 +14,7 @@ namespace MafiaMP::Core::UI {
     void Chat::OnUpdate() {
         bool _wasFocused = _isFocused;
 
-        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_RETURN) && !_isFocused) {
+        if (gApplication->GetInput()->IsKeyPressed(FW_KEY_RETURN) && !_isFocused && !gApplication->GetWebManager()->IsAnyViewFocused()) {
             _isFocused = true;
             LockControls(true);
         }
