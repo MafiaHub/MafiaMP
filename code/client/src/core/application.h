@@ -83,6 +83,10 @@ namespace MafiaMP::Core {
             return _commandProcessor;
         }
 
+        Framework::Input::IInput *GetBaseInput() const override {
+            return _input.get();
+        }
+
         std::shared_ptr<MafiaMP::Game::GameInput> GetInput() const {
             return _input;
         }
