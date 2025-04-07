@@ -137,6 +137,15 @@ namespace MafiaMP::Core {
             isStyleInitialized = true;
         }
 
+        // Check if any view is focused and lock/unlock controls
+        if (GetWebManager()) {
+            Framework::GUI::View *mainMenuView = GetWebManager()->GetView(_mainMenuViewId);
+
+            if (!mainMenuView->GetInternalView()->HasFocus()) {
+                LockControls(GetWebManager()->IsAnyGCViewFocused());
+            }
+        }
+
         // Tick discord instance - Temporary
         const auto discordApi = Core::gApplication->GetPresence();
         if (discordApi && discordApi->IsInitialized()) {
