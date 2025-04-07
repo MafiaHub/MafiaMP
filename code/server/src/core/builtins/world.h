@@ -54,8 +54,12 @@ namespace MafiaMP::Scripting {
             FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, SLNet::RakString(weather->_weatherSetName.c_str()), {});
         }
 
-        static void Register(sol::state &luaEngine) {
-            sol::usertype<World> cls = luaEngine.new_usertype<World>("World");
+        static void Register(sol::state *luaEngine) {
+            if (!luaEngine) {
+                return;
+            }
+
+            sol::usertype<World> cls = luaEngine->new_usertype<World>("World");
             cls["createVehicle"]     = &World::CreateVehicle;
             cls["getDayTimeHours"]   = &World::GetDayTimeHours;
             cls["setDayTimeHours"]   = &World::SetDayTimeHours;

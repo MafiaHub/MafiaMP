@@ -237,6 +237,10 @@ namespace SDK {
         uint64_t C_InventoryWrapper__AddWeapon = 0x0;
         uint64_t C_InventoryWrapper__TellMoney = 0x0;
 
+        // C_Keyboard
+        uint64_t C_Keyboard__GetActiveModifiers = 0x0;
+        uint64_t C_Keyboard__ToString           = 0x0;
+
         // C_MafiaCameraModule
         uint64_t C_MafiaCameraModule__GetMafiaCameraModule = 0x0;
         uint64_t C_MafiaCameraModule__GetPlayerCamera      = 0x0;
@@ -355,7 +359,10 @@ namespace SDK {
         uint64_t C_Translocator__SpawnObjects = 0x0;
 
         // C_TranslocableObjectSpawner
+        uint64_t C_TranslocableObjectSpawner__BeginUpdate = 0x0;
+        uint64_t C_TranslocableObjectSpawner__EndUpdate   = 0x0;
         uint64_t C_TranslocableObjectSpawner__Spawn = 0x0;
+        uint64_t C_TranslocableObjectSpawner__Update      = 0x0;
 
         // C_Vehicle
         uint64_t C_Vehicle__AddVehicleFlags    = 0x0;
@@ -432,6 +439,9 @@ namespace SDK {
 
         // I_VirtualFileSystemCache
         uint64_t I_VirtualFileSystemCache__GetInstance = 0x0;
+
+        // I_StreamMap
+        uint64_t I_StreamMap__GetInstance = 0x0;
 
         // Lua
         uint64_t Lua__isstring   = 0x0;
