@@ -139,7 +139,11 @@ namespace MafiaMP::Core {
 
         // Check if any view is focused and lock/unlock controls
         if (GetWebManager()) {
-            LockControls(GetWebManager()->IsAnyViewFocused());
+            Framework::GUI::View *mainMenuView = GetWebManager()->GetView(_mainMenuViewId);
+
+            if (!mainMenuView->GetInternalView()->HasFocus()) {
+                LockControls(GetWebManager()->IsAnyGCViewFocused());
+            }
         }
 
         // Tick discord instance - Temporary

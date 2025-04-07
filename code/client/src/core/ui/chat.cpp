@@ -14,7 +14,7 @@ namespace MafiaMP::Core::UI {
     void Chat::OnUpdate() {
         bool _wasFocused = _isFocused;
 
-        if (gApplication->GetWebManager()->IsAnyViewFocused()) {
+        if (gApplication->GetWebManager()->IsAnyGCViewFocused()) {
             _isFocused = false;
             return;
         }
