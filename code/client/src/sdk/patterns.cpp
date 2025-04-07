@@ -260,6 +260,10 @@ namespace SDK {
         gPatterns.C_InventoryWrapper__AddWeapon = hook::get_opcode_address("E8 ? ? ? ? 41 38 76 4C 74 0C");
         gPatterns.C_InventoryWrapper__TellMoney = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC 28 48 8B 41 68 80 78 18 09"));
 
+        // C_Keyboard
+        gPatterns.C_Keyboard__GetActiveModifiers = reinterpret_cast<uint64_t>(hook::get_pattern("33 C0 4C 8B C1 80 B9"));
+        gPatterns.C_Keyboard__ToString           = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 54 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? B8"));
+
         // C_MafiaCameraModule
         gPatterns.C_MafiaCameraModule__GetMafiaCameraModule = reinterpret_cast<uint64_t>(hook::get_pattern(
             "48 8D 05 ? ? ? ? C3 CC CC CC CC CC CC CC CC 48 89 5C 24 ? 57 48 83 EC ? 48 8B FA 48 8B D9 E8 ? ? ? ? 48 85 C0 75 ? 48 8B 4B ? 48 85 C9 74 ? 48 8B 01 48 8B D7 48 8B 5C 24 ? 48 83 C4 ? 5F 48 FF 60 ? 33 C0 48 8B 5C 24 ? 48 83 C4 ? 5F C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 89 5C 24"));
@@ -395,7 +399,10 @@ namespace SDK {
         gPatterns.C_Translocator__SpawnObjects = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B D9 48 8B FA 48 8B CA E8 ? ? ? ? 84 C0 0F 85"));
 
         // C_TranslocableObjectSpawner
+        gPatterns.C_TranslocableObjectSpawner__BeginUpdate = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B F9 48 8B DA 48 8B 49 ? E8 ? ? ? ? 48 8B 4F"));
+        gPatterns.C_TranslocableObjectSpawner__EndUpdate   = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B D9 48 8B 49 ? E8 ? ? ? ? 48 8B 4B ? 48 83 C4 ? 5B E9 ? ? ? ? 48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24"));
         gPatterns.C_TranslocableObjectSpawner__Spawn = reinterpret_cast<uint64_t>(hook::get_pattern("44 88 4C 24 ? 89 54 24"));
+        gPatterns.C_TranslocableObjectSpawner__Update      = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B D9 48 8B 49 ? E8 ? ? ? ? 48 8D 4C 24"));
 
         // C_Vehicle
         gPatterns.C_Vehicle__AddVehicleFlags    = hook::get_opcode_address("E8 ? ? ? ? 40 F6 C7 08 74 0D");
@@ -490,6 +497,9 @@ namespace SDK {
 
         // I_VirtualFileSystemCache
         gPatterns.I_VirtualFileSystemCache__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 41 0F B7 CF");
+
+        // I_StreamMap
+        gPatterns.I_StreamMap__GetInstance = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 05 ? ? ? ? 48 85 C0 74 ? 48 83 C0 ? C3 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0"));
 
         // Lua
         gPatterns.Lua__isstring   = hook::get_opcode_address("E8 ? ? ? ? 85 C0 74 5E 8B D3");

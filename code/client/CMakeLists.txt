@@ -111,6 +111,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/sys/core/c_scene_object.cpp
     src/sdk/ue/sys/core/i_core.cpp
     src/sdk/ue/sys/core/c_object_spawner.cpp
+    src/sdk/ue/sys/input/c_keyboard.cpp
     src/sdk/ue/sys/math/c_matrix.cpp
     src/sdk/ue/sys/math/c_quat.cpp
     src/sdk/ue/sys/math/c_vector.cpp

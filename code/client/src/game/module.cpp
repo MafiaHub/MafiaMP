@@ -34,6 +34,7 @@ namespace MafiaMP::Game {
             // fill out renderer info
             rendererOptions.d3d11.device        = gGlobals.renderDevice->GetDevice();
             rendererOptions.d3d11.deviceContext = gGlobals.renderDevice->GetImmediateContext();
+            rendererOptions.d3d11.swapChain     = gGlobals.swapChain;
             rendererOptions.windowHandle        = gGlobals.window;
 
             Framework::Integrations::Client::InstanceOptions opts;

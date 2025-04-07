@@ -1,9 +1,10 @@
 #pragma once
 
-#include "../../../patterns.h"
+#include <sdk/patterns.h>
+#include <sdk/c_ticked_module.h>
 
-#include "../../../entities/c_entity.h"
-#include "../../../ue/sys/math/c_vector.h"
+#include <sdk/entities/c_entity.h>
+#include <sdk/ue/sys/math/c_vector.h>
 
 namespace SDK {
     namespace mafia::framework::director {
@@ -16,7 +17,11 @@ namespace SDK {
             };
         };
 
-        class C_GameDirector {
+        class C_GameDirector : public C_TickedModule {
+          public:
+            char pad0[0x28]; // 0008 - 0028
+            uint64_t m_pActiveCityID; // 0028 - 0030
+
           public:
             static C_GameDirector *GetInstance();
             int64_t *GetDistrict(ue::sys::math::C_Vector const &);

@@ -10,7 +10,7 @@
 
 namespace MafiaMP::Scripting {
     void Vehicle::EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex) {
-        const auto engine = MafiaMP::Server::GetScriptingEngine();
+        const auto engine = Framework::CoreModules::GetScriptingEngine();
 
         auto vehicleObj = Vehicle(vehicle);
         auto playerObj  = Player(player);
@@ -19,7 +19,7 @@ namespace MafiaMP::Scripting {
     }
 
     void Vehicle::EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player) {
-        const auto engine = MafiaMP::Server::GetScriptingEngine();
+        const auto engine = Framework::CoreModules::GetScriptingEngine();
 
         auto vehicleObj = Vehicle(vehicle);
         auto playerObj  = Player(player);
@@ -254,8 +254,12 @@ namespace MafiaMP::Scripting {
         FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
     }
 
-    void Vehicle::Register(sol::state &luaEngine) {
-        sol::usertype<Vehicle> cls = luaEngine.new_usertype<Vehicle>("Vehicle", sol::constructors<Vehicle(uint64_t)>(), sol::base_classes, sol::bases<Entity>());
+    void Vehicle::Register(sol::state *luaEngine) {
+        if (!luaEngine) {
+            return;
+        }
+
+        sol::usertype<Vehicle> cls = luaEngine->new_usertype<Vehicle>("Vehicle", sol::constructors<Vehicle(uint64_t)>(), sol::base_classes, sol::bases<Entity>());
         cls["getBeaconLightsOn"]   = &Vehicle::GetBeaconLightsOn;
         cls["setBeaconLightsOn"]   = &Vehicle::SetBeaconLightsOn;
         cls["getColorPrimary"]     = &Vehicle::GetColorPrimary;
