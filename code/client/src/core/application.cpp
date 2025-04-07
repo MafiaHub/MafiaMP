@@ -138,7 +138,7 @@ namespace MafiaMP::Core {
         }
 
         // Check if any view is focused and lock/unlock controls
-        if (GetWebManager()) {
+        if (GetWebManager() && !_console->IsOpen()) {
             Framework::GUI::View *mainMenuView = GetWebManager()->GetView(_mainMenuViewId);
 
             if (!mainMenuView->GetInternalView()->HasFocus()) {
