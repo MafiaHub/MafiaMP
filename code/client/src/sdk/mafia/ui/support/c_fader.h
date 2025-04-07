@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../ue/c_cnt_ptr.h"
+#include <sdk/ue/c_cnt_ptr.h>
 
 namespace SDK {
     namespace mafia::ui::support {

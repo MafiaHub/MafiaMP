@@ -17,11 +17,12 @@
 #include "world/client.h"
 
 #include "sdk/mafia/ui/c_game_gui_2_module.h"
+#include <sdk/c_entity_message_damage.h>
 #include <logging/logger.h>
 
-typedef void(__fastcall *C_Human2__SetupDeath_t)(SDK::C_Human2 *_this, void *);
+typedef void(__fastcall *C_Human2__SetupDeath_t)(SDK::C_Human2 *_this, SDK::C_EntityMessageDamage *);
 C_Human2__SetupDeath_t C_Human2__SetupDeath_original = nullptr;
-void __fastcall C_Human2__SetupDeath(SDK::C_Human2 *pThis, void *entityMsgDamage) {
+void __fastcall C_Human2__SetupDeath(SDK::C_Human2 *pThis, SDK::C_EntityMessageDamage *entityMsgDamage) {
     // Is the local player ?
     if (pThis == MafiaMP::Game::Helpers::Controls::GetLocalPlayer()) {
         Framework::Logging::GetLogger("Hooks")->debug("LocalPlayer just died");
