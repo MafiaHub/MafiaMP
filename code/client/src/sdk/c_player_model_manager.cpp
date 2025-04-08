@@ -1,6 +1,6 @@
 #include "c_player_model_manager.h"
 
-#include "../../patterns.h"
+#include <sdk/patterns.h>
 
 namespace SDK {
     bool C_PlayerModelManager::IsPlayerLoaded() {

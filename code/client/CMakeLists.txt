@@ -60,7 +60,6 @@ set(MAFIAMP_SDK_FILES
     src/sdk/entities/human/c_human_inventory.cpp
     src/sdk/entities/human/c_human_weapon_controller.cpp
     src/sdk/entities/human/c_human_script.cpp
-    src/sdk/entities/player/c_player_model_manager.cpp
     src/sdk/entities/c_car.cpp
     src/sdk/entities/c_door.cpp
     src/sdk/entities/c_entity.cpp
@@ -128,6 +127,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/c_ie.cpp
     src/sdk/c_inventory_wrapper.cpp
     src/sdk/c_mafia_camera_module.cpp
+    src/sdk/c_player_model_manager.cpp
     src/sdk/c_player_teleport_module.cpp
     src/sdk/c_stream_map.cpp
     src/sdk/c_ticked_module_manager.cpp
