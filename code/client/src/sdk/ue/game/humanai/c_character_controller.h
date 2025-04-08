@@ -2,7 +2,9 @@
 
 #include <cstdint>
 
-#include "sdk/entities/c_actor.h"
+#include <sdk/entities/c_actor.h>
+#include <sdk/entities/e_actor_actions.h>
+#include <sdk/entities/human/e_human_move_mode.h>
 #include "c_character_state_handler.h"
 
 #include "c_character_state_handler_aim.h"
