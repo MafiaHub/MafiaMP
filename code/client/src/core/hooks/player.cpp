@@ -27,4 +27,5 @@ static InitFunction init([]() {
 
     const auto C_Player2__GetStaminaAddr = hook::get_opcode_address("E8 ? ? ? ? 48 8B C8 44 8D 43 01");
     MH_CreateHook((LPVOID)C_Player2__GetStaminaAddr, (PBYTE)C_Player2__GetStamina, reinterpret_cast<void **>(&C_Player2__GetStamina_Original));
-});
+    },
+    "Player");

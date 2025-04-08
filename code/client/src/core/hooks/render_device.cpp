@@ -36,8 +36,12 @@ HRESULT D3D11Present_Hook(IDXGISwapChain *swapChain, UINT syncInterval, UINT fla
     if (!(flags & DXGI_PRESENT_TEST)) {
         const auto app = MafiaMP::Core::gApplication.get();
         if (app && app->IsInitialized()) {
-            app->GetImGUI()->Render();
             app->GetWebManager()->Render();
+            app->GetRenderer()->Render();
+            app->GetRenderer()->Paint();
+
+            // ImGUI comes last, since it does not rely on our graphics renderer yet
+            app->GetImGUI()->Render();
         }
     }
 
@@ -143,4 +147,5 @@ static InitFunction init([]() {
 
     const auto initSwapChainPattern = reinterpret_cast<uint64_t>(hook::pattern("48 89 5C 24 ? 48 89 74 24 ? 55 48 8B EC 48 83 EC 70 48 8B F1").get_first());
     MH_CreateHook((LPVOID)initSwapChainPattern, (PBYTE)C_D3D11WindowContextCache__InitSwapChainInternal, reinterpret_cast<void **>(&C_D3D11WindowContextCache__InitSwapChainInternal_original));
-});
+    },
+    "RenderDevice");

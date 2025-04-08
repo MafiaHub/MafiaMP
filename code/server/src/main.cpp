@@ -18,6 +18,8 @@ int main(int argc, char **argv) {
     opts.enableSignals = true;
     opts.bindSecretKey = "qskdnkjsqndq12312312qsdqsds";
 
+    opts.services.masterlistUrl = "https://masterlist.mafia.mp";
+
     opts.argc = argc;
     opts.argv = argv;
 

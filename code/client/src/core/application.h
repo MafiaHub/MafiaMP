@@ -10,7 +10,6 @@
 #include "luavm.h"
 #include "ui/chat.h"
 #include "ui/console.h"
-#include "ui/web/manager.h"
 
 #include "dev_features.h"
 
@@ -23,24 +22,27 @@
 namespace MafiaMP::Core {
     class Application: public Framework::Integrations::Client::Instance {
       private:
-        friend class DevFeatures;
         std::shared_ptr<Framework::Utils::States::Machine> _stateMachine;
-        std::shared_ptr<UI::MafiaConsole> _console;
+        std::shared_ptr<UI::Console> _console;
         std::shared_ptr<UI::Chat> _chat;
-        std::shared_ptr<UI::Web::Manager> _webManager;
         std::shared_ptr<Game::Streaming::EntityFactory> _entityFactory;
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
         std::shared_ptr<MafiaMP::Game::GameInput> _input;
         std::shared_ptr<LuaVM> _luaVM;
         flecs::entity _localPlayer;
         DevFeatures _devFeatures;
+
         float _tickInterval = 0.01667f;
-        int _controlsLocked = 0;
+
+        int _lockControlsCounter   = 0;
+        bool _lockControlsBypassed = false;
 
         int _mainMenuViewId = -1;
 
       private:
         Game::Helpers::Districts _lastDistrictID = Game::Helpers::Districts::UNSPECIFIED;
+
+        void ProcessLockControls(bool lock);
 
       public:
         bool PostInit() override;
@@ -48,13 +50,21 @@ namespace MafiaMP::Core {
         void PostUpdate() override;
         void PostRender() override;
 
+        void ModuleRegister(Framework::Scripting::Engine *engine) override;
+
         void InitNetworkingMessages();
         void InitRPCs();
 
         void PimpMyImGUI();
+        void UpdateCursorStyle();
+
         void LockControls(bool lock);
         bool AreControlsLocked() const {
-            return _controlsLocked > 0;
+            return _lockControlsCounter > 0;
+        }
+        void ToggleLockControlsBypass();
+        bool AreControlsLockedBypassed() const {
+            return _lockControlsBypassed;
         }
 
         std::shared_ptr<Framework::Utils::States::Machine> GetStateMachine() const {
@@ -73,11 +83,15 @@ namespace MafiaMP::Core {
             return _commandProcessor;
         }
 
+        Framework::Input::IInput *GetBaseInput() const override {
+            return _input.get();
+        }
+
         std::shared_ptr<MafiaMP::Game::GameInput> GetInput() const {
             return _input;
         }
 
-        std::shared_ptr<UI::MafiaConsole> GetDevConsole() const {
+        std::shared_ptr<UI::Console> GetConsole() const {
             return _console;
         }
 
@@ -87,10 +101,6 @@ namespace MafiaMP::Core {
 
         std::shared_ptr<LuaVM> GetLuaVM() const {
             return _luaVM;
-        }
-
-        std::shared_ptr<UI::Web::Manager> GetWebManager() const {
-            return _webManager;
         }
 
         flecs::entity GetLocalPlayer() const {

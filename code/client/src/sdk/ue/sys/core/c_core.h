@@ -2,6 +2,7 @@
 
 #include "../render/c_render_core.h"
 #include "c_frame.h"
+#include "c_resource_list.h"
 
 namespace SDK {
     namespace ue::sys::core {
@@ -38,7 +39,7 @@ namespace SDK {
             virtual void *GetPostProcessSetsManager(void)                                                                                                     = 0;
             virtual void *GetPaintManager(void)                                                                                                               = 0;
             virtual void *GetCorePaintTypes(void)                                                                                                             = 0;
-            virtual void *GetResourceList(void)                                                                                                               = 0;
+            virtual C_ResourceList *GetResourceList(void)                                                                                                     = 0;
             virtual void *GetResourceActivatorList(void)                                                                                                      = 0;
             virtual void *GetSceneObjectManager(void)                                                                                                         = 0;
             virtual void *GetLoadSDSManager(void)                                                                                                             = 0;

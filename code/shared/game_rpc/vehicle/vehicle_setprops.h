@@ -1,5 +1,6 @@
 #pragma once
 
+#include "shared/constants.h"
 #include "shared/modules/vehicle_sync.hpp"
 #include "src/networking/rpc/game_rpc.h"
 #include "utils/optional.h"
@@ -11,6 +12,7 @@ namespace MafiaMP::Shared::RPC {
         Framework::Utils::Optional<glm::vec4> colorPrimary;
         Framework::Utils::Optional<glm::vec4> colorSecondary;
         Framework::Utils::Optional<float> dirt;
+        Framework::Utils::Optional<bool> engineOn;
         Framework::Utils::Optional<float> fuel;
         Framework::Utils::Optional<SLNet::RakString> licensePlate;
         Framework::Utils::Optional<Modules::VehicleSync::LockState> lockState;
@@ -19,7 +21,6 @@ namespace MafiaMP::Shared::RPC {
         Framework::Utils::Optional<glm::vec4> rimColor;
         Framework::Utils::Optional<float> rust;
         Framework::Utils::Optional<bool> sirenOn;
-        Framework::Utils::Optional<bool> engineOn;
         Framework::Utils::Optional<glm::vec4> tireColor;
         Framework::Utils::Optional<glm::vec4> windowTint;
 
@@ -28,6 +29,7 @@ namespace MafiaMP::Shared::RPC {
             this->colorPrimary   = props.colorPrimary;
             this->colorSecondary = props.colorSecondary;
             this->dirt           = props.dirt;
+            this->engineOn       = props.engineOn;
             this->fuel           = props.fuel;
             this->licensePlate   = props.licensePlate;
             this->lockState      = props.lockState;
@@ -36,7 +38,6 @@ namespace MafiaMP::Shared::RPC {
             this->rimColor       = props.rimColor;
             this->rust           = props.rust;
             this->sirenOn        = props.sirenOn;
-            this->engineOn       = props.engineOn;
             this->tireColor      = props.tireColor;
             this->windowTint     = props.windowTint;
         }
@@ -46,6 +47,7 @@ namespace MafiaMP::Shared::RPC {
             colorPrimary.Serialize(bs, write);
             colorSecondary.Serialize(bs, write);
             dirt.Serialize(bs, write);
+            engineOn.Serialize(bs, write);
             fuel.Serialize(bs, write);
             licensePlate.Serialize(bs, write);
             lockState.Serialize(bs, write);
@@ -54,13 +56,12 @@ namespace MafiaMP::Shared::RPC {
             rimColor.Serialize(bs, write);
             rust.Serialize(bs, write);
             sirenOn.Serialize(bs, write);
-            engineOn.Serialize(bs, write);
             tireColor.Serialize(bs, write);
             windowTint.Serialize(bs, write);
         }
 
         bool Valid() const override {
-            if (licensePlate.HasValue() && licensePlate().GetLength() > 7) {
+            if (licensePlate.HasValue() && licensePlate().GetLength() > Constants::VEHICLE_LICENSE_PLATE_MAX_LENGTH) {
                 return false;
             }
 

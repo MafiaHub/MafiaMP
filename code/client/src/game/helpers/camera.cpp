@@ -15,7 +15,7 @@ namespace MafiaMP::Game::Helpers {
             return false;
         }
 
-        const auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN_1);
+        const auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN);
         if (!camera) {
             return false;
         }
@@ -32,20 +32,13 @@ namespace MafiaMP::Game::Helpers {
         return true;
     }
 
-    bool Camera::SetPos(SDK::ue::sys::math::C_Vector start, SDK::ue::sys::math::C_Vector end, bool interpolate) {
-        SDK::ue::sys::math::C_Vector finalVec = {start.x + end.x, start.y + end.y, start.z + end.z};
-        const auto formattedVector            = fmt::format("Math:newVector({}, {}, {})", finalVec.x, finalVec.y, finalVec.z);
-        const auto command                    = fmt::format("game.cameramanager:GetPlayerCamera():ScriptPointAtVec({}, 1, 1, 1)", formattedVector.c_str());
-        return Core::gApplication->GetLuaVM()->ExecuteString(command.c_str());
-    }
-
     bool Camera::ResetBehindPlayer() {
         const auto gameCamera = SDK::ue::game::camera::C_GameCamera::GetInstanceInternal();
         if (!gameCamera) {
             return false;
         }
 
-        const auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN_1);
+        const auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN);
         if (!camera) {
             return false;
         }

@@ -7,6 +7,10 @@ namespace SDK {
         hook::this_call(gPatterns.C_HumanInventory__AddMedkits, this, amount);
     }
 
+    void C_HumanInventory::AddMoney(long long amnt) {
+        hook::this_call(gPatterns.C_HumanInventory__AddMoney, this, amnt);
+    }
+
     bool C_HumanInventory::CanFire() {
         return hook::this_call<bool>(gPatterns.C_HumanInventory__CanFire, this);
     }
@@ -25,6 +29,14 @@ namespace SDK {
 
     bool C_HumanInventory::DoShot() {
         return hook::this_call<bool>(gPatterns.C_HumanInventory__DoShot, this);
+    }
+
+    C_WeaponItem *C_HumanInventory::GetLeftHandWeaponTableItem(C_WeaponItem *weapon) {
+        return hook::this_call<C_WeaponItem *>(gPatterns.C_HumanInventory__GetLeftHandWeaponTableItem, this, weapon);
+    }
+
+    C_WeaponItem *C_HumanInventory::GetRightHandWeaponTableItem(C_WeaponItem *weapon) {
+        return hook::this_call<C_WeaponItem *>(gPatterns.C_HumanInventory__GetRightHandWeaponTableItem, this, weapon);
     }
 
     void C_HumanInventory::RemoveMedkits(int amount) {

@@ -1,6 +1,6 @@
 #include "c_stream_map.h"
 
-#include "patterns.h"
+#include "sdk/patterns.h"
 
 namespace SDK {
     void C_StreamMap::CloseGame() {
@@ -37,5 +37,9 @@ namespace SDK {
 
     void C_StreamMap::OpenPart(const char *part) {
         hook::this_call(gPatterns.C_StreamMap__OpenPart, this, part);
+    }
+
+    C_StreamMap *C_StreamMap::GetInstance() {
+        return hook::call<C_StreamMap *>(gPatterns.I_StreamMap__GetInstance);
     }
 } // namespace SDK

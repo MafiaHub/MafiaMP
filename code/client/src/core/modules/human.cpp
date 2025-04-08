@@ -4,7 +4,7 @@
 
 #include <flecs/flecs.h>
 #include <glm/glm.hpp>
-#include <imgui.h>
+#include <imgui/imgui.h>
 
 #include <external/imgui/widgets/nametag.h>
 
@@ -20,7 +20,7 @@
 #include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
 
-#include "shared/game_rpc/add_weapon.h"
+#include "shared/game_rpc/human/human_add_weapon.h"
 #include "shared/game_rpc/human/human_changeskin.h"
 #include "shared/game_rpc/human/human_reload.h"
 #include "shared/game_rpc/human/human_setprops.h"
@@ -53,10 +53,15 @@ namespace MafiaMP::Core::Modules {
         world.system<Tracking, Shared::Modules::HumanSync::UpdateData, LocalPlayer, Framework::World::Modules::Base::Transform>("UpdateLocalPlayer")
             .each([](flecs::entity e, Tracking &tracking, Shared::Modules::HumanSync::UpdateData &metadata, LocalPlayer &lp, Framework::World::Modules::Base::Transform &tr) {
                 if (tracking.human) {
+                    // Compute position and rotation
                     SDK::ue::sys::math::C_Vector newPos = tracking.human->GetPos();
                     SDK::ue::sys::math::C_Quat newRot   = tracking.human->GetRot();
                     tr.pos                              = {newPos.x, newPos.y, newPos.z};
                     tr.rot                              = {newRot.w, newRot.x, newRot.y, newRot.z};
+
+                    // Acquire the aiming direction
+                    SDK::ue::sys::math::C_Vector aimDir;
+                    tracking.human->GetHumanWeaponController()->GetAimDir(&aimDir);
 
                     // Store the required metadata for onfoot sync
                     auto charController            = tracking.human->GetCharacterController();
@@ -65,7 +70,10 @@ namespace MafiaMP::Core::Modules {
                     metadata._isStalking           = charController->IsStalkMove();
                     metadata._isSprinting          = charController->IsSprinting();
                     metadata._sprintSpeed          = charController->GetSprintMoveSpeed();
-                    metadata.weaponData.isAiming   = tracking.human->GetHumanWeaponController()->IsAiming();
+                    metadata.weaponData.aimDir          = {aimDir.x, aimDir.y, aimDir.z};
+                    metadata.weaponData.currentWeaponId = tracking.human->GetHumanWeaponController()->GetRightHandWeaponID();
+                    metadata.weaponData.isAiming        = tracking.human->GetHumanWeaponController()->IsAiming();
+                    metadata.weaponData.isFiring        = tracking.human->GetHumanWeaponController()->m_bFirePressed;
 
                     // Try to enter/exit vehicle if an action is pending
                     if (metadata.carPassenger.pending) {
@@ -160,7 +168,7 @@ namespace MafiaMP::Core::Modules {
                     if (!gameCamera) {
                         return;
                     }
-                    auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN_1);
+                    auto camera = gameCamera->GetCamera(SDK::ue::game::camera::E_GameCameraID::CAMERA_PLAYER_MAIN);
                     if (!camera) {
                         return;
                     }
@@ -187,16 +195,27 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::Create(flecs::entity e, uint64_t spawnProfile) {
-        auto info           = Core::gApplication->GetEntityFactory()->RequestHuman(spawnProfile);
-        auto trackingData   = e.get_mut<Core::Modules::Human::Tracking>();
-        trackingData->info  = info;
-        trackingData->human = nullptr;
+        auto info          = Core::gApplication->GetEntityFactory()->RequestHuman(spawnProfile);
+        auto &trackingData = e.ensure<Core::Modules::Human::Tracking>();
+        trackingData.info  = info;
+        trackingData.human = nullptr;
 
-        auto interp = e.get_mut<Interpolated>();
-        interp->interpolator.GetPosition()->SetCompensationFactor(1.5f);
+        auto &interp = e.ensure<Interpolated>();
+        interp.interpolator.GetPosition()->SetCompensationFactor(1.5f);
 
         e.add<HumanData>();
+        e.add<Shared::Modules::Mod::EntityKind>();
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
+        e.add<Shared::Modules::HumanSync::UpdateData>();
+
+        // Ensure we hook up remote human events for special cases
+        auto streamable = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        streamable->modEvents.disconnectProc = [](flecs::entity e) {
+            Remove(e);
+        };
+        streamable->modEvents.updateTransformProc = [](flecs::entity e) {
+            UpdateTransform(e);
+        };
 
         const auto OnHumanRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
             CreateNetCharacterController = false;
@@ -249,16 +268,18 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::SetupLocalPlayer(Application *, flecs::entity e) {
-        auto trackingData   = e.get_mut<Core::Modules::Human::Tracking>();
-        trackingData->human = Game::Helpers::Controls::GetLocalPlayer();
-        trackingData->info  = nullptr;
+        auto &trackingData = e.ensure<Core::Modules::Human::Tracking>();
+        trackingData.human = Game::Helpers::Controls::GetLocalPlayer();
+        trackingData.info  = nullptr;
 
         e.add<Shared::Modules::HumanSync::UpdateData>();
         e.add<Core::Modules::Human::LocalPlayer>();
         e.add<HumanData>();
+        e.add<Shared::Modules::Mod::EntityKind>();
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
+        e.add<Framework::World::Modules::Base::Frame>();
 
-        const auto es            = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        auto es                  = e.get_mut<Framework::World::Modules::Base::Streamable>();
         es->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
             const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
 
@@ -267,6 +288,9 @@ namespace MafiaMP::Core::Modules {
             humanUpdate.SetData(*updateData);
             peer->Send(humanUpdate, guid);
             return true;
+        };
+        es->modEvents.updateTransformProc = [](flecs::entity e) {
+            UpdateTransform(e);
         };
     }
 
@@ -528,7 +552,7 @@ namespace MafiaMP::Core::Modules {
             }
         });
 
-        net->RegisterGameRPC<Shared::RPC::AddWeapon>([app](SLNet::RakNetGUID guid, Shared::RPC::AddWeapon *msg) {
+        net->RegisterGameRPC<Shared::RPC::HumanAddWeapon>([app](SLNet::RakNetGUID guid, Shared::RPC::HumanAddWeapon *msg) {
             if (!msg->Valid())
                 return;
 

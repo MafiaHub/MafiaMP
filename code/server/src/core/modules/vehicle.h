@@ -10,13 +10,14 @@ namespace MafiaMP::Core::Modules {
       public:
         // server only data
         struct CarData {
-            uint64_t seats[4]{};
+            uint64_t seats[4] {};
         };
 
         Vehicle(flecs::world &world);
 
         static flecs::entity Create(MafiaMP::Server *server);
 
+        static void InitRPCs(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net);
         static void SetupMessages(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net);
     };
 } // namespace MafiaMP::Core::Modules

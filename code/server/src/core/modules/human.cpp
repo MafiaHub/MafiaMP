@@ -23,8 +23,8 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::Create(Framework::Networking::NetworkServer *net, flecs::entity e) {
-        auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
-        frame->modelHash = 335218123840277515; /* TODO */
+        auto &frame     = e.ensure<Framework::World::Modules::Base::Frame>();
+        frame.modelHash = 335218123840277515; /* TODO */
 
         e.add<Shared::Modules::HumanSync::UpdateData>();
 
@@ -156,7 +156,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            Scripting::Human::EventPlayerDied(e);
+            Scripting::Player::EventPlayerDied(e);
         });
     }
 } // namespace MafiaMP::Core::Modules

@@ -1,176 +1,30 @@
 #pragma once
 
-#include "integrations/server/scripting/builtins/node/entity.h"
-#include "scripting/engines/node/engine.h"
-#include "scripting/engines/node/sdk.h"
-#include "shared/modules/human_sync.hpp"
+#include <sol/sol.hpp>
 
-#include "shared/game_rpc/add_weapon.h"
-#include "shared/game_rpc/human/human_setprops.h"
-#include "shared/rpc/chat_message.h"
-
-#include "scripting/module.h"
-
-#include "core/modules/vehicle.h"
-#include "vehicle.h"
+#include "human.h"
 
 namespace MafiaMP::Scripting {
-    class Human final: public Framework::Integrations::Scripting::Entity {
+    class Player final: public MafiaMP::Scripting::Human {
       public:
-        Human(flecs::entity_t ent): Entity(ent) {}
+        Player(flecs::entity_t ent): Human(ent) {}
 
-        static v8::Local<v8::Object> WrapHuman(Framework::Scripting::Engines::Node::Engine *engine, flecs::entity e) {
-            return v8pp::class_<Scripting::Human>::create_object(engine->GetIsolate(), e.id());
-        }
+        Player(flecs::entity ent): Human(ent.id()) {}
 
-        std::string ToString() const override {
-            std::ostringstream ss;
-            ss << "Human{ id: " << _ent.id() << " }";
-            return ss.str();
-        }
+        static void EventPlayerConnected(flecs::entity e);
 
-        void Destroy(v8::Isolate *isolate) {
-            isolate->ThrowException(v8::Exception::Error(v8::String::NewFromUtf8(isolate, "Human object can not be destroyed!").ToLocalChecked()));
-        }
+        static void EventPlayerDisconnected(flecs::entity e);
 
-        void AddWeapon(int weaponId, int ammo) {
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::AddWeapon, _ent, weaponId, ammo);
-        }
+        static void EventPlayerDied(flecs::entity e);
 
-        void SendChat(std::string message) {
-            const auto str = _ent.get<Framework::World::Modules::Base::Streamer>();
-            FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(str->guid), message);
-        }
+        std::string ToString() const override;
 
-        v8::Local<v8::Value> GetVehicle() const {
-            const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-            const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
-            if (carEnt.is_valid() && carEnt.is_alive()) {
-                return v8pp::class_<Vehicle>::create_object(v8::Isolate::GetCurrent(), carEnt.id());
-            }
-            return v8::Undefined(v8::Isolate::GetCurrent());
-        }
+        void Destroy();
 
-        int GetVehicleSeat() const {
-            const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-            const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
-            if (carEnt.is_valid() && carEnt.is_alive()) {
-                return updateData->carPassenger.seatId;
-            }
-            return -1;
-        }
+        int GetVehicleSeat() const;
+        bool EnterVehicle(Vehicle vehicle, int seatId, bool forced);
+        bool ExitVehicle(bool forced);
 
-        static void SendChatToAll(std::string message) {
-            FW_SEND_COMPONENT_RPC(Shared::RPC::ChatMessage, message);
-        }
-
-        void SetHealth(float health) {
-            auto h            = _ent.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-            h->_healthPercent = health;
-            MafiaMP::Shared::RPC::HumanSetProps msg {};
-            msg.health = health;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanSetProps, _ent, msg);
-        }
-
-        /* Player NEEDS to be in a stream range of the vehicle for this action to work.
-         * Suggestion: Teleport player to car position and then enforce entrance to ensure player always succeeds at this task.
-         * Local player always waits for the vehicle to enter stream range, making the process entirely async, just like
-         * how we handle remote human car enter/exit states.
-         */
-        bool EnterVehicle(Vehicle vehicle, int seatId, bool forced) {
-            if (!vehicle.GetHandle().is_valid())
-                return false;
-            if (!vehicle.GetHandle().is_alive())
-                return false;
-            if (seatId < 0 || seatId > 3 /* TODO: use MAX_SEATS constexpr var */)
-                return false;
-            auto updateData = _ent.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-
-            if (updateData->carPassenger.carId)
-                return false;
-
-            {
-                const auto carData = vehicle.GetHandle().get<Core::Modules::Vehicle::CarData>();
-                if (!carData)
-                    return false;
-
-                if (carData->seats[seatId])
-                    return false;
-            }
-
-            updateData->carPassenger.carId  = vehicle.GetID();
-            updateData->carPassenger.seatId = seatId;
-            MafiaMP::Shared::RPC::HumanSetProps msg {};
-            MafiaMP::Shared::RPC::HumanSetProps::CarEnterExitAction carEnterExit = {};
-
-            carEnterExit.carId     = vehicle.GetID();
-            carEnterExit.seatId    = seatId;
-            carEnterExit.forced    = forced;
-            msg.carEnterExitAction = carEnterExit;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanSetProps, _ent, msg);
-            return true;
-        }
-
-        bool ExitVehicle(bool forced) {
-            auto updateData = _ent.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-
-            if (!updateData->carPassenger.carId)
-                return false;
-
-            updateData->carPassenger = {};
-            MafiaMP::Shared::RPC::HumanSetProps msg {};
-            MafiaMP::Shared::RPC::HumanSetProps::CarEnterExitAction carEnterExit = {};
-
-            carEnterExit.forced    = forced;
-            msg.carEnterExitAction = carEnterExit;
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanSetProps, _ent, msg);
-            return true;
-        }
-
-        float GetHealth() const {
-            auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
-            return h->_healthPercent;
-        }
-
-        static void EventPlayerDied(flecs::entity e) {
-            const auto engine = MafiaMP::Server::GetNodeEngine();
-            V8_RESOURCE_LOCK(engine);
-            auto playerObj = WrapHuman(engine, e);
-            engine->InvokeEvent("playerDied", playerObj);
-        }
-
-        static void EventPlayerConnected(flecs::entity e) {
-            const auto engine = MafiaMP::Server::GetNodeEngine();
-            V8_RESOURCE_LOCK(engine);
-            auto playerObj = WrapHuman(engine, e);
-            engine->InvokeEvent("playerConnected", playerObj);
-        }
-
-        static void EventPlayerDisconnected(flecs::entity e) {
-            const auto engine = MafiaMP::Server::GetNodeEngine();
-            V8_RESOURCE_LOCK(engine);
-            auto playerObj = WrapHuman(engine, e);
-            engine->InvokeEvent("playerDisconnected", playerObj);
-        }
-
-        static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
-            if (!rootModule) {
-                return;
-            }
-
-            v8pp::class_<Human> cls(isolate);
-            cls.inherit<Framework::Integrations::Scripting::Entity>();
-            cls.function("destroy", &Human::Destroy);
-            cls.function("addWeapon", &Human::AddWeapon);
-            cls.function("setHealth", &Human::SetHealth);
-            cls.function("getHealth", &Human::GetHealth);
-            cls.function("getVehicle", &Human::GetVehicle);
-            cls.function("enterVehicle", &Human::EnterVehicle);
-            cls.function("exitVehicle", &Human::ExitVehicle);
-            cls.function("getVehicleSeat", &Human::GetVehicleSeat);
-            cls.function("sendChat", &Human::SendChat);
-            cls.function("sendChatToAll", &Human::SendChatToAll);
-            rootModule->class_("Human", cls);
-        }
+        static void Register(sol::state *luaEngine);
     };
 } // namespace MafiaMP::Scripting

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ue/game/traffic/c_race_manager.h"
-#include "c_ticked_module.h"
+#include "sdk/c_ticked_module.h"
+#include "sdk/ue/game/traffic/c_race_manager.h"
 
 namespace SDK {
     class C_GameTrafficModule : public C_TickedModule {

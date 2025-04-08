@@ -6,5 +6,4 @@
 
 
 
-static InitFunction init([]() {
-});
+static InitFunction init([]() {}, "Tables");

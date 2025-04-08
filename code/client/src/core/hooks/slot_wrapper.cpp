@@ -46,4 +46,5 @@ static InitFunction init([]() {
 
     const auto C_Slot__LoadData_Addr = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4C 24 ? 0F B6 D8 48 85 C9 74 0A");
     MH_CreateHook((LPVOID)C_Slot__LoadData_Addr, (PBYTE)C_Slot__LoadData, reinterpret_cast<void **>(&C_Slot__LoadData_original));
-});
+    },
+    "SlotWrapper");

@@ -10,4 +10,5 @@ static InitFunction init([]() {
      * after C_StreamMap::OpenPart("freeride") is called.
      */
     hook::return_function(SDK::gPatterns.C_StreamingTrafficModule__OpenSeason);
-});
+    },
+    "Traffic");

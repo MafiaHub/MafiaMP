@@ -32,8 +32,11 @@
 
 #include "world/game_rpc/set_transform.h"
 
+#include "builtins/builtins.h"
 #include "modules/human.h"
 #include "modules/vehicle.h"
+
+#include "game/module.h"
 
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication = nullptr;
@@ -60,12 +63,20 @@ namespace MafiaMP::Core {
 
         _commandProcessor = std::make_shared<Framework::Utils::CommandProcessor>();
         _input            = std::make_shared<MafiaMP::Game::GameInput>();
-        _console          = std::make_shared<UI::MafiaConsole>(_commandProcessor, _input);
+        _console          = std::make_shared<UI::Console>(_commandProcessor);
         _chat             = std::make_shared<UI::Chat>();
-        _webManager              = std::make_shared<UI::Web::Manager>();
 
-        if (_webManager) {
-            if (!_webManager->Init()) {
+        if (GetWebManager()) {
+            Framework::GUI::ViewportConfiguration vhConfiguration;
+            {
+                RECT vhRect;
+                GetClientRect(Game::gGlobals.window, &vhRect);
+                vhConfiguration = {
+                    vhRect.right - vhRect.left,
+                    vhRect.bottom - vhRect.top,
+                };
+            }
+            if (!GetWebManager()->Init(gProjectPath, vhConfiguration, GetRenderer(), false)) {
                 Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
                 return false;
             }
@@ -91,22 +102,12 @@ namespace MafiaMP::Core {
         GetWorldEngine()->GetWorld()->import <Modules::Human>();
         GetWorldEngine()->GetWorld()->import <Modules::Vehicle>();
 
-        GetWorldEngine()->SetOnEntityDestroyCallback([](flecs::entity e) {
-            const auto ekind = e.get<Shared::Modules::Mod::EntityKind>();
-            switch (ekind->kind) {
-            case Shared::Modules::Mod::MOD_PLAYER: Core::Modules::Human::Remove(e); break;
-            case Shared::Modules::Mod::MOD_VEHICLE: Core::Modules::Vehicle::Remove(e); break;
-            }
-
-            return true;
-        });
-
         // Setup Lua VM wrapper
         _luaVM = std::make_shared<LuaVM>();
 
         // Setup the main menu UI
-        const auto vhConfiguration = _webManager->GetViewportConfiguration();
-        _mainMenuViewId            = _webManager->CreateView("https://mafiamp.web.app", vhConfiguration.width, vhConfiguration.height);
+        const auto vhConfiguration = GetWebManager()->GetViewportConfiguration();
+        _mainMenuViewId            = GetWebManager()->CreateView("https://mafiamp.web.app", vhConfiguration.width, vhConfiguration.height);
 
         return true;
     }
@@ -136,27 +137,52 @@ namespace MafiaMP::Core {
             isStyleInitialized = true;
         }
 
+        // Check if any view is focused and lock/unlock controls
+        // TODO: First synchronize open states of all our windows before we enable this feature.
+        /*if (GetWebManager() && !_console->IsOpen()) {
+            Framework::GUI::View *mainMenuView = GetWebManager()->GetView(_mainMenuViewId);
+
+            if (!mainMenuView->GetInternalView()->HasFocus()) {
+                LockControls(GetWebManager()->IsAnyGCViewFocused());
+            }
+        }*/
+
         // Tick discord instance - Temporary
         const auto discordApi = Core::gApplication->GetPresence();
         if (discordApi && discordApi->IsInitialized()) {
             discordApi->SetPresence("Freeroam", "Screwing around", discord::ActivityType::Playing);
         }
 
-#if 1
+        // Console UI
         Core::gApplication->GetImGUI()->PushWidget([&]() {
-            using namespace Framework::External::ImGUI::Widgets;
-            const auto networkClient = Core::gApplication->GetNetworkingEngine()->GetNetworkClient();
-            const auto connState     = networkClient->GetConnectionState();
-            const auto ping          = networkClient->GetPing();
-
             _console->Update();
-            _devFeatures.Update();
 
             if (_input->IsKeyPressed(FW_KEY_F8)) {
                 _console->Toggle();
             }
+        });
 
-            const char *connStateNames[] = {"Connecting", "Online", "Offline"};
+        Core::gApplication->GetImGUI()->PushWidget([&]() {
+            UpdateCursorStyle();
+
+            // Do not show MP details and debug info in main menu
+            if (gApplication->GetStateMachine()->GetCurrentState()->GetId() == States::MainMenu) {
+                return;
+            }
+
+            _devFeatures.Update();
+
+            using namespace Framework::External::ImGUI::Widgets; // For DrawCornerText() and Corner enum
+            const auto net = GetNetworkingEngine()->GetNetworkClient();
+
+            // Bypass locked controls
+            if (AreControlsLocked() && net->GetConnectionState() != Framework::Networking::CONNECTING) {
+                DrawCornerText(CORNER_RIGHT_TOP, fmt::format("Press F1 to {} controls locked", AreControlsLockedBypassed() ? "RESTORE" : "BYPASS "));
+
+                if (_input->IsKeyPressed(FW_KEY_F1)) {
+                    ToggleLockControlsBypass();
+                }
+            }
 
             // versioning
             DrawCornerText(CORNER_RIGHT_BOTTOM, "Mafia: Multiplayer");
@@ -164,21 +190,25 @@ namespace MafiaMP::Core {
             DrawCornerText(CORNER_RIGHT_BOTTOM, fmt::format("MafiaMP version: {} ({})", MafiaMP::Version::rel, MafiaMP::Version::git));
 
             // connection details
+            const auto networkClient     = Core::gApplication->GetNetworkingEngine()->GetNetworkClient();
+            const auto connState         = networkClient->GetConnectionState();
+            const auto ping              = networkClient->GetPing();
+            const char *connStateNames[] = {"Connecting", "Online", "Offline"};
+
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[connState]));
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Ping: {}", ping));
         });
-#endif
 
         if (_input) {
             _input->Update();
         }
-
-        if (_webManager) {
-            _webManager->Update();
-        }
     }
 
     void Application::PostRender() {}
+
+    void Application::ModuleRegister(Framework::Scripting::Engine *engine) {
+        MafiaMP::Scripting::Builtins::Register(GetScriptingModule()->GetEngine()->GetLuaEngine());
+    }
 
     void Application::InitNetworkingMessages() {
         SetOnConnectionFinalizedCallback([this](flecs::entity newPlayer, float tickInterval) {
@@ -265,28 +295,101 @@ namespace MafiaMP::Core {
         ImGui::GetStyle().WindowTitleAlign         = {0.5f, 0.5f};
     }
 
+    void Application::UpdateCursorStyle() {
+        const auto mainView = GetWebManager()->GetView(GetMainMenuViewId());
+        if (!mainView || !mainView->HasFocus()) {
+            return;
+        }
+        ultralight::Cursor mainViewCursor = mainView->GetCursor();
+        ImGuiMouseCursor cursor;
+        switch (mainViewCursor) {
+        case ultralight::Cursor::kCursor_Pointer:
+            cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_Cross: cursor = ImGuiMouseCursor_TextInput; break;
+        case ultralight::Cursor::kCursor_Hand: cursor = ImGuiMouseCursor_Hand; break;
+        case ultralight::Cursor::kCursor_IBeam: cursor = ImGuiMouseCursor_TextInput; break;
+        case ultralight::Cursor::kCursor_Wait: cursor = ImGuiMouseCursor_NotAllowed; break;
+        case ultralight::Cursor::kCursor_Help: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_EastResize:
+        case ultralight::Cursor::kCursor_WestResize:
+        case ultralight::Cursor::kCursor_EastWestResize: cursor = ImGuiMouseCursor_ResizeEW; break;
+
+        case ultralight::Cursor::kCursor_NorthResize:
+        case ultralight::Cursor::kCursor_SouthResize:
+        case ultralight::Cursor::kCursor_NorthSouthResize: cursor = ImGuiMouseCursor_ResizeNS; break;
+
+        case ultralight::Cursor::kCursor_NorthEastResize:
+        case ultralight::Cursor::kCursor_SouthWestResize:
+        case ultralight::Cursor::kCursor_NorthEastSouthWestResize: cursor = ImGuiMouseCursor_ResizeNESW; break;
+
+        case ultralight::Cursor::kCursor_NorthWestResize:
+        case ultralight::Cursor::kCursor_SouthEastResize:
+        case ultralight::Cursor::kCursor_NorthWestSouthEastResize: cursor = ImGuiMouseCursor_ResizeNWSE; break;
+
+        // Column/Row resize could map to directional resize
+        case ultralight::Cursor::kCursor_ColumnResize: cursor = ImGuiMouseCursor_ResizeEW; break;
+        case ultralight::Cursor::kCursor_RowResize: cursor = ImGuiMouseCursor_ResizeNS; break;
+
+        // Panning cursors have no direct equivalent in ImGui
+        case ultralight::Cursor::kCursor_Move: cursor = ImGuiMouseCursor_ResizeAll; break;
+
+        // Other cursors - map to closest equivalents
+        case ultralight::Cursor::kCursor_VerticalText: cursor = ImGuiMouseCursor_TextInput; break;
+        case ultralight::Cursor::kCursor_Cell: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_ContextMenu: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_Alias: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_Progress: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_NoDrop: cursor = ImGuiMouseCursor_NotAllowed; break;
+        case ultralight::Cursor::kCursor_Copy: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_None: cursor = ImGuiMouseCursor_None; break;
+        case ultralight::Cursor::kCursor_NotAllowed: cursor = ImGuiMouseCursor_NotAllowed; break;
+        case ultralight::Cursor::kCursor_ZoomIn: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_ZoomOut: cursor = ImGuiMouseCursor_Arrow; break;
+        case ultralight::Cursor::kCursor_Grab: cursor = ImGuiMouseCursor_Hand; break;
+        case ultralight::Cursor::kCursor_Grabbing: cursor = ImGuiMouseCursor_Hand; break;
+        case ultralight::Cursor::kCursor_Custom: cursor = ImGuiMouseCursor_Arrow; break;
+
+        default: cursor = ImGuiMouseCursor_Arrow; break;
+        }
+
+        ImGui::SetMouseCursor(cursor);
+    }
+
+    void Application::ProcessLockControls(bool lock) {
+        Game::Helpers::Controls::Lock(lock);
+
+        GetImGUI()->SetProcessEventEnabled(lock);
+        GetImGUI()->ShowCursor(lock);
+    }
+
     void Application::LockControls(bool lock) {
         if (lock) {
-            _controlsLocked++;
+            if (_lockControlsCounter == 0) {
+                ProcessLockControls(true);
+            }
+
+            _lockControlsCounter++;
         }
         else {
-            _controlsLocked = std::max(--_controlsLocked, 0);
+            _lockControlsCounter = std::max(--_lockControlsCounter, 0);
+
+            if (_lockControlsCounter == 0) {
+                ProcessLockControls(false);
+
+                // Reset bypass
+                _lockControlsBypassed = false;
+            }
+        }
+    }
+
+    void Application::ToggleLockControlsBypass() {
+        if (!AreControlsLocked()) {
+            Framework::Logging::GetLogger("Application")->error("[ToggleLockControlsBypass] Controls are not locked.");
+            return;
         }
 
-        if (_controlsLocked) {
-            // Lock game controls
-            Game::Helpers::Controls::Lock(true);
-
-            // Enable cursor
-            GetImGUI()->ShowCursor(true);
-        }
-        else {
-            // Unlock game controls
-            Game::Helpers::Controls::Lock(false);
-
-            // Disable cursor
-            GetImGUI()->ShowCursor(false);
-        }
+        ProcessLockControls(_lockControlsBypassed);
+        _lockControlsBypassed = !_lockControlsBypassed;
     }
 
     uint64_t Application::GetLocalPlayerID() {
@@ -336,16 +439,7 @@ namespace MafiaMP::Core {
                 return;
             }
 
-            auto tr = e.get_mut<Framework::World::Modules::Base::Transform>();
-            *tr     = msg->GetTransform();
-
-            const auto ekind = e.get<Shared::Modules::Mod::EntityKind>();
-            if (!ekind)
-                return;
-            switch (ekind->kind) {
-            case Shared::Modules::Mod::MOD_PLAYER: Core::Modules::Human::UpdateTransform(e); break;
-            case Shared::Modules::Mod::MOD_VEHICLE: Core::Modules::Vehicle::UpdateTransform(e); break;
-            }
+            GetWorldEngine()->UpdateEntityTransform(e, msg->GetTransform());
         });
     }
 

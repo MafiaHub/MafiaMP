@@ -19,4 +19,5 @@ int64_t C_MenuBase__OnScriptedMenuEvent(void *pThis, int unk, SDK::mafia::ui::me
 static InitFunction init([]() {
     const auto C_MenuBase__OnScriptedMenuEvent_Addr = hook::get_opcode_address("E8 ? ? ? ? 83 BE ? ? ? ? ? 75 0E");
     MH_CreateHook((LPVOID)C_MenuBase__OnScriptedMenuEvent_Addr, (PBYTE)C_MenuBase__OnScriptedMenuEvent, reinterpret_cast<void **>(&C_MenuBase__OnScriptedMenuEvent_original));
-});
+    },
+    "HUD");

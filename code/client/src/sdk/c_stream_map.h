@@ -19,5 +19,8 @@ namespace SDK {
         void OpenGame(const char *);
         void OpenMission(const char *);
         void OpenPart(const char *);
+
+        static C_StreamMap *GetInstance();
     };
+
 }

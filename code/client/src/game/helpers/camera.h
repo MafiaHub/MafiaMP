@@ -6,7 +6,6 @@ namespace MafiaMP::Game::Helpers {
     class Camera {
       public:
         static bool SetFPV(bool);
-        static bool SetPos(SDK::ue::sys::math::C_Vector, SDK::ue::sys::math::C_Vector, bool);
         static bool ResetBehindPlayer();
 
         static bool SimpleShake();

@@ -18,4 +18,5 @@ static InitFunction init([]() {
     // This hooks should be disabled on release build - We should instead find a proper way to replace menu and bypass it
     const auto C_MainMenu__QueueMenuSequenceScreenAddr = hook::pattern("48 8B C4 48 89 58 ? 57 48 83 EC ? 48 8B D9 89 50 ?").get_first();
     MH_CreateHook((LPVOID)C_MainMenu__QueueMenuSequenceScreenAddr, (PBYTE)C_MainMenu__QueueMenuSequenceScreen, nullptr);
-});
+    },
+    "FastLoad");
