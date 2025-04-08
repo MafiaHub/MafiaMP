@@ -138,13 +138,14 @@ namespace MafiaMP::Core {
         }
 
         // Check if any view is focused and lock/unlock controls
-        if (GetWebManager() && !_console->IsOpen()) {
+        // TODO: First synchronize open states of all our windows before we enable this feature.
+        /*if (GetWebManager() && !_console->IsOpen()) {
             Framework::GUI::View *mainMenuView = GetWebManager()->GetView(_mainMenuViewId);
 
             if (!mainMenuView->GetInternalView()->HasFocus()) {
                 LockControls(GetWebManager()->IsAnyGCViewFocused());
             }
-        }
+        }*/
 
         // Tick discord instance - Temporary
         const auto discordApi = Core::gApplication->GetPresence();

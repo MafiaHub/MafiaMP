@@ -4,6 +4,8 @@
 
 #include <game/helpers/ui.h>
 
+#include <sdk/mafia/ui/c_game_gui_2_module.h>
+
 namespace MafiaMP::Scripting {
     class UI final {
       public:
@@ -65,6 +67,29 @@ namespace MafiaMP::Scripting {
               MafiaMP::Game::Helpers::UI::StartCountdown(time);
           }
 
+          static void FaderFadeIn(float duration, bool autoFadeOut) {
+              const auto fader = SDK::mafia::ui::GetGameGui2Module()->GetFader();
+              if (fader) {
+                  SDK::ue::C_CntPtr<uintptr_t> syncObject;
+                  fader->FadeIn(syncObject, duration, "CustomFaderFadeIn", autoFadeOut);
+              }
+          }
+
+          static void FaderFadeOut(float duration, bool autoFadeIn) {
+              const auto fader = SDK::mafia::ui::GetGameGui2Module()->GetFader();
+              if (fader) {
+                  SDK::ue::C_CntPtr<uintptr_t> syncObject;
+                  fader->FadeOut(syncObject, duration, "CustomFaderFadeOut", autoFadeIn);
+              }
+          }
+
+          static void FaderReset() {
+              const auto fader = SDK::mafia::ui::GetGameGui2Module()->GetFader();
+              if (fader) {
+                  fader->Reset();
+              }
+          }
+
           static void Register(sol::state* luaEngine) {
               if (!luaEngine) {
                   return;
@@ -81,6 +106,9 @@ namespace MafiaMP::Scripting {
               cls["hideNotification"]      = &UI::HideNotification;
               cls["displayMissionExit"]    = &UI::DisplayMissionExit;
               cls["startCountdown"]        = &UI::StartCountdown;
+              cls["faderFadeIn"]           = &UI::FaderFadeIn;
+              cls["faderFadeOut"]          = &UI::FaderFadeOut;
+              cls["faderReset"]            = &UI::FaderReset;
           }
     };
 }
