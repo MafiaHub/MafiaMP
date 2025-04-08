@@ -1,8 +1,10 @@
 
 #include "player.h"
+#include "vehicle.h"
 
 #include "core/server.h"
 
+#include "shared/game_rpc/human/human_setprops.h"
 #include "shared/rpc/chat_message.h"
 
 namespace MafiaMP::Scripting {
@@ -102,9 +104,9 @@ namespace MafiaMP::Scripting {
 
         sol::usertype<Player> cls = luaEngine->new_usertype<Player>("Player", sol::constructors<Player(uint64_t)>(), sol::base_classes, sol::bases<Human, Entity>());
         cls["destroy"]            = &Player::Destroy;
-        cls["getVehicle"]         = &Human::GetVehicle;
-        cls["enterVehicle"]       = &Human::EnterVehicle;
-        cls["exitVehicle"]        = &Human::ExitVehicle;
-        cls["getVehicleSeat"]     = &Human::GetVehicleSeat;
+        cls["getVehicle"]         = &Player::GetVehicle;
+        cls["enterVehicle"]       = &Player::EnterVehicle;
+        cls["exitVehicle"]        = &Player::ExitVehicle;
+        cls["getVehicleSeat"]     = &Player::GetVehicleSeat;
     }
 } // namespace MafiaMP::Scripting
