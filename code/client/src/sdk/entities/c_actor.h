@@ -1,14 +1,14 @@
 #pragma once
 
-#include "../ue/sys/math/c_matrix.h"
-#include "../ue/sys/math/c_quat.h"
-#include "../ue/sys/core/c_frame.h"
-#include "c_entity.h"
+#include <sdk/ue/sys/math/c_matrix.h>
+#include <sdk/ue/sys/math/c_quat.h>
+#include <sdk/ue/sys/core/c_frame.h>
+#include "c_entity_pos.h"
 
 #include <cstdint>
 
 namespace SDK {
-    class C_Actor: public C_Entity {
+    class C_Actor: public C_EntityPos {
       public:
         virtual void SetPos(ue::sys::math::C_Vector const &)                                                                              = 0;
         virtual void SetDir(ue::sys::math::C_Vector const &)                                                                              = 0;

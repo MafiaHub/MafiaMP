@@ -1,9 +1,9 @@
 #pragma once
 
-#include "c_entity_pos.h"
+#include "c_actor.h"
 
 namespace SDK {
-    class C_ActorDeform : public C_EntityPos {
+    class C_ActorDeform : public C_Actor {
 
     };
 }

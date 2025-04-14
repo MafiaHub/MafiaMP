@@ -1,6 +1,6 @@
 #include "c_translocable_object_spawner.h"
 
-#include "../../../patterns.h"
+#include <sdk/patterns.h>
 
 namespace SDK {
     namespace ue::game::translocator {
