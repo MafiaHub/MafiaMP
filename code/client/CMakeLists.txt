@@ -2,6 +2,7 @@ set(MAFIAMP_CLIENT_FILES
     src/main.cpp
     src/core/luavm.cpp
     src/core/application.cpp
+    src/core/application_module.cpp
     src/core/dev_features.cpp
     src/core/ui/ui_base.cpp
     src/core/ui/chat.cpp
@@ -44,7 +45,6 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/weapon_controller.cpp
     src/core/modules/vehicle.cpp
     src/core/modules/human.cpp
-    src/game/module.cpp
     src/game/entities/factory.cpp
     src/game/streaming/entity_factory.cpp
     src/game/helpers/controls.cpp

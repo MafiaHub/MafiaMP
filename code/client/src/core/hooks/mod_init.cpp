@@ -1,4 +1,4 @@
-#include "../../game/module.h"
+#include "../application_module.h"
 #include "sdk/patterns.h"
 
 #include <MinHook.h>
@@ -9,7 +9,7 @@ typedef void(__fastcall *C_InitDone__Init_MafiaFramework_t)(void *_this);
 C_InitDone__Init_MafiaFramework_t C_InitDone__Init_MafiaFramework_original = nullptr;
 void __fastcall C_InitDone__MafiaFramework(void *_this) {
     C_InitDone__Init_MafiaFramework_original(_this);
-    MafiaMP::Game::gGlobals.module = new MafiaMP::Game::ModModule();
+    MafiaMP::Core::gApplicationModule = new MafiaMP::Core::ApplicationModule();
 }
 
 // Intro video hooking

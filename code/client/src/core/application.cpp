@@ -1,5 +1,8 @@
 #include "application.h"
 
+#include <cppfs/fs.h>
+#include "shared/version.h"
+#include <utils/version.h>
 #include <logging/logger.h>
 
 #include "states/game_setup.h"
@@ -19,10 +22,6 @@
 
 #include "external/imgui/widgets/corner_text.h"
 
-#include "shared/version.h"
-#include <cppfs/fs.h>
-#include <utils/version.h>
-
 #include "shared/modules/human_sync.hpp"
 #include "shared/modules/mod.hpp"
 #include "shared/modules/vehicle_sync.hpp"
@@ -37,7 +36,7 @@
 #include "modules/human.h"
 #include "modules/vehicle.h"
 
-#include "game/module.h"
+#include "application_module.h"
 
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication = nullptr;
@@ -67,14 +66,12 @@ namespace MafiaMP::Core {
 
         if (GetWebManager()) {
             Framework::GUI::ViewportConfiguration vhConfiguration;
-            {
-                RECT vhRect;
-                GetClientRect(Game::gGlobals.window, &vhRect);
-                vhConfiguration = {
-                    vhRect.right - vhRect.left,
-                    vhRect.bottom - vhRect.top,
-                };
-            }
+            RECT vhRect;
+            GetClientRect(gApplicationModuleContext.windowHandle, &vhRect);
+            vhConfiguration = {
+                vhRect.right - vhRect.left,
+                vhRect.bottom - vhRect.top,
+            };
             if (!GetWebManager()->Init(gProjectPath, vhConfiguration, GetRenderer(), false)) {
                 Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
                 return false;

@@ -26,9 +26,9 @@ namespace SDK {
             bool m_bNeedsMouseClipUpdate; // 00E5 - 00E6
             bool m_bUnknown2;             // 00E6 - 00E7
             bool m_bUnknown3;             // 00E7 - 00E8
-            FILTERKEYS m_filterKeys;      // 00E8 - 00F0  (size 8)
-            TOGGLEKEYS m_toggleKeys;      // 00F0 - 00F8  (size 8)
-            STICKYKEYS m_stickyKeys;      // 00F8 - 0110  (size 24)
+            FILTERKEYS m_filterKeys;      // 00E8 - 00F0
+            TOGGLEKEYS m_toggleKeys;      // 00F0 - 00F8
+            STICKYKEYS m_stickyKeys;      // 00F8 - 0110
             char m_sUniqueId[0x64];       // 0110 - 0174
             char pad3[0x4];               // 0174 - 0178
             void *m_pUnknown1;            // 0178 - 0180
@@ -42,6 +42,11 @@ namespace SDK {
             bool m_bUnknown5;             // 01D0 - 01D1
             char pad5[0x17];              // 01D1 - 01E8
         };
+
+        static C_Application_Win32* GetApplicationWin32() {
+            // TODO: move this to pattern
+            return reinterpret_cast<C_Application_Win32 *>(0x0000001461F63E0);
+        }
 
         static_assert(sizeof(C_Application_Win32) == 0x1E8, "C_Application_Win32 size is invalid");
     }
