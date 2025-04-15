@@ -50,11 +50,11 @@ namespace SDK {
     }
 
     void C_HumanScript::GetOnVehicle(ue::C_CntPtr<uintptr_t> &outSyncObject, C_Actor *arg1, unsigned int arg2, bool arg3, bool arg4, E_HumanMoveMode moveMode, bool force) {
-        (*(void(__thiscall *)(C_HumanScript *, ue::C_CntPtr<uintptr_t> &, C_Actor *, unsigned int, bool, bool, E_HumanMoveMode, bool))gPatterns.C_HumanScript__GetOnVehicle)(this, outSyncObject, arg1, arg2, arg3, arg4, moveMode, force);
+        hook::this_call<void>(gPatterns.C_HumanScript__GetOnVehicle, this, outSyncObject, arg1, arg2, arg3, arg4, moveMode, force);
     }
 
     void C_HumanScript::GetOffVehicle(ue::C_CntPtr<uintptr_t> &outSyncObject, C_Actor *arg1, bool arg2, bool arg3) {
-        (*(void(__thiscall *)(C_HumanScript *, ue::C_CntPtr<uintptr_t> &, C_Actor *, bool, bool))gPatterns.C_HumanScript__GetOffVehicle)(this, outSyncObject, arg1, arg2, arg3);
+        hook::this_call<void>(gPatterns.C_HumanScript__GetOffVehicle, this, outSyncObject, arg1, arg2, arg3);
     }
 
     void C_HumanScript::ScrAim(ue::C_CntPtr<uintptr_t> &syncObject, bool aiming) {
@@ -66,6 +66,11 @@ namespace SDK {
     void C_HumanScript::ScrAttack(C_Entity *ent) {
         hook::this_call(gPatterns.C_HumanScript__ScrAttack, this, ent);
     }
+
+    void C_HumanScript::ScrDoAction(ue::C_CntPtr<uintptr_t>& syncObject, C_Actor* actor, E_ActorActions action, unsigned int arg3, bool arg4, bool arg5, E_HumanMoveMode moveMode, bool force) {
+        hook::this_call(gPatterns.C_HumanScript__ScrDoAction, this, syncObject, actor, action, arg3, arg4, arg5, moveMode, force);
+    }
+
     void C_HumanScript::SetStealthMove(bool move) {
         hook::this_call(gPatterns.C_HumanScript__SetStealthMove, this, move);
     }
