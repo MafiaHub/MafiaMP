@@ -60,9 +60,6 @@ namespace MafiaMP::Core {
         // Register other things
         InitNetworkingMessages();
 
-        // This must always be the last call
-        _stateMachine->RequestNextState(States::StateIds::Initialize);
-
         _commandProcessor = std::make_shared<Framework::Utils::CommandProcessor>();
         _input            = std::make_shared<MafiaMP::Game::GameInput>();
         _console          = std::make_shared<UI::Console>(_commandProcessor);
@@ -111,6 +108,8 @@ namespace MafiaMP::Core {
         const auto vhConfiguration = GetWebManager()->GetViewportConfiguration();
         _mainMenuViewId            = GetWebManager()->CreateView("https://mafiamp.web.app", vhConfiguration.width, vhConfiguration.height);
 
+        // This must always be the last call
+        _stateMachine->RequestNextState(States::StateIds::Initialize);
         return true;
     }
 
@@ -395,16 +394,18 @@ namespace MafiaMP::Core {
     }
 
     uint64_t Application::GetLocalPlayerID() {
-        if (!_localPlayer)
+        if (!_localPlayer) {
             return 0;
+        }
 
         const auto sid = _localPlayer.get<Framework::World::Modules::Base::ServerID>();
         return sid->id;
     }
 
     uint64_t Application::GetLocalPlayerOwnerID() {
-        if (!_localPlayer)
+        if (!_localPlayer) {
             return 0;
+        }
 
         const auto str = _localPlayer.get<Framework::World::Modules::Base::Streamable>();
         return str->owner;
