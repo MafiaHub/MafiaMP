@@ -70,7 +70,12 @@ namespace SDK {
         gPatterns.C_CharacterStateHandlerMove__SharpTurnTransitionActive = hook::get_opcode_address("E8 ? ? ? ? 84 C0 74 60 40 84 FF");
 
         // C_CommandLine
-        gPatterns.C_CommandLine__FindCommand = hook::get_opcode_address("E8 ? ? ? ? 40 88 7D BB");
+        gPatterns.C_CommandLine__FindCommand = reinterpret_cast<uint64_t>(hook::get_pattern("83 C8 ? C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 54"));
+        gPatterns.C_CommandLine__GetCommandLineFileName = reinterpret_cast<uint64_t>(hook::get_pattern("40 57 48 83 EC ? 48 8B FA 48 C7 02"));
+        gPatterns.C_CommandLine__GetCommandLineFromFile = reinterpret_cast<uint64_t>(hook::get_pattern("40 55 41 56 48 83 EC ? 4C 8B F2 48 C7 02"));
+        gPatterns.C_CommandLine__GetCommandParam        = reinterpret_cast<uint64_t>(hook::get_pattern("85 D2 78 ? 48 8B 41 ? 48 2B 41 ? 48 C1 F8 ? 3B D0 7D ? 45 85 C0"));
+        gPatterns.C_CommandLine__GetCommandParamsCount  = reinterpret_cast<uint64_t>(hook::get_pattern("4C 8B C1 85 D2 78 ? 48 8B 41 ? 48 2B 41 ? 48 C1 F8 ? 3B D0 7D ? 49 8B 40 ? 48 63 CA 48 C1 E1"));
+        gPatterns.C_CommandLine__ProcessCommandLine     = reinterpret_cast<uint64_t>(hook::get_pattern("48 85 D2 0F 84 ? ? ? ? 55 57 41 54"));
 
         // C_Ctx
         gPatterns.C_Ctx__BeginUpdate = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B D9 48 89 51 ? 48 8D 4C 24 ?"));
@@ -134,6 +139,7 @@ namespace SDK {
 
         // C_GameCamera
         gPatterns.C_GameCamera__GetInstanceInternal = hook::get_opcode_address("E8 ? ? ? ? 48 8B C8 4C 8D 4D 30");
+        gPatterns.C_GameCamera__GetCamera           = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 41 ? 4C 8B 41 ? 49 3B C0 73"));
 
         // C_GameDirector
         gPatterns.C_GameDirector__GetDistrict = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 50 F2 0F 10 02"));
@@ -148,6 +154,7 @@ namespace SDK {
         uint64_t C_GameGUI2Module       = hook::get_opcode_address("E8 ? ? ? ? 41 8D 56 11");
         uint8_t *C_GameGUI2Module_Bytes = reinterpret_cast<uint8_t *>(C_GameGUI2Module);
 
+        gPatterns.C_GameGUI2Module__GetDatabase                 = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8D B9 ? ? ? ? 48 8B F2"));
         gPatterns.C_GameGUI2Module__GetGameGui2Module           = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 40 80 F6 01");
         gPatterns.C_GameGUI2Module__Instance                    = reinterpret_cast<uint64_t>(C_GameGUI2Module_Bytes + *(int32_t *)(C_GameGUI2Module_Bytes + 3) + 7);
         gPatterns.C_GameGUI2Module__SendHUDSimpleBooleanMessage = hook::get_opcode_address<uint64_t>("E8 ? ? ? ? 49 8B 97 ? ? ? ? 4C 8D 05 ? ? ? ?");
@@ -185,6 +192,7 @@ namespace SDK {
         gPatterns.C_HumanInventory__AddItem                       = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 41 8B D6");
         gPatterns.C_HumanInventory__AddItemByData                 = hook::get_opcode_address("E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? 48 8B 4B 18 45 33 C9");
         gPatterns.C_HumanInventory__AddMedkits                    = hook::get_opcode_address("E8 ? ? ? ? 48 8B 8B ? ? ? ? 49 BF ? ? ? ? ? ? ? ");
+        gPatterns.C_HumanInventory__AddMoney                      = reinterpret_cast <uint64_t>(hook::get_pattern("48 01 91 ? ? ? ? B0"));
         gPatterns.C_HumanInventory__AddWeapon                     = hook::get_opcode_address("E8 ? ? ? ? 84 C0 74 44 48 8B 4B 18");
         gPatterns.C_HumanInventory__CanAddAmmoByCategoryAux       = hook::get_opcode_address("E8 ? ? ? ? 85 C0 C6 84 24 ? ? ? ? ?");
         gPatterns.C_HumanInventory__CanAddAmmoByCategoryAuxAndMag = hook::get_opcode_address("E8 ? ? ? ? 85 C0 7E 20");
@@ -199,6 +207,10 @@ namespace SDK {
         gPatterns.C_HumanInventory__DoReload                      = hook::get_opcode_address("E8 ? ? ? ? 49 8B D4 48 8D 8E ? ? ? ?");
         gPatterns.C_HumanInventory__DoShot                        = hook::get_opcode_address("E8 ? ? ? ? F7 87 ? ? ? ? ? ? ? ? 74 1B");
         gPatterns.C_HumanInventory__DuplicateWeaponModel          = hook::get_opcode_address("E8 ? ? ? ? 48 8B D8 48 8D 45 97");
+        gPatterns.C_HumanInventory__GetLeftHandWeaponTableItem    = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 89 74 24 ? 57 48 83 EC ? 48 8B FA 8B 51 ? E8 ? ? ? ? 48 8B F0 48 85 C0 74 ? 4C 8B 00 48 8B C8 48 89 5C 24 ? 41 FF 50 ? 48 8B D8 E8 ? ? ? ? 48 8B D3 48 8B C8 E8 ? ? ? ? 33 C9 48 8B D7 84 C0 48 0F 45 CE E8 ? ? ? ? 48 8B 5C 24 ? 48 8B C7 48 8B 74 24 ? 48 83 C4 ? 5F C3 48 8B 74 24 ? 33 C9 48 89 0F 48 8B C7 48 83 C4 ? 5F C3 CC CC CC CC CC CC CC CC CC CC CC 48 89 5C 24"));
+        gPatterns.C_HumanInventory__GetRightHandWeaponTableItem   = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 89 74 24 ? 57 48 83 EC ? 48 8B FA 8B 51 ? E8 ? ? ? ? 48 8B F0 48 85 C0 74 ? 4C 8B 00 48 8B C8 48 89 5C 24 ? 41 FF 50 ? 48 8B D8 E8 ? ? ? ? 48 8B D3 48 8B C8 E8 ? ? ? ? 33 C9 48 8B D7 84 C0 48 0F 45 CE E8 ? ? ? ? 48 8B 5C 24 ? 48 8B C7 48 8B 74 24 ? 48 83 C4 ? 5F C3 48 8B 74 24 ? 33 C9 48 89 0F 48 8B C7 48 83 C4 ? 5F C3 CC CC CC CC CC CC CC CC CC CC CC 40 57"));
         gPatterns.C_HumanInventory__GetSelectedAmmoCategory       = hook::get_opcode_address("E8 ? ? ? ? 3B C3 74 04");
         gPatterns.C_HumanInventory__SelectAnimSetting             = hook::get_opcode_address("E8 ? ? ? ? 84 C0 74 B6 B0 01");
         gPatterns.C_HumanInventory__SelectByItemID                = hook::get_opcode_address("E8 ? ? ? ? 48 8B 87 ? ? ? ? 48 8D 55 20");
@@ -225,7 +237,8 @@ namespace SDK {
         gPatterns.C_HumanWeaponController__DoWeaponReloadInventory    = reinterpret_cast<uint64_t>(hook::get_pattern("33 C0 44 8B C2 48 89 81 ? ? ? ?"));
         gPatterns.C_HumanWeaponController__DoWeaponReloadShowMagazine = hook::get_opcode_address("E8 ? ? ? ? 48 8B 4F 08 4C 8B C6 BA ? ? ? ? E8 ? ? ? ? 45 33 F6");
         gPatterns.C_HumanWeaponController__DoWeaponSelectByItemId     = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40 48 8B 81 60"));
-        gPatterns.C_HumanWeaponController__GetRightHandWeaponID       = hook::get_opcode_address("E8 ? ? ? ? 3B 46 78 ");
+        gPatterns.C_HumanWeaponController__GetAimDir                  = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B 81 ? ? ? ? 48 8B DA 80 78"));
+        gPatterns.C_HumanWeaponController__GetRightHandWeaponID       = hook::get_opcode_address("E8 ? ? ? ? 3B 46 78");
         gPatterns.C_HumanWeaponController__GetShotPosDir              = hook::get_opcode_address("E8 ? ? ? ? F2 0F 10 44 24 ? 48 8B CF");
         gPatterns.C_HumanWeaponController__IsThrownWeapon             = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 81 ? ? ? ? 8B 40 48"));
         gPatterns.C_HumanWeaponController__ResetScatterCoef           = reinterpret_cast<uint64_t>(hook::get_pattern("40 57 48 83 EC 30 48 8B F9 0F 29 74 24 ?"));
@@ -239,10 +252,22 @@ namespace SDK {
         gPatterns.C_IE__Alloc = hook::get_opcode_address("48 ? ? 48 ? ? ? ? B9 04 14 00 00 E8 ? ? ? ? 48", 0xD);
         gPatterns.C_IE__Free  = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 41 B8 0D 00 00 00 48 ? ? ? ? ? ? 48");
 
+        // C_InjuryAnalyzer
+        gPatterns.C_InjuryAnalyser__AddInjury = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B C4 48 89 58 ? 48 89 70 ? 48 89 78 ? 4C 89 60 ? 55 41 56 41 57 48 8D 68 ? 48 81 EC ? ? ? ? 0F 29 70 ? 0F 28 C1"));
+
         // C_InventoryWrapper
         gPatterns.C_InventoryWrapper__AddMoney  = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC 20 48 8B 41 68 48 8B DA 80 78 18 09 75 4E"));
         gPatterns.C_InventoryWrapper__AddWeapon = hook::get_opcode_address("E8 ? ? ? ? 41 38 76 4C 74 0C");
         gPatterns.C_InventoryWrapper__TellMoney = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC 28 48 8B 41 68 80 78 18 09"));
+
+        // C_Keyboard
+        gPatterns.C_Keyboard__GetActiveModifiers = reinterpret_cast<uint64_t>(hook::get_pattern("33 C0 4C 8B C1 80 B9"));
+        gPatterns.C_Keyboard__ToString           = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 54 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? B8"));
+
+        // C_MafiaCameraModule
+        gPatterns.C_MafiaCameraModule__GetMafiaCameraModule = reinterpret_cast<uint64_t>(hook::get_pattern(
+            "48 8D 05 ? ? ? ? C3 CC CC CC CC CC CC CC CC 48 89 5C 24 ? 57 48 83 EC ? 48 8B FA 48 8B D9 E8 ? ? ? ? 48 85 C0 75 ? 48 8B 4B ? 48 85 C9 74 ? 48 8B 01 48 8B D7 48 8B 5C 24 ? 48 83 C4 ? 5F 48 FF 60 ? 33 C0 48 8B 5C 24 ? 48 83 C4 ? 5F C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 89 5C 24"));
+        gPatterns.C_MafiaCameraModule__GetPlayerCamera      = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? E8 ? ? ? ? BA ? ? ? ? 48 8B C8 4C 8B 00 48 83 C4"));
 
         // C_MafiaDBs
         gPatterns.C_MafiaDBs__GetMafiaDBs         = hook::get_opcode_address("E8 ? ? ? ? 48 8D 55 87 48 8B C8");
@@ -311,6 +336,10 @@ namespace SDK {
 
         // C_Quat
         gPatterns.C_Quat__SetDir = hook::get_opcode_address("E8 ? ? ? ? F3 44 0F 59 5D ?");
+        
+        // C_RaceTimer
+        gPatterns.C_RaceTimer_SetVisible = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC ? 0F B6 F2"));
+        gPatterns.C_RaceTimer_StartRace  = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B F9 C7 41 ? ? ? ? ? 41 0F B7 C9"));
 
         // C_SceneObject
         gPatterns.C_SceneObject__SetTransform = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8D 41 ? 48 8B D9 0F 10 02"));
@@ -358,12 +387,22 @@ namespace SDK {
         // C_TickedModuleManager
         gPatterns.C_TickedModuleManager__GetTickedModuleManager = hook::get_opcode_address("E8 ? ? ? ? 45 8B 46 24");
 
+        // C_TrafficSpawnManager
+        gPatterns.C_TrafficSpawnManager__GetCivilCarDensityMult = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC 20 45 33 C0 33 D2 48 8B D9 E8 ? ? ? ? 48 8D 0D ? ? ? ?"));
+        gPatterns.C_TrafficSpawnManager__Populate             = hook::get_opcode_address("E8 ? ? ? ? 48 8B 05 ? ? ? ? 48 89 03");
+        gPatterns.C_TrafficSpawnManager__SetTrainDensity      = reinterpret_cast<uint64_t>(hook::get_pattern("74 0C 48 8B 81 ? ? ? ? F3 0F 11 48 ?"));
+        gPatterns.C_TrafficSpawnManager__SwitchAmbientTraffic = reinterpret_cast<uint64_t>(hook::get_pattern("0F 85 ? ? ? ? 38 91 ? ? ? ? 0F 84 ? ? ? ? 48 89 5C 24 ?"));
+        gPatterns.C_TrafficSpawnManager__UpdateMaxElementsCnt = hook::get_opcode_address("E9 ? ? ? ? 48 83 C4 28 C3 CC CC CC 88 51 50");
+
         // C_Translocator
         gPatterns.C_Translocator__SpawnObject = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B C4 48 89 58 ? 48 89 70 ? 48 89 78 ? 4C 89 70 ? 55 48 8D 68 ? 48 81 EC ? ? ? ? 0F 29 70 ? 48 8B DA 48 8B 02"));
         gPatterns.C_Translocator__SpawnObjects = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B D9 48 8B FA 48 8B CA E8 ? ? ? ? 84 C0 0F 85"));
 
         // C_TranslocableObjectSpawner
+        gPatterns.C_TranslocableObjectSpawner__BeginUpdate = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B F9 48 8B DA 48 8B 49 ? E8 ? ? ? ? 48 8B 4F"));
+        gPatterns.C_TranslocableObjectSpawner__EndUpdate   = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B D9 48 8B 49 ? E8 ? ? ? ? 48 8B 4B ? 48 83 C4 ? 5B E9 ? ? ? ? 48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24"));
         gPatterns.C_TranslocableObjectSpawner__Spawn = reinterpret_cast<uint64_t>(hook::get_pattern("44 88 4C 24 ? 89 54 24"));
+        gPatterns.C_TranslocableObjectSpawner__Update      = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B D9 48 8B 49 ? E8 ? ? ? ? 48 8D 4C 24"));
 
         // C_Vehicle
         gPatterns.C_Vehicle__AddVehicleFlags    = hook::get_opcode_address("E8 ? ? ? ? 40 F6 C7 08 74 0D");
@@ -452,6 +491,9 @@ namespace SDK {
         // I_VirtualFileSystemCache
         gPatterns.I_VirtualFileSystemCache__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 41 0F B7 CF");
 
+        // I_StreamMap
+        gPatterns.I_StreamMap__GetInstance = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 05 ? ? ? ? 48 85 C0 74 ? 48 83 C0 ? C3 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC 32 C0"));
+
         // Lua
         gPatterns.Lua__isstring   = hook::get_opcode_address("E8 ? ? ? ? 85 C0 74 5E 8B D3");
         gPatterns.Lua__loadbuffer = hook::get_opcode_address("E8 ? ? ? ? 85 C0 74 2F 48 8B 47 48");
@@ -466,5 +508,8 @@ namespace SDK {
         gPatterns.renameme__SpawnObject  = hook::get_opcode_address("E8 ? ? ? ? 33 F6 EB 9F");
         gPatterns.renameme__SpawnObject2 = hook::get_opcode_address("E8 ? ? ? ? 49 8B 4C 3F ?");
         gPatterns.renameme__SpawnObject3 = hook::get_opcode_address("E8 ? ? ? ? 4C 8B E8 49 8B CD");
+
+        // script
+        gPatterns.Script__GetWeaponIdByName = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? 48 85 C9 0F 84 ? ? ? ? 80 39"));
     }
 }; // namespace SDK

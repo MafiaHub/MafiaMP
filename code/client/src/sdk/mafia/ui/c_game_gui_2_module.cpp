@@ -8,8 +8,13 @@ namespace SDK {
             hook::this_call<void>(gPatterns.C_GameGUI2Module__SendHUDSimpleBooleanMessage, this, str, unk);
         }
 
-        void C_GameGUI2Module::SendMessageMovie(char const *title, char const *msg, ue::C_Variant *varArgs, unsigned int unk2) {
-            hook::this_call(gPatterns.C_GameGUI2Module__SendMessageMovie, this, title, msg, varArgs, unk2);
+        void C_GameGUI2Module::SendMessageMovie(char const *pZone, char const *pType, ue::C_Variant *varArgs, unsigned int unk2) {
+            hook::this_call(gPatterns.C_GameGUI2Module__SendMessageMovie, this, pZone, pType, varArgs, unk2);
+        }
+
+        ue::C_WeakPtr<ue::sys::sodb::C_DatabaseInterface> C_GameGUI2Module::GetDatabase() {
+            ue::C_WeakPtr<ue::sys::sodb::C_DatabaseInterface> database;
+            return hook::this_call<ue::C_WeakPtr<ue::sys::sodb::C_DatabaseInterface> &>(gPatterns.C_GameGUI2Module__GetDatabase, this, database);
         }
 
         C_GameGUI2Module *C_GameGUI2Module::GetInstance() {

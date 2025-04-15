@@ -7,18 +7,14 @@ namespace SDK {
     }
 
     C_Player2 *C_Game::GetActivePlayer() {
-        // TODO: reverse I_Game
-        const auto vtableToAddr = *(uint64_t *)(*(uintptr_t *)(this) + 0x90);
-        return reinterpret_cast<C_Player2 *>(hook::this_call<uint64_t>(vtableToAddr, this));
+        return m_pActivePlayer;
     }
 
     void C_Game::SetActivePlayer(C_Player2 *player) {
-        const auto vtableToAddr = *(uint64_t *)(*(uintptr_t *)(this) + 0xA0);
-        return hook::this_call(vtableToAddr, this, player);
+        m_pActivePlayer = player;
     }
 
     bool C_Game::IsGameUp() {
-        const auto vtableToAddr = *(uint64_t *)(*(uintptr_t *)(this) + 0x100);
-        return hook::this_call<bool>(vtableToAddr, this);
+        return m_eGameUpState == E_GameUpState::UP;
     }
 } // namespace SDK

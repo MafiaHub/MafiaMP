@@ -59,4 +59,5 @@ static InitFunction init([]() {
     MH_CreateHook((LPVOID)SDK::gPatterns.C_StreamMap__CloseGame, (PBYTE)C_StreamMap__CloseGame, reinterpret_cast<void **>(&C_StreamMap__CloseGame_original));
     MH_CreateHook((LPVOID)SDK::gPatterns.C_StreamMap__CloseMission, (PBYTE)C_StreamMap__CloseMission, reinterpret_cast<void **>(&C_StreamMap__CloseMission_original));
     MH_CreateHook((LPVOID)SDK::gPatterns.C_StreamMap__ClosePart, (PBYTE)C_StreamMap__ClosePart, reinterpret_cast<void **>(&C_StreamMap__ClosePart_original));
-});
+    },
+    "StreamMap");

@@ -57,6 +57,11 @@ namespace SDK {
 
         // C_CommandLine
         uint64_t C_CommandLine__FindCommand = 0x0;
+        uint64_t C_CommandLine__GetCommandLineFileName = 0x0;
+        uint64_t C_CommandLine__GetCommandLineFromFile = 0x0;
+        uint64_t C_CommandLine__GetCommandParam        = 0x0;
+        uint64_t C_CommandLine__GetCommandParamsCount  = 0x0;
+        uint64_t C_CommandLine__ProcessCommandLine     = 0x0;
 
         // C_Ctx
         uint64_t C_Ctx__BeginUpdate = 0x0;
@@ -119,6 +124,7 @@ namespace SDK {
 
         // C_GameCamera
         uint64_t C_GameCamera__GetInstanceInternal = 0x0;
+        uint64_t C_GameCamera__GetCamera           = 0x0;
 
         // C_GameDirector
         uint64_t C_GameDirector__GetDistrict = 0x0;
@@ -130,6 +136,7 @@ namespace SDK {
         uint64_t C_GameGfxEnvEffModule__GetCurrentWeatherSetName = 0x0;
 
         // C_GameGUI2Module
+        uint64_t C_GameGUI2Module__GetDatabase                 = 0x0;
         uint64_t C_GameGUI2Module__GetGameGui2Module           = 0x0;
         uint64_t C_GameGUI2Module__Instance                    = 0x0;
         uint64_t C_GameGUI2Module__SendHUDSimpleBooleanMessage = 0x0;
@@ -164,6 +171,7 @@ namespace SDK {
         uint64_t C_HumanInventory__AddItem                       = 0x0;
         uint64_t C_HumanInventory__AddItemByData                 = 0x0;
         uint64_t C_HumanInventory__AddMedkits                    = 0x0;
+        uint64_t C_HumanInventory__AddMoney                      = 0x0;
         uint64_t C_HumanInventory__AddWeapon                     = 0x0;
         uint64_t C_HumanInventory__CanAddAmmoByCategoryAux       = 0x0;
         uint64_t C_HumanInventory__CanAddAmmoByCategoryAuxAndMag = 0x0;
@@ -178,6 +186,8 @@ namespace SDK {
         uint64_t C_HumanInventory__DoReload                      = 0x0;
         uint64_t C_HumanInventory__DoShot                        = 0x0;
         uint64_t C_HumanInventory__DuplicateWeaponModel          = 0x0;
+        uint64_t C_HumanInventory__GetLeftHandWeaponTableItem    = 0x0;
+        uint64_t C_HumanInventory__GetRightHandWeaponTableItem   = 0x0;
         uint64_t C_HumanInventory__GetSelectedAmmoCategory       = 0x0;
         uint64_t C_HumanInventory__SelectAnimSetting             = 0x0;
         uint64_t C_HumanInventory__SelectByItemID                = 0x0;
@@ -204,6 +214,7 @@ namespace SDK {
         uint64_t C_HumanWeaponController__DoWeaponReloadInventory    = 0x0;
         uint64_t C_HumanWeaponController__DoWeaponReloadShowMagazine = 0x0;
         uint64_t C_HumanWeaponController__DoWeaponSelectByItemId     = 0x0;
+        uint64_t C_HumanWeaponController__GetAimDir                  = 0x0;
         uint64_t C_HumanWeaponController__GetRightHandWeaponID       = 0x0;
         uint64_t C_HumanWeaponController__GetShotPosDir              = 0x0;
         uint64_t C_HumanWeaponController__IsThrownWeapon             = 0x0;
@@ -218,10 +229,21 @@ namespace SDK {
         uint64_t C_IE__Alloc = 0x0;
         uint64_t C_IE__Free  = 0x0;
 
+        // C_InjuryAnalyser
+        uint64_t C_InjuryAnalyser__AddInjury = 0x0;
+
         // C_InventoryWrapper
         uint64_t C_InventoryWrapper__AddMoney  = 0x0;
         uint64_t C_InventoryWrapper__AddWeapon = 0x0;
         uint64_t C_InventoryWrapper__TellMoney = 0x0;
+
+        // C_Keyboard
+        uint64_t C_Keyboard__GetActiveModifiers = 0x0;
+        uint64_t C_Keyboard__ToString           = 0x0;
+
+        // C_MafiaCameraModule
+        uint64_t C_MafiaCameraModule__GetMafiaCameraModule = 0x0;
+        uint64_t C_MafiaCameraModule__GetPlayerCamera      = 0x0;
 
         // C_MafiaDBs
         uint64_t C_MafiaDBs__GetMafiaDBs         = 0x0;
@@ -280,6 +302,10 @@ namespace SDK {
         // C_Quat
         uint64_t C_Quat__SetDir = 0x0;
 
+        // C_RaceTimer
+        uint64_t C_RaceTimer_SetVisible = 0x0;
+        uint64_t C_RaceTimer_StartRace  = 0x0;
+
         // C_SceneObject
         uint64_t C_SceneObject__SetTransform = 0x0;
 
@@ -321,12 +347,22 @@ namespace SDK {
         // C_TickedModuleManager
         uint64_t C_TickedModuleManager__GetTickedModuleManager = 0x0;
 
+        // C_TrafficSpawnManager
+        uint64_t C_TrafficSpawnManager__GetCivilCarDensityMult = 0x0;
+        uint64_t C_TrafficSpawnManager__Populate             = 0x0;
+        uint64_t C_TrafficSpawnManager__SetTrainDensity      = 0x0;
+        uint64_t C_TrafficSpawnManager__SwitchAmbientTraffic = 0x0;
+        uint64_t C_TrafficSpawnManager__UpdateMaxElementsCnt = 0x0;
+
         // C_Translocator
         uint64_t C_Translocator__SpawnObject = 0x0;
         uint64_t C_Translocator__SpawnObjects = 0x0;
 
         // C_TranslocableObjectSpawner
+        uint64_t C_TranslocableObjectSpawner__BeginUpdate = 0x0;
+        uint64_t C_TranslocableObjectSpawner__EndUpdate   = 0x0;
         uint64_t C_TranslocableObjectSpawner__Spawn = 0x0;
+        uint64_t C_TranslocableObjectSpawner__Update      = 0x0;
 
         // C_Vehicle
         uint64_t C_Vehicle__AddVehicleFlags    = 0x0;
@@ -404,6 +440,9 @@ namespace SDK {
         // I_VirtualFileSystemCache
         uint64_t I_VirtualFileSystemCache__GetInstance = 0x0;
 
+        // I_StreamMap
+        uint64_t I_StreamMap__GetInstance = 0x0;
+
         // Lua
         uint64_t Lua__isstring   = 0x0;
         uint64_t Lua__loadbuffer = 0x0;
@@ -418,6 +457,9 @@ namespace SDK {
         uint64_t renameme__SpawnObject  = 0x0;
         uint64_t renameme__SpawnObject2 = 0x0;
         uint64_t renameme__SpawnObject3 = 0x0;
+
+        // Script
+        uint64_t Script__GetWeaponIdByName = 0x0;
 
         static void InitPatterns();
     };

@@ -2,12 +2,13 @@
 
 #include "patterns.h"
 
-#include "ue/game/audio/c_audio_device.h"
+#include "sdk/c_ticked_module.h"
+#include "sdk/ue/game/audio/c_audio_device.h"
 
 namespace SDK {
-    class C_GameAudioModule {
+    class C_GameAudioModule : public C_TickedModule {
       public:
-        char pad0[0x18];                                // 0000 - 0018
+        char pad0[0x10];                                // 0008 - 0018
         ue::game::audio::C_AudioDevice* m_pAudioDevice; // 0018 - 0020
         char pad1[0x88];                                // 0020 - 00A8
         float m_fMasterVolume;                          // 00A8 - 00AC

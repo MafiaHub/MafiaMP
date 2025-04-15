@@ -4,7 +4,7 @@
 
 #include "sdk/c_ie.h"
 #include "sdk/entities/c_player_2.h"
-#include "sdk/ue/game/humainai/c_character_controller.h"
+#include "sdk/ue/game/humanai/c_character_controller.h"
 #include "sdk/c_game.h"
 
 #include "../../game/overrides/character_controller.h"
@@ -161,6 +161,20 @@ bool __fastcall C_CharacterStateHandlerMove__IsSprinting(SDK::ue::game::humanai:
         return C_CharacterStateHandlerMove__IsSprinting_Original(pMoveHandler);
 }
 
+typedef bool(__fastcall *C_CharacterStateHandlerWeapon__SetupReload_t)(SDK::ue::game::humanai::C_CharacterStateHandlerWeapon *, bool);
+C_CharacterStateHandlerWeapon__SetupReload_t C_CharacterStateHandlerWeapon__SetupReload_original = nullptr;
+bool C_CharacterStateHandlerWeapon__SetupReload(SDK::ue::game::humanai::C_CharacterStateHandlerWeapon *pThis, bool a2) {
+    Framework::Logging::GetLogger("Hooks")->debug("C_CharacterStateHandlerWeapon__SetupReload {}", a2);
+    return C_CharacterStateHandlerWeapon__SetupReload_original(pThis, a2);
+}
+
+typedef int64_t(__fastcall *C_CharacterStateHandlerWeapon__StopReload_t)(SDK::ue::game::humanai::C_CharacterStateHandlerWeapon *);
+C_CharacterStateHandlerWeapon__StopReload_t C_CharacterStateHandlerWeapon__StopReload_original = nullptr;
+int64_t C_CharacterStateHandlerWeapon__StopReload(SDK::ue::game::humanai::C_CharacterStateHandlerWeapon *pThis) {
+    Framework::Logging::GetLogger("Hooks")->debug("C_CharacterStateHandlerWeapon__StopReload");
+    return C_CharacterStateHandlerWeapon__StopReload_original(pThis);
+}
+
 typedef bool(__fastcall *C_CharacterStateHandlerAim__IsAimAllowed_t)(void *);
 C_CharacterStateHandlerAim__IsAimAllowed_t C_CharacterStateHandlerAim__IsAimAllowed_original = nullptr;
 bool __fastcall C_CharacterStateHandlerAim__IsAimAllowed(SDK::ue::game::humanai::C_CharacterStateHandler *pAimHandler) {
@@ -221,4 +235,11 @@ static InitFunction init([]() {
 
     const auto C_CharacterStateHandlerAim__IsAimAllowed_Addr = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 31 48 8B 47 08");
     MH_CreateHook((LPVOID)C_CharacterStateHandlerAim__IsAimAllowed_Addr, (PBYTE)C_CharacterStateHandlerAim__IsAimAllowed, reinterpret_cast<void **>(&C_CharacterStateHandlerAim__IsAimAllowed_original));
-});
+
+    const auto C_CharacterStateHandlerWeapon__SetupReload_Addr = hook::get_pattern("40 53 48 83 EC ? 48 89 7C 24 ? 48 8B D9 84 D2");
+    MH_CreateHook((LPVOID)C_CharacterStateHandlerWeapon__SetupReload_Addr, (PBYTE)C_CharacterStateHandlerWeapon__SetupReload, reinterpret_cast<void **>(&C_CharacterStateHandlerWeapon__SetupReload_original));
+
+    const auto C_CharacterStateHandlerWeapon__StopReload_Addr = hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B 79 ? 48 8B D9 48 8B 4F");
+    MH_CreateHook((LPVOID)C_CharacterStateHandlerWeapon__StopReload_Addr, (PBYTE)C_CharacterStateHandlerWeapon__StopReload, reinterpret_cast<void **>(&C_CharacterStateHandlerWeapon__StopReload_original));
+    },
+    "CharacterController");

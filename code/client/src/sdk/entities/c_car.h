@@ -1,16 +1,16 @@
 #pragma once
 
-#include "c_actor.h"
+#include "c_actor_vehicle.h"
+#include "c_vehicle.h"
 
 namespace SDK {
-    class C_Vehicle;
     class I_Human2;
 
     struct S_BaseSeat {
         enum E_BaseSeatStatus { OCCUPIED = 3, EMPTY = 4 };
     };
 
-    class C_Car: public C_Actor {
+    class C_Car: public C_ActorVehicle {
       public:
         void Lock();
         void Unlock();

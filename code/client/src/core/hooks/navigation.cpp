@@ -28,4 +28,5 @@ int64_t C_Navigation__OnDistrictChange(void *pThis, SDK::mafia::framework::direc
 static InitFunction init([]() {
     const auto C_Navigation__OnDistrictChange_Addr = hook::get_pattern<uint64_t>("40 53 57 48 83 EC 28 8B 02");
     MH_CreateHook((LPVOID)C_Navigation__OnDistrictChange_Addr, (PBYTE)C_Navigation__OnDistrictChange, reinterpret_cast<void **>(&C_Navigation__OnDistrictChange_original));
-});
+    },
+    "Navigation");

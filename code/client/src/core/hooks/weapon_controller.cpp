@@ -9,10 +9,10 @@
 
 #include "shared/modules/human_sync.hpp"
 
+#include "sdk/c_inventory_wrapper.h"
 #include "sdk/entities/c_player_2.h"
 #include "sdk/entities/human/c_human_weapon_controller.h"
-#include "sdk/inventory/c_inventory_wrapper.h"
-#include "sdk/ue/game/humainai/c_character_state_handler_aim.h"
+#include "sdk/ue/game/humanai/c_character_state_handler_aim.h"
 #include "sdk/ue/sys/math/c_vector.h"
 
 #include "game/helpers/controls.h"
@@ -149,13 +149,13 @@ void C_HumanWeaponController__DoWeaponReloadInventory(SDK::C_HumanWeaponControll
     C_HumanWeaponController__DoWeaponReloadInventory_original(pThis, unk);
 }
 
-typedef bool(__fastcall *C_HumanInventory__CanFire_t)(SDK::C_InventoryWrapper *);
+typedef bool(__fastcall *C_HumanInventory__CanFire_t)(SDK::C_HumanInventory *);
 C_HumanInventory__CanFire_t C_HumanInventory__CanFire_original = nullptr;
-bool C_HumanInventory__CanFire(SDK::C_InventoryWrapper *pThis) {
+bool C_HumanInventory__CanFire(SDK::C_HumanInventory *pThis) {
     auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
 
     // In case it's the local player, normal behavior
-    if (gameLocalPlayer && gameLocalPlayer->GetInventoryWrapper() == pThis) {
+    if (gameLocalPlayer && gameLocalPlayer->GetHumanInventory() == pThis) {
         return C_HumanInventory__CanFire_original(pThis);
     }
 
@@ -182,4 +182,5 @@ static InitFunction init([]() {
 
     const auto C_HumanInventory__CanFire_Addr = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 2E F6 83 ? ? ? ? ?");
     MH_CreateHook((LPVOID)C_HumanInventory__CanFire_Addr, (PBYTE)C_HumanInventory__CanFire, reinterpret_cast<void **>(&C_HumanInventory__CanFire_original));
-});
+    },
+    "WeaponController");

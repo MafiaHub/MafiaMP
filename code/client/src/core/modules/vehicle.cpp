@@ -62,6 +62,7 @@ namespace MafiaMP::Core::Modules {
                     metadata.colorPrimary    = {colorPrimary.r, colorPrimary.g, colorPrimary.b, colorPrimary.a};
                     metadata.colorSecondary  = {colorSecondary.r, colorSecondary.g, colorSecondary.b, colorSecondary.a};
                     metadata.dirt            = vehicle->GetVehicleDirty();
+                    metadata.engineOn        = car->IsEngineOn();
                     metadata.fuel            = car->GetActualFuel();
                     metadata.gear            = car->GetGear();
                     metadata.handbrake       = vehicle->GetHandbrake();
@@ -72,7 +73,6 @@ namespace MafiaMP::Core::Modules {
                     metadata.rimColor        = {rimColor.r, rimColor.g, rimColor.b, rimColor.a};
                     metadata.rust            = vehicle->GetVehicleRust();
                     metadata.sirenOn         = vehicle->IsSiren();
-                    metadata.engineOn        = car->IsEngineOn();
                     metadata.steer           = vehicle->GetSteer();
                     metadata.tireColor       = {tireColor.r, tireColor.g, tireColor.b, tireColor.a};
                     metadata.velocity        = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
@@ -99,14 +99,25 @@ namespace MafiaMP::Core::Modules {
 
     void Vehicle::Create(flecs::entity e, std::string modelName) {
         auto info          = Core::gApplication->GetEntityFactory()->RequestVehicle(std::move(modelName));
-        auto trackingData  = e.get_mut<Core::Modules::Vehicle::Tracking>();
-        trackingData->info = info;
-        trackingData->car  = nullptr;
+        auto &trackingData = e.ensure<Core::Modules::Vehicle::Tracking>();
+        trackingData.info  = info;
+        trackingData.car   = nullptr;
 
-        auto interp = e.get_mut<Interpolated>();
-        interp->interpolator.GetPosition()->SetCompensationFactor(1.5f);
+        auto &interp = e.ensure<Interpolated>();
+        interp.interpolator.GetPosition()->SetCompensationFactor(1.5f);
 
+        e.add<Shared::Modules::Mod::EntityKind>();
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_VEHICLE});
+        e.add<Shared::Modules::VehicleSync::UpdateData>();
+
+        // Ensure we hook up vehicle events for special cases
+        auto streamable                      = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        streamable->modEvents.disconnectProc = [](flecs::entity e) {
+            Remove(e);
+        };
+        streamable->modEvents.updateTransformProc = [](flecs::entity e) {
+            UpdateTransform(e);
+        };
 
         const auto OnVehicleRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
             if (success) {
@@ -127,6 +138,9 @@ namespace MafiaMP::Core::Modules {
                 transform.SetRot(newRot);
                 transform.SetPos(newPos);
                 car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
+
+                const auto vehicleData = ent.get<Shared::Modules::VehicleSync::UpdateData>();
+                car->GetVehicle()->SetBrake(vehicleData->brake, true);
 
                 auto trackingData = ent.get_mut<Core::Modules::Vehicle::Tracking>();
                 trackingData->car = car;
@@ -204,12 +218,12 @@ namespace MafiaMP::Core::Modules {
         vehicle->SetBrake(updateData->brake, false);
         vehicle->SetVehicleColor(&colorPrimary, &colorSecondary, false);
         car->SetVehicleDirty(updateData->dirt); // We have to use the car to set the dirt otherwise the value is reset
-        car->SetActualFuel(updateData->fuel);
         vehicle->SetEngineOn(updateData->engineOn, updateData->engineOn);
+        car->SetActualFuel(updateData->fuel);
         vehicle->SetGear(updateData->gear);
         vehicle->SetHandbrake(updateData->handbrake, false);
         vehicle->SetHorn(updateData->hornOn);
-        if (::strcmp(vehicle->GetSPZText(), updateData->licensePlate) > 0) {
+        if (std::strcmp(vehicle->GetSPZText(), updateData->licensePlate) != 0) {
             vehicle->SetSPZText(updateData->licensePlate, true);
         }
         vehicle->SetPower(updateData->power);
@@ -339,7 +353,7 @@ namespace MafiaMP::Core::Modules {
 
             if (licensePlate.HasValue()) {
                 const auto plate = licensePlate().C_String();
-                ::memcpy(updateData->licensePlate, plate, strlen(plate) + 1);
+                std::memcpy(updateData->licensePlate, plate, strlen(plate) + 1);
             }
 
             if (lockState.HasValue()) {

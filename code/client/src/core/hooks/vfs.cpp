@@ -36,4 +36,5 @@ namespace MafiaMP::Core::Hooks {
 
 static InitFunction init([]() {
     // MafiaMP::Core::Hooks::MafiaMPVFS::Install();
-});
+    },
+    "VFS");

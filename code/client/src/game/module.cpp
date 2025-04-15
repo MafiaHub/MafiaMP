@@ -6,7 +6,6 @@
 #include "sdk/entities/c_vehicle.h"
 #include "sdk/entities/human/c_human_weapon_controller.h"
 
-#include <SDL2/SDL.h>
 #include <logging/logger.h>
 #include <utils/hooking/hooking.h>
 
@@ -35,6 +34,7 @@ namespace MafiaMP::Game {
             // fill out renderer info
             rendererOptions.d3d11.device        = gGlobals.renderDevice->GetDevice();
             rendererOptions.d3d11.deviceContext = gGlobals.renderDevice->GetImmediateContext();
+            rendererOptions.d3d11.swapChain     = gGlobals.swapChain;
             rendererOptions.windowHandle        = gGlobals.window;
 
             Framework::Integrations::Client::InstanceOptions opts;

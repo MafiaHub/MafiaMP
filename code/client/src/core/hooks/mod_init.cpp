@@ -28,4 +28,5 @@ static InitFunction init([]() {
 
     // Skip loading prompt & debug stuff
     MH_CreateHook((LPVOID)SDK::gPatterns.C_CommandLine__FindCommand, (PBYTE)C_CommandLine__FindCommand, nullptr);
-});
+    },
+    "ModInit");

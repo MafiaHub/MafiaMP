@@ -1,39 +1,34 @@
 #pragma once
 
-#include "scripting/engines/node/engine.h"
-#include "scripting/engines/node/sdk.h"
+#include <sol/sol.hpp>
 
-#include "../modules/environment.h"
-#include "../modules/vehicle.h"
+#include "core/server.h"
+#include "core_modules.h"
 
-#include "../../shared/rpc/environment.h"
+#include "core/modules/environment.h"
+#include "core/modules/vehicle.h"
+
+#include "shared/rpc/environment.h"
 
 #include "vehicle.h"
-
-#include "core_modules.h"
 
 namespace MafiaMP::Scripting {
     class World final {
       public:
-        static v8::Local<v8::Object> WrapVehicle(v8::Isolate *isolate, flecs::entity e) {
-            return v8pp::class_<Scripting::Vehicle>::create_object(isolate, e.id());
-        }
-
-        static v8::Local<v8::Object> CreateVehicle(v8::Isolate *isolate, std::string modelName) {
+        static Vehicle CreateVehicle(std::string modelName) {
             auto e = MafiaMP::Core::Modules::Vehicle::Create(Server::_serverRef);
 
-            auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
-            frame->modelName = modelName;
+            auto &frame     = e.ensure<Framework::World::Modules::Base::Frame>();
+            frame.modelName = modelName;
 
-            return WrapVehicle(isolate, e);
+            return Vehicle(e);
         }
 
-        static void SetWeather(std::string weatherSetName) {
+        static float GetDayTimeHours() {
             auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
-            auto weather             = world->get_mut<Core::Modules::Environment::Weather>();
-            weather->_weatherSetName = weatherSetName;
-            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, SLNet::RakString(weather->_weatherSetName.c_str()), {});
+            auto weather = world->get_mut<Core::Modules::Environment::Weather>();
+            return weather->_dayTimeHours;
         }
 
         static void SetDayTimeHours(float dayTimeHours) {
@@ -44,17 +39,32 @@ namespace MafiaMP::Scripting {
             FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, {}, weather->_dayTimeHours);
         }
 
-        static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
-            // Create the environment module
-            v8pp::module environment(isolate);
-            environment.function("setWeather", &World::SetWeather);
-            environment.function("setDayTimeHours", &World::SetDayTimeHours);
-            rootModule->submodule("Environment", environment);
+        static std::string GetWeatherSet() {
+            auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
-            // Create the world module
-            v8pp::module world(isolate);
-            world.function("createVehicle", &World::CreateVehicle);
-            rootModule->submodule("World", world);
+            auto weather = world->get_mut<Core::Modules::Environment::Weather>();
+            return weather->_weatherSetName;
+        }
+
+        static void SetWeatherSet(std::string weatherSetName) {
+            auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
+
+            auto weather             = world->get_mut<Core::Modules::Environment::Weather>();
+            weather->_weatherSetName = weatherSetName;
+            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, SLNet::RakString(weather->_weatherSetName.c_str()), {});
+        }
+
+        static void Register(sol::state *luaEngine) {
+            if (!luaEngine) {
+                return;
+            }
+
+            sol::usertype<World> cls = luaEngine->new_usertype<World>("World");
+            cls["createVehicle"]     = &World::CreateVehicle;
+            cls["getDayTimeHours"]   = &World::GetDayTimeHours;
+            cls["setDayTimeHours"]   = &World::SetDayTimeHours;
+            cls["getWeatherSet"]     = &World::GetWeatherSet;
+            cls["setWeatherSet"]     = &World::SetWeatherSet;
         }
     };
 } // namespace MafiaMP::Scripting

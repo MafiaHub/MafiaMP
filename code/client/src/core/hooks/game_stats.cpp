@@ -25,4 +25,5 @@ static InitFunction init([]() {
 
     const auto C_GameStatsModule__SetProgress_Addr = reinterpret_cast<uint64_t>(hook::pattern("80 79 24 00 4C 8B C9").get_first());
     hook::return_function(C_GameStatsModule__SetProgress_Addr);
-});
+    },
+    "GameStats");

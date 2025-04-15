@@ -1,50 +1,51 @@
 #pragma once
 
-#include "scripting/engines/node/engine.h"
-#include "scripting/engines/node/sdk.h"
+#include <sol/sol.hpp>
+
+#include "core/server.h"
 
 #include "shared/rpc/chat_message.h"
 
 #include "player.h"
 
-#include "core_modules.h"
-
 namespace MafiaMP::Scripting {
     class Chat final {
       public:
-        static void SendToPlayer(Human *human, std::string message) {
-            if (human) {
-                const auto ent = human->GetHandle();
-                const auto str   = ent.get<Framework::World::Modules::Base::Streamer>();
+        static void EventChatMessage(flecs::entity e, std::string message) {
+            const auto engine = Framework::CoreModules::GetScriptingEngine();
+            engine->InvokeEvent("onChatMessage", Player(e), message);
+        }
 
-                if (!str)
-                    return;
-
-                FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(str->guid), message);
-            }
+        static void EventChatCommand(flecs::entity e, std::string message, std::string command, std::vector<std::string> args) {
+            const auto engine = Framework::CoreModules::GetScriptingEngine();
+            engine->InvokeEvent("onChatCommand", Player(e), message, command, args);
         }
 
         static void SendToAll(std::string message) {
             FW_SEND_COMPONENT_RPC(Shared::RPC::ChatMessage, message);
         }
 
-        static void EventChatMessage(flecs::entity e, std::string message) {
-            const auto engine = MafiaMP::Server::GetNodeEngine();
-            V8_RESOURCE_LOCK(engine);
-            engine->InvokeEvent("chatMessage", Human::WrapHuman(engine, e), message);
+        static void SendToPlayer(Player *player, std::string message) {
+            if (player) {
+                const auto ent = player->GetHandle();
+                const auto streamer = ent.get<Framework::World::Modules::Base::Streamer>();
+
+                if (!streamer) {
+                    return;
+                }
+
+                FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(streamer->guid), message);
+            }
         }
 
-        static void EventChatCommand(flecs::entity e, std::string message, std::string command, std::vector<std::string> args) {
-            const auto engine = MafiaMP::Server::GetNodeEngine();
-            V8_RESOURCE_LOCK(engine);
-            engine->InvokeEvent("chatCommand", Human::WrapHuman(engine, e), message, command, args);
-        }
+        static void Register(sol::state *luaEngine) {
+            if (!luaEngine) {
+                return;
+            }
 
-        static void Register(v8::Isolate *isolate, v8pp::module *rootModule) {
-            v8pp::module chat(isolate);
-            chat.function("sendToPlayer", &Chat::SendToPlayer);
-            chat.function("sendToAll", &Chat::SendToAll);
-            rootModule->submodule("Chat", chat);
+            sol::usertype<Chat> cls = luaEngine->new_usertype<Chat>("Chat");
+            cls["sendToAll"]        = &Chat::SendToAll;
+            cls["sendToPlayer"]     = &Chat::SendToPlayer;
         }
     };
 } // namespace MafiaMP::Scripting

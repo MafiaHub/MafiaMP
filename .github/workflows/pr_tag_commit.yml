@@ -1,0 +1,248 @@
+name: Version Release
+
+on:
+  schedule:
+    - cron: '0 4 * * *'  # Runs at 04:00 UTC every day
+  workflow_dispatch:      # Allows manual triggering
+    inputs:
+      skip_release:
+        description: 'Skip release attachment'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      stable_release:
+        description: 'Publish a stable release'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    outputs:
+      is_master: ${{ steps.check.outputs.is_master }}
+    steps:
+      - name: Check branch
+        id: check
+        run: |
+          echo "is_master=${{ github.ref == 'refs/heads/master' }}" >> $GITHUB_OUTPUT
+
+  bump-semver:
+    runs-on: ubuntu-latest
+    needs: [check-branch]
+    if: needs.check-branch.outputs.is_master == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0  # Ensure full history for diff comparisons
+
+      - name: Run bump semver script
+        run: |
+          chmod +x ./.github/bump_version.sh
+          ./.github/bump_version.sh
+
+      - name: Commit version bump
+        run: |
+          git config user.name "MafiaHub CI"
+          git config user.email "${{ secrets.MHCI_MAIL }}"
+          git add VERSION || true
+          git diff-index --quiet HEAD || git commit -m "ci: bump version to $(cat VERSION) [skip ci]" || true
+          git push origin HEAD:master --follow-tags || true
+
+  evaluate-release:
+    runs-on: ubuntu-latest
+    needs: [check-branch, bump-semver]
+    if: needs.check-branch.outputs.is_master == 'true'
+    outputs:
+      build_needed: ${{ steps.version-check.outputs.build_needed }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0  # Get full history for tag comparison
+
+      - name: Read raw version
+        id: version
+        run: |
+          VERSION=$(cat VERSION)
+          echo "raw_version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Get previous tag
+        id: previous-tag
+        run: |
+          git fetch --tags
+          # Default to v0.0.0 if no tags exist
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "prev_tag=${PREV_TAG}" >> $GITHUB_OUTPUT
+          echo "prev_version=${PREV_TAG#v}" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: version-check
+        run: |
+          NEW_VERSION=${{ steps.version.outputs.raw_version }}
+          PREV_VERSION=${{ steps.previous-tag.outputs.prev_version }}
+          
+          if [ "$NEW_VERSION" = "$PREV_VERSION" ]; then
+            echo "build_needed=false" >> $GITHUB_OUTPUT
+            echo "No new version detected, skipping build"
+          else
+            echo "build_needed=true" >> $GITHUB_OUTPUT
+            echo "RELEASE_NEEDED=true" >> $GITHUB_ENV
+            echo "new_tag=v${NEW_VERSION}" >> $GITHUB_ENV
+          fi
+  
+  build:
+    runs-on: windows-latest
+    needs: [check-branch, bump-semver, evaluate-release]
+    if: |
+      always() &&
+      (needs.check-branch.result == 'success') &&
+      (needs.bump-semver.result == 'success' || needs.bump-semver.result == 'skipped') &&
+      (needs.evaluate-release.result == 'success' || needs.evaluate-release.result == 'skipped') &&
+      (needs.check-branch.outputs.is_master != 'true' || needs.evaluate-release.outputs.build_needed == 'true')
+    env:
+      SKIP_RELEASE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_release || 'false' }}
+      STABLE_RELEASE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.stable_release || 'false' }}
+    steps:
+    - name: Setup VS Dev Environment
+      uses: microsoft/setup-msbuild@v1.1
+      
+    - name: Install Visual C++ components
+      uses: ilammy/msvc-dev-cmd@v1
+      
+    - name: Checkout Framework
+      uses: actions/checkout@v4
+      with:
+        ref: develop
+        repository: 'MafiaHub/Framework'
+        path: 'fwk'
+        fetch-depth: 1
+        
+    - name: Checkout Current Repository (modified)
+      uses: actions/checkout@v4
+      if: needs.check-branch.outputs.is_master == 'true'
+      with:
+        ref: master
+        path: 'temp_repo'
+        fetch-depth: 1
+
+    - name: Checkout Current Repository
+      uses: actions/checkout@v4
+      if: needs.check-branch.outputs.is_master != 'true'
+      with:
+        path: 'temp_repo'
+        fetch-depth: 1
+        
+    - name: Setup Project Structure
+      shell: cmd
+      run: |
+        cd fwk
+        mkdir code\projects
+        xcopy /E /I ..\temp_repo code\projects\mafiamp
+        
+    - name: Configure CMake
+      shell: cmd
+      working-directory: fwk
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release -G "Ninja"
+        
+    - name: Build Project
+      shell: cmd
+      working-directory: fwk
+      run: cmake --build build --config Release
+        
+    - name: Prepare Release Package
+      shell: cmd
+      working-directory: fwk
+      run: |
+        xcopy /E /I code\projects\mafiamp\gamemode build\bin\gamemode
+        copy code\projects\mafiamp\LICENSE.txt build\bin\
+        copy code\projects\mafiamp\NOTICE.txt build\bin\
+        copy code\projects\mafiamp\VERSION build\bin\
+
+    - name: Read Version
+      id: version
+      working-directory: temp_repo
+      shell: cmd
+      run: |
+        for /f "delims=" %%i in (VERSION) do set VERSION=%%i
+        echo VERSION=%VERSION%>> %GITHUB_OUTPUT%
+    
+    - name: Create Archive
+      shell: cmd
+      working-directory: fwk
+      run: |
+        powershell Compress-Archive -Path build\bin\* -DestinationPath mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: mafiamp-release
+        path: fwk/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
+
+    - name: Attach to Release (Stable)
+      if: ${{ env.SKIP_RELEASE == 'false' && env.STABLE_RELEASE == 'true' }}
+      uses: softprops/action-gh-release@v1
+      with:
+        prerelease: false
+        make_latest: 'true'
+        generate_release_notes: true
+        files: fwk/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
+        tag_name: v${{ steps.version.outputs.VERSION }}
+        name: Stable v${{ steps.version.outputs.VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Attach to Release
+      if: ${{ env.SKIP_RELEASE == 'false' && env.STABLE_RELEASE == 'false' }}
+      uses: softprops/action-gh-release@v1
+      with:
+        prerelease: true
+        generate_release_notes: true
+        files: fwk/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
+        tag_name: v${{ steps.version.outputs.VERSION }}
+        name: Nightly v${{ steps.version.outputs.VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Send Discord Notification (Stable)
+      if: ${{ success() && env.SKIP_RELEASE == 'false' && env.STABLE_RELEASE == 'true' }}
+      uses: sarisia/actions-status-discord@v1
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "Stable Release Published! 🎉"
+        nodetail: true
+        description: |
+          **Version:** Stable ${{ steps.version.outputs.VERSION }}
+
+          **Patch Notes:** https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.VERSION }}
+          
+          **Download:** https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.VERSION }}/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
+        color: 0x440000
+        username: STABLE builds
+
+    - name: Send Discord Notification
+      if: ${{ success() && env.SKIP_RELEASE == 'false' && env.STABLE_RELEASE == 'false' }}
+      uses: sarisia/actions-status-discord@v1
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "Nightly Release Published! 🎉"
+        nodetail: true
+        description: |
+          **Version:** Nightly ${{ steps.version.outputs.VERSION }}
+
+          This is a NIGHTLY automated build, not a full stable release! No support will be provided.
+
+          **Patch Notes:** https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.VERSION }}
+          
+          **Download:** https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.VERSION }}/mafiamp_release_v${{ steps.version.outputs.VERSION }}.zip
+        color: 0x301934
+        username: NIGHTLY builds

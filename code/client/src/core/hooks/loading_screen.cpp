@@ -36,4 +36,5 @@ static InitFunction init([]() {
 
     // Hook the loading screen
     MH_CreateHook((LPVOID)&CreateFileA, (PBYTE)&CreateFileA__Hook, reinterpret_cast<void **>(&CreateFileA__Original));
-});
+    },
+    "LoadingScreen");

@@ -40,7 +40,7 @@ bool C_CarActionEnter__TestActionInternal(void *pThis, SDK::C_Actor *actor, bool
 
     // TODO: check for seat occupancy status
 
-    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::Unlocked;
+    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::UNLOCKED;
 }
 
 typedef bool(__fastcall *C_CarActionBreakIn__TestActionInternal_t)(void *, SDK::C_Actor *, bool);
@@ -59,7 +59,7 @@ bool C_CarActionBreakIn__TestActionInternal(void *pThis, SDK::C_Actor *actor, bo
 
     // TODO: check for seat occupancy status
 
-    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::Breakable;
+    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::BREAKABLE;
 }
 
 typedef bool(__fastcall *C_CarActionLeave__TestAction_t)(void *, SDK::C_Actor *);
@@ -75,7 +75,7 @@ bool C_CarActionLeave__TestAction(void *pThis, SDK::C_Actor *actor) {
     if (!carData) {
         return true;
     }
-    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::Unlocked;
+    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::UNLOCKED;
 }
 
 typedef bool(__fastcall *C_CarActionBailOut__TestAction_t)(void *, SDK::C_Actor *);
@@ -91,7 +91,7 @@ bool C_CarActionBailOut__TestAction(void *pThis, SDK::C_Actor *pActor) {
     if (!carData) {
         return true;
     }
-    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::Unlocked;
+    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::UNLOCKED;
 }
 
 bool C_CarActionOpenCloseX__TestAction(void *pThis, SDK::C_Actor *actor) {
@@ -105,7 +105,7 @@ bool C_CarActionOpenCloseX__TestAction(void *pThis, SDK::C_Actor *actor) {
     if (!carData) {
         return true;
     }
-    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::Unlocked;
+    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::UNLOCKED;
 }
 
 typedef void(__fastcall *C_Human2CarWrapper__StartDrive_t)(SDK::C_Human2CarWrapper *, SDK::C_Actor *, bool);
@@ -221,4 +221,5 @@ static InitFunction init([]() {
 
     const auto C_Human2CarWrapper__GetOut_Addr = hook::get_pattern("40 56 57 41 57 48 83 EC ? 48 8B F2 48 8B F9");
     MH_CreateHook((LPVOID)C_Human2CarWrapper__GetOut_Addr, (PBYTE)C_Human2CarWrapper__GetOut, reinterpret_cast<void **>(&C_Human2CarWrapper__GetOut_original));
-});
+    },
+    "Vehicle");

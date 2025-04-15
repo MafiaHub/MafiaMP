@@ -45,23 +45,10 @@ namespace MafiaMP::Core::Modules {
         const auto net = server->GetNetworkingEngine()->GetNetworkServer();
         auto e         = server->GetWorldEngine()->CreateEntity();
         server->GetStreamingFactory()->SetupServer(e, SLNet::UNASSIGNED_RAKNET_GUID.g);
-        auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
-        frame->modelName = "berkley_810"; /* TODO */
+        auto &frame     = e.ensure<Framework::World::Modules::Base::Frame>();
+        frame.modelName = "berkley_810"; /* TODO */
 
-        auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-
-        // generate a random license plate
-        {
-            constexpr char letters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            constexpr char numbers[] = "0123456789";
-            for (int i = 0; i < 2; i++) {
-                updateData->licensePlate[i] = letters[::rand() % (sizeof(letters) - 1)];
-            }
-            for (int i = 3; i < 6; i++) {
-                updateData->licensePlate[i] = numbers[::rand() % (sizeof(numbers) - 1)];
-            }
-        }
-
+        e.add<Shared::Modules::VehicleSync::UpdateData>();
         e.add<CarData>();
         e.add<Framework::World::Modules::Base::RemovedOnGameModeReload>();
 
@@ -143,7 +130,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Vehicle::InitRPCs(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
-        net->RegisterGameRPC<Shared::RPC::VehiclePlayerEnter>([srv](SLNet::RakNetGUID guid, Shared::RPC::VehiclePlayerEnter* msg) {
+        net->RegisterGameRPC<Shared::RPC::VehiclePlayerEnter>([srv](SLNet::RakNetGUID guid, Shared::RPC::VehiclePlayerEnter *msg) {
             const auto playerEntity = srv->GetEntityByGUID(guid.g);
             if (!playerEntity.is_alive()) {
                 return;

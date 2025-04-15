@@ -12,8 +12,8 @@ namespace SDK {
         return hook::this_call<bool>(gPatterns.C_HumanWeaponController__DoWeaponSelectByItemId, this, weaponId, unk);
     }
 
-    int C_HumanWeaponController::GetRightHandWeaponID() {
-        return hook::this_call<int>(gPatterns.C_HumanWeaponController__GetRightHandWeaponID, this);
+    void C_HumanWeaponController::GetAimDir(SDK::ue::sys::math::C_Vector *outDirection) {
+        hook::this_call<void>(gPatterns.C_HumanWeaponController__GetAimDir, this, outDirection);
     }
 
     void C_HumanWeaponController::GetShotPosDir(SDK::ue::sys::math::C_Vector *outPosition, SDK::ue::sys::math::C_Vector *outDirection, float *unknown) {
@@ -33,7 +33,7 @@ namespace SDK {
     }
 
     bool C_HumanWeaponController::IsAiming() {
-        return (*(BYTE *)(this + 892) & 1) != 0;
+        return (m_uAimingFlag & 1) != 0;
     }
 
     void C_HumanWeaponController::SetCoverFlag(const bool bIsActive) {

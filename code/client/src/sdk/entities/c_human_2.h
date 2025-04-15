@@ -1,32 +1,33 @@
 #pragma once
 
-#include "../ai/sight/c_human_detector.h"
-#include "../c_corpse_emitter.h"
-#include "../c_human_emitter.h"
-#include "../c_melee_emitter.h"
-#include "../c_weapon_emitter.h"
-#include "../game/ai/hear/c_actorear.h"
-#include "../game/ai/sight/c_actor_emitter.h"
-#include "../inventory/c_inventory_wrapper.h"
-#include "../mafia/health_system/c_health_system.h"
-#include "../ue/c_ptr.h"
-#include "../ue/game/audio/radio/c_radio_sound.h"
-#include "../ue/game/humainai/c_character_controller.h"
-#include "../ue/game/humainai/c_character_state.h"
-#include "../ue/game/human/c_agent.h"
-#include "../ue/game/human/c_behavior_character.h"
-#include "../ue/game/injury/c_injuryanalyser.h"
-#include "../ue/sys/core/c_model_component.h"
-#include "../ue/sys/core/c_scene_object.h"
-#include "../ue/sys/math/c_matrix.h"
-#include "../ue/sys/math/c_vector.h"
-#include "../ue/sys/utils/c_hash_name.h"
+#include "sdk/ai/sight/c_human_detector.h"
+#include "sdk/c_corpse_emitter.h"
+#include "sdk/c_human_emitter.h"
+#include "sdk/c_melee_emitter.h"
+#include "sdk/c_weapon_emitter.h"
+#include "sdk/game/ai/hear/c_actorear.h"
+#include "sdk/game/ai/sight/c_actor_emitter.h"
+#include "sdk/mafia/health_system/c_health_system.h"
+#include "sdk/ue/c_ptr.h"
+#include "sdk/ue/game/audio/radio/c_radio_sound.h"
+#include "sdk/ue/game/humanai/c_character_controller.h"
+#include "sdk/ue/game/humanai/c_character_state.h"
+#include "sdk/ue/game/human/c_agent.h"
+#include "sdk/ue/game/human/c_behavior_character.h"
+#include "sdk/ue/game/injury/c_injury_analyser.h"
+#include "sdk/ue/sys/core/c_model_component.h"
+#include "sdk/ue/sys/core/c_scene_object.h"
+#include "sdk/ue/sys/math/c_matrix.h"
+#include "sdk/ue/sys/math/c_vector.h"
+#include "sdk/ue/sys/utils/c_hash_name.h"
 #include "c_actor.h"
 #include "human/c_human_ai_controller.h"
 #include "human/c_human_head_controller.h"
+#include "human/c_human_inventory.h"
 #include "human/c_human_script.h"
 #include "human/c_human_weapon_controller.h"
 #include "c_entity_ownership_human_car.h"
+#include "sdk/c_inventory_wrapper.h"
 
 #include <cstdint>
 
@@ -41,7 +42,7 @@ namespace SDK {
         game::ai::sight::C_ActorEmitter *m_pUnkActorEmitter1;             // 0110 - 0118
         char pad1[0x8];                                                   // 0118 - 0120
         game::ai::hear::C_ActorEar *m_pActorEar;                          // 0120 - 0128
-        C_InventoryWrapper *m_pHumanInventory;                            // 0128 - 0130
+        C_HumanInventory *m_pHumanInventory;                              // 0128 - 0130
         C_HumanScript *m_pHumanScript;                                    // 0130 - 0138
         C_HumanAIController *m_pHumanAIController;                        // 0138 - 0140
         char pad2[0x8];                                                   // 0140 - 0148
@@ -183,8 +184,12 @@ namespace SDK {
         virtual void DeactivateBattleSearch()                                              = 0; // last
 
       public:
-        C_InventoryWrapper *GetInventoryWrapper() {
+        C_HumanInventory *GetHumanInventory() {
             return m_pHumanInventory;
+        }
+
+        C_InventoryWrapper *GetInventoryWrapper() {
+            return reinterpret_cast<C_InventoryWrapper *>(m_pHumanInventory);
         }
 
         C_HumanWeaponController *GetHumanWeaponController() {

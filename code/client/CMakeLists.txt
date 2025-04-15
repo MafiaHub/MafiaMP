@@ -3,19 +3,16 @@ set(MAFIAMP_CLIENT_FILES
     src/core/luavm.cpp
     src/core/application.cpp
     src/core/dev_features.cpp
-    src/core/ui/audio_debug.cpp
-    src/core/ui/console.cpp
+    src/core/ui/ui_base.cpp
     src/core/ui/chat.cpp
-    src/core/ui/camera_studio.cpp
-    src/core/ui/entity_browser.cpp
-    src/core/ui/network_stats.cpp
-    src/core/ui/player_debug.cpp
-    src/core/ui/vehicle_debug.cpp
-    src/core/ui/web/manager.cpp
-    src/core/ui/web/clipboard.cpp
-    src/core/ui/web/sdk.cpp
-    src/core/ui/web/view.cpp
-    src/core/ui/world_debug.cpp
+    src/core/ui/console.cpp
+    src/core/ui/devs/camera_studio.cpp
+    src/core/ui/devs/debug_audio.cpp
+    src/core/ui/devs/debug_player.cpp
+    src/core/ui/devs/debug_vehicle.cpp
+    src/core/ui/devs/debug_world.cpp
+    src/core/ui/devs/entity_browser.cpp
+    src/core/ui/devs/network_stats.cpp
     src/core/states/game_ready.cpp
     src/core/states/initialize.cpp
     src/core/states/main_menu.cpp
@@ -37,6 +34,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/navigation.cpp
     src/core/hooks/player.cpp
     src/core/hooks/render_device.cpp
+    src/core/hooks/resource_list.cpp
     src/core/hooks/slot_wrapper.cpp
     src/core/hooks/stream_map.cpp
     src/core/hooks/tables.cpp
@@ -62,7 +60,6 @@ set(MAFIAMP_SDK_FILES
     src/sdk/entities/human/c_human_inventory.cpp
     src/sdk/entities/human/c_human_weapon_controller.cpp
     src/sdk/entities/human/c_human_script.cpp
-    src/sdk/entities/player/c_player_model_manager.cpp
     src/sdk/entities/c_car.cpp
     src/sdk/entities/c_door.cpp
     src/sdk/entities/c_entity.cpp
@@ -70,7 +67,8 @@ set(MAFIAMP_SDK_FILES
     srC/sdk/entities/c_human2.cpp
     src/sdk/entities/c_player_2.cpp
     src/sdk/entities/c_vehicle.cpp
-    src/sdk/inventory/c_inventory_wrapper.cpp
+    src/sdk/c_inventory_wrapper.cpp
+    src/sdk/mafia/database/c_ui_database.cpp
     src/sdk/mafia/framework/director/c_game_director.cpp
     src/sdk/mafia/framework/c_mafia_dbs.cpp
     src/sdk/mafia/framework/c_mafia_framework.cpp
@@ -78,6 +76,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/mafia/streaming/c_actors_slot_wrapper.cpp
     src/sdk/mafia/streaming/c_slot_wrapper.cpp
     src/sdk/mafia/streaming/c_streaming_module.cpp
+    src/sdk/mafia/ui/hud/race_xbin.cpp
     src/sdk/mafia/ui/menu/c_save_menu.cpp
     src/sdk/mafia/ui/navigation/c_navigation.cpp
     src/sdk/mafia/ui/support/c_fader.cpp
@@ -86,20 +85,24 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/game/camera/c_camera.cpp
     src/sdk/ue/game/camera/c_game_camera.cpp
     src/sdk/ue/game/camera/c_cm_player_alternate.cpp
-    src/sdk/ue/game/humainai/c_character_controller.cpp
-    src/sdk/ue/game/humainai/c_character_state_handler.cpp
-    src/sdk/ue/game/humainai/c_character_state_handler_aim.cpp
-    src/sdk/ue/game/humainai/c_character_state_handler_base_locomotion.cpp
-    src/sdk/ue/game/humainai/c_character_state_handler_move.cpp
-    src/sdk/ue/game/humainai/c_character_state_handler_weapon.cpp
+    src/sdk/ue/game/camera/e_game_camera_mode_id.cpp
+    src/sdk/ue/game/humanai/c_character_controller.cpp
+    src/sdk/ue/game/humanai/c_character_state_handler.cpp
+    src/sdk/ue/game/humanai/c_character_state_handler_aim.cpp
+    src/sdk/ue/game/humanai/c_character_state_handler_base_locomotion.cpp
+    src/sdk/ue/game/humanai/c_character_state_handler_move.cpp
+    src/sdk/ue/game/humanai/c_character_state_handler_weapon.cpp
     src/sdk/ue/game/human/c_behavior_character.cpp
+    src/sdk/ue/game/injury/c_injury_analyser.cpp
     src/sdk/ue/game/shotmanager/c_explosion.cpp
     src/sdk/ue/game/shotmanager/c_fire.cpp
     src/sdk/ue/game/shotmanager/c_shot_manager.cpp
     src/sdk/ue/game/traffic/c_human_spawner.cpp
     src/sdk/ue/game/traffic/c_profile_spawner.cpp
     src/sdk/ue/game/traffic/c_streaming_traffic_module.cpp
+    src/sdk/ue/game/traffic/c_traffic_spawn_manager.cpp
     src/sdk/ue/game/translocator/c_translocator.cpp
+    src/sdk/ue/game/translocator/c_translocator_module.cpp
     src/sdk/ue/game/translocator/c_translocable_object_spawner.cpp
     src/sdk/ue/game/vehicle/c_vehicle_real_light_manager.cpp
     src/sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.cpp
@@ -107,12 +110,14 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/sys/core/c_scene_object.cpp
     src/sdk/ue/sys/core/i_core.cpp
     src/sdk/ue/sys/core/c_object_spawner.cpp
+    src/sdk/ue/sys/input/c_keyboard.cpp
     src/sdk/ue/sys/math/c_matrix.cpp
     src/sdk/ue/sys/math/c_quat.cpp
     src/sdk/ue/sys/math/c_vector.cpp
     src/sdk/ue/sys/sodb/c_database_system.cpp
     src/sdk/ue/c_string.cpp
     src/sdk/wrappers/c_human_2_car_wrapper.cpp
+    src/sdk/c_command_line.cpp
     src/sdk/c_entity_factory.cpp
     src/sdk/c_game.cpp
     src/sdk/c_game_audio_module.cpp
@@ -120,6 +125,9 @@ set(MAFIAMP_SDK_FILES
     src/sdk/c_game_rendering_system_module.cpp
     src/sdk/c_game_traffic_module.cpp
     src/sdk/c_ie.cpp
+    src/sdk/c_inventory_wrapper.cpp
+    src/sdk/c_mafia_camera_module.cpp
+    src/sdk/c_player_model_manager.cpp
     src/sdk/c_player_teleport_module.cpp
     src/sdk/c_stream_map.cpp
     src/sdk/c_ticked_module_manager.cpp
@@ -129,7 +137,7 @@ set(MAFIAMP_SDK_FILES
 
 add_library(MafiaMPClient SHARED ${MAFIAMP_CLIENT_FILES} ${MAFIAMP_SDK_FILES})
 target_include_directories(MafiaMPClient PRIVATE src)
-target_link_libraries(MafiaMPClient Framework FrameworkClient shlwapi Lua54 DirectXTK UltralightSDK JavaScriptCorePP)
+target_link_libraries(MafiaMPClient Framework FrameworkClient shlwapi Lua54 DirectXTK)
 target_link_options(MafiaMPClient PRIVATE /SAFESEH:NO /MANIFEST:NO)
 
 add_custom_command(TARGET MafiaMPClient POST_BUILD
