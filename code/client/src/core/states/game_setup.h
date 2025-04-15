@@ -3,10 +3,10 @@
 #include <utils/states/state.h>
 
 namespace MafiaMP::Core::States {
-    class GameReadyState: public Framework::Utils::States::IState {
+    class GameSetupState: public Framework::Utils::States::IState {
       public:
-        GameReadyState();
-        ~GameReadyState();
+        GameSetupState();
+        ~GameSetupState();
 
         virtual const char *GetName() const override;
         virtual int32_t GetId() const override;

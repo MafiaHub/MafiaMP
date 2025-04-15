@@ -13,7 +13,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/ui/devs/debug_world.cpp
     src/core/ui/devs/entity_browser.cpp
     src/core/ui/devs/network_stats.cpp
-    src/core/states/game_ready.cpp
+    src/core/states/game_setup.cpp
     src/core/states/initialize.cpp
     src/core/states/main_menu.cpp
     src/core/states/session_connected.cpp
