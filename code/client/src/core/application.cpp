@@ -2,6 +2,7 @@
 
 #include <logging/logger.h>
 
+#include "states/game_setup.h"
 #include "states/initialize.h"
 #include "states/main_menu.h"
 #include "states/session_connected.h"
@@ -44,6 +45,7 @@ namespace MafiaMP::Core {
     bool Application::PostInit() {
         // Create the state machine and initialize
         _stateMachine = std::make_shared<Framework::Utils::States::Machine>();
+        _stateMachine->RegisterState<States::GameSetupState>();
         _stateMachine->RegisterState<States::InitializeState>();
         _stateMachine->RegisterState<States::MainMenuState>();
         _stateMachine->RegisterState<States::SessionConnectionState>();
