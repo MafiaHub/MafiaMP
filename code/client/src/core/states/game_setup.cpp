@@ -13,7 +13,7 @@ namespace MafiaMP::Core::States {
     GameSetupState::~GameSetupState() {}
 
     int32_t GameSetupState::GetId() const {
-        return StateIds::GameReady;
+        return StateIds::GameSetup;
     }
 
     const char *GameSetupState::GetName() const {

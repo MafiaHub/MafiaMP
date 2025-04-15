@@ -3,7 +3,7 @@
 namespace MafiaMP::Core::States {
     enum StateIds: int32_t {
         Initialize,
-        GameReady,
+        GameSetup,
         MainMenu,
         SessionConnection,
         SessionConnected,
