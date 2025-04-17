@@ -12,10 +12,6 @@ int main(void) {
     config.verifyGameIntegrity = true;
     config.supportedGameVersions = {3168979183};
 
-    config.promptForGameExe = true;
-    config.promptFilterName = "mafiadefinitiveedition.exe";
-    config.promptTitle      = "Select your Mafia Definitive Edition's game executable file";
-
 #ifdef FW_DEBUG
     config.allocateDeveloperConsole = true;
     config.developerConsoleTitle = L"mafiamp: dev-console";
