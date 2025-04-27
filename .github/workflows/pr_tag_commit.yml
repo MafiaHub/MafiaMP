@@ -52,6 +52,7 @@ jobs:
           fetch-depth: 0  # Ensure full history for diff comparisons
 
       - name: Run bump semver script
+        if: github.event.inputs.force_build == 'false'
         run: |
           chmod +x ./.github/bump_version.sh
           ./.github/bump_version.sh
