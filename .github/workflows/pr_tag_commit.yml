@@ -21,6 +21,14 @@ on:
         options:
           - 'true'
           - 'false'
+      force_build:
+        description: 'Force a new patch build even if no new commits exist'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 jobs:
   check-branch:
     runs-on: ubuntu-latest
@@ -47,6 +55,19 @@ jobs:
         run: |
           chmod +x ./.github/bump_version.sh
           ./.github/bump_version.sh
+
+      - name: Force patch version bump if requested
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.force_build == 'true'
+        run: |
+          VERSION=$(cat VERSION)
+          # Split version into parts
+          IFS='.' read -ra PARTS <<< "$VERSION"
+          # Increment patch version
+          PARTS[2]=$((PARTS[2] + 1))
+          # Join back with dots
+          NEW_VERSION="${PARTS[0]}.${PARTS[1]}.${PARTS[2]}"
+          echo "$NEW_VERSION" > VERSION
+          echo "Forced patch version bump to $NEW_VERSION"
 
       - name: Commit version bump
         run: |
@@ -89,10 +110,11 @@ jobs:
         run: |
           NEW_VERSION=${{ steps.version.outputs.raw_version }}
           PREV_VERSION=${{ steps.previous-tag.outputs.prev_version }}
+          FORCE_BUILD=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_build || 'false' }}
           
-          if [ "$NEW_VERSION" = "$PREV_VERSION" ]; then
+          if [ "$NEW_VERSION" = "$PREV_VERSION" ] && [ "$FORCE_BUILD" != "true" ]; then
             echo "build_needed=false" >> $GITHUB_OUTPUT
-            echo "No new version detected, skipping build"
+            echo "No new version detected and force build not enabled, skipping build"
           else
             echo "build_needed=true" >> $GITHUB_OUTPUT
             echo "RELEASE_NEEDED=true" >> $GITHUB_ENV
@@ -107,10 +129,11 @@ jobs:
       (needs.check-branch.result == 'success') &&
       (needs.bump-semver.result == 'success' || needs.bump-semver.result == 'skipped') &&
       (needs.evaluate-release.result == 'success' || needs.evaluate-release.result == 'skipped') &&
-      (needs.check-branch.outputs.is_master != 'true' || needs.evaluate-release.outputs.build_needed == 'true')
+      (needs.check-branch.outputs.is_master != 'true' || needs.evaluate-release.outputs.build_needed == 'true' || github.event.inputs.force_build == 'true')
     env:
       SKIP_RELEASE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_release || 'false' }}
       STABLE_RELEASE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.stable_release || 'false' }}
+      FORCE_BUILD: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_build || 'false' }}
     steps:
     - name: Setup VS Dev Environment
       uses: microsoft/setup-msbuild@v1.1
