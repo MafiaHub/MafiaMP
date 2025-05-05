@@ -22,6 +22,8 @@ namespace MafiaMP::Shared::Modules {
             struct CarPassenger {
                 uint64_t carId{};
                 int seatId{};
+                bool pending {};
+                bool forced {};
             } carPassenger{};
 
             struct WeaponData {
