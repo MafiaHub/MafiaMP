@@ -37,6 +37,7 @@ namespace MafiaMP::Scripting {
         }
 
         sol::usertype<Player> cls = luaEngine->new_usertype<Player>("Player", sol::constructors<Player(uint64_t)>(), sol::base_classes, sol::bases<Human, Entity>());
+        cls["__tostring"]         = &Player::ToString;
         cls["destroy"]            = &Player::Destroy;
     }
 } // namespace MafiaMP::Scripting

@@ -260,6 +260,7 @@ namespace MafiaMP::Scripting {
         }
 
         sol::usertype<Vehicle> cls = luaEngine->new_usertype<Vehicle>("Vehicle", sol::constructors<Vehicle(uint64_t)>(), sol::base_classes, sol::bases<Entity>());
+        cls["__tostring"]          = &Vehicle::ToString;
         cls["getBeaconLightsOn"]   = &Vehicle::GetBeaconLightsOn;
         cls["setBeaconLightsOn"]   = &Vehicle::SetBeaconLightsOn;
         cls["getColorPrimary"]     = &Vehicle::GetColorPrimary;
