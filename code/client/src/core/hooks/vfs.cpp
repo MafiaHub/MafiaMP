@@ -4,6 +4,10 @@
 
 #include <logging/logger.h>
 
+#include "sdk/patterns.h"
+#include "sdk/ue/sys/filesystem/c_virtual_file_system.h"
+#include "sdk/ue/sys/filesystem/c_virtual_file_system_cache.h"
+
 #include "vfs.h"
 
 namespace MafiaMP::Core::Hooks {
@@ -34,7 +38,24 @@ namespace MafiaMP::Core::Hooks {
     }
 }
 
+typedef __int64(__fastcall *C_VirtualFileSystemCache__AddDirectoryContentToCache_t)(SDK::ue::sys::filesystem::C_VirtualFileSystemCache *, const char *);
+C_VirtualFileSystemCache__AddDirectoryContentToCache_t C_VirtualFileSystemCache__AddDirectoryContentToCache_original = nullptr;
+
+__int64 __fastcall C_VirtualFileSystemCache__AddDirectoryContentToCache(SDK::ue::sys::filesystem::C_VirtualFileSystemCache *pThis, const char *path) {
+    // Framework::Logging::GetLogger("VFS")->trace("Adding directory content to cache: {}", path);
+    return C_VirtualFileSystemCache__AddDirectoryContentToCache_original(pThis, path);
+}
+
+typedef void *(__fastcall *C_VirtualFileSystem__Open_t)(SDK::ue::sys::filesystem::C_VirtualFileSystem *, char const *, unsigned int, char const *, unsigned char);
+C_VirtualFileSystem__Open_t C_VirtualFileSystem__Open_original = nullptr;
+
+void *__fastcall C_VirtualFileSystem__Open(SDK::ue::sys::filesystem::C_VirtualFileSystem *pThis, char const *path, unsigned int a2, char const *a3, unsigned char a4) {
+    //Framework::Logging::GetLogger("VFS")->trace("Opening file: {}", path);
+    return C_VirtualFileSystem__Open_original(pThis, path, a2, a3, a4);
+}
+
 static InitFunction init([]() {
-    // MafiaMP::Core::Hooks::MafiaMPVFS::Install();
+        MH_CreateHook((LPVOID)SDK::gPatterns.C_VirtualFileSystemCache__AddDirectoryContentToCache, (PBYTE)C_VirtualFileSystemCache__AddDirectoryContentToCache, reinterpret_cast<void **>(&C_VirtualFileSystemCache__AddDirectoryContentToCache_original));
+        MH_CreateHook((LPVOID)SDK::gPatterns.C_VirtualFileSystem__Open, (PBYTE)C_VirtualFileSystem__Open, reinterpret_cast<void **>(&C_VirtualFileSystem__Open_original));
     },
     "VFS");
