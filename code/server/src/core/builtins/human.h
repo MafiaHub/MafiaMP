@@ -4,6 +4,7 @@
 
 #include "integrations/server/scripting/builtins/entity.h"
 #include "scripting/builtins/vector_3.h"
+#include "logging/logger.h"
 
 #include "shared/modules/human_sync.hpp"
 
