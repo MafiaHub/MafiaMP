@@ -2,6 +2,8 @@
 
 #include "states.h"
 
+#include <logging/logger.h>
+
 #include "sdk/ue/game/traffic/c_streaming_traffic_module.h"
 #include "sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.h"
 

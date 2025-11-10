@@ -1,4 +1,6 @@
 #include <MinHook.h>
+
+#include <logging/logger.h>
 #include <utils/hooking/hook_function.h>
 
 #include "sdk/patterns.h"
