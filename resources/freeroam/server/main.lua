@@ -5,7 +5,7 @@ local utils = Exports.get("shared-utils", "utils")
 
 require("freeroam/server/debug")
 
-Event.onGlobal("onResourceStart", function ()
+function onResourceStart()
   Console.log("[FREEROAM] Resource started!")
 
   -- Spawn vehicles
@@ -21,11 +21,11 @@ Event.onGlobal("onResourceStart", function ()
     World.setWeatherSet(weatherSet)
     Console.log("[FREEROAM] Weather set changed to " .. weatherSet .. ".")
   end
-end)
+end
 
-Event.onGlobal("onResourceStop", function ()
+function onResourceStop()
   Console.log("[FREEROAM] Resource stopping!")
-end)
+end
 
 Event.onGlobal("onVehiclePlayerEnter", function (vehicle, player, seatIndex)
   Console.log(
