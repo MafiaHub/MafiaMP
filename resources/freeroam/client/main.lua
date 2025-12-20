@@ -1,7 +1,7 @@
-Event.on("onResourceStart", function ()
+Event.onGlobal("onResourceStart", function ()
   Console.log("[FREEROAM] Client resource started!")
 end)
 
-Event.on("onResourceStop", function ()
+Event.onGlobal("onResourceStop", function ()
   Console.log("[FREEROAM] Client resource stopping!")
 end)
