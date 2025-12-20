@@ -20,4 +20,7 @@ utils.getTableKeys = function (t)
   return keys
 end
 
+-- Export the utils table
+Exports.register("utils", utils)
+
 return utils
