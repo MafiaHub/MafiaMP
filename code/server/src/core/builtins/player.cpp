@@ -5,20 +5,28 @@
 
 #include "shared/rpc/chat_message.h"
 
+#include <scripting/resource/resource_manager.h>
+
 namespace MafiaMP::Scripting {
     void Player::EventPlayerConnected(flecs::entity e) {
-        const auto engine = Framework::CoreModules::GetScriptingEngine();
-        engine->InvokeEvent("onPlayerConnected", Player(e));
+        const auto resourceManager = Framework::CoreModules::GetResourceManager();
+        if (resourceManager) {
+            resourceManager->InvokeGlobalEvent("onPlayerConnected", Player(e));
+        }
     }
 
     void Player::EventPlayerDisconnected(flecs::entity e) {
-        const auto engine = Framework::CoreModules::GetScriptingEngine();
-        engine->InvokeEvent("onPlayerDisconnected", Player(e));
+        const auto resourceManager = Framework::CoreModules::GetResourceManager();
+        if (resourceManager) {
+            resourceManager->InvokeGlobalEvent("onPlayerDisconnected", Player(e));
+        }
     }
 
     void Player::EventPlayerDied(flecs::entity e) {
-        const auto engine = Framework::CoreModules::GetScriptingEngine();
-        engine->InvokeEvent("onPlayerDied", Player(e));
+        const auto resourceManager = Framework::CoreModules::GetResourceManager();
+        if (resourceManager) {
+            resourceManager->InvokeGlobalEvent("onPlayerDied", Player(e));
+        }
     }
 
     std::string Player::ToString() const {

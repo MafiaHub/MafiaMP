@@ -8,23 +8,31 @@
 
 #include "player.h"
 
+#include <scripting/resource/resource_manager.h>
+
 namespace MafiaMP::Scripting {
     void Vehicle::EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex) {
-        const auto engine = Framework::CoreModules::GetScriptingEngine();
+        const auto resourceManager = Framework::CoreModules::GetResourceManager();
+        if (!resourceManager) {
+            return;
+        }
 
         auto vehicleObj = Vehicle(vehicle);
         auto playerObj  = Player(player);
 
-        engine->InvokeEvent("onVehiclePlayerEnter", vehicleObj, playerObj, seatIndex);
+        resourceManager->InvokeGlobalEvent("onVehiclePlayerEnter", vehicleObj, playerObj, seatIndex);
     }
 
     void Vehicle::EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player) {
-        const auto engine = Framework::CoreModules::GetScriptingEngine();
+        const auto resourceManager = Framework::CoreModules::GetResourceManager();
+        if (!resourceManager) {
+            return;
+        }
 
         auto vehicleObj = Vehicle(vehicle);
         auto playerObj  = Player(player);
 
-        engine->InvokeEvent("onVehiclePlayerLeave", vehicleObj, playerObj);
+        resourceManager->InvokeGlobalEvent("onVehiclePlayerLeave", vehicleObj, playerObj);
     }
 
     std::string Vehicle::ToString() const {
