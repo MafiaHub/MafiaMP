@@ -50,7 +50,7 @@ namespace MafiaMP::Core::Modules {
 
         e.add<Shared::Modules::VehicleSync::UpdateData>();
         e.add<CarData>();
-        e.add<Framework::World::Modules::Base::RemovedOnGameModeReload>();
+        e.add<Framework::World::Modules::Base::RemovedOnResourceReload>();
 
         auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
 

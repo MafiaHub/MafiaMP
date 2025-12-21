@@ -1,10 +1,12 @@
-local CONFIG = require("gamemode/server/config")
-local utils = require("gamemode/shared/utils")
+local CONFIG = require("freeroam/server/config")
 
-require("gamemode/server/debug")
+-- Get utils from shared-utils resource export
+local utils = Exports.get("shared-utils", "utils")
 
-Event.on("onGamemodeLoaded", function ()
-  Console.log("[GAMEMODE] Gamemode loaded!")
+require("freeroam/server/debug")
+
+function onResourceStart()
+  Console.log("[FREEROAM] Resource started!")
 
   -- Spawn vehicles
   for _, v in ipairs(CONFIG.VEHICLE_SPAWNS) do
@@ -17,34 +19,34 @@ Event.on("onGamemodeLoaded", function ()
   local weatherSet = utils.getRandomInTable(CONFIG.WEATHER_SETS)
   if (weatherSet) then
     World.setWeatherSet(weatherSet)
-    Console.log("[GAMEMODE] Weather set changed to " .. weatherSet .. ".")
+    Console.log("[FREEROAM] Weather set changed to " .. weatherSet .. ".")
   end
-end)
+end
 
-Event.on("onGamemodeUnloading", function ()
-  Console.log("[GAMEMODE] Gamemode unloading!")
-end)
+function onResourceStop()
+  Console.log("[FREEROAM] Resource stopping!")
+end
 
-Event.on("onVehiclePlayerEnter", function (vehicle, player, seatIndex)
+Event.onGlobal("onVehiclePlayerEnter", function (vehicle, player, seatIndex)
   Console.log(
-    "[GAMEMODE] Player " .. player.nickname ..
+    "[FREEROAM] Player " .. player.nickname ..
     " entered vehicle " .. vehicle:getModelName() .. " (id: " .. vehicle.id .. ") at seat " .. seatIndex .. "."
   )
 
   vehicle:setEngineOn(true)
 end)
 
-Event.on("onVehiclePlayerLeave", function (vehicle, player)
+Event.onGlobal("onVehiclePlayerLeave", function (vehicle, player)
   Console.log(
-    "[GAMEMODE] Player " .. player.nickname ..
+    "[FREEROAM] Player " .. player.nickname ..
     " exited vehicle " .. vehicle:getModelName() .. " (id: " .. vehicle.id .. ")."
   )
 
   vehicle:setEngineOn(false)
 end)
 
-Event.on("onPlayerConnected", function (player)
-  Console.log("[GAMEMODE] Player " .. player.nickname .. " connected!")
+Event.onGlobal("onPlayerConnected", function (player)
+  Console.log("[FREEROAM] Player " .. player.nickname .. " connected!")
   Chat.sendToAll("[SERVER] " .. player.nickname .. " has joined the session!")
 
   player:addWeapon(2, 200)
@@ -53,13 +55,13 @@ Event.on("onPlayerConnected", function (player)
   Chat.sendToPlayer(player, "[SERVER] Welcome " .. player.nickname .. "!")
 end)
 
-Event.on("onPlayerDisconnected", function (player)
-  Console.log("[GAMEMODE] Player " .. player.nickname .. " disconnected.")
+Event.onGlobal("onPlayerDisconnected", function (player)
+  Console.log("[FREEROAM] Player " .. player.nickname .. " disconnected.")
   Chat.sendToAll("[SERVER] " .. player.nickname .. " has left the session.")
 end)
 
-Event.on("onPlayerDied", function (player)
-  Console.log("[GAMEMODE] Player " .. player.nickname .. " died.")
+Event.onGlobal("onPlayerDied", function (player)
+  Console.log("[FREEROAM] Player " .. player.nickname .. " died.")
   Chat.sendToAll("[SERVER] " .. player.nickname .. " died.")
 
   -- Reset the player
@@ -68,15 +70,15 @@ Event.on("onPlayerDied", function (player)
   player:setRotation(CONFIG.SPAWN_POINT.ROTATION)
 end)
 
-Event.on("onChatMessage", function (player, message)
-  Console.log("[GAMEMODE] Player " .. player.nickname .. " said: " .. message)
+Event.onGlobal("onChatMessage", function (player, message)
+  Console.log("[FREEROAM] Player " .. player.nickname .. " said: " .. message)
   Chat.sendToAll("<" .. player.nickname .. ">: " .. message)
 end)
 
 ---@param player Player
 ---@param foo string
-Event.on("myCustomEvent", function (player, foo)
-  Console.log("[GAMEMODE] " .. player.nickname .. " triggered a custom event with foo: " .. foo)
+Event.onGlobal("myCustomEvent", function (player, foo)
+  Console.log("[FREEROAM] " .. player.nickname .. " triggered a custom event with foo: " .. foo)
   player:sendChat("[SERVER] " .. player.nickname .. " triggered a custom event with foo: " .. foo)
 end)
 
@@ -89,8 +91,8 @@ function RegisterChatCommand (name, handler)
   REGISTERED_CHAT_COMMANDS[name] = handler
 end
 
-Event.on("onChatCommand", function (player, message, command, args)
-  Console.log("[GAMEMODE] Player " .. player.nickname .. " used command: \"" .. command .. "\". (" .. message .. ").")
+Event.onGlobal("onChatCommand", function (player, message, command, args)
+  Console.log("[FREEROAM] Player " .. player.nickname .. " used command: \"" .. command .. "\". (" .. message .. ").")
 
   local foundCommand = REGISTERED_CHAT_COMMANDS[command]
 
@@ -330,8 +332,8 @@ RegisterChatCommand("wai", function (player, message, command, args)
   player:sendChat(string.format("[SERVER] Your rotation: %s, %s, %s", rot.x, rot.y, rot.z))
 
   -- Log in console for easy copy-paste
-  Console.log(string.format("[GAMEMODE] Player %s position: %s, %s, %s", player.nickname, pos.x, pos.y, pos.z))
-  Console.log(string.format("[GAMEMODE] Player %s rotation: %s, %s, %s", player.nickname, rot.x, rot.y, rot.z))
+  Console.log(string.format("[FREEROAM] Player %s position: %s, %s, %s", player.nickname, pos.x, pos.y, pos.z))
+  Console.log(string.format("[FREEROAM] Player %s rotation: %s, %s, %s", player.nickname, rot.x, rot.y, rot.z))
 end)
 
 RegisterChatCommand("time", function (player, message, command, args)
@@ -346,5 +348,5 @@ RegisterChatCommand("time", function (player, message, command, args)
 end)
 
 RegisterChatCommand("customevent", function (player, message, command, args)
-  Event.emit("myCustomEvent", player, "bar")
+  Event.broadcast("myCustomEvent", player, "bar")
 end)

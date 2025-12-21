@@ -27,6 +27,7 @@ namespace MafiaMP::Core::Modules {
         frame.modelHash = 335218123840277515; /* TODO */
 
         e.add<Shared::Modules::HumanSync::UpdateData>();
+        e.add<Framework::World::Modules::Base::RemovedOnResourceReload>();
 
         auto er                            = e.get_mut<Framework::World::Modules::Base::Streamer>();
         er->collectRangeExemptEntitiesProc = [](flecs::entity e, Framework::World::Modules::Base::Streamer &streamer) {
