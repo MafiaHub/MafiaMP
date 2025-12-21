@@ -181,13 +181,13 @@ jobs:
     - name: Build Project
       shell: cmd
       working-directory: fwk
-      run: cmake --build build --config Release
+      run: cmake --build build --config Release --parallel 4
         
     - name: Prepare Release Package
       shell: cmd
       working-directory: fwk
       run: |
-        xcopy /E /I code\projects\mafiamp\gamemode build\bin\gamemode
+        xcopy /E /I code\projects\mafiamp\resources build\bin\resources
         copy code\projects\mafiamp\LICENSE.txt build\bin\
         copy code\projects\mafiamp\NOTICE.txt build\bin\
         copy code\projects\mafiamp\VERSION build\bin\
