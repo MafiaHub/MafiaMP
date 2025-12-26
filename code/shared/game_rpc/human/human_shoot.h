@@ -10,12 +10,13 @@ namespace MafiaMP::Shared::RPC {
         bool _unk0;
         bool _unk1;
       public:
-        void FromParameters(const glm::vec3 &aimPos, const glm::vec3 &aimDir, bool unk0, bool unk1) {
-            _aimPos = aimPos;
-            _aimDir = aimDir;
-            _unk0 = unk0;
-            _unk1 = unk1;
-        }
+        HumanShoot() = default;
+
+        HumanShoot(const glm::vec3 &aimPos, const glm::vec3 &aimDir, bool unk0, bool unk1)
+            : _aimPos(aimPos)
+            , _aimDir(aimDir)
+            , _unk0(unk0)
+            , _unk1(unk1) {}
 
         glm::vec3 GetAimPos() const {
             return _aimPos;

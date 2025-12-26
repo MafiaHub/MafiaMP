@@ -9,6 +9,19 @@
 
 #include "vehicle.h"
 
+#include <core_modules.h>
+#include <networking/network_server.h>
+#include <world/server.h>
+
+namespace {
+    Framework::Networking::NetworkServer* GetNetworkServer() {
+        return reinterpret_cast<Framework::Networking::NetworkServer*>(Framework::CoreModules::GetNetworkPeer());
+    }
+    Framework::World::ServerEngine* GetServerEngine() {
+        return reinterpret_cast<Framework::World::ServerEngine*>(Framework::CoreModules::GetWorldEngine());
+    }
+}
+
 namespace MafiaMP::Scripting {
     std::string Human::ToString() const {
         std::ostringstream ss;
@@ -27,7 +40,7 @@ namespace MafiaMP::Scripting {
     }
 
     void Human::AddWeapon(int weaponId, int ammo) {
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanAddWeapon, _ent, weaponId, ammo);
+        GetNetworkServer()->sendGameRPC<MafiaMP::Shared::RPC::HumanAddWeapon>(GetServerEngine(), _ent, weaponId, ammo);
     }
 
     Framework::Scripting::Builtins::Vector3 Human::GetAimDir() const {
@@ -52,7 +65,7 @@ namespace MafiaMP::Scripting {
         h->_healthPercent = health;
         MafiaMP::Shared::RPC::HumanSetProps msg {};
         msg.health = health;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<MafiaMP::Shared::RPC::HumanSetProps>(GetServerEngine(), _ent, msg);
     }
 
     uint16_t Human::GetWeaponId() const {

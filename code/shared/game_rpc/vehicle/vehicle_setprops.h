@@ -24,23 +24,24 @@ namespace MafiaMP::Shared::RPC {
         Framework::Utils::Optional<glm::vec4> tireColor;
         Framework::Utils::Optional<glm::vec4> windowTint;
 
-        void FromParameters(VehicleSetProps props) {
-            this->beaconLightsOn = props.beaconLightsOn;
-            this->colorPrimary   = props.colorPrimary;
-            this->colorSecondary = props.colorSecondary;
-            this->dirt           = props.dirt;
-            this->engineOn       = props.engineOn;
-            this->fuel           = props.fuel;
-            this->licensePlate   = props.licensePlate;
-            this->lockState      = props.lockState;
-            this->radioOn        = props.radioOn;
-            this->radioStationId = props.radioStationId;
-            this->rimColor       = props.rimColor;
-            this->rust           = props.rust;
-            this->sirenOn        = props.sirenOn;
-            this->tireColor      = props.tireColor;
-            this->windowTint     = props.windowTint;
-        }
+        VehicleSetProps() = default;
+
+        VehicleSetProps(const VehicleSetProps &props)
+            : beaconLightsOn(props.beaconLightsOn)
+            , colorPrimary(props.colorPrimary)
+            , colorSecondary(props.colorSecondary)
+            , dirt(props.dirt)
+            , engineOn(props.engineOn)
+            , fuel(props.fuel)
+            , licensePlate(props.licensePlate)
+            , lockState(props.lockState)
+            , radioOn(props.radioOn)
+            , radioStationId(props.radioStationId)
+            , rimColor(props.rimColor)
+            , rust(props.rust)
+            , sirenOn(props.sirenOn)
+            , tireColor(props.tireColor)
+            , windowTint(props.windowTint) {}
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
             beaconLightsOn.Serialize(bs, write);

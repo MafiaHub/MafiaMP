@@ -8,9 +8,10 @@ namespace MafiaMP::Shared::RPC {
       public:
         Framework::Utils::Optional<float> health {};
 
-        void FromParameters(HumanSetProps props) {
-            this->health = props.health;
-        }
+        HumanSetProps() = default;
+
+        HumanSetProps(const HumanSetProps &props)
+            : health(props.health) {}
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
             health.Serialize(bs, write);

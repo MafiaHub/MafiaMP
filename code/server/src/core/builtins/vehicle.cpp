@@ -8,7 +8,19 @@
 
 #include "player.h"
 
+#include <core_modules.h>
+#include <networking/network_server.h>
 #include <scripting/resource/resource_manager.h>
+#include <world/server.h>
+
+namespace {
+    Framework::Networking::NetworkServer* GetNetworkServer() {
+        return reinterpret_cast<Framework::Networking::NetworkServer*>(Framework::CoreModules::GetNetworkPeer());
+    }
+    Framework::World::ServerEngine* GetServerEngine() {
+        return reinterpret_cast<Framework::World::ServerEngine*>(Framework::CoreModules::GetWorldEngine());
+    }
+}
 
 namespace MafiaMP::Scripting {
     void Vehicle::EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex) {
@@ -51,7 +63,7 @@ namespace MafiaMP::Scripting {
         vehData->beaconLightsOn = on;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.beaconLightsOn = on;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     Framework::Scripting::Builtins::ColorRGB Vehicle::GetColorPrimary() {
@@ -69,7 +81,7 @@ namespace MafiaMP::Scripting {
         vehData->colorPrimary = vec4Color;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.colorPrimary = vec4Color;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     Framework::Scripting::Builtins::ColorRGB Vehicle::GetColorSecondary() {
@@ -87,7 +99,7 @@ namespace MafiaMP::Scripting {
         vehData->colorSecondary = vec4Color;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.colorSecondary = vec4Color;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     float Vehicle::GetDirt() {
@@ -100,7 +112,7 @@ namespace MafiaMP::Scripting {
         vehData->dirt = dirt;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.dirt = dirt;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     bool Vehicle::GetEngineOn() {
@@ -113,7 +125,7 @@ namespace MafiaMP::Scripting {
         vehData->engineOn = on;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.engineOn = on;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     float Vehicle::GetFuel() {
@@ -126,7 +138,7 @@ namespace MafiaMP::Scripting {
         vehData->fuel = fuel;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.fuel = fuel;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     std::string Vehicle::GetLicensePlate() {
@@ -140,7 +152,7 @@ namespace MafiaMP::Scripting {
 
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.licensePlate = plate.c_str();
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     Shared::Modules::VehicleSync::LockState Vehicle::GetLockState() {
@@ -153,7 +165,7 @@ namespace MafiaMP::Scripting {
         vehData->lockState = lockState;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.lockState = lockState;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     bool Vehicle::GetRadioOn() {
@@ -166,7 +178,7 @@ namespace MafiaMP::Scripting {
         vehData->radioOn = on;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.radioOn = on;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     int Vehicle::GetRadioStationId() {
@@ -179,7 +191,7 @@ namespace MafiaMP::Scripting {
         vehData->radioStationId = id;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.radioStationId = id;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     Framework::Scripting::Builtins::ColorRGB Vehicle::GetRimColor() {
@@ -197,7 +209,7 @@ namespace MafiaMP::Scripting {
         vehData->rimColor = vec4Color;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.rimColor = vec4Color;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     float Vehicle::GetRust() {
@@ -210,7 +222,7 @@ namespace MafiaMP::Scripting {
         vehData->rust = rust;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.rust = rust;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     bool Vehicle::GetSirenOn() {
@@ -223,7 +235,7 @@ namespace MafiaMP::Scripting {
         vehData->sirenOn = on;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.sirenOn = on;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     Framework::Scripting::Builtins::ColorRGB Vehicle::GetTireColor() {
@@ -241,7 +253,7 @@ namespace MafiaMP::Scripting {
         vehData->tireColor = vec4Color;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.tireColor = vec4Color;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     Framework::Scripting::Builtins::ColorRGBA Vehicle::GetWindowTint() {
@@ -259,7 +271,7 @@ namespace MafiaMP::Scripting {
         vehData->windowTint = vec4Color;
         MafiaMP::Shared::RPC::VehicleSetProps msg {};
         msg.windowTint = vec4Color;
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::VehicleSetProps, _ent, msg);
+        GetNetworkServer()->sendGameRPC<Shared::RPC::VehicleSetProps>(GetServerEngine(), _ent, msg);
     }
 
     void Vehicle::Register(sol::state *luaEngine) {
