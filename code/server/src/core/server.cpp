@@ -14,6 +14,19 @@
 
 #include "shared/game_rpc/human/human_changeskin.h"
 
+#include <core_modules.h>
+#include <networking/network_server.h>
+#include <world/server.h>
+
+namespace {
+    Framework::Networking::NetworkServer* GetNetworkServer() {
+        return reinterpret_cast<Framework::Networking::NetworkServer*>(Framework::CoreModules::GetNetworkPeer());
+    }
+    Framework::World::ServerEngine* GetServerEngine() {
+        return reinterpret_cast<Framework::World::ServerEngine*>(Framework::CoreModules::GetWorldEngine());
+    }
+}
+
 namespace MafiaMP {
     void Server::PostInit() {
         _serverRef = this;
@@ -47,7 +60,7 @@ namespace MafiaMP {
 
             // Broadcast the environment setup
             const auto weather = GetWorldEngine()->GetWorld()->get<Core::Modules::Environment::Weather>();
-            FW_SEND_COMPONENT_RPC_TO(Shared::RPC::SetEnvironment, SLNet::RakNetGUID(guid), SLNet::RakString(weather->_weatherSetName.c_str()), weather->_dayTimeHours);
+            net->sendRPC<Shared::RPC::SetEnvironment>(SLNet::RakNetGUID(guid), SLNet::RakString(weather->_weatherSetName.c_str()), weather->_dayTimeHours);
 
             Scripting::Player::EventPlayerConnected(player);
         });
@@ -68,52 +81,55 @@ namespace MafiaMP {
 
     void Server::InitRPCs() {
         const auto net = GetNetworkingEngine()->GetNetworkServer();
-        net->RegisterRPC<Shared::RPC::ChatMessage>([this](SLNet::RakNetGUID guid, Shared::RPC::ChatMessage *chatMessage) {
-            if (!chatMessage->Valid())
-                return;
+        auto r = net->router();
+        r.onRPC<Shared::RPC::ChatMessage>().handle(this, &Server::OnChatMessage);
+        r.onGameRPC<Shared::RPC::HumanChangeSkin>().handle(this, &Server::OnHumanChangeSkin);
+    }
 
-            const auto ent = GetWorldEngine()->GetEntityByGUID(guid.g);
-            if (!ent.is_alive())
-                return;
+    void Server::OnChatMessage(SLNet::RakNetGUID guid, Shared::RPC::ChatMessage *chatMessage) {
+        if (!chatMessage->Valid())
+            return;
 
-            const auto text = chatMessage->GetText();
-            std::string command;
-            std::string argsPart;
+        const auto ent = GetWorldEngine()->GetEntityByGUID(guid.g);
+        if (!ent.is_alive())
+            return;
 
-            if (text[0] == '/') {
-                if (text.find(' ') != std::string::npos) {
-                    command  = text.substr(1, text.find(' ') - 1);
-                    argsPart = text.substr(text.find(' ') + 1);
-                }
-                else {
-                    command = text.substr(1);
-                }
+        const auto text = chatMessage->GetText();
+        std::string command;
+        std::string argsPart;
 
-                std::vector<std::string> args;
-                std::string arg;
-                std::istringstream iss(argsPart);
-                while (iss >> arg) {
-                    args.push_back(arg);
-                }
-                Scripting::Chat::EventChatCommand(ent, text, command, args);
+        if (text[0] == '/') {
+            if (text.find(' ') != std::string::npos) {
+                command  = text.substr(1, text.find(' ') - 1);
+                argsPart = text.substr(text.find(' ') + 1);
             }
             else {
-                Scripting::Chat::EventChatMessage(ent, text);
+                command = text.substr(1);
             }
-        });
 
-        // test until we do it via nodejs builtins
-        net->RegisterGameRPC<Shared::RPC::HumanChangeSkin>([this](SLNet::RakNetGUID guid, Shared::RPC::HumanChangeSkin *msg) {
-            if (!msg->Valid())
-                return;
+            std::vector<std::string> args;
+            std::string arg;
+            std::istringstream iss(argsPart);
+            while (iss >> arg) {
+                args.push_back(arg);
+            }
+            Scripting::Chat::EventChatCommand(ent, text, command, args);
+        }
+        else {
+            Scripting::Chat::EventChatMessage(ent, text);
+        }
+    }
 
-            const auto ent = GetWorldEngine()->GetEntityByGUID(guid.g);
-            if (!ent.is_alive())
-                return;
+    void Server::OnHumanChangeSkin(SLNet::RakNetGUID guid, Shared::RPC::HumanChangeSkin *msg) {
+        if (!msg->Valid())
+            return;
 
-            auto frame       = ent.get_mut<Framework::World::Modules::Base::Frame>();
-            frame->modelHash = msg->GetSpawnProfile();
-            FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::HumanChangeSkin, ent, msg->GetSpawnProfile());
-        });
+        const auto ent = GetWorldEngine()->GetEntityByGUID(guid.g);
+        if (!ent.is_alive())
+            return;
+
+        auto frame       = ent.get_mut<Framework::World::Modules::Base::Frame>();
+        frame->modelHash = msg->GetSpawnProfile();
+        GetNetworkServer()->sendGameRPC<Shared::RPC::HumanChangeSkin>(GetServerEngine(), ent, msg->GetSpawnProfile());
     }
 } // namespace MafiaMP

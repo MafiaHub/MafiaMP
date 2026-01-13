@@ -5,8 +5,7 @@
 namespace MafiaMP::Shared::RPC {
     class HumanDeath final: public Framework::Networking::RPC::IGameRPC<HumanDeath> {
       public:
-        void FromParameters(void) {
-        }
+        HumanDeath() = default;
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
         }

@@ -17,8 +17,6 @@
 
 #include "game/helpers/controls.h"
 
-#include <world/client.h>
-
 #include "shared/game_rpc/human/human_shoot.h"
 
 #include "shared/game_rpc/human/human_reload.h"
@@ -28,6 +26,9 @@
 #include <flecs/flecs.h>
 
 #include <core/modules/human.h>
+
+#include <core_modules.h>
+#include <networking/network_client.h>
 
 using namespace SDK;
 
@@ -129,7 +130,10 @@ bool C_HumanWeaponController_DoShot(SDK::C_HumanWeaponController *pThis, void *u
         glm::vec3 dir;
         if (pos2)
             dir = {pos2->x, pos2->y, pos2->z};
-        FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanShoot, playerID, pos, dir, unk1, unk2);
+        auto net = reinterpret_cast<Framework::Networking::NetworkClient*>(Framework::CoreModules::GetNetworkPeer());
+        if (net) {
+            net->sendGameRPC<MafiaMP::Shared::RPC::HumanShoot>(playerID, pos, dir, unk1, unk2);
+        }
     }
 
     return C_HumanWeaponController_DoShot_original(pThis, unk, pos1, pos2, unk1, unk2);
@@ -143,7 +147,10 @@ void C_HumanWeaponController__DoWeaponReloadInventory(SDK::C_HumanWeaponControll
     // In case it's the local player, send an rpc
     if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == pThis) {
         const auto playerID = MafiaMP::Core::gApplication->GetLocalPlayer();
-        FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanReload, playerID, unk);
+        auto net = reinterpret_cast<Framework::Networking::NetworkClient*>(Framework::CoreModules::GetNetworkPeer());
+        if (net) {
+            net->sendGameRPC<MafiaMP::Shared::RPC::HumanReload>(playerID, unk);
+        }
     }
 
     C_HumanWeaponController__DoWeaponReloadInventory_original(pThis, unk);

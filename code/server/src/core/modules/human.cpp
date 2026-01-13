@@ -139,7 +139,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            FW_SEND_SERVER_COMPONENT_GAME_RPC_EXCEPT(Shared::RPC::HumanShoot, e, guid, msg->GetAimPos(), msg->GetAimDir(), msg->GetUnk0(), msg->GetUnk1());
+            net->sendGameRPCExcept<Shared::RPC::HumanShoot>(srv.get(), guid, e, msg->GetAimPos(), msg->GetAimDir(), msg->GetUnk0(), msg->GetUnk1());
         });
 
         net->RegisterGameRPC<Shared::RPC::HumanReload>([srv, net](SLNet::RakNetGUID guid, Shared::RPC::HumanReload *msg) {
@@ -148,7 +148,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            FW_SEND_SERVER_COMPONENT_GAME_RPC_EXCEPT(Shared::RPC::HumanReload, e, guid, msg->GetUnk0());
+            net->sendGameRPCExcept<Shared::RPC::HumanReload>(srv.get(), guid, e, msg->GetUnk0());
         });
 
         net->RegisterGameRPC<Shared::RPC::HumanDeath>([srv, net](SLNet::RakNetGUID guid, Shared::RPC::HumanDeath *msg) {

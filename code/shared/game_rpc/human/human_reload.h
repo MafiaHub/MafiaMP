@@ -7,9 +7,10 @@ namespace MafiaMP::Shared::RPC {
       private:
         int _unk0;
       public:
-        void FromParameters(bool unk0) {
-            _unk0 = unk0;
-        }
+        HumanReload() = default;
+
+        HumanReload(bool unk0)
+            : _unk0(unk0) {}
 
         bool GetUnk0() const {
             return _unk0;

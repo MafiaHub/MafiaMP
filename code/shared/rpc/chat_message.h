@@ -19,9 +19,10 @@ namespace MafiaMP::Shared::RPC {
       private:
         SLNet::RakString _text;
       public:
-        void FromParameters(const std::string &msg) {
-            _text = msg.c_str();
-        }
+        ChatMessage() = default;
+
+        ChatMessage(const std::string &msg)
+            : _text(msg.c_str()) {}
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
             bs->Serialize(write, _text);

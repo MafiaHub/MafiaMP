@@ -7,9 +7,10 @@ namespace MafiaMP::Shared::RPC {
       private:
         uint64_t _spawnProfile;
       public:
-        void FromParameters(uint64_t spawnProfile) {
-            _spawnProfile = spawnProfile;
-        }
+        HumanChangeSkin() = default;
+
+        HumanChangeSkin(uint64_t spawnProfile)
+            : _spawnProfile(spawnProfile) {}
 
         uint64_t GetSpawnProfile() const {
             return _spawnProfile;

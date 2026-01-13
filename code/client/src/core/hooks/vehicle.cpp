@@ -20,6 +20,9 @@
 #include "sdk/entities/c_vehicle.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
 
+#include <core_modules.h>
+#include <networking/network_client.h>
+
 SDK::C_Actor *C_ActorAction__GetOwnerAsActor(void *pThis) {
     return hook::this_call<SDK::C_Actor *>(0x0000001423434E0, pThis);
 }
@@ -161,7 +164,10 @@ int64_t C_Human2CarWrapper__GetIn(SDK::C_Human2CarWrapper* pThis, SDK::C_Actor* 
         MafiaMP::Shared::RPC::VehiclePlayerEnter rpc;
         rpc.vehicleId = Framework::World::ClientEngine::GetServerID(pVehicle);
         rpc.seatIndex = seatID;
-        FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::VehiclePlayerEnter, MafiaMP::Core::gApplication->GetLocalPlayer(), rpc);
+        auto net = reinterpret_cast<Framework::Networking::NetworkClient*>(Framework::CoreModules::GetNetworkPeer());
+        if (net) {
+            net->sendGameRPC<MafiaMP::Shared::RPC::VehiclePlayerEnter>(MafiaMP::Core::gApplication->GetLocalPlayer(), rpc);
+        }
     }
 
     // Return to game
@@ -182,7 +188,10 @@ int64_t C_Human2CarWrapper__GetOut(SDK::C_Human2CarWrapper* pThis, SDK::C_Actor*
 
         MafiaMP::Shared::RPC::VehiclePlayerLeave rpc;
         rpc.vehicleId = Framework::World::ClientEngine::GetServerID(pVehicle);
-        FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::VehiclePlayerLeave, MafiaMP::Core::gApplication->GetLocalPlayer(), rpc);
+        auto net = reinterpret_cast<Framework::Networking::NetworkClient*>(Framework::CoreModules::GetNetworkPeer());
+        if (net) {
+            net->sendGameRPC<MafiaMP::Shared::RPC::VehiclePlayerLeave>(MafiaMP::Core::gApplication->GetLocalPlayer(), rpc);
+        }
     }
 
     // Return to game

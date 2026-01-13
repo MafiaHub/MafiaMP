@@ -12,6 +12,8 @@
 
 #include "vehicle.h"
 
+#include <RakNetTypes.h>
+
 namespace MafiaMP::Scripting {
     class World final {
       public:
@@ -36,7 +38,10 @@ namespace MafiaMP::Scripting {
 
             auto weather           = world->get_mut<Core::Modules::Environment::Weather>();
             weather->_dayTimeHours = dayTimeHours;
-            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, {}, weather->_dayTimeHours);
+            auto net = Framework::CoreModules::GetNetworkPeer();
+            if (net) {
+                net->sendRPC<MafiaMP::Shared::RPC::SetEnvironment>(SLNet::UNASSIGNED_RAKNET_GUID, Framework::Utils::Optional<SLNet::RakString>{}, weather->_dayTimeHours);
+            }
         }
 
         static std::string GetWeatherSet() {
@@ -51,7 +56,10 @@ namespace MafiaMP::Scripting {
 
             auto weather             = world->get_mut<Core::Modules::Environment::Weather>();
             weather->_weatherSetName = weatherSetName;
-            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, SLNet::RakString(weather->_weatherSetName.c_str()), {});
+            auto net = Framework::CoreModules::GetNetworkPeer();
+            if (net) {
+                net->sendRPC<MafiaMP::Shared::RPC::SetEnvironment>(SLNet::UNASSIGNED_RAKNET_GUID, SLNet::RakString(weather->_weatherSetName.c_str()), Framework::Utils::Optional<float>{});
+            }
         }
 
         static void Register(sol::state *luaEngine) {
