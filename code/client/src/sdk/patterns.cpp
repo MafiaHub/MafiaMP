@@ -59,8 +59,31 @@ namespace SDK {
         gPatterns.C_CharacterController__TriggerActorActionById            = hook::get_opcode_address("E8 ? ? ? ? 45 0F 2F 87 ? ? ? ?");
 
         // C_CharacterStateHandlerAim
-        gPatterns.C_CharacterStateHandlerAim__SwappingWeapon     = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 82");
-        gPatterns.C_CharacterStateHandlerAim__UpdateAimAnimation = hook::get_opcode_address("E8 ? ? ? ? F3 0F 10 43 ? 48 8D 55 07");
+        // Virtual methods - using vtable addresses directly (0x144E934C8 + offset)
+        gPatterns.C_CharacterStateHandlerAim__Activate                                 = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? ? ? ? 48 85 C9 74 ? 83 C8 ? F0 0F C1 41 ? 83 F8 ? 75 ? 48 85 C9 74 ? ? ? ? BA ? ? ? ? ? ? B0 ? 48 83 C4 ? C3 ? 48 83 EC ? ? ? ? 48 85 C9 74 ? 83 C8 ? F0 0F C1 41 ? 83 F8 ? 75 ? 48 85 C9 74 ? ? ? ? BA ? ? ? ? ? ? B0 ? 48 83 C4 ? C3 ? 40 55"));
+        gPatterns.C_CharacterStateHandlerAim__Deactivate                               = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B 99 ? ? ? ? 48 8B F9 48 85 DB 74 ? 83 C8"));
+        gPatterns.C_CharacterStateHandlerAim__UpdateRequest                            = reinterpret_cast<uint64_t>(hook::get_pattern("? ? ? 48 85 C9 74 ? 83 C8 ? F0 0F C1 41 ? 83 F8 ? 75 ? 48 85 C9 74 ? ? ? ? BA ? ? ? ? ? ? ? C3 ? ? ? ? ? ? ? ? ? ? 40 53 48 83 EC ? ? ? ? 48 8B DA"));
+        gPatterns.C_CharacterStateHandlerAim__UpdateAIFreq                             = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC ? 48 8B 41 ? 4C 8D 4C 24"));
+        gPatterns.C_CharacterStateHandlerAim__UpdateHumanFreq                          = reinterpret_cast<uint64_t>(hook::get_pattern("40 56 48 81 EC ? ? ? ? 48 8B 41 ? 48 8B F1 C6 81 ? ? ? ? 00"));
+        gPatterns.C_CharacterStateHandlerAim__UpdateHumanFreqPostPhysics               = reinterpret_cast<uint64_t>(hook::get_pattern("40 57 48 83 EC ? 80 B9 ? ? ? ? 00 48 8B F9 74 ? 48 89 5C 24 ? E8"));
+        gPatterns.C_CharacterStateHandlerAim__Start                                    = reinterpret_cast<uint64_t>(hook::get_pattern("C2 00 00 ? ? ? ? ? ? ? ? ? ? ? ? ? 40 53 48 83 EC ? ? ? ? 48 8B D9 FF 90 ? ? ? ? 84 C0"));
+        gPatterns.C_CharacterStateHandlerAim__Finish                                   = reinterpret_cast<uint64_t>(hook::get_pattern("C2 00 00 ? ? ? ? ? ? ? ? ? ? ? ? ? 48 89 5C 24 ? 57 48 83 EC ? 48 8B FA 48 8B D9 48 85 D2"));
+        gPatterns.C_CharacterStateHandlerAim__AcceptMessage                            = reinterpret_cast<uint64_t>(hook::get_pattern("40 55 53 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? ? ? 48 8B FA"));
+        gPatterns.C_CharacterStateHandlerAim__UpdatePlayerInput                        = reinterpret_cast<uint64_t>(hook::get_pattern("C2 00 00 ? ? ? ? ? ? ? ? ? ? ? ? ? C2 00 00 ? ? ? ? ? ? ? ? ? ? ? ? ? 48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 83 B9 ? ? ? ? 00"));
+        gPatterns.C_CharacterStateHandlerAim__OnCharacterControllerActivated           = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 41 ? 48 8B 90 ? ? ? ? 48 89 91"));
+        gPatterns.C_CharacterStateHandlerAim__OnCharacterControllerDeactivated         = reinterpret_cast<uint64_t>(hook::get_pattern("48 C7 81 ? ? ? ? 00 00 00 00 C3 ? ? ? ? C2 00 00"));
+        gPatterns.C_CharacterStateHandlerAim__OnStartBlindFire                         = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B 41 ? 48 8B D9 80 78 ? ? 75 ? 41 B1"));
+        // Public methods - using pattern matching for call sites
+        gPatterns.C_CharacterStateHandlerAim__SwappingWeapon                           = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 82");
+        gPatterns.C_CharacterStateHandlerAim__UpdateAimAnimation                       = hook::get_opcode_address("E8 ? ? ? ? F3 0F 10 43 ? 48 8D 55 07");
+        gPatterns.C_CharacterStateHandlerAim__IsAimAllowed                             = hook::get_opcode_address("E8 ? ? ? ? 84 C0 0F 84 EA 01 00 00");
+        gPatterns.C_CharacterStateHandlerAim__IsAimBlocked                             = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? 48 8B 51 ? 80 7A ? ? 75 ? 8B 89"));
+        gPatterns.C_CharacterStateHandlerAim__IsReloadBlocked                          = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B 41 ? 48 8B D9 48 8B B8 ? ? ? ? 48 8D 4F"));
+        gPatterns.C_CharacterStateHandlerAim__UpdateAimDirection                       = hook::get_opcode_address("E8 ? ? ? ? 83 7B 48 00");
+        gPatterns.C_CharacterStateHandlerAim__CalculatePlayerAimYawPitch               = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 65 48 8B 04 25"));
+        gPatterns.C_CharacterStateHandlerAim__CalculatePlayerAimYawPitchFreeAndBlindFire = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B C4 55 56 57 41 56 41 57 48 8D 68 ? 48 81 EC ? ? ? ? 0F 29 70"));
+        gPatterns.C_CharacterStateHandlerAim__UpdatePlayerAimBlocked                   = reinterpret_cast<uint64_t>(hook::get_pattern("40 55 53 56 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 41"));
+        gPatterns.C_CharacterStateHandlerAim__UpdateHumanFreqAI                        = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 7C 24 ? 55 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B D9 E8"));
 
         // C_CharacterStateHandlerBaseLocomotion
         gPatterns.C_CharacterStateHandlerBaseLocomotion__Idle2MoveTransitionActive = hook::get_opcode_address("E8 ? ? ? ? 48 89 75 E0 C7 45 ? ? ? ? ?");

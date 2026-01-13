@@ -45,8 +45,29 @@ namespace SDK {
         uint64_t C_CharacterController__TriggerActorActionById            = 0x0;
 
         // C_CharacterStateHandlerAim
-        uint64_t C_CharacterStateHandlerAim__SwappingWeapon     = 0x0;
-        uint64_t C_CharacterStateHandlerAim__UpdateAimAnimation = 0x0;
+        uint64_t C_CharacterStateHandlerAim__Activate                                 = 0x0;
+        uint64_t C_CharacterStateHandlerAim__Deactivate                               = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateRequest                            = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateAIFreq                             = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateHumanFreq                          = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateHumanFreqPostPhysics               = 0x0;
+        uint64_t C_CharacterStateHandlerAim__Start                                    = 0x0;
+        uint64_t C_CharacterStateHandlerAim__Finish                                   = 0x0;
+        uint64_t C_CharacterStateHandlerAim__AcceptMessage                            = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdatePlayerInput                        = 0x0;
+        uint64_t C_CharacterStateHandlerAim__OnCharacterControllerActivated           = 0x0;
+        uint64_t C_CharacterStateHandlerAim__OnCharacterControllerDeactivated         = 0x0;
+        uint64_t C_CharacterStateHandlerAim__OnStartBlindFire                         = 0x0;
+        uint64_t C_CharacterStateHandlerAim__SwappingWeapon                           = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateAimAnimation                       = 0x0;
+        uint64_t C_CharacterStateHandlerAim__IsAimAllowed                             = 0x0;
+        uint64_t C_CharacterStateHandlerAim__IsAimBlocked                             = 0x0;
+        uint64_t C_CharacterStateHandlerAim__IsReloadBlocked                          = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateAimDirection                       = 0x0;
+        uint64_t C_CharacterStateHandlerAim__CalculatePlayerAimYawPitch               = 0x0;
+        uint64_t C_CharacterStateHandlerAim__CalculatePlayerAimYawPitchFreeAndBlindFire = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdatePlayerAimBlocked                   = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateHumanFreqAI                        = 0x0;
 
         // C_CharacterStateHandlerBaseLocomotion
         uint64_t C_CharacterStateHandlerBaseLocomotion__AddRemoveSprintDescriptor = 0x0;
