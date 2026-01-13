@@ -4,6 +4,7 @@
 #include <utils/safe_win32.h>
 #include <utils/states/machine.h>
 
+#include <cstring>
 #include <nlohmann/json.hpp>
 #include <string>
 
@@ -79,7 +80,10 @@ namespace MafiaMP::Core::States {
             if (gApplication->GetPresence()->IsInitialized()) {
                 discord::User currUser {};
                 gApplication->GetPresence()->GetUserManager().GetCurrentUser(&currUser);
-                newApplicationState._nickname = currUser.GetUsername();
+                const char* username = currUser.GetUsername();
+                if (username && strlen(username) > 0) {
+                    newApplicationState._nickname = username;
+                }
             }
             gApplication->SetCurrentState(newApplicationState);
 
