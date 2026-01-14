@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../prefab/c_prefab_init_data.h"
+#include "../prefab/c_prefab_manager.h"
 #include "../ue/sys/math/c_vector.h"
 #include "../ue/sys/core/c_scene_object.h"
 
@@ -96,7 +98,7 @@ namespace SDK {
         virtual void OnActivate(void)                                          = 0;
         virtual void OnDeactivate(void)                                        = 0;
         virtual void OnUpdate(float)                                           = 0;
-        virtual void OnRecvMessage(/*C_EntityMessage**/ void *) = 0;
+        virtual void OnRecvMessage(/*C_EntityMessage**/ void *)                = 0;
         virtual void OnSceneObjectChanged(void *)                              = 0;
         virtual void SetProhibitGarage(bool)                                   = 0;
         virtual uint64_t GetProhibitGarage(void)                               = 0;
@@ -117,28 +119,51 @@ namespace SDK {
         virtual void UpdateIdleFX(float)                                       = 0;
         virtual void UpdateIdleRC(float)                                       = 0;
 
-        unsigned int GetId() {
-            return ((*(unsigned int *)((uintptr_t)this + 0x18)) >> 8);
+        // Non-virtual helper to get prefab type (calls actual vtable[4] which is GetPrefabType in binary)
+        prefab::E_PREFAB_TYPE GetPrefabType() {
+            using Fn = int(__fastcall *)(void *);
+            auto vtable = *(uintptr_t **)this;
+            return static_cast<prefab::E_PREFAB_TYPE>(((Fn)vtable[4])(this));
         }
 
-        void SetId(unsigned int id) {
-            *(unsigned int *)((uintptr_t)this + 0x18) = (id << 8) | (*(unsigned int *)((uintptr_t)this + 0x18) & 0x000000FF);
+        uint32_t GetId() const {
+            return m_nIdAndType >> 8;
         }
 
-        uint16_t GetGUID() {
-            return *(uint16_t *)((uintptr_t)this + 0x18);
+        void SetId(uint32_t id) {
+            m_nIdAndType = (id << 8) | (m_nIdAndType & 0xFF);
         }
 
-        E_EntityType GetType() {
-            return (E_EntityType)((*(unsigned int *)((uintptr_t)this + 0x18)) & 0xFF);
+        uint16_t GetGUID() const {
+            return static_cast<uint16_t>(m_nIdAndType);
+        }
+
+        E_EntityType GetType() const {
+            return static_cast<E_EntityType>(m_nIdAndType & 0xFF);
         }
 
         void SetType(E_EntityType type) {
-            *(unsigned int *)((uintptr_t)this + 0x18) = (*(unsigned int *)((uintptr_t)this + 0x18) & 0xFFFFFF00) | (uint32_t)type;
+            m_nIdAndType = (m_nIdAndType & 0xFFFFFF00) | static_cast<uint32_t>(type);
         }
 
-        ue::sys::core::C_SceneObject *GetSceneObject() {
-            return *(ue::sys::core::C_SceneObject **)((uintptr_t)this + 0xA8);
+        uint32_t GetFlags() const {
+            return m_nFlags;
+        }
+
+        void SetFlags(uint32_t flags) {
+            m_nFlags = flags;
+        }
+
+        ue::sys::core::C_SceneObject *GetSceneObject() const {
+            return m_pSceneObject;
+        }
+
+        prefab::C_PrefabInitData *GetPrefabInitDataWrapper() {
+            return &m_PrefabInitData;
+        }
+
+        void *GetPrefabInitData() {
+            return m_PrefabInitData.GetConstInitData();
         }
 
         void GameInit();
@@ -148,5 +173,16 @@ namespace SDK {
         void Deactivate();
 
         void Release();
+
+      private:
+        char m_aPad08[16];                                   // 0x08 - 0x18
+        uint32_t m_nIdAndType;                               // 0x18 - 0x1C (type in low byte, id in upper 24 bits)
+        uint32_t m_nFlags;                                   // 0x1C - 0x20
+        char m_aPad20[120];                                  // 0x20 - 0x98
+        void *m_pInitData;                                   // 0x98 - 0xA0
+        prefab::C_PrefabInitData m_PrefabInitData;           // 0xA0 - 0xA8
+        ue::sys::core::C_SceneObject *m_pSceneObject;        // 0xA8 - 0xB0
+        char m_aPadB0[24];                                   // 0xB0 - 0xC8
+        void *m_pSceneObjectFix;                             // 0xC8 - 0xD0
     };
 } // namespace SDK

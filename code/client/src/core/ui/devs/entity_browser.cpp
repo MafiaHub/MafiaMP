@@ -6,6 +6,7 @@
 #include <sdk/entities/c_entity_list.h>
 #include <sdk/entities/c_human_2.h>
 #include <sdk/entities/c_player_2.h>
+#include <sdk/prefab/c_prefab_manager.h>
 
 #include "core/modules/human.h"
 #include "core/modules/vehicle.h"
@@ -13,6 +14,25 @@
 #include "game/helpers/controls.h"
 
 namespace MafiaMP::Core::UI::Devs {
+    static const char *GetPrefabTypeName(SDK::prefab::E_PREFAB_TYPE type) {
+        switch (type) {
+        case SDK::prefab::E_PT_Base: return "Base";
+        case SDK::prefab::E_PT_Car: return "Car";
+        case SDK::prefab::E_PT_CrashObj: return "CrashObj";
+        case SDK::prefab::E_PT_ActorDeform: return "ActorDeform";
+        case SDK::prefab::E_PT_Wheel: return "Wheel";
+        case SDK::prefab::E_PT_Door: return "Door";
+        case SDK::prefab::E_PT_Obsolete_Lift: return "Obsolete_Lift";
+        case SDK::prefab::E_PT_Boat: return "Boat";
+        case SDK::prefab::E_PT_Obsolete_Wagon: return "Obsolete_Wagon";
+        case SDK::prefab::E_PT_AIBrain: return "AIBrain";
+        case SDK::prefab::E_PT_MountedWeapon: return "MountedWeapon";
+        case SDK::prefab::E_PT_TrafficSemaphore: return "TrafficSemaphore";
+        case SDK::prefab::E_PT_None: return "None";
+        default: return "Unknown";
+        }
+    }
+
     EntityBrowser::EntityBrowser(): UIBase() {
         InitialiseEntityTypes();
     }
@@ -108,7 +128,7 @@ namespace MafiaMP::Core::UI::Devs {
 
                     const auto _filterIter = _allTypes.find(sceneObjectType);
 
-                    auto sceneObject = *(SDK::ue::sys::core::C_SceneObject **)((uint64_t)entity + 0x0A8);
+                    auto sceneObject = entity->GetSceneObject();
 
                     if (!sceneObject)
                         continue;
@@ -157,10 +177,15 @@ namespace MafiaMP::Core::UI::Devs {
             if (_selectedIndex >= 0 && _selectedIndex <= entityCount) {
                 auto inspectedEntity = reinterpret_cast<SDK::C_Actor *>(entityList->GetEntityByIndex(_selectedIndex));
                 if (inspectedEntity) {
-                    auto sceneObject = *(SDK::ue::sys::core::C_SceneObject **)((uint64_t)inspectedEntity + 0x0A8);
+                    auto sceneObject = reinterpret_cast<SDK::C_Entity *>(inspectedEntity)->GetSceneObject();
                     if (sceneObject && sceneObject->GetName() && sceneObject->GetName()->c_str()) {
                         ImGui::Text("Entity name: %s", sceneObject->GetName()->c_str());
                         ImGui::Text("Entity type: %s", _allTypes[inspectedEntity->GetType()].c_str());
+
+                        auto entityPtr = reinterpret_cast<SDK::C_Entity *>(inspectedEntity);
+                        auto prefabType = entityPtr->GetPrefabType();
+                        ImGui::Text("Prefab type: %s (%d)", GetPrefabTypeName(prefabType), static_cast<int>(prefabType));
+                        ImGui::Text("Flags: 0x%08X", entityPtr->GetFlags());
 
                         auto entityPos = inspectedEntity->GetPos();
                         auto entityDir = inspectedEntity->GetDir();
