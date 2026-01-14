@@ -505,6 +505,14 @@ namespace SDK {
         gPatterns.C_WeatherManager2__SetUserTimeFlowSpeedMult    = reinterpret_cast<uint64_t>(hook::get_pattern("F3 0F 11 89 ? ? ? ? C3 CC CC CC CC CC CC CC 83 FA 04"));
         gPatterns.C_WeatherManager2__SetWeatherSet               = hook::get_opcode_address("E8 ? ? ? ? 48 83 7C 24 ? ? 0F 28 74 24 ?");
 
+        // C_PrefabManager
+        gPatterns.C_PrefabManager__GetInstance    = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC 28 48 8B 05 ? ? ? ? 48 85 C0 75 ? B9 B8 00 00 00"));
+        gPatterns.C_PrefabManager__GetPrefab      = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 30 45 8B D9 4D 8B F0"));
+        gPatterns.C_PrefabManager__RemovePrefabs  = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 4C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 40 48 8B 59 08"));
+        gPatterns.C_PrefabManager__ReleaseAll     = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 57 41 54 41 57 48 83 EC 28 48 8B 79 10"));
+        gPatterns.C_PrefabManager__SetPrefabWorker = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 11 C3 CC CC CC CC CC CC CC CC CC CC CC CC 0F 2F 05"));
+        gPatterns.C_PrefabManager__Shutdown       = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 48 8B 10"));
+
         // I_Core
         gPatterns.I_Core__GetInstance = hook::get_opcode_address("E8 ? ? ? ? 4C 8B 40 68");
 

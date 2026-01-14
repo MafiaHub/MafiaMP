@@ -452,6 +452,14 @@ namespace SDK {
         uint64_t C_WeatherManager2__SetUserTimeFlowSpeedMult    = 0x0;
         uint64_t C_WeatherManager2__SetWeatherSet               = 0x0;
 
+        // C_PrefabManager
+        uint64_t C_PrefabManager__GetInstance     = 0x0;
+        uint64_t C_PrefabManager__GetPrefab       = 0x0;
+        uint64_t C_PrefabManager__RemovePrefabs   = 0x0;
+        uint64_t C_PrefabManager__ReleaseAll      = 0x0;
+        uint64_t C_PrefabManager__SetPrefabWorker = 0x0;
+        uint64_t C_PrefabManager__Shutdown        = 0x0;
+
         // I_Core
         uint64_t I_Core__GetInstance = 0x0;
 
