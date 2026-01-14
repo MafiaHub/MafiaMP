@@ -154,6 +154,10 @@ namespace SDK {
             m_nFlags = flags;
         }
 
+        uint64_t GetNameHash() const {
+            return m_nNameHash;
+        }
+
         ue::sys::core::C_SceneObject *GetSceneObject() const {
             return m_pSceneObject;
         }
@@ -178,7 +182,9 @@ namespace SDK {
         char m_aPad08[16];                                   // 0x08 - 0x18
         uint32_t m_nIdAndType;                               // 0x18 - 0x1C (type in low byte, id in upper 24 bits)
         uint32_t m_nFlags;                                   // 0x1C - 0x20
-        char m_aPad20[120];                                  // 0x20 - 0x98
+        char m_aPad20[8];                                    // 0x20 - 0x28
+        uint64_t m_nNameHash;                                // 0x28 - 0x30 (copied from SceneObject+0x48)
+        char m_aPad30[104];                                  // 0x30 - 0x98
         void *m_pInitData;                                   // 0x98 - 0xA0
         prefab::C_PrefabInitData m_PrefabInitData;           // 0xA0 - 0xA8
         ue::sys::core::C_SceneObject *m_pSceneObject;        // 0xA8 - 0xB0

@@ -186,6 +186,7 @@ namespace MafiaMP::Core::UI::Devs {
                         auto prefabType = entityPtr->GetPrefabType();
                         ImGui::Text("Prefab type: %s (%d)", GetPrefabTypeName(prefabType), static_cast<int>(prefabType));
                         ImGui::Text("Flags: 0x%08X", entityPtr->GetFlags());
+                        ImGui::Text("Name hash: 0x%016llX", entityPtr->GetNameHash());
 
                         auto entityPos = inspectedEntity->GetPos();
                         auto entityDir = inspectedEntity->GetDir();
