@@ -8,6 +8,7 @@
 
 #include "player.h"
 
+#include <RakNetTypes.h>
 #include <scripting/resource/resource_manager.h>
 
 namespace MafiaMP::Scripting {
@@ -28,7 +29,10 @@ namespace MafiaMP::Scripting {
         }
 
         static void SendToAll(std::string message) {
-            FW_SEND_COMPONENT_RPC(Shared::RPC::ChatMessage, message);
+            auto net = Framework::CoreModules::GetNetworkPeer();
+            if (net) {
+                net->sendRPC<Shared::RPC::ChatMessage>(SLNet::UNASSIGNED_RAKNET_GUID, message);
+            }
         }
 
         static void SendToPlayer(Player *player, std::string message) {
@@ -40,7 +44,10 @@ namespace MafiaMP::Scripting {
                     return;
                 }
 
-                FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(streamer->guid), message);
+                auto net = Framework::CoreModules::GetNetworkPeer();
+                if (net) {
+                    net->sendRPC<Shared::RPC::ChatMessage>(SLNet::RakNetGUID(streamer->guid), message);
+                }
             }
         }
 

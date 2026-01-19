@@ -11,10 +11,11 @@ namespace MafiaMP::Shared::RPC {
         Framework::Utils::Optional<float> _dayTimeHours{};
 
         public:
-        void FromParameters(const Framework::Utils::Optional<SLNet::RakString> &weatherSet = {}, Framework::Utils::Optional<float> dayTimeHours = {}) {
-            _weatherSet = weatherSet;
-            _dayTimeHours = dayTimeHours;
-        }
+        SetEnvironment() = default;
+
+        SetEnvironment(const Framework::Utils::Optional<SLNet::RakString> &weatherSet, Framework::Utils::Optional<float> dayTimeHours = {})
+            : _weatherSet(weatherSet)
+            , _dayTimeHours(dayTimeHours) {}
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
             _weatherSet.Serialize(bs, write);

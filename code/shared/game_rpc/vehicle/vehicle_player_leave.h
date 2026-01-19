@@ -9,9 +9,10 @@ namespace MafiaMP::Shared::RPC {
       public:
         uint64_t vehicleId;
 
-        void FromParameters(VehiclePlayerLeave props) {
-            this->vehicleId = props.vehicleId;
-        }
+        VehiclePlayerLeave() = default;
+
+        VehiclePlayerLeave(const VehiclePlayerLeave &props)
+            : vehicleId(props.vehicleId) {}
 
         void Serialize(SLNet::BitStream *bs, bool write) override {
             bs->Serialize(write, vehicleId);
