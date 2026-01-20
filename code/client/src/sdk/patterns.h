@@ -436,6 +436,13 @@ namespace SDK {
         uint64_t C_VehicleRealLightManager__SetReflectorLightsOn   = 0x0;
         uint64_t C_VehicleRealLightManager__SetVisible             = 0x0;
 
+        // C_VirtualFileSystem
+        uint64_t C_VirtualFileSystem__Mount = 0x0;
+        uint64_t C_VirtualFileSystem__Open = 0x0;
+
+        // C_VirtualFileSystemCache
+        uint64_t C_VirtualFileSystemCache__AddDirectoryContentToCache = 0x0;
+
         // C_WAnimPlaybackManager
         uint64_t C_WAnimPlaybackManager__PlayState = 0x0;
 
