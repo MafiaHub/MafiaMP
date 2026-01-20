@@ -247,6 +247,7 @@ namespace SDK {
         gPatterns.C_HumanScript__ScrAim         = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 55 56 57 48 8B EC 48 83 EC 20 48 8B DA 48 8B F9 48 8B 0D ? ? ? ? 48 8D 55 20 41 0F B6 F0"));
         gPatterns.C_HumanScript__ScrAimAt       = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 55 57 41 56 48 8B EC 48 83 EC 30 48 8B DA"));
         gPatterns.C_HumanScript__ScrAttack      = reinterpret_cast<uint64_t>(hook::get_pattern("48 85 D2 0F 84 ? ? ? ? 55 56 41 56"));
+        gPatterns.C_HumanScript__ScrDoAction    = reinterpret_cast<uint64_t>(hook::get_pattern("40 55 53 41 54 41 56 41 57 48 8B EC 48 81 EC"));
         gPatterns.C_HumanScript__SetHealth      = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? 48 8B 09 0F 29 74 24 ?"));
         gPatterns.C_HumanScript__SetStealthMove = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC 60 48 8B F9 0F B6 DA"));
 

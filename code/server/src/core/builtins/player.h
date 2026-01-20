@@ -5,6 +5,7 @@
 #include "human.h"
 
 namespace MafiaMP::Scripting {
+    class Vehicle;
     class Player final: public MafiaMP::Scripting::Human {
       public:
         Player(flecs::entity_t ent): Human(ent) {}
@@ -20,6 +21,10 @@ namespace MafiaMP::Scripting {
         std::string ToString() const override;
 
         void Destroy();
+
+        int GetVehicleSeat() const;
+        bool EnterVehicle(Vehicle vehicle, int seatId, bool forced);
+        bool ExitVehicle(bool forced);
 
         static void Register(sol::state *luaEngine);
     };
