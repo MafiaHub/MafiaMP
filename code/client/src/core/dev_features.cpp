@@ -407,7 +407,54 @@ namespace MafiaMP::Core {
     }
 
     void DevFeatures::SpawnCrashObject() {
-        auto info = Core::gApplication->GetEntityFactory()->RequestCrashObject("lh_city_stairs_module_a_v1");
+        // Cycle through different tree models from the SDS
+        static const char *crashObjectModels[] = {
+            "lh_tree_acer_saccharum_a_v1",
+            "lh_tree_acer_saccharum_a_v2",
+            "lh_tree_acer_saccharum_a_v3",
+            "lh_tree_acer_saccharum_a_v4",
+            "lh_tree_betula_papyrifera_a_v1",
+            "lh_tree_betula_papyrifera_a_v2",
+            "lh_tree_betula_papyrifera_a_v3",
+            "lh_tree_gleditsia_triacanthos_a_v1",
+            "lh_tree_gleditsia_triacanthos_a_v2",
+            "lh_tree_gleditsia_triacanthos_a_v3",
+            "lh_tree_gleditsia_triacanthos_a_v4",
+            "lh_tree_magnolia_grandiflora_a_v1",
+            "lh_tree_magnolia_grandiflora_a_v2",
+            "lh_tree_magnolia_grandiflora_a_v3",
+            "lh_tree_magnolia_grandiflora_a_v4",
+            "lh_tree_pinus_resinosa_a_v1",
+            "lh_tree_pinus_resinosa_a_v2",
+            "lh_tree_pinus_resinosa_a_v3",
+            "lh_tree_pinus_resinosa_a_v4",
+            "lh_tree_pinus_sylvestris_a_v1",
+            "lh_tree_pinus_sylvestris_a_v2",
+            "lh_tree_populus_nigra_a_v1",
+            "lh_tree_populus_nigra_a_v2",
+            "lh_tree_prunus_serotina_a_v1",
+            "lh_tree_prunus_serotina_a_v2",
+            "lh_tree_prunus_serotina_a_v3",
+            "lh_tree_quercus_alba_a_v1",
+            "lh_tree_quercus_alba_a_v2",
+            "lh_tree_quercus_alba_a_v3",
+            "lh_tree_quercus_alba_a_v4",
+            "lh_tree_quercus_alba_b_v2",
+            "lh_tree_ulmus_americana_a_v1",
+            "lh_tree_ulmus_americana_a_v2",
+            "lh_tree_ulmus_americana_a_v3",
+            "lh_tree_ulmus_americana_a_v4",
+            "lh_tree_ulmus_americana_a_v6",
+        };
+        static size_t crashObjectIndex = 0;
+
+        const char *modelName = crashObjectModels[crashObjectIndex];
+        crashObjectIndex      = (crashObjectIndex + 1) % std::size(crashObjectModels);
+
+        Framework::Logging::GetLogger("Playground")->info("Spawning crash object [{}/{}]: {}",
+            crashObjectIndex, std::size(crashObjectModels), modelName);
+
+        auto info = Core::gApplication->GetEntityFactory()->RequestCrashObject(modelName);
 
         const auto OnCrashObjRequestFinished = [&](Game::Streaming::EntityTrackingInfo *info, bool success) {
             if (success) {

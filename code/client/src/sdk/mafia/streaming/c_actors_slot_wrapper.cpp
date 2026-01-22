@@ -26,6 +26,10 @@ namespace SDK {
             hook::this_call<void>(gPatterns.C_ActorsSlotWrapper__Close, this, destroyActorItems);
         }
 
+        bool C_ActorsSlotWrapper::StartCaching() {
+            return hook::this_call<bool>(gPatterns.C_ActorsSlotWrapper__StartCaching, this);
+        }
+
         void *C_ActorsSlotWrapper::operator new(size_t size) {
             return C_IE::Alloc(size);
         }

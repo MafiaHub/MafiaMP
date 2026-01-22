@@ -8,13 +8,14 @@ namespace SDK {
     class Patterns {
       public:
         // C_ActorsSlotWrapper
-        uint64_t C_ActorsSlotWrapper__C_ActorsSlotWrapper  = 0x0;
-        uint64_t C_ActorsSlotWrapper__Close                = 0x0;
-        uint64_t C_ActorsSlotWrapper__CreateActor          = 0x0;
-        uint64_t C_ActorsSlotWrapper__GetFreeActor         = 0x0;
-        uint64_t C_ActorsSlotWrapper__ReturnActor          = 0x0;
-        uint64_t C_ActorsSlotWrapper__StartCaching         = 0x0;
-        uint64_t C_ActorsSlotWrapper__UpdateToCreateActors = 0x0;
+        uint64_t C_ActorsSlotWrapper__C_ActorsSlotWrapper     = 0x0;
+        uint64_t C_ActorsSlotWrapper__Close                   = 0x0;
+        uint64_t C_ActorsSlotWrapper__CreateActor             = 0x0;
+        uint64_t C_ActorsSlotWrapper__GetFreeActor            = 0x0;
+        uint64_t C_ActorsSlotWrapper__ReturnActor             = 0x0;
+        uint64_t C_ActorsSlotWrapper__StartCaching            = 0x0;
+        uint64_t C_ActorsSlotWrapper__StartCachingVisitor     = 0x0;
+        uint64_t C_ActorsSlotWrapper__UpdateToCreateActors    = 0x0;
 
         // C_BehaviorCharacter
         uint64_t C_BehaviorCharacter__SetWAnimVariable_float = 0x0;

@@ -11,6 +11,7 @@ namespace SDK {
         gPatterns.C_ActorsSlotWrapper__GetFreeActor         = reinterpret_cast<uint64_t>(hook::pattern("41 56 48 83 EC ? 33 C0 48 8B F9").get_first(-0xA));
         gPatterns.C_ActorsSlotWrapper__ReturnActor          = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 56 48 83 EC ? 48 8B 41 ? 40 32 ED"));
         gPatterns.C_ActorsSlotWrapper__StartCaching         = reinterpret_cast<uint64_t>(hook::get_pattern("4C 8B DC 49 89 5B ? 55 56 57 48 81 EC ? ? ? ? 48 8B F1"));
+        gPatterns.C_ActorsSlotWrapper__StartCachingVisitor  = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 56 48 83 EC ? ? ? ? 33 FF 4C 8B F2 89 7C 24 ? 48 8B E9"));
         gPatterns.C_ActorsSlotWrapper__UpdateToCreateActors = hook::get_opcode_address("E8 ? ? ? ? EB 25 83 FF 0A");
 
         // C_BehaviorCharacter
