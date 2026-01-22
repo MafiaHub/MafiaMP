@@ -22,6 +22,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/states/session_disconnection.cpp
     src/core/states/session_offline_debug.cpp
     src/core/states/shutdown.cpp
+    src/core/hooks/actors_slot_wrapper.cpp
     src/core/hooks/application.cpp
     src/core/hooks/camera.cpp
     src/core/hooks/character_controller.cpp
@@ -60,6 +61,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/entities/human/c_human_weapon_controller.cpp
     src/sdk/entities/human/c_human_script.cpp
     src/sdk/entities/c_car.cpp
+    src/sdk/entities/c_car_tuning_manager.cpp
     src/sdk/entities/c_door.cpp
     src/sdk/entities/c_entity.cpp
     src/sdk/entities/c_entity_list.cpp
