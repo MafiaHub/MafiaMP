@@ -43,6 +43,17 @@ namespace SDK {
         gPatterns.C_Car__Unlock            = hook::get_opcode_address("E8 ? ? ? ? C6 43 ? ? 48 83 C4 ? 5B C3 ? ? ? ? ? ? ? ? ? ? C2 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? C2 ? ?");
         gPatterns.C_Car__UnlockEntryPoints = hook::get_opcode_address("E8 ? ? ? ? 48 8B 6C 24 ? 48 83 C4 ? 5E C3 ? ? ? ? ? ? ? ? ? 48 89 5C 24 ?");
 
+        // C_Car - Tuning
+         gPatterns.C_Car__InitVisualTuning   = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 4C 24 ? 55 53 56 57 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 33 DB"));
+         gPatterns.C_Car__InstallTuningItems = reinterpret_cast<uint64_t>(hook::get_pattern("40 57 48 83 EC ? 48 8B F9 48 81 C1 ? ? ? ? E8 ? ? ? ? 48 8B CF"));
+         gPatterns.C_Car__SetColor           = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 55 41 54 41 55 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 33 DB"));
+         // gPatterns.C_Car__SetInteriorColorsSet = reinterpret_cast<uint64_t>(hook::get_pattern(""));
+         gPatterns.C_Car__SetPainting        = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B C4 55 56 48 8D 68 ? 48 81 EC ? ? ? ? 48 89 58 ? 48 89 78 ? 33 FF"));
+         gPatterns.C_Car__SetWindowTint      = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 56 48 81 EC ? ? ? ? 8B EA"));
+
+        // C_CarTuningManager
+        gPatterns.C_CarTuningManager__SetItemToSlot = reinterpret_cast<uint64_t>(hook::get_pattern("4C 8B 05 ? ? ? ? 48 8B 05 ? ? ? ? 4C 3B C0"));
+
         // C_CharacterController
         gPatterns.C_CharacterController__ActivateHandler                   = hook::get_opcode_address("E8 ? ? ? ? 48 8D 56 74");
         gPatterns.C_CharacterController__DeactivateHandler_FromPlayerInput = hook::get_opcode_address("E8 ? ? ? ? EB 0F 48 8B 93 ? ? ? ?");

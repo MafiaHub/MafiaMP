@@ -28,19 +28,28 @@ namespace SDK {
         uint64_t C_Car__GetDamage           = 0x0;
         uint64_t C_Car__GetFuelTankCapacity = 0x0;
         uint64_t C_Car__GetMotorDamage      = 0x0;
+        uint64_t C_Car__InitVisualTuning    = 0x0;
+        uint64_t C_Car__InstallTuningItems  = 0x0;
         uint64_t C_Car__Lock                = 0x0;
         uint64_t C_Car__LockEntryPoints     = 0x0;
         uint64_t C_Car__OpenHood            = 0x0;
         uint64_t C_Car__OpenTrunk           = 0x0;
         uint64_t C_Car__RestoreCar          = 0x0;
         uint64_t C_Car__SetActualFuel       = 0x0;
+        uint64_t C_Car__SetColor            = 0x0;
+        uint64_t C_Car__SetInteriorColorsSet = 0x0;
         uint64_t C_Car__SetMotorDamage      = 0x0;
+        uint64_t C_Car__SetPainting         = 0x0;
         uint64_t C_Car__SetSeatStatus       = 0x0;
         uint64_t C_Car__SetSpeed            = 0x0;
         uint64_t C_Car__SetTransparency     = 0x0;
         uint64_t C_Car__SetVehicleDirty     = 0x0;
+        uint64_t C_Car__SetWindowTint       = 0x0;
         uint64_t C_Car__Unlock              = 0x0;
         uint64_t C_Car__UnlockEntryPoints   = 0x0;
+
+        // C_CarTuningManager
+        uint64_t C_CarTuningManager__SetItemToSlot = 0x0;
 
         // C_CharacterController
         uint64_t C_CharacterController__ActivateHandler                   = 0x0;

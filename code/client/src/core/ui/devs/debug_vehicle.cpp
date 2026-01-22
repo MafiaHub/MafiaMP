@@ -4,6 +4,7 @@
 
 #include "sdk/constants.h"
 #include "sdk/entities/c_car.h"
+#include "sdk/entities/c_car_tuning_manager.h"
 #include "sdk/entities/c_player_2.h"
 #include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/ue/sys/math/c_vector.h"
@@ -200,6 +201,59 @@ namespace MafiaMP::Core::UI::Devs {
                 const uint32_t currentStation = currentVehicle->GetRadioStation();
                 currentVehicle->ChangeRadioStation(currentStation == 1 ? 0 : 1);
             }
+
+            // Tuning section
+            if (ImGui::CollapsingHeader("Tuning")) {
+                auto tuningMgr = currentCar->GetTuningManager();
+                if (tuningMgr) {
+                    ImGui::Text("Tuning Manager: 0x%p", tuningMgr);
+                    ImGui::Text("Slot Count: %zu", tuningMgr->GetSlotCount());
+                    ImGui::Text("Installed Items: %zu", tuningMgr->GetInstalledItemCount());
+
+                    ImGui::Separator();
+
+                    // Display installed tuning slots
+                    if (ImGui::TreeNode("Installed Slots")) {
+                        for (size_t i = 0; i < tuningMgr->GetSlotCount(); i++) {
+                            auto slot = tuningMgr->GetSlot(i);
+                            if (slot && slot->m_pCurrentItem) {
+                                ImGui::Text("Slot %02zu (ID %d): Item ID %d",
+                                    i,
+                                    slot->m_uSlotId,
+                                    slot->m_pCurrentItem->m_uItemId);
+                            }
+                            else if (slot) {
+                                ImGui::TextDisabled("Slot %02zu (ID %d): Empty", i, slot->m_uSlotId);
+                            }
+                        }
+                        ImGui::TreePop();
+                    }
+
+                    ImGui::Separator();
+
+                    // Input for setting tuning items
+                    static int tuningItemId = 0;
+                    ImGui::InputInt("Tuning Item ID", &tuningItemId);
+
+                    if (ImGui::Button("Apply Tuning Item")) {
+                        tuningMgr->SetItemToSlot(static_cast<uint16_t>(tuningItemId));
+                        currentCar->InstallTuningItems();
+                        Framework::Logging::GetLogger("debug")->info("Applied tuning item: {}", tuningItemId);
+                    }
+
+                    ImGui::SameLine();
+
+                    if (ImGui::Button("Reinstall All Tuning")) {
+                        currentCar->InstallTuningItems();
+                        Framework::Logging::GetLogger("debug")->info("Reinstalled all tuning items");
+                    }
+                }
+                else {
+                    ImGui::TextDisabled("Tuning manager not available");
+                }
+            }
+
+            ImGui::Separator();
 
             if (ImGui::Button("Restore")) {
                 currentCar->RestoreCar();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "c_actor_vehicle.h"
+#include "c_car_tuning_manager.h"
 #include "../ue/game/vehicle/c_vehicle.h"
 
 namespace SDK {
@@ -52,14 +53,30 @@ namespace SDK {
         void ExplodeCar(float, bool);
 
         ue::game::vehicle::C_Vehicle *GetVehicle() {
-            // TODO: move to class fields
             return reinterpret_cast<ue::game::vehicle::C_Vehicle *>((uintptr_t)this + 0xF8);
         }
 
         bool IsEngineOn() const {
-            // TODO: move to class fields
-            uint64_t flags = *reinterpret_cast<uint64_t *>((uintptr_t)this + 0x1280);
+            uint32_t flags = *reinterpret_cast<uint32_t *>((uintptr_t)this + 0x1280);
             return (flags >> 2) & 1;
         }
+
+        // Tuning system
+        C_CarTuningManager *GetTuningManager() {
+            return reinterpret_cast<C_CarTuningManager *>((uintptr_t)this + 0x1B20);
+        }
+
+        const C_CarTuningManager *GetTuningManager() const {
+            return reinterpret_cast<const C_CarTuningManager *>((uintptr_t)this + 0x1B20);
+        }
+
+        void InstallTuningItems();
+        void InitVisualTuning();
+
+        // Color/painting
+        void SetColor(uint32_t color1, uint32_t color2, bool metallic);
+        void SetInteriorColorsSet(uint32_t setId);
+        void SetWindowTint(uint32_t tintId);
+        void SetPainting(const char *paintingName, uint8_t arg);
     };
 } // namespace SDK

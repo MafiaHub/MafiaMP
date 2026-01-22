@@ -120,4 +120,29 @@ namespace SDK {
     void C_Car::ExplodeCar(float unk1, bool unk2) {
         hook::this_call(gPatterns.C_Car__ExplodeCar_2, this, unk1, unk2);
     }
+
+    // Tuning methods
+    void C_Car::InstallTuningItems() {
+        hook::this_call<void>(gPatterns.C_Car__InstallTuningItems, this);
+    }
+
+    void C_Car::InitVisualTuning() {
+        hook::this_call<void>(gPatterns.C_Car__InitVisualTuning, this);
+    }
+
+    void C_Car::SetColor(uint32_t color1, uint32_t color2, bool metallic) {
+        hook::this_call<void>(gPatterns.C_Car__SetColor, this, color1, color2, metallic);
+    }
+
+    void C_Car::SetInteriorColorsSet(uint32_t setId) {
+        hook::this_call<void>(gPatterns.C_Car__SetInteriorColorsSet, this, setId);
+    }
+
+    void C_Car::SetWindowTint(uint32_t tintId) {
+        hook::this_call<void>(gPatterns.C_Car__SetWindowTint, this, tintId);
+    }
+
+    void C_Car::SetPainting(const char *paintingName, uint8_t arg) {
+        hook::this_call<void>(gPatterns.C_Car__SetPainting, this, paintingName, arg);
+    }
 } // namespace SDK
