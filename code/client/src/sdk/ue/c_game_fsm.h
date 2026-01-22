@@ -26,5 +26,7 @@ namespace SDK {
             }
         };
 
+        static_assert(sizeof(C_GameFSM) == 0x18, "C_GameFSM size mismatch");
+
     } // namespace ue
 } // namespace SDK
