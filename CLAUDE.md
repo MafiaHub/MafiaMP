@@ -142,3 +142,42 @@ cmake --build build --target RunFrameworkTests
 - Entity state synchronization via tick-based updates
 - Connection management with automatic reconnection support
 - Custom message serialization for game-specific data types
+
+## Code Style
+
+### SDK Files (`code/client/src/sdk/`)
+
+SDK files should be minimal and clean. Follow these guidelines:
+
+**Comments:**
+- Use offset comments on class members: `// 0x00 - 0x08`
+- Brief section headers are acceptable: `// Seat management`
+- Use `// TODO:` for known incomplete work
+- NO doxygen-style documentation (`/** */`, `@param`, `@return`)
+- NO verbose docstrings or method descriptions
+- NO redundant comments that just repeat the function name
+
+**Example - Good:**
+```cpp
+class C_Example {
+  public:
+    void SetSpeed(float speed);
+    float GetSpeed() const;
+
+  private:
+    float m_fSpeed;    // 0x00 - 0x04
+    char _pad0[0x4];   // 0x04 - 0x08
+};
+```
+
+**Example - Bad:**
+```cpp
+class C_Example {
+  public:
+    /**
+     * Set the speed value
+     * @param speed The speed to set
+     */
+    void SetSpeed(float speed);
+};
+```
