@@ -45,67 +45,100 @@ namespace SDK {
          * C_Camera - Base camera class
          * Size: 0x328 (808 bytes)
          *
-         * Note: vtable at 0x00 is implicit from virtual methods
+         * Reversed from:
+         * - Constructor: ue::game::camera::C_Camera::C_Camera (0x1409963d0)
+         * - Reset: ue::game::camera::C_Camera::Reset (0x1409b2310)
+         * - GetRight/GetUp/GetDir/GetPos accessors
+         *
+         * Allocation size confirmed from C_MafiaCameraModule::SystemInit (0x142de89c0)
+         * operator_new(832) for C_GameCameraMafia, with base class ending at 0x328
          */
         class C_Camera {
           public:
-            void *m_pScriptEntityVtable;                                    // 0008 - 0010 (I_ScriptEntity interface)
-            bool m_bEnabled;                                                // 0010 - 0011
-            char pad0[0x02];                                                // 0011 - 0013
-            char pad1[0x61];                                                // 0013 - 0074
-            float m_fUnk74;                                                 // 0074 - 0078 (-4.0f)
-            uint64_t m_iUnk78;                                              // 0078 - 0080
-            uint32_t m_iUnk80;                                              // 0080 - 0084
-            sys::math::C_Vector m_vUnk84;                                   // 0084 - 0090
-            C_CameraRenderData m_RenderData;                                // 0090 - 0190
-            void *m_pRenderDataPtr;                                         // 0190 - 0198 (pointer to m_RenderData)
-            void *m_pPreserveAimController;                                 // 0198 - 01A0
-            void *m_pAimAssistController;                                   // 01A0 - 01A8
-            uint16_t m_iCameraID;                                           // 01A8 - 01AA
-            char pad2[0x06];                                                // 01AA - 01B0
-            void *m_pModeStackStart;                                        // 01B0 - 01B8 (std::vector<C_CameraMode*>)
-            void *m_pModeStackEnd;                                          // 01B8 - 01C0
-            void *m_pModeStackCapacity;                                     // 01C0 - 01C8
-            char pad3[0x01];                                                // 01C8 - 01C9
-            uint16_t m_iUnk1C9;                                             // 01C9 - 01CB
-            bool m_bUnk1CB;                                                 // 01CB - 01CC
-            char pad4[0x2C];                                                // 01CC - 01F8
-            void *m_pRefCountPtr1;                                          // 01F8 - 0200
-            void *m_pSceneObject;                                           // 0200 - 0208
-            char *m_sCameraObject;                                          // 0208 - 0210 (camera object name)
-            void *m_pUnk210;                                                // 0210 - 0218
-            void *m_pScene;                                                 // 0218 - 0220
-            void *m_pRenderContext;                                         // 0220 - 0228
-            void *m_pRenderDestination;                                     // 0228 - 0230
-            bool m_bUnk230;                                                 // 0230 - 0231
-            char pad5[0x0B];                                                // 0231 - 023C
-            sys::math::C_Vector m_vUnk23C;                                  // 023C - 0248
-            void *m_pUnk248;                                                // 0248 - 0250
-            void *m_pUnk250;                                                // 0250 - 0258
-            uint64_t m_iUnk258;                                             // 0258 - 0260
-            uint32_t m_iUnk260;                                             // 0260 - 0264
-            char pad6[0x04];                                                // 0264 - 0268
-            char m_Unk268[0x10];                                            // 0268 - 0278 (oword)
-            char m_Unk278[0x10];                                            // 0278 - 0288 (oword)
-            char m_Unk288[0x10];                                            // 0288 - 0298 (oword)
-            S_ForcedLook m_ForcedLook;                                      // 0298 - 02B0
-            void *m_pUnk2B0;                                                // 02B0 - 02B8
-            void *m_pUnk2B8;                                                // 02B8 - 02C0
-            void *m_pUnk2C0;                                                // 02C0 - 02C8
-            void *m_pRefCountPtr2;                                          // 02C8 - 02D0
-            void *m_pUnk2D0;                                                // 02D0 - 02D8
-            uint16_t m_iUnk2D8;                                             // 02D8 - 02DA
-            char pad7[0x1E];                                                // 02DA - 02F8
-            uint32_t m_iUnk2F8;                                             // 02F8 - 02FC
-            char pad8[0x04];                                                // 02FC - 0300
-            void *m_pRequestsStart;                                         // 0300 - 0308
-            void *m_pRequestsEnd;                                           // 0308 - 0310
-            void *m_pRequestsCapacity;                                      // 0310 - 0318
-            uint32_t m_iUnk318;                                             // 0318 - 031C
-            uint16_t m_iUnk31C;                                             // 031C - 031E
-            char pad9[0x02];                                                // 031E - 0320
-            bool m_bInitialized;                                            // 0320 - 0321
-            char pad10[0x07];                                               // 0321 - 0328
+            void *m_pScriptEntityVtable;                                    // 0x08 - 0x10 (I_ScriptEntity interface)
+
+            // Section 0x10 - 0x18: Enabled flag and padding
+            bool m_bEnabled;                                                // 0x10 - 0x11
+            uint8_t m_bFlags11;                                             // 0x11 - 0x12 (WORD at 0x11, low byte)
+            uint8_t m_bFlags12;                                             // 0x12 - 0x13 (WORD at 0x11, high byte)
+            uint8_t m_pad13[0x05];                                          // 0x13 - 0x18
+
+            // Section 0x18 - 0x48: View matrix (stores right/dir/up/pos vectors)
+            sys::math::C_Matrix m_mViewMatrix;                              // 0x18 - 0x48
+
+            // Section 0x48 - 0x70: Cached direction vectors (from Reset)
+            sys::math::C_Vector m_vCachedRight;                             // 0x48 - 0x54 (init {0,0,0})
+            sys::math::C_Vector m_vCachedUp;                                // 0x54 - 0x60 (init {0,1,0})
+            sys::math::C_Vector m_vCachedDir;                               // 0x60 - 0x6C (init {0,0,1})
+            float m_fUnk6C;                                                 // 0x6C - 0x70 (init 50.0f)
+
+            // Section 0x70 - 0x90: More camera parameters
+            uint32_t m_dwPad70;                                             // 0x70 - 0x74
+            float m_fUnk74;                                                 // 0x74 - 0x78 (init -1.0f)
+            float m_fFOVRadians;                                            // 0x78 - 0x7C (init 70.0f in radians = 1.22173)
+            float m_fUnk7C;                                                 // 0x7C - 0x80
+            uint32_t m_dwUnk80;                                             // 0x80 - 0x84
+            sys::math::C_Vector m_vUnk84;                                   // 0x84 - 0x90
+
+            // Section 0x90 - 0x190: Render data (256 bytes)
+            C_CameraRenderData m_RenderData;                                // 0x90 - 0x190
+
+            // Section 0x190 - 0x1B0: Pointers and camera ID
+            void *m_pRenderDataPtr;                                         // 0x190 - 0x198
+            void *m_pPreserveAimController;                                 // 0x198 - 0x1A0
+            void *m_pAimAssistController;                                   // 0x1A0 - 0x1A8
+            uint16_t m_iCameraID;                                           // 0x1A8 - 0x1AA
+            uint8_t m_pad1AA[0x06];                                         // 0x1AA - 0x1B0
+
+            // Section 0x1B0 - 0x1D4: Mode stack and flags
+            void *m_pModeStackStart;                                        // 0x1B0 - 0x1B8
+            void *m_pModeStackEnd;                                          // 0x1B8 - 0x1C0
+            void *m_pModeStackCapacity;                                     // 0x1C0 - 0x1C8
+            uint16_t m_wFlags1C8;                                           // 0x1C8 - 0x1CA
+            uint8_t m_bUnk1CA;                                              // 0x1CA - 0x1CB
+            uint8_t m_bUnk1CB;                                              // 0x1CB - 0x1CC (init 1)
+            uint32_t m_dwUnk1CC;                                            // 0x1CC - 0x1D0
+            uint32_t m_dwUnk1D0;                                            // 0x1D0 - 0x1D4 (init 1053609165 = 0.29f)
+
+            // Section 0x1D4 - 0x1F8: Unknown region
+            uint8_t m_pad1D4[0x24];                                         // 0x1D4 - 0x1F8
+
+            // Section 0x1F8 - 0x230: Scene objects and pointers
+            void *m_pRefCountPtr1;                                          // 0x1F8 - 0x200
+            void *m_pSceneObject;                                           // 0x200 - 0x208
+            char *m_sCameraObject;                                          // 0x208 - 0x210
+            void *m_pCameraComponent;                                       // 0x210 - 0x218 (offset 66*8=528 from this+8)
+            void *m_pScene;                                                 // 0x218 - 0x220
+            void *m_pRenderContext;                                         // 0x220 - 0x228
+            void *m_pRenderDestination;                                     // 0x228 - 0x230
+
+            // Section 0x230 - 0x298: Vectors and OWORDs
+            uint8_t m_bUnk230;                                              // 0x230 - 0x231
+            uint8_t m_pad231[0x0B];                                         // 0x231 - 0x23C
+            sys::math::C_Vector m_vUnk23C;                                  // 0x23C - 0x248
+            void *m_pUnk248;                                                // 0x248 - 0x250
+            uint64_t m_qwUnk250;                                            // 0x250 - 0x258
+            uint64_t m_qwUnk258;                                            // 0x258 - 0x260
+            uint32_t m_dwUnk260;                                            // 0x260 - 0x264
+            uint32_t m_pad264;                                              // 0x264 - 0x268
+            uint8_t m_oword268[0x10];                                       // 0x268 - 0x278 (OWORD)
+            uint8_t m_oword278[0x10];                                       // 0x278 - 0x288 (OWORD)
+            uint8_t m_oword288[0x10];                                       // 0x288 - 0x298 (OWORD)
+
+            // Section 0x298 - 0x2F8: Forced look state (96 bytes)
+            S_ForcedLook m_ForcedLook;                                      // 0x298 - 0x2F8
+
+            // Section 0x2F8 - 0x328: Request vector and flags
+            uint32_t m_dwUnk2F8;                                            // 0x2F8 - 0x2FC
+            uint32_t m_pad2FC;                                              // 0x2FC - 0x300
+            void *m_pRequestsStart;                                         // 0x300 - 0x308
+            void *m_pRequestsEnd;                                           // 0x308 - 0x310
+            void *m_pRequestsCapacity;                                      // 0x310 - 0x318
+            uint32_t m_dwUnk318;                                            // 0x318 - 0x31C
+            uint16_t m_wUnk31C;                                             // 0x31C - 0x31E
+            uint16_t m_pad31E;                                              // 0x31E - 0x320
+            bool m_bInitialized;                                            // 0x320 - 0x321 (set to 1 at offset 800)
+            uint8_t m_pad321[0x07];                                         // 0x321 - 0x328
 
           public:
             virtual void GetPosDir(sys::math::C_Vector &pos, sys::math::C_Vector &dir)                                                                              = 0;
