@@ -14,11 +14,11 @@ namespace SDK {
             char *stringPtr          = nullptr;
 
           public:
-            const char *c_str() {
+            const char *c_str() const {
                 if (!this)
                     return nullptr;
 
-                return *reinterpret_cast<const char **>(this);
+                return *reinterpret_cast<const char *const *>(this);
             }
 
             void SetString(const char *str);
