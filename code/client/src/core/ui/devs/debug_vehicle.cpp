@@ -7,6 +7,8 @@
 #include "sdk/entities/c_player_2.h"
 #include "sdk/entities/c_vehicle.h"
 #include "sdk/ue/sys/math/c_vector.h"
+#include "sdk/ue/game/humanai/c_character_controller.h"
+#include "sdk/wrappers/c_human_2_car_wrapper.h"
 
 #include "game/helpers/controls.h"
 
@@ -17,7 +19,21 @@ namespace MafiaMP::Core::UI::Devs {
 
     void DebugVehicle::OnUpdate() {
         const auto pActivePlayer = Game::Helpers::Controls::GetLocalPlayer();
-        SDK::C_Car *currentCar   = pActivePlayer ? reinterpret_cast<SDK::C_Car *>(pActivePlayer->GetOwner()) : nullptr;
+
+        // Get current vehicle using the same pattern as the multiplayer hooks
+        SDK::C_Car *currentCar = nullptr;
+        if (pActivePlayer) {
+            auto charCtrl = pActivePlayer->GetCharacterController();
+            if (charCtrl) {
+                auto carHandler = charCtrl->GetCarHandler();
+                if (carHandler) {
+                    auto carWrapper = carHandler->GetHuman2CarWrapper();
+                    if (carWrapper) {
+                        currentCar = carWrapper->m_pUsedCar;
+                    }
+                }
+            }
+        }
 
         auto windowContent = [&]() {
             if (!currentCar) {
@@ -26,6 +42,9 @@ namespace MafiaMP::Core::UI::Devs {
             }
 
             auto currentVehicle = currentCar->GetVehicle();
+            if (!currentVehicle) {
+                return;
+            }
 
             if (ImGui::Button("Print Pointers")) {
                 Framework::Logging::GetLogger("debug")->info("Car Ptr: 0x{}, Vehicle Ptr: 0x{}", fmt::ptr(currentCar), fmt::ptr(currentVehicle));
