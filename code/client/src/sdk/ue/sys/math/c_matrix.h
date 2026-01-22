@@ -60,7 +60,7 @@ namespace SDK {
             }
 
             void Zero() {
-                memset(mData, 0, sizeof(float) * 16);
+                memset(mData, 0, sizeof(mData));
             }
 
             void SetDir(C_Vector const &arg1, C_Vector const &arg2);
@@ -71,7 +71,10 @@ namespace SDK {
             void SetRotEuler(float pitch, float yaw, float roll);
 
           private:
-            float mData[16];
+            float mData[12];  // 3x4 matrix (48 bytes)
         };
+
+        // Static size: 0x30 (48 bytes)
+        static_assert(sizeof(C_Matrix) == 0x30, "C_Matrix size mismatch");
     }; // namespace ue::sys::math
 } // namespace SDK
