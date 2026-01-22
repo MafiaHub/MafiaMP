@@ -108,10 +108,10 @@ int64_t C_WindowProcHandler__CreateMainWindow(void *_this, SDK::ue::C_Applicatio
     auto result = C_WindowProcHandler__CreateMainWindow_original(_this, appWin32);
     Framework::Logging::GetLogger("Hooks")->debug("MainWindow Created");
 
-    MafiaMP::Core::gApplicationModuleContext.windowHandle = appWin32->m_pWindow;
+    MafiaMP::Core::gApplicationModuleContext.windowHandle = appWin32->m_hWindow;
 
-    SetWindowTextA(appWin32->m_pWindow, "Mafia: Multiplayer");
-    g_pOriginalWndProcHandler = (WNDPROC)SetWindowLongPtrW(appWin32->m_pWindow, GWLP_WNDPROC, (LONG_PTR)WndProc);
+    SetWindowTextA(appWin32->m_hWindow, "Mafia: Multiplayer");
+    g_pOriginalWndProcHandler = (WNDPROC)SetWindowLongPtrW(appWin32->m_hWindow, GWLP_WNDPROC, (LONG_PTR)WndProc);
 
     return result;
 }

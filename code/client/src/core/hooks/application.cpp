@@ -15,7 +15,7 @@ C_Application_Win32__Initialize_t C_Application_Win32__Initialize_original = nul
 
 int64_t __fastcall C_Application_Win32__Initialize(SDK::ue::C_Application_Win32 *pThis) {
     const auto result = C_Application_Win32__Initialize_original(pThis);
-    Framework::Logging::GetLogger("Hooks")->info("Application Initialized (FPS {}/{}) (Unique ID {})", pThis->m_nFPSMin, pThis->m_nFPSMax, pThis->m_sUniqueId);
+    Framework::Logging::GetLogger("Hooks")->info("Application Initialized (FrameTime {}/{} ms) (Unique ID {})", pThis->m_nMinFrameTimeMs, pThis->m_nMaxFrameTimeMs, pThis->m_sUniqueId);
     Framework::Logging::GetLogger("Hooks")->debug("Application command line size: {}", pThis->m_pCommandLine->m_vCommands.size());
 
     return result;
