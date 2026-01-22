@@ -1,7 +1,7 @@
 #pragma once
 
 #include "c_actor_vehicle.h"
-#include "c_vehicle.h"
+#include "../ue/game/vehicle/c_vehicle.h"
 
 namespace SDK {
     class I_Human2;
@@ -51,9 +51,9 @@ namespace SDK {
         void ExplodeCar();
         void ExplodeCar(float, bool);
 
-        C_Vehicle *GetVehicle() {
+        ue::game::vehicle::C_Vehicle *GetVehicle() {
             // TODO: move to class fields
-            return reinterpret_cast<C_Vehicle *>((uintptr_t)this + 0xF8);
+            return reinterpret_cast<ue::game::vehicle::C_Vehicle *>((uintptr_t)this + 0xF8);
         }
 
         bool IsEngineOn() const {

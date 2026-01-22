@@ -65,7 +65,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/entities/c_entity_list.cpp
     srC/sdk/entities/c_human2.cpp
     src/sdk/entities/c_player_2.cpp
-    src/sdk/entities/c_vehicle.cpp
+    src/sdk/ue/game/vehicle/c_vehicle.cpp
     src/sdk/c_inventory_wrapper.cpp
     src/sdk/mafia/database/c_ui_database.cpp
     src/sdk/mafia/framework/director/c_game_director.cpp

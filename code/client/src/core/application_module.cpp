@@ -7,7 +7,7 @@
 #include "sdk/c_game.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
-#include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/entities/human/c_human_weapon_controller.h"
 #include "sdk/ue/c_application_win32.h"
 #include "sdk/ue/sys/core/c_core.h"

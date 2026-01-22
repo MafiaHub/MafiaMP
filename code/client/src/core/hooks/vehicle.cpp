@@ -17,7 +17,7 @@
 #include "sdk/entities/c_actor.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_human_2.h"
-#include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
 
 SDK::C_Actor *C_ActorAction__GetOwnerAsActor(void *pThis) {

@@ -2,7 +2,7 @@
 
 #include "vehicle.h"
 
-#include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/mafia/framework/c_mafia_framework.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
@@ -40,7 +40,7 @@ namespace MafiaMP::Core::Modules {
 
                     SDK::ue::sys::math::C_Vector carPos = ((SDK::C_Actor *)car)->GetPos();
                     SDK::ue::sys::math::C_Quat carRot   = ((SDK::C_Actor *)car)->GetRot();
-                    SDK::C_Vehicle *vehicle             = car->GetVehicle();
+                    SDK::ue::game::vehicle::C_Vehicle *vehicle             = car->GetVehicle();
 
                     SDK::ue::sys::math::C_Vector vehicleVelocity        = vehicle->GetSpeed();
                     SDK::ue::sys::math::C_Vector vehicleAngularVelocity = vehicle->GetAngularSpeed();
@@ -203,7 +203,7 @@ namespace MafiaMP::Core::Modules {
 
         auto updateData         = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
         SDK::C_Car *car         = trackingData->car;
-        SDK::C_Vehicle *vehicle = car->GetVehicle();
+        SDK::ue::game::vehicle::C_Vehicle *vehicle = car->GetVehicle();
 
         SDK::ue::sys::math::C_Vector4 colorPrimary   = {updateData->colorPrimary.r, updateData->colorPrimary.g, updateData->colorPrimary.b, updateData->colorPrimary.a};
         SDK::ue::sys::math::C_Vector4 colorSecondary = {updateData->colorSecondary.r, updateData->colorSecondary.g, updateData->colorSecondary.b, updateData->colorSecondary.a};
@@ -425,7 +425,7 @@ namespace MafiaMP::Core::Modules {
         return carID;
     }
 
-    flecs::entity Vehicle::GetCarEntityByVehicle(SDK::C_Vehicle *vehiclePtr) {
+    flecs::entity Vehicle::GetCarEntityByVehicle(SDK::ue::game::vehicle::C_Vehicle *vehiclePtr) {
         flecs::entity carID {};
         _findAllVehicles.each([&carID, vehiclePtr](flecs::entity e, Core::Modules::Vehicle::Tracking &trackingData) {
             if (trackingData.car && trackingData.car->GetVehicle() && trackingData.car->GetVehicle() == vehiclePtr) {

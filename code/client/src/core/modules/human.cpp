@@ -16,7 +16,7 @@
 #include "sdk/c_player_teleport_module.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
-#include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
 
@@ -59,10 +59,6 @@ namespace MafiaMP::Core::Modules {
                     tr.pos                              = {newPos.x, newPos.y, newPos.z};
                     tr.rot                              = {newRot.w, newRot.x, newRot.y, newRot.z};
 
-                    // Acquire the aiming direction
-                    SDK::ue::sys::math::C_Vector aimDir;
-                    tracking.human->GetHumanWeaponController()->GetAimDir(&aimDir);
-
                     // Store the required metadata for onfoot sync
                     auto charController            = tracking.human->GetCharacterController();
                     metadata._healthPercent        = MafiaMP::Game::Helpers::Human::GetHealthPercent(tracking.human);
@@ -70,10 +66,17 @@ namespace MafiaMP::Core::Modules {
                     metadata._isStalking           = charController->IsStalkMove();
                     metadata._isSprinting          = charController->IsSprinting();
                     metadata._sprintSpeed          = charController->GetSprintMoveSpeed();
-                    metadata.weaponData.aimDir          = {aimDir.x, aimDir.y, aimDir.z};
-                    metadata.weaponData.currentWeaponId = tracking.human->GetHumanWeaponController()->GetRightHandWeaponID();
-                    metadata.weaponData.isAiming        = tracking.human->GetHumanWeaponController()->IsAiming();
-                    metadata.weaponData.isFiring        = tracking.human->GetHumanWeaponController()->m_bFirePressed;
+
+                    // Weapon controller can be null during player initialization
+                    auto weaponController = tracking.human->GetHumanWeaponController();
+                    if (weaponController) {
+                        SDK::ue::sys::math::C_Vector aimDir;
+                        weaponController->GetAimDir(&aimDir);
+                        metadata.weaponData.aimDir          = {aimDir.x, aimDir.y, aimDir.z};
+                        metadata.weaponData.currentWeaponId = weaponController->GetRightHandWeaponID();
+                        metadata.weaponData.isAiming        = weaponController->IsAiming();
+                        metadata.weaponData.isFiring        = weaponController->m_bFirePressed;
+                    }
 
                     // Current state-specific sync data
                     switch (metadata._charStateHandlerType) {
@@ -339,17 +342,19 @@ namespace MafiaMP::Core::Modules {
 
         // Weapon inventory sync
         const auto wepController = trackingData->human->GetHumanWeaponController();
-        if (wepController->GetRightHandWeaponID() != updateData->weaponData.currentWeaponId) {
-            wepController->DoWeaponSelectByItemId(updateData->weaponData.currentWeaponId, true);
+        if (wepController) {
+            if (wepController->GetRightHandWeaponID() != updateData->weaponData.currentWeaponId) {
+                wepController->DoWeaponSelectByItemId(updateData->weaponData.currentWeaponId, true);
+            }
+
+            // Aiming state sync
+            SDK::ue::C_CntPtr<uintptr_t> syncObject2;
+            trackingData->human->GetHumanScript()->ScrAim(syncObject2, updateData->weaponData.isAiming);
+            wepController->SetAiming(updateData->weaponData.isAiming);
+
+            // Shooting state sync
+            wepController->SetFirePressedFlag(updateData->weaponData.isFiring);
         }
-
-        // Aiming state sync
-        SDK::ue::C_CntPtr<uintptr_t> syncObject2;
-        trackingData->human->GetHumanScript()->ScrAim(syncObject2, updateData->weaponData.isAiming);
-        wepController->SetAiming(updateData->weaponData.isAiming);
-
-        // Shooting state sync
-        wepController->SetFirePressedFlag(updateData->weaponData.isFiring);
     }
 
     void Human::Remove(flecs::entity e) {
@@ -455,6 +460,9 @@ namespace MafiaMP::Core::Modules {
             }
 
             const auto wepController = trackingData->human->GetHumanWeaponController();
+            if (!wepController) {
+                return;
+            }
             SDK::ue::sys::math::C_Vector dir, pos;
             pos = {msg->GetAimPos().x, msg->GetAimPos().y, msg->GetAimPos().z};
             dir = {msg->GetAimDir().x, msg->GetAimDir().y, msg->GetAimDir().z};
@@ -473,6 +481,9 @@ namespace MafiaMP::Core::Modules {
             }
 
             const auto wepController = trackingData->human->GetHumanWeaponController();
+            if (!wepController) {
+                return;
+            }
             wepController->DoWeaponReloadInventory(msg->GetUnk0());
         });
 

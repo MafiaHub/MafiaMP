@@ -5,7 +5,7 @@
 #include "sdk/constants.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
-#include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/ue/sys/math/c_vector.h"
 #include "sdk/ue/game/humanai/c_character_controller.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
@@ -139,14 +139,14 @@ namespace MafiaMP::Core::UI::Devs {
                 currentVehicle->SetEngineOn(isEngineOn, isEngineOn);
             }
 
-            bool isLeftIndicatorOn = currentVehicle->IsIndicatorLightOn(SDK::E_VehicleIndicator::INDICATOR_LEFT);
+            bool isLeftIndicatorOn = currentVehicle->IsIndicatorLightOn(SDK::ue::game::vehicle::E_VehicleIndicator::INDICATOR_LEFT);
             if (ImGui::Checkbox("Left Indicator", &isLeftIndicatorOn)) {
-                currentVehicle->SetIndicatorLightsOn(isLeftIndicatorOn, SDK::E_VehicleIndicator::INDICATOR_LEFT);
+                currentVehicle->SetIndicatorLightsOn(isLeftIndicatorOn, SDK::ue::game::vehicle::E_VehicleIndicator::INDICATOR_LEFT);
             }
 
-            bool isRightIndicatorOn = currentVehicle->IsIndicatorLightOn(SDK::E_VehicleIndicator::INDICATOR_RIGHT);
+            bool isRightIndicatorOn = currentVehicle->IsIndicatorLightOn(SDK::ue::game::vehicle::E_VehicleIndicator::INDICATOR_RIGHT);
             if (ImGui::Checkbox("Right Indicator", &isRightIndicatorOn)) {
-                currentVehicle->SetIndicatorLightsOn(isRightIndicatorOn, SDK::E_VehicleIndicator::INDICATOR_RIGHT);
+                currentVehicle->SetIndicatorLightsOn(isRightIndicatorOn, SDK::ue::game::vehicle::E_VehicleIndicator::INDICATOR_RIGHT);
             }
 
             SDK::ue::sys::math::C_Vector4 color1, color2;

@@ -97,7 +97,9 @@ namespace MafiaMP::Core {
                     Game::Helpers::Human::AddWeapon(human, 85, 200);
                     Game::Helpers::Human::AddWeapon(human, 3, 200);
                     Game::Helpers::Human::AddWeapon(human, 13, 200);
-                    human->GetHumanWeaponController()->DoWeaponSelectByItemId(85, true);
+                    if (auto wepCtrl = human->GetHumanWeaponController()) {
+                        wepCtrl->DoWeaponSelectByItemId(85, true);
+                    }
                 }
             };
 
@@ -134,10 +136,11 @@ namespace MafiaMP::Core {
 
             SDK::ue::C_CntPtr<uintptr_t> syncObject2;
             SDK::C_Entity *ent = reinterpret_cast<SDK::C_Entity *>(localPlayer);
-            human->GetHumanScript()->ScrAim(syncObject2, !human->GetHumanWeaponController()->IsAiming());
-            // human->GetHumanScript()->ScrAimAt(syncObject2, ent, newPos, !human->GetHumanWeaponController()->IsAiming());
-
-            Framework::Logging::GetLogger("Playground")->debug("Aiming : {}", human->GetHumanWeaponController()->IsAiming());
+            if (auto wepCtrl = human->GetHumanWeaponController()) {
+                human->GetHumanScript()->ScrAim(syncObject2, !wepCtrl->IsAiming());
+                // human->GetHumanScript()->ScrAimAt(syncObject2, ent, newPos, !wepCtrl->IsAiming());
+                Framework::Logging::GetLogger("Playground")->debug("Aiming : {}", wepCtrl->IsAiming());
+            }
         }
 
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F7)) {

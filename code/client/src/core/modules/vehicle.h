@@ -41,6 +41,6 @@ namespace MafiaMP::Core::Modules {
         static void UpdateTransform(flecs::entity e);
 
         static flecs::entity GetCarEntity(SDK::C_Car *carPtr);
-        static flecs::entity GetCarEntityByVehicle(SDK::C_Vehicle *vehiclePtr);
+        static flecs::entity GetCarEntityByVehicle(SDK::ue::game::vehicle::C_Vehicle *vehiclePtr);
     };
 } // namespace MafiaMP::Core::Modules

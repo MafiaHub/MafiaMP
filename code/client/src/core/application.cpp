@@ -17,7 +17,7 @@
 
 #include "game/helpers/controls.h"
 #include "game/streaming/entity_factory.h"
-#include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.h"
 
 #include "external/imgui/widgets/corner_text.h"
