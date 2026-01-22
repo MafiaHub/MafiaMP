@@ -8,6 +8,7 @@
 
 #include "../../../prefab/c_prefab_init_data.h"
 
+#include "../crashobject/c_deformation.h"
 #include "c_synchro_command_manager.h"
 #include "c_vehicle_real_light_manager.h"
 
@@ -27,7 +28,7 @@ namespace SDK {
             INDICATOR_LEFT  = 1,
         };
 
-        class C_Vehicle {
+        class C_Vehicle : public ue::game::crashobject::C_Deformation {
           public:
             void AddVehicleFlags(uint64_t);
             void ClearVehicleFlags(uint64_t);
@@ -145,17 +146,7 @@ namespace SDK {
             }
 
           private:
-            // Base class: C_Deformation / physics base (0x000 - 0x247)
-            char pad_base_class[0x38];                                         // 0000 - 0038
-            void **m_pSceneObjectsStart;                                       // 0038 - 0040 (used in IsActive)
-            void **m_pSceneObjectsEnd;                                         // 0040 - 0048
-            void **m_pSceneObjectsCapacity;                                    // 0048 - 0050
-            char pad_base_0[0x28];                                             // 0050 - 0078
-            int32_t m_iBaseFlags;                                              // 0078 - 007C
-            float m_fBaseFloat;                                                // 007C - 0080 (default 1.0f)
-            char pad_base_1[0x28];                                             // 0080 - 00A8
-            char m_embeddedSubStruct[0x180];                                   // 00A8 - 0228 (embedded sub-structure)
-            char pad_base_2[0x20];                                             // 0228 - 0248
+            // Inherited: ue::game::crashobject::C_Deformation (0x000 - 0x248)
             // Multiple inheritance interface vtables (0x248 - 0x270)
             void *m_pVtblInterface1;                                           // 0248 - 0250
             void *m_pVtblInterface2;                                           // 0250 - 0258
