@@ -3,13 +3,9 @@
 #include <stdint.h>
 
 namespace SDK {
-    /**
-     * Time budget information for tick management.
-     * Used by the game FSM to track available time budget for frame processing.
-     */
     class C_TimeBudgetInfo {
       public:
-        float _fAvailableBudget; // 0x00 - Available time budget in seconds
+        float _fAvailableBudget; // 0000 - 0004
 
       public:
         void SetAvailableBudget(float budget) {
@@ -20,21 +16,18 @@ namespace SDK {
             return _fAvailableBudget;
         }
 
-        /**
-         * Context class for time budget management during tick processing.
-         */
         class C_Ctx {
           private:
-            uint64_t _unk0;              // 0x00
-            uint32_t _unk8;              // 0x08
-            int32_t _eventType;          // 0x0C - Event type (default: 5 = E_TMEVENT_TICK_ALWAYS)
-            uint32_t _unk16;             // 0x10
-            float _fMinBudget;           // 0x14 - Minimum budget
-            C_TimeBudgetInfo *_pBudget;  // 0x18 - Pointer to time budget info
-            uint32_t _unk32;             // 0x20
-            uint32_t _unk36;             // 0x24
-            uint64_t _unk40;             // 0x28
-            uint8_t _pad48[32];          // 0x30
+            uint64_t _unk0;              // 0000 - 0008
+            uint32_t _unk8;              // 0008 - 000C
+            int32_t _eventType;          // 000C - 0010
+            uint32_t _unk16;             // 0010 - 0014
+            float _fMinBudget;           // 0014 - 0018
+            C_TimeBudgetInfo *_pBudget;  // 0018 - 0020
+            uint32_t _unk32;             // 0020 - 0024
+            uint32_t _unk36;             // 0024 - 0028
+            uint64_t _unk40;             // 0028 - 0030
+            uint8_t _pad48[32];          // 0030 - 0050
 
           public:
             C_Ctx()
