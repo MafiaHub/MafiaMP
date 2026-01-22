@@ -10,8 +10,10 @@ namespace SDK {
         // C_ActorsSlotWrapper
         uint64_t C_ActorsSlotWrapper__C_ActorsSlotWrapper  = 0x0;
         uint64_t C_ActorsSlotWrapper__Close                = 0x0;
+        uint64_t C_ActorsSlotWrapper__CreateActor          = 0x0;
         uint64_t C_ActorsSlotWrapper__GetFreeActor         = 0x0;
         uint64_t C_ActorsSlotWrapper__ReturnActor          = 0x0;
+        uint64_t C_ActorsSlotWrapper__StartCaching         = 0x0;
         uint64_t C_ActorsSlotWrapper__UpdateToCreateActors = 0x0;
 
         // C_BehaviorCharacter
@@ -187,6 +189,7 @@ namespace SDK {
         // C_Human2CarWrapper
         uint64_t C_Human2CarWrapper__GetSeatID = 0x0;
         uint64_t C_Human2CarWrapper__IsEngineOn = 0x0;
+        uint64_t C_Human2CarWrapper__StartChangeSeat = 0x0;
 
         // C_HumanInventory
         uint64_t C_HumanInventory__AddItem                       = 0x0;
