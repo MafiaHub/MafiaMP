@@ -32,12 +32,18 @@
 #include <cstdint>
 
 namespace SDK {
+    /**
+     * I_Human2 - Human entity interface
+     *
+     * Inheritance: C_Entity (0xE0) -> C_EntityPos (0xE0) -> C_Actor (0xF8) -> I_Human2
+     * I_Human2 members start at offset 0xF8
+     */
     class I_Human2: public C_Actor {
         friend class C_HumanHeadController;
         friend class C_HumanScript;
 
       public:
-        char pad0[0x100];                                                 // 0008 - 0108
+        char pad0[0x10];                                                  // 00F8 - 0108 (I_Human2-specific data)
         ai::sight::C_HumanDetector *m_pHumanDetector;                     // 0108 - 0110
         game::ai::sight::C_ActorEmitter *m_pUnkActorEmitter1;             // 0110 - 0118
         char pad1[0x8];                                                   // 0118 - 0120
@@ -77,6 +83,7 @@ namespace SDK {
         char pad82[0x10];                                                 // 02A8 - 02B8
         float field_02B8;                                                 // 02B8 - 02BC
         float m_fWaterLevel;                                              // 02BC - 02C0
+        char pad_02C0[0x22];                                              // 02C0 - 02E2 (unknown/padding)
         bool m_bWasCarried;                                               // 02E2 - 02E3
         char pad9[0x65];                                                  // 02E3 - 0348
         ue::game::human::C_Agent *m_pAgent;                               // 0348 - 0350
@@ -230,4 +237,19 @@ namespace SDK {
         void EnableShadows(bool);
         void EnableHumanClothes();
     };
+
+    // Verify critical offsets for game compatibility
+    static_assert(offsetof(I_Human2, m_pHumanDetector) == 0x108, "I_Human2::m_pHumanDetector offset mismatch");
+    static_assert(offsetof(I_Human2, m_pHumanInventory) == 0x128, "I_Human2::m_pHumanInventory offset mismatch");
+    static_assert(offsetof(I_Human2, m_pHumanScript) == 0x130, "I_Human2::m_pHumanScript offset mismatch");
+    static_assert(offsetof(I_Human2, m_pHumanWeaponController) == 0x148, "I_Human2::m_pHumanWeaponController offset mismatch");
+    static_assert(offsetof(I_Human2, m_pCharacterState) == 0x1C8, "I_Human2::m_pCharacterState offset mismatch");
+    static_assert(offsetof(I_Human2, m_fHealth) == 0x1E0, "I_Human2::m_fHealth offset mismatch");
+    static_assert(offsetof(I_Human2, m_pHealthSystem) == 0x2A0, "I_Human2::m_pHealthSystem offset mismatch");
+    static_assert(offsetof(I_Human2, m_fWaterLevel) == 0x2BC, "I_Human2::m_fWaterLevel offset mismatch");
+    static_assert(offsetof(I_Human2, m_bWasCarried) == 0x2E2, "I_Human2::m_bWasCarried offset mismatch");
+    static_assert(offsetof(I_Human2, m_pAgent) == 0x348, "I_Human2::m_pAgent offset mismatch");
+    static_assert(offsetof(I_Human2, m_fTransparency) == 0x384, "I_Human2::m_fTransparency offset mismatch");
+    static_assert(offsetof(I_Human2, m_pCharacterController) == 0x478, "I_Human2::m_pCharacterController offset mismatch");
+    static_assert(offsetof(I_Human2, m_pModelComponent) == 0x4A8, "I_Human2::m_pModelComponent offset mismatch");
 } // namespace SDK

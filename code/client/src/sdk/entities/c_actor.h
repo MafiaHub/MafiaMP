@@ -8,6 +8,16 @@
 #include <cstdint>
 
 namespace SDK {
+    /**
+     * C_Actor - Base class for actors (entities with position and transform)
+     *
+     * Size: 0xF8 (248 bytes)
+     *
+     * Members:
+     *   0xE0: I_ActorActions* - Interface vtable for actor actions (type name: E_ActorActions)
+     *   0xE8: S_ActorStreamingInfo* - Streaming info structure (owner at +0x18, activated flag at +0x168)
+     *   0xF0: C_Actor* - Direct owner pointer (used by I_Human2::SetOwner)
+     */
     class C_Actor: public C_EntityPos {
       public:
         virtual void SetPos(ue::sys::math::C_Vector const &)                                                                              = 0;
@@ -37,8 +47,18 @@ namespace SDK {
         virtual bool __UNK_VIRTUAL_FN_440(uint8_t, uint8_t, void *, void *)                                                               = 0;
 
         C_Actor *GetOwner() {
-            auto unk = *(uint64_t *)((uintptr_t)this + 0x238);
-            return unk != 0x0 ? *(C_Actor **)((uint64_t)unk + 0x18) : nullptr;
+            return m_pActorStreamingInfo != nullptr ? *(C_Actor **)((uint64_t)m_pActorStreamingInfo + 0x18) : nullptr;
         }
+
+        C_Actor *GetDirectOwner() {
+            return m_pOwner;
+        }
+
+      protected:
+        void *m_pActorActions;                               // 0xE0 - 0xE8 (I_ActorActions interface vtable)
+        void *m_pActorStreamingInfo;                         // 0xE8 - 0xF0 (S_ActorStreamingInfo* - has owner at +0x18, activated flag at +0x168)
+        C_Actor *m_pOwner;                                   // 0xF0 - 0xF8 (Direct owner actor pointer)
     };
+
+    static_assert(sizeof(C_Actor) == 0xF8, "C_Actor size mismatch");
 } // namespace SDK

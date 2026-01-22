@@ -84,6 +84,13 @@ namespace SDK {
         virtual void OnEvent(C_Entity *, /*E_EntityEvents*/ int) {}
     };
 
+    enum class E_UpdateRate : uint8_t {
+        E_UPDATE_RATE_UNK0 = 0,
+        E_UPDATE_RATE_UNK1 = 1,
+        E_UPDATE_RATE_UNK2 = 2,
+        E_UPDATE_RATE_UNK5 = 5
+    };
+
     class C_Actor;
     class C_Entity {
       public:
@@ -119,7 +126,7 @@ namespace SDK {
         virtual void UpdateIdleFX(float)                                       = 0;
         virtual void UpdateIdleRC(float)                                       = 0;
 
-        // Non-virtual helper to get prefab type (calls actual vtable[4] which is GetPrefabType in binary)
+        // Non-virtual helper to get prefab type
         prefab::E_PREFAB_TYPE GetPrefabType() {
             using Fn = int(__fastcall *)(void *);
             auto vtable = *(uintptr_t **)this;
@@ -178,17 +185,42 @@ namespace SDK {
 
         void Release();
 
-      private:
-        char m_aPad08[16];                                   // 0x08 - 0x18
+      protected:
+        void *m_pMessageReceiverList;                        // 0x08 - 0x10
+        void *m_pMessageReceiverListEnd;                     // 0x10 - 0x18
         uint32_t m_nIdAndType;                               // 0x18 - 0x1C (type in low byte, id in upper 24 bits)
         uint32_t m_nFlags;                                   // 0x1C - 0x20
-        char m_aPad20[8];                                    // 0x20 - 0x28
-        uint64_t m_nNameHash;                                // 0x28 - 0x30 (copied from SceneObject+0x48)
-        char m_aPad30[104];                                  // 0x30 - 0x98
+        float m_fUnk20;                                      // 0x20 - 0x24 (initialized to -1.0f)
+        uint8_t m_bSceneLocked;                              // 0x24 - 0x25
+        uint8_t m_bProcessingListeners;                      // 0x25 - 0x26
+        E_UpdateRate m_eUpdateRate;                          // 0x26 - 0x27
+        uint8_t m_nPad27;                                    // 0x27 - 0x28
+        uint64_t m_nNameHash;                                // 0x28 - 0x30
+        void *m_pScriptEventTree;                            // 0x30 - 0x38
+        void *m_pScriptEventTreeEnd;                         // 0x38 - 0x40
+        void *m_pLuaEventTree;                               // 0x40 - 0x48
+        void *m_pLuaEventTreeEnd;                            // 0x48 - 0x50
+        void *m_pEventListStart;                             // 0x50 - 0x58
+        void *m_pEventListEnd;                               // 0x58 - 0x60
+        void *m_pEventListCapacity;                          // 0x60 - 0x68
+        void *m_pListenerListStart;                          // 0x68 - 0x70
+        void *m_pListenerListEnd;                            // 0x70 - 0x78
+        void *m_pListenerListCapacity;                       // 0x78 - 0x80
+        void *m_pPendingListenerStart;                       // 0x80 - 0x88
+        void *m_pPendingListenerEnd;                         // 0x88 - 0x90
+        void *m_pPendingListenerCapacity;                    // 0x90 - 0x98
         void *m_pInitData;                                   // 0x98 - 0xA0
         prefab::C_PrefabInitData m_PrefabInitData;           // 0xA0 - 0xA8
         ue::sys::core::C_SceneObject *m_pSceneObject;        // 0xA8 - 0xB0
-        char m_aPadB0[24];                                   // 0xB0 - 0xC8
+        void *m_pSceneObjectRef;                             // 0xB0 - 0xB8
+        void *m_pSceneObjectRefData;                         // 0xB8 - 0xC0
+        uint16_t m_nSceneObjectRefFlags;                     // 0xC0 - 0xC2
+        uint8_t m_nPadC2[6];                                 // 0xC2 - 0xC8
         void *m_pSceneObjectFix;                             // 0xC8 - 0xD0
+        uint32_t m_nDelSlot;                                 // 0xD0 - 0xD4
+        uint8_t m_nPadD4[4];                                 // 0xD4 - 0xD8
+        void *m_pSound;                                      // 0xD8 - 0xE0
     };
+
+    static_assert(sizeof(C_Entity) == 0xE0, "C_Entity size mismatch");
 } // namespace SDK
