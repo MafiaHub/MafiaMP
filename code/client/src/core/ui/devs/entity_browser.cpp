@@ -133,10 +133,11 @@ namespace MafiaMP::Core::UI::Devs {
                     if (!sceneObject)
                         continue;
 
-                    if (!sceneObject->GetName() || !sceneObject->GetName()->c_str())
+                    const char *sceneName = sceneObject->GetName();
+                    if (!sceneName)
                         continue;
 
-                    if (strlen(_entityFilter) > 0 && strstr(sceneObject->GetName()->c_str(), _entityFilter) == nullptr)
+                    if (strlen(_entityFilter) > 0 && strstr(sceneName, _entityFilter) == nullptr)
                         continue;
 
                     if (_entityRange > 0.0f && actor->GetPos().dist(localPlayer->GetPos()) >= _entityRange)
@@ -165,7 +166,7 @@ namespace MafiaMP::Core::UI::Devs {
                             continue;
                     }
 
-                    auto sceneObjectName = fmt::format("{} {} {} ({})", i, sceneObject->GetName()->c_str(), _filterIter->second, entity->GetType());
+                    auto sceneObjectName = fmt::format("{} {} {} ({})", i, sceneName, _filterIter->second, entity->GetType());
                     if (ImGui::Selectable(sceneObjectName.c_str(), _selectedIndex == i)) {
                         _selectedIndex = i;
                     }
@@ -178,8 +179,9 @@ namespace MafiaMP::Core::UI::Devs {
                 auto inspectedEntity = reinterpret_cast<SDK::C_Actor *>(entityList->GetEntityByIndex(_selectedIndex));
                 if (inspectedEntity) {
                     auto sceneObject = reinterpret_cast<SDK::C_Entity *>(inspectedEntity)->GetSceneObject();
-                    if (sceneObject && sceneObject->GetName() && sceneObject->GetName()->c_str()) {
-                        ImGui::Text("Entity name: %s", sceneObject->GetName()->c_str());
+                    const char *inspectedName = sceneObject ? sceneObject->GetName() : nullptr;
+                    if (inspectedName) {
+                        ImGui::Text("Entity name: %s", inspectedName);
                         ImGui::Text("Entity type: %s", _allTypes[inspectedEntity->GetType()].c_str());
 
                         auto entityPtr = reinterpret_cast<SDK::C_Entity *>(inspectedEntity);

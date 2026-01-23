@@ -343,6 +343,16 @@ namespace SDK {
         // C_SceneObject
         uint64_t C_SceneObject__SetTransform = 0x0;
 
+        // C_SceneObjectManager
+        uint64_t C_SceneObjectManager__GetSceneObject = 0x0;
+
+        // C_SceneObjectRequestCache
+        uint64_t C_SceneObjectRequestCache__AddCache      = 0x0;
+        uint64_t C_SceneObjectRequestCache__TryGetObject  = 0x0;
+
+        // C_ScriptObjectDuplicator
+        uint64_t C_ScriptObjectDuplicator__DuplicateSceneObject = 0x0;
+
         // C_ShotManager
         uint64_t C_ShotManager__CreateExplosion = 0x0;
         uint64_t C_ShotManager__CreateFire      = 0x0;

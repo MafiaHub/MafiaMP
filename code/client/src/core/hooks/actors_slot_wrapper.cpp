@@ -60,13 +60,7 @@ void __fastcall StartCachingVisitor_Hook(uintptr_t a1, uintptr_t *a2) {
     }
 
     auto *sceneObj = reinterpret_cast<SDK::ue::sys::core::C_SceneObject *>(sceneObjPtr);
-    auto *nameStr  = sceneObj->GetName();
-    if (!nameStr) {
-        StartCachingVisitor_original(a1, a2);
-        return;
-    }
-
-    const char *sceneObjName = nameStr->c_str();
+    const char *sceneObjName = sceneObj->GetName();
     if (!sceneObjName) {
         StartCachingVisitor_original(a1, a2);
         return;
