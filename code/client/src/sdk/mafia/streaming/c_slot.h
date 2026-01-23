@@ -2,9 +2,14 @@
 
 #include "../../ue/c_string.h"
 #include "../../ue/sys/core/c_scene.h"
+#include "../../ue/sys/core/c_scene_object.h"
 #include "../../ue/sys/utils/c_hash_name.h"
 #include "../../streammap/flags/e_slot_type.h"
 #include "e_slot_state.h"
+
+#include <functional>
+#include <string>
+#include <vector>
 
 namespace SDK {
     namespace mafia::streaming {
@@ -63,7 +68,39 @@ namespace SDK {
             }
 
             size_t GetSceneObjectCount() const {
+                if (!m_SceneObjectsStart || !m_SceneObjectsEnd) {
+                    return 0;
+                }
                 return (m_SceneObjectsEnd - m_SceneObjectsStart);
+            }
+
+            ue::sys::core::C_SceneObject *GetSceneObject(size_t index) const {
+                if (index >= GetSceneObjectCount()) {
+                    return nullptr;
+                }
+                return reinterpret_cast<ue::sys::core::C_SceneObject *>(m_SceneObjectsStart[index]);
+            }
+
+            void EnumerateSceneObjects(const std::function<bool(size_t index, ue::sys::core::C_SceneObject *obj)> &callback) const {
+                const size_t count = GetSceneObjectCount();
+                for (size_t i = 0; i < count; ++i) {
+                    auto *obj = GetSceneObject(i);
+                    if (obj && !callback(i, obj)) {
+                        break;
+                    }
+                }
+            }
+
+            std::vector<std::string> GetSceneObjectNames() const {
+                std::vector<std::string> names;
+                EnumerateSceneObjects([&](size_t, ue::sys::core::C_SceneObject *obj) {
+                    const char *name = obj->GetName();
+                    if (name && name[0] != '\0') {
+                        names.push_back(name);
+                    }
+                    return true;
+                });
+                return names;
             }
         };
     } // namespace mafia::streaming
