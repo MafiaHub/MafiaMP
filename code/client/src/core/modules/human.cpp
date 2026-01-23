@@ -16,6 +16,7 @@
 #include "sdk/c_player_teleport_module.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
+#include "sdk/ue/game/anim/e_wanim_behavior_var.h"
 #include "sdk/ue/game/human/c_behavior_character.h"
 #include "sdk/ue/game/humanai/c_character_state_handler.h"
 #include "sdk/ue/game/vehicle/c_vehicle.h"
@@ -80,6 +81,17 @@ namespace MafiaMP::Core::Modules {
                         metadata.weaponData.isFiring        = weaponController->m_bFirePressed;
                     }
 
+                    // Collect all animation variables from the behavior character
+                    auto currentHandler = charController->GetCurrentStateHandler();
+                    if (currentHandler) {
+                        auto behaviorChar = currentHandler->GetBehaviorCharacter();
+                        if (behaviorChar) {
+                            for (size_t i = 0; i < Shared::Modules::WANIM_VAR_SYNC_COUNT; ++i) {
+                                metadata._animVars[i] = behaviorChar->GetWAnimVariable(static_cast<SDK::ue::game::anim::E_WAnimBehaviorVar>(i));
+                            }
+                        }
+                    }
+
                     // Current state-specific sync data
                     switch (metadata._charStateHandlerType) {
                     case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_MOVE: {
@@ -87,12 +99,6 @@ namespace MafiaMP::Core::Modules {
                         uint8_t moveMode         = hmm != SDK::E_HumanMoveMode::E_HMM_NONE ? static_cast<uint8_t>(hmm) : (uint8_t)-1;
 
                         metadata._moveMode = moveMode;
-
-                        // Get the animation speed (WAnimVariable 0) for walk/run blend
-                        auto currentHandler = charController->GetCurrentStateHandler();
-                        if (currentHandler && currentHandler->GetBehaviorCharacter()) {
-                            metadata._animMoveSpeed = currentHandler->GetBehaviorCharacter()->GetWAnimVariable(0);
-                        }
                     } break;
 
                     case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR: {
@@ -347,11 +353,14 @@ namespace MafiaMP::Core::Modules {
         const auto hmm = updateData->_moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(updateData->_moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
         trackingData->charController->SetMoveStateOverride(hmm, updateData->_isSprinting, updateData->_sprintSpeed);
 
-        // Set animation speed (WAnimVariable 0) for walk/run blend
-        if (desiredStateHandlerType == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_MOVE) {
-            auto currentHandler = trackingData->charController->GetCurrentStateHandler();
-            if (currentHandler && currentHandler->GetBehaviorCharacter()) {
-                currentHandler->GetBehaviorCharacter()->SetWAnimVariable(0, updateData->_animMoveSpeed);
+        // Apply all animation variables from sync data
+        auto currentHandler = trackingData->charController->GetCurrentStateHandler();
+        if (currentHandler) {
+            auto behaviorChar = currentHandler->GetBehaviorCharacter();
+            if (behaviorChar) {
+                for (size_t i = 0; i < Shared::Modules::WANIM_VAR_SYNC_COUNT; ++i) {
+                    behaviorChar->SetWAnimVariable(static_cast<SDK::ue::game::anim::E_WAnimBehaviorVar>(i), updateData->_animVars[i]);
+                }
             }
         }
 
