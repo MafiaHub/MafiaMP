@@ -10,6 +10,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/ui/devs/camera_studio.cpp
     src/core/ui/devs/debug_audio.cpp
     src/core/ui/devs/debug_player.cpp
+    src/core/ui/devs/debug_prefab.cpp
     src/core/ui/devs/debug_vehicle.cpp
     src/core/ui/devs/debug_world.cpp
     src/core/ui/devs/entity_browser.cpp
@@ -69,6 +70,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/entities/c_player_2.cpp
     src/sdk/ue/game/vehicle/c_vehicle.cpp
     src/sdk/c_inventory_wrapper.cpp
+    src/sdk/prefab/c_prefab_manager.cpp
     src/sdk/mafia/database/c_ui_database.cpp
     src/sdk/mafia/framework/director/c_game_director.cpp
     src/sdk/mafia/framework/c_mafia_dbs.cpp

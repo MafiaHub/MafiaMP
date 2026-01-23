@@ -8,6 +8,7 @@
 #include "ui/devs/camera_studio.h"
 #include "ui/devs/debug_audio.h"
 #include "ui/devs/debug_player.h"
+#include "ui/devs/debug_prefab.h"
 #include "ui/devs/debug_vehicle.h"
 #include "ui/devs/debug_world.h"
 #include "ui/devs/entity_browser.h"
@@ -23,6 +24,8 @@ namespace MafiaMP::Core {
         std::shared_ptr<UI::Devs::DebugAudio> _debugAudio {};
 
         std::shared_ptr<UI::Devs::DebugPlayer> _debugPlayer {};
+
+        std::shared_ptr<UI::Devs::DebugPrefab> _debugPrefab {};
 
         std::shared_ptr<UI::Devs::DebugVehicle> _debugVehicle {};
 
@@ -45,6 +48,7 @@ namespace MafiaMP::Core {
         void ToggleCameraStudio();
         void ToggleDebugAudio();
         void ToggleDebugPlayer();
+        void ToggleDebugPrefab();
         void ToggleDebugVehicle();
         void ToggleDebugWorld();
         void ToggleEntityBrowser();

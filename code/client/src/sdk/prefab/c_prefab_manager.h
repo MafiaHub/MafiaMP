@@ -113,6 +113,15 @@ namespace SDK {
             void SetPrefabWorker(I_PrefabWorker *worker);
             void Shutdown();
 
+            // Accessors for debug/inspection
+            const std::vector<S_PrefabEntry> &GetPrefabs() const {
+                return m_aPrefabs;
+            }
+
+            size_t GetPrefabCount() const {
+                return m_aPrefabs.size();
+            }
+
           private:
             C_PrefabManager();
             ~C_PrefabManager();

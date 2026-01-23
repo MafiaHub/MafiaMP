@@ -24,6 +24,7 @@ namespace MafiaMP::Core {
         _cameraStudio  = std::make_shared<UI::Devs::CameraStudio>();
         _debugAudio    = std::make_shared<UI::Devs::DebugAudio>();
         _debugPlayer   = std::make_shared<UI::Devs::DebugPlayer>();
+        _debugPrefab   = std::make_shared<UI::Devs::DebugPrefab>();
         _debugVehicle  = std::make_shared<UI::Devs::DebugVehicle>();
         _debugWorld    = std::make_shared<UI::Devs::DebugWorld>();
         _entityBrowser = std::make_shared<UI::Devs::EntityBrowser>();
@@ -39,6 +40,7 @@ namespace MafiaMP::Core {
         _cameraStudio->Update();
         _debugAudio->Update();
         _debugPlayer->Update();
+        _debugPrefab->Update();
         _debugVehicle->Update();
         _debugWorld->Update();
         _entityBrowser->Update();
@@ -275,6 +277,13 @@ namespace MafiaMP::Core {
             "toggles player debug dialog");
 
         gApplication->GetCommandProcessor()->RegisterCommand(
+            "showDebugPrefab", {},
+            [this](const cxxopts::ParseResult &result) {
+                ToggleDebugPrefab();
+            },
+            "toggles prefab manager dialog");
+
+        gApplication->GetCommandProcessor()->RegisterCommand(
             "showDebugVehicle", {},
             [this](const cxxopts::ParseResult &result) {
                 ToggleDebugVehicle();
@@ -339,6 +348,9 @@ namespace MafiaMP::Core {
                 if (ImGui::MenuItem("Player debug", "F3")) {
                     ToggleDebugPlayer();
                 }
+                if (ImGui::MenuItem("Prefab Manager")) {
+                    ToggleDebugPrefab();
+                }
                 if (ImGui::MenuItem("Vehicle debug", "F4")) {
                     ToggleDebugVehicle();
                 }
@@ -370,6 +382,10 @@ namespace MafiaMP::Core {
 
     void DevFeatures::ToggleDebugPlayer() {
         _debugPlayer->Toggle();
+    }
+
+    void DevFeatures::ToggleDebugPrefab() {
+        _debugPrefab->Toggle();
     }
 
     void DevFeatures::ToggleDebugVehicle() {
