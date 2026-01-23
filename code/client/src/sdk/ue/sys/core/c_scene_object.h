@@ -9,20 +9,20 @@
 
 namespace SDK {
     namespace ue::sys::core {
-        enum class E_TransformChangeType { DEFAULT };
+        class C_Scene;
 
-        /**
-         * C_SceneObject - Scene graph object representation
-         * Size: at least 0xA0 (160 bytes)
-         *
-         * Reversed from:
-         * - Constructor: 0x143295e60
-         * - Activate: 0x1432bd430
-         * - Vtable: 0x144F04008
-         *
-         * Inherits from C_ComponentObject which provides component-based architecture
-         * and adds scene graph specific functionality like transform matrix.
-         */
+        enum class E_TransformChangeType : int {
+            DEFAULT   = 0,
+            NO_NOTIFY = 2
+        };
+
+        enum class E_SceneObjectOrigin : int {
+            UNKNOWN    = 0,
+            STREAMING  = 1,
+            DUPLICATED = 2,
+            PROCEDURAL = 3
+        };
+
         class C_SceneObject : public C_ComponentObject {
           public:
             uint64_t GetNameHash() const {
@@ -33,11 +33,23 @@ namespace SDK {
                 return *reinterpret_cast<const char *const *>(reinterpret_cast<const char *>(this) + 0x50);
             }
 
+            bool IsActivated() const {
+                return (m_wFlags & 0x01) != 0;
+            }
+
+            C_Scene *GetScene() const {
+                return m_pScene;
+            }
+
+            const ue::sys::math::C_Matrix &GetTransformRef() const {
+                return m_mTransform;
+            }
+
             ue::sys::math::C_Matrix GetTransform();
             void SetTransform(const ue::sys::math::C_Matrix &transform, E_TransformChangeType changeType);
 
           protected:
-            void *m_pUnk58;                           // 0x58 - 0x60
+            C_Scene *m_pScene;                        // 0x58 - 0x60
             ue::sys::math::C_Matrix m_mTransform;     // 0x60 - 0x90
             uint32_t m_dwUnk90;                       // 0x90 - 0x94
             uint16_t m_wFlags;                        // 0x94 - 0x96
