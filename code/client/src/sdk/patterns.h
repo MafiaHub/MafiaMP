@@ -18,6 +18,7 @@ namespace SDK {
         uint64_t C_ActorsSlotWrapper__UpdateToCreateActors    = 0x0;
 
         // C_BehaviorCharacter
+        uint64_t C_BehaviorCharacter__GetWAnimVariable_float = 0x0;
         uint64_t C_BehaviorCharacter__SetWAnimVariable_float = 0x0;
 
         // C_Car
@@ -95,6 +96,11 @@ namespace SDK {
         uint64_t C_CommandLine__GetCommandParam        = 0x0;
         uint64_t C_CommandLine__GetCommandParamsCount  = 0x0;
         uint64_t C_CommandLine__ProcessCommandLine     = 0x0;
+
+        // ComponentUtils
+        uint64_t ComponentUtils__Attach              = 0x0;
+        uint64_t ComponentUtils__Detach              = 0x0;
+        uint64_t ComponentUtils__DuplicateSceneObject = 0x0;
 
         // C_Ctx
         uint64_t C_Ctx__BeginUpdate = 0x0;

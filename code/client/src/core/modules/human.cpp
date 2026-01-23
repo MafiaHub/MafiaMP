@@ -16,6 +16,8 @@
 #include "sdk/c_player_teleport_module.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
+#include "sdk/ue/game/human/c_behavior_character.h"
+#include "sdk/ue/game/humanai/c_character_state_handler.h"
 #include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
@@ -86,6 +88,11 @@ namespace MafiaMP::Core::Modules {
 
                         metadata._moveMode = moveMode;
 
+                        // Get the animation speed (WAnimVariable 0) for walk/run blend
+                        auto currentHandler = charController->GetCurrentStateHandler();
+                        if (currentHandler && currentHandler->GetBehaviorCharacter()) {
+                            metadata._animMoveSpeed = currentHandler->GetBehaviorCharacter()->GetWAnimVariable(0);
+                        }
                     } break;
 
                     case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR: {
@@ -339,6 +346,14 @@ namespace MafiaMP::Core::Modules {
         trackingData->charController->SetStalkMoveOverride(updateData->_isStalking);
         const auto hmm = updateData->_moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(updateData->_moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
         trackingData->charController->SetMoveStateOverride(hmm, updateData->_isSprinting, updateData->_sprintSpeed);
+
+        // Set animation speed (WAnimVariable 0) for walk/run blend
+        if (desiredStateHandlerType == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_MOVE) {
+            auto currentHandler = trackingData->charController->GetCurrentStateHandler();
+            if (currentHandler && currentHandler->GetBehaviorCharacter()) {
+                currentHandler->GetBehaviorCharacter()->SetWAnimVariable(0, updateData->_animMoveSpeed);
+            }
+        }
 
         // Weapon inventory sync
         const auto wepController = trackingData->human->GetHumanWeaponController();

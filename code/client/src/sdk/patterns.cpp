@@ -15,6 +15,7 @@ namespace SDK {
         gPatterns.C_ActorsSlotWrapper__UpdateToCreateActors = hook::get_opcode_address("E8 ? ? ? ? EB 25 83 FF 0A");
 
         // C_BehaviorCharacter
+        gPatterns.C_BehaviorCharacter__GetWAnimVariable_float = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 10 F3 0F 10 90 D0 01");
         gPatterns.C_BehaviorCharacter__SetWAnimVariable_float = hook::get_opcode_address("E9 ? ? ? ? 83 FA 20");
 
         // C_Car
@@ -100,6 +101,11 @@ namespace SDK {
         gPatterns.C_CommandLine__GetCommandParam        = reinterpret_cast<uint64_t>(hook::get_pattern("85 D2 78 ? 48 8B 41 ? 48 2B 41 ? 48 C1 F8 ? 3B D0 7D ? 45 85 C0"));
         gPatterns.C_CommandLine__GetCommandParamsCount  = reinterpret_cast<uint64_t>(hook::get_pattern("4C 8B C1 85 D2 78 ? 48 8B 41 ? 48 2B 41 ? 48 C1 F8 ? 3B D0 7D ? 49 8B 40 ? 48 63 CA 48 C1 E1"));
         gPatterns.C_CommandLine__ProcessCommandLine     = reinterpret_cast<uint64_t>(hook::get_pattern("48 85 D2 0F 84 ? ? ? ? 55 57 41 54"));
+
+        // ComponentUtils
+        gPatterns.ComponentUtils__Attach              = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 55 56 57 41 56 48 83 EC 30 48 8B 39 41 0F B7 E8 4C 8B F2 48 8B F1 48 8B 5F 08"));
+        gPatterns.ComponentUtils__Detach              = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B 59 08 48 8B F9"));
+        gPatterns.ComponentUtils__DuplicateSceneObject = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 40 49 8B F8 48 8B DA 48 8B F1"));
 
         // C_Ctx
         gPatterns.C_Ctx__BeginUpdate = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 48 8B D9 48 89 51 ? 48 8D 4C 24 ?"));

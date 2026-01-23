@@ -4,8 +4,6 @@
 
 #include "scoped_entity_type_faker.h"
 
-#include <logging/logger.h>
-
 namespace MafiaMP::Game::Overrides {
     uintptr_t CharacterController::_vfTables[2]            = {0, 0};
     static uintptr_t C_CharacterController__DestructorAddr  = 0;
@@ -142,6 +140,14 @@ namespace MafiaMP::Game::Overrides {
             }
 
             SetSprintMoveSpeed(_sprintMoveSpeed);
+
+            // Apply animation move speed (WAnimVariable 0) every frame for walk/run blend
+            if (_animMoveSpeed > 0.0f) {
+                auto behaviorChar = pMoveHandler->GetBehaviorCharacter();
+                if (behaviorChar) {
+                    behaviorChar->SetWAnimVariable(0, _animMoveSpeed);
+                }
+            }
 
             if (IsSprinting() != _isSprintingOverride) {
                 SetSprinting(_isSprintingOverride);

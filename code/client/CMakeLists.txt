@@ -4,6 +4,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/application.cpp
     src/core/application_module.cpp
     src/core/dev_features.cpp
+    src/core/dev/local_replicator.cpp
     src/core/ui/ui_base.cpp
     src/core/ui/chat.cpp
     src/core/ui/console.cpp
@@ -112,6 +113,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.cpp
     src/sdk/ue/gfx/environmenteffects/c_weather_manager_2.cpp
     src/sdk/ue/sys/core/c_scene_object.cpp
+    src/sdk/ue/sys/core/component_utils.cpp
     src/sdk/ue/sys/core/i_core.cpp
     src/sdk/ue/sys/core/c_object_spawner.cpp
     src/sdk/ue/sys/input/c_keyboard.cpp

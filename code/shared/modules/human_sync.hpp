@@ -17,7 +17,8 @@ namespace MafiaMP::Shared::Modules {
             bool _isSprinting = false;
             bool _isStalking  = false;
 
-            float _sprintSpeed = 0.0f;
+            float _sprintSpeed     = 0.0f;
+            float _animMoveSpeed   = 0.0f; // WAnimVariable 0 - controls walk/run animation blend
 
             struct CarPassenger {
                 uint64_t carId{};

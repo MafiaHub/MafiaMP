@@ -14,6 +14,7 @@ namespace SDK {
                 return m_pWAnimPlaybackManager;
             }
             void SetWAnimVariable(int id, float value);
+            float GetWAnimVariable(int id) const;
         };
     } // namespace ue::game::human
 }
