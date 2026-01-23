@@ -81,8 +81,10 @@ void __fastcall StartCachingVisitor_Hook(uintptr_t a1, uintptr_t *a2) {
         return;
     }
 
-    // Not our target, use default behavior
-    StartCachingVisitor_original(a1, a2);
+    // IMPORTANT: When we have a specific target model, do NOT call the original function
+    // for non-matching objects. The original function uses priority-based selection which
+    // would overwrite our forced selection with higher-priority but wrong objects.
+    // Simply skip non-matching objects entirely.
 }
 
 static InitFunction init(
