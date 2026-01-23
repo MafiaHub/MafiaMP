@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 
+#include "dev/local_replicator.h"
 #include "game/streaming/entity_tracking_info.h"
 
 #include "ui/devs/camera_studio.h"
@@ -17,7 +18,8 @@
 namespace MafiaMP::Core {
     class DevFeatures final {
       private:
-        Game::Streaming::EntityTrackingInfo *_TEMP_HUMAN = nullptr;
+        // Local replication system for testing sync without networking
+        std::unique_ptr<Dev::LocalReplicator> _localReplicator;
 
         std::shared_ptr<UI::Devs::CameraStudio> _cameraStudio {};
 

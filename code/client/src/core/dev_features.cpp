@@ -21,14 +21,15 @@
 
 namespace MafiaMP::Core {
     DevFeatures::DevFeatures() {
-        _cameraStudio  = std::make_shared<UI::Devs::CameraStudio>();
-        _debugAudio    = std::make_shared<UI::Devs::DebugAudio>();
-        _debugPlayer   = std::make_shared<UI::Devs::DebugPlayer>();
-        _debugPrefab   = std::make_shared<UI::Devs::DebugPrefab>();
-        _debugVehicle  = std::make_shared<UI::Devs::DebugVehicle>();
-        _debugWorld    = std::make_shared<UI::Devs::DebugWorld>();
-        _entityBrowser = std::make_shared<UI::Devs::EntityBrowser>();
-        _networkStats  = std::make_shared<UI::Devs::NetworkStats>();
+        _localReplicator = std::make_unique<Dev::LocalReplicator>();
+        _cameraStudio    = std::make_shared<UI::Devs::CameraStudio>();
+        _debugAudio      = std::make_shared<UI::Devs::DebugAudio>();
+        _debugPlayer     = std::make_shared<UI::Devs::DebugPlayer>();
+        _debugPrefab     = std::make_shared<UI::Devs::DebugPrefab>();
+        _debugVehicle    = std::make_shared<UI::Devs::DebugVehicle>();
+        _debugWorld      = std::make_shared<UI::Devs::DebugWorld>();
+        _entityBrowser   = std::make_shared<UI::Devs::EntityBrowser>();
+        _networkStats    = std::make_shared<UI::Devs::NetworkStats>();
     }
 
     void DevFeatures::Init() {
@@ -65,84 +66,21 @@ namespace MafiaMP::Core {
         }
 
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F5)) {
-            // If human is already created, delete it first
-            if (_TEMP_HUMAN) {
-                gApplication->GetEntityFactory()->ReturnEntity(_TEMP_HUMAN);
-                _TEMP_HUMAN = nullptr;
+            // Toggle local replication
+            if (_localReplicator->IsActive()) {
+                _localReplicator->StopAndDespawn();
             }
-
-            // Otherwise always proceed with creation
-            _TEMP_HUMAN = Core::gApplication->GetEntityFactory()->RequestHuman(10029431515544697714);
-
-            const auto OnHumanRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
-                CreateNetCharacterController = false;
-                if (success) {
-                    auto human = reinterpret_cast<SDK::C_Human2 *>(info->GetEntity());
-                    if (!human) {
-                        return;
-                    }
-                    human->GameInit();
-                    human->Activate();
-
-                    const auto ent   = info->GetNetworkEntity();
-                    auto localPlayer = SDK::GetGame()->GetActivePlayer();
-
-                    SDK::ue::sys::math::C_Vector newPos    = localPlayer->GetPos();
-                    SDK::ue::sys::math::C_Quat newRot      = localPlayer->GetRot();
-                    SDK::ue::sys::math::C_Matrix transform = {};
-                    transform.Identity();
-                    transform.SetRot(newRot);
-                    transform.SetPos(newPos);
-                    human->SetTransform(transform);
-
-                    // TODO(DavoSK): remove
-                    Game::Helpers::Human::AddWeapon(human, 85, 200);
-                    Game::Helpers::Human::AddWeapon(human, 3, 200);
-                    Game::Helpers::Human::AddWeapon(human, 13, 200);
-                    if (auto wepCtrl = human->GetHumanWeaponController()) {
-                        wepCtrl->DoWeaponSelectByItemId(85, true);
-                    }
-                }
-            };
-
-            const auto OnHumanReturned = [](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
-                if (!info) {
-                    return;
-                }
-                auto human = reinterpret_cast<SDK::C_Human2 *>(info->GetEntity());
-                if (wasCreated && human) {
-                    human->Deactivate();
-                    human->GameDone();
-                    human->Release();
-                }
-            };
-
-            // setup tracking callbacks
-            _TEMP_HUMAN->SetBeforeSpawnCallback([&](Game::Streaming::EntityTrackingInfo *) {
-                CreateNetCharacterController = true;
-            });
-            _TEMP_HUMAN->SetRequestFinishCallback(OnHumanRequestFinish);
-            _TEMP_HUMAN->SetReturnCallback(OnHumanReturned);
+            else {
+                _localReplicator->SpawnAndStartReplication(10029431515544697714);
+            }
         }
 
+        // Update local replication each frame
+        _localReplicator->Update();
+
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F6)) {
-            if (!_TEMP_HUMAN) {
-                return;
-            }
-
-            const auto human = reinterpret_cast<SDK::C_Human2 *>(_TEMP_HUMAN->GetEntity());
-
-            auto localPlayer = SDK::GetGame()->GetActivePlayer();
-
-            SDK::ue::sys::math::C_Vector newPos = localPlayer->GetPos();
-
-            SDK::ue::C_CntPtr<uintptr_t> syncObject2;
-            SDK::C_Entity *ent = reinterpret_cast<SDK::C_Entity *>(localPlayer);
-            if (auto wepCtrl = human->GetHumanWeaponController()) {
-                human->GetHumanScript()->ScrAim(syncObject2, !wepCtrl->IsAiming());
-                // human->GetHumanScript()->ScrAimAt(syncObject2, ent, newPos, !wepCtrl->IsAiming());
-                Framework::Logging::GetLogger("Playground")->debug("Aiming : {}", wepCtrl->IsAiming());
-            }
+            // Toggle aiming on the replicated human
+            _localReplicator->ToggleAim();
         }
 
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F7)) {
