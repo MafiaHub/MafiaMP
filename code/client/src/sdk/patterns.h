@@ -238,6 +238,10 @@ namespace SDK {
         uint64_t C_HumanScript__SetHealth      = 0x0;
         uint64_t C_HumanScript__SetStealthMove = 0x0;
 
+        // C_HumanHeadController
+        uint64_t C_HumanHeadController__ShutUp  = 0x0;
+        uint64_t C_HumanHeadController__Update  = 0x0;
+
         // C_HumanSpawner
         uint64_t C_HumanSpawner__C_HumanSpawnerVtbl          = 0x0;
         uint64_t C_HumanSpawner__SetupDefaultArchetypeObject = 0x0;

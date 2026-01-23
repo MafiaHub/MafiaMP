@@ -58,6 +58,7 @@ set(MAFIAMP_CLIENT_FILES
 )
 
 set(MAFIAMP_SDK_FILES
+    src/sdk/entities/human/c_human_head_controller.cpp
     src/sdk/entities/human/c_human_inventory.cpp
     src/sdk/entities/human/c_human_weapon_controller.cpp
     src/sdk/entities/human/c_human_script.cpp

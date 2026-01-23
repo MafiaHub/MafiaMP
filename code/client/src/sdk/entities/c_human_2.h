@@ -243,6 +243,7 @@ namespace SDK {
     static_assert(offsetof(I_Human2, m_pHumanInventory) == 0x128, "I_Human2::m_pHumanInventory offset mismatch");
     static_assert(offsetof(I_Human2, m_pHumanScript) == 0x130, "I_Human2::m_pHumanScript offset mismatch");
     static_assert(offsetof(I_Human2, m_pHumanWeaponController) == 0x148, "I_Human2::m_pHumanWeaponController offset mismatch");
+    static_assert(offsetof(I_Human2, m_pHumanHeadController) == 0x158, "I_Human2::m_pHumanHeadController offset mismatch");
     static_assert(offsetof(I_Human2, m_pCharacterState) == 0x1C8, "I_Human2::m_pCharacterState offset mismatch");
     static_assert(offsetof(I_Human2, m_fHealth) == 0x1E0, "I_Human2::m_fHealth offset mismatch");
     static_assert(offsetof(I_Human2, m_pHealthSystem) == 0x2A0, "I_Human2::m_pHealthSystem offset mismatch");

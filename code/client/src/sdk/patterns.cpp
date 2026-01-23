@@ -251,6 +251,10 @@ namespace SDK {
         gPatterns.C_HumanScript__SetHealth      = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? 48 8B 09 0F 29 74 24 ?"));
         gPatterns.C_HumanScript__SetStealthMove = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC 60 48 8B F9 0F B6 DA"));
 
+        // C_HumanHeadController
+        gPatterns.C_HumanHeadController__ShutUp = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC 20 48 8B D9 48 8B 49 10 48 85 C9"));
+        gPatterns.C_HumanHeadController__Update = reinterpret_cast<uint64_t>(hook::get_pattern("40 56 48 83 EC 40 48 8B F1 48 8B 49 10 48 85 C9"));
+
         // C_HumanSpawner
         gPatterns.C_HumanSpawner__C_HumanSpawnerVtbl          = hook::get_opcode_address("49 8B CE E8 ? ? ? ? 48 8B 5C 24 ? 48 8D 05 ? ? ? ?", 15);
         gPatterns.C_HumanSpawner__SetupDefaultArchetypeObject = reinterpret_cast<uint64_t>(hook::get_pattern("4C 8B DC 49 89 5B ? 56 57 41 56 48 83 EC ? 48 8B 1D ? ? ? ?"));
