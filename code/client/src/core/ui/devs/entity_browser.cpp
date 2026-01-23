@@ -13,6 +13,9 @@
 
 #include "game/helpers/controls.h"
 
+#include <logging/logger.h>
+#include <set>
+
 namespace MafiaMP::Core::UI::Devs {
     static const char *GetPrefabTypeName(SDK::prefab::E_PREFAB_TYPE type) {
         switch (type) {
@@ -68,6 +71,60 @@ namespace MafiaMP::Core::UI::Devs {
                 for (size_t i = 0; i < 66; i++) _checkedTypes[i] = false;
 
                 _filterList.clear();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Dump to Console")) {
+                auto logger = Framework::Logging::GetLogger("EntityBrowser");
+                std::set<std::string> uniqueNames;
+                const auto dumpEntityCount = entityList->GetEntityCount();
+
+                for (size_t i = 0; i < dumpEntityCount; i++) {
+                    auto entity = entityList->GetEntityByIndex(i);
+                    auto actor  = reinterpret_cast<SDK::C_Actor *>(entity);
+
+                    if (!entity)
+                        continue;
+
+                    const auto sceneObjectType = entity->GetType();
+                    if (std::find(_filterList.begin(), _filterList.end(), sceneObjectType) == _filterList.end())
+                        continue;
+
+                    auto sceneObject = entity->GetSceneObject();
+                    if (!sceneObject)
+                        continue;
+
+                    const char *sceneName = sceneObject->GetName();
+                    if (!sceneName)
+                        continue;
+
+                    if (strlen(_entityFilter) > 0 && strstr(sceneName, _entityFilter) == nullptr)
+                        continue;
+
+                    if (_entityRange > 0.0f && actor->GetPos().dist(localPlayer->GetPos()) >= _entityRange)
+                        continue;
+
+                    uniqueNames.insert(sceneName);
+                }
+
+                logger->info("=== Entity Names Dump ({} unique entries) ===", uniqueNames.size());
+                logger->info("// C++ vector format:");
+                std::string vectorFormat = "std::vector<std::string> entityNames = {";
+                bool first = true;
+                for (const auto &name : uniqueNames) {
+                    if (!first) vectorFormat += ", ";
+                    vectorFormat += "\"" + name + "\"";
+                    first = false;
+                }
+                vectorFormat += "};";
+                logger->info("{}", vectorFormat);
+
+                logger->info("// Line-by-line format:");
+                for (const auto &name : uniqueNames) {
+                    logger->info("{}", name);
+                }
+                logger->info("=== End of Dump ===");
             }
 
             if (ImGui::BeginListBox("Entity types")) {
