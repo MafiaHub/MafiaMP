@@ -7,6 +7,8 @@
 #include <sdk/entities/c_human_2.h>
 #include <sdk/entities/c_player_2.h>
 #include <sdk/prefab/c_prefab_manager.h>
+#include <sdk/ue/sys/core/c_scene_object.h>
+#include <sdk/ue/sys/core/i_component.h>
 
 #include "core/modules/human.h"
 #include "core/modules/vehicle.h"
@@ -272,6 +274,43 @@ namespace MafiaMP::Core::UI::Devs {
 
                         if (ImGui::Button("Deactivate")) {
                             inspectedEntity->Deactivate();
+                        }
+
+                        // Component list section
+                        ImGui::Separator();
+                        if (ImGui::CollapsingHeader("Attached Components", ImGuiTreeNodeFlags_DefaultOpen)) {
+                            size_t componentCount = sceneObject->GetComponentCount();
+                            ImGui::Text("Component count: %zu", componentCount);
+
+                            if (componentCount > 0 && ImGui::BeginTable("ComponentsTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable)) {
+                                ImGui::TableSetupColumn("Index", ImGuiTableColumnFlags_WidthFixed, 50.0f);
+                                ImGui::TableSetupColumn("Type Name", ImGuiTableColumnFlags_WidthStretch);
+                                ImGui::TableSetupColumn("Type ID", ImGuiTableColumnFlags_WidthFixed, 100.0f);
+                                ImGui::TableHeadersRow();
+
+                                for (size_t compIdx = 0; compIdx < componentCount; compIdx++) {
+                                    auto component = sceneObject->GetComponentByIndex(compIdx);
+                                    if (!component)
+                                        continue;
+
+                                    ImGui::TableNextRow();
+
+                                    // Index
+                                    ImGui::TableNextColumn();
+                                    ImGui::Text("%zu", compIdx);
+
+                                    // Type name
+                                    ImGui::TableNextColumn();
+                                    const char *typeName = component->GetComponentTypeName();
+                                    ImGui::Text("%s", typeName ? typeName : "Unknown");
+
+                                    // Type ID
+                                    ImGui::TableNextColumn();
+                                    ImGui::Text("0x%08X", component->GetComponentTypeID());
+                                }
+
+                                ImGui::EndTable();
+                            }
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "c_component_object.h"
+#include "i_component.h"
 #include "../math/c_matrix.h"
 #include "../../c_string.h"
 
