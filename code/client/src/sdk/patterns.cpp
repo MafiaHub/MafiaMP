@@ -124,11 +124,12 @@ namespace SDK {
         gPatterns.C_Door__Unlock        = hook::get_opcode_address("E8 ? ? ? ? EB ? 83 F8 ? 75 ? 48 8B 83 ? ? ? ?");
 
         // C_Entity
-        gPatterns.C_Entity__Activate   = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B D9 8B 49 ? 8B C1 25 ? ? ? ?"));
-        gPatterns.C_Entity__Deactivate = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 8B 41 ? 48 8B D9 25 ? ? ? ? 3D ? ? ? ?"));
-        gPatterns.C_Entity__GameDone   = reinterpret_cast<uint64_t>(hook::get_pattern("40 57 48 83 EC ? 8B 41 ? 48 8B F9 25 ? ? ? ?"));
-        gPatterns.C_Entity__GameInit   = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B D9 8B 49 ? 8B C1 C1 E8 ? A8 ?"));
-        gPatterns.C_Entity__Release    = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 8B 41 ? 48 8B D9 25 ? ? ? ?"));
+        gPatterns.C_Entity__Activate            = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B D9 8B 49 ? 8B C1 25 ? ? ? ?"));
+        gPatterns.C_Entity__Deactivate          = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 8B 41 ? 48 8B D9 25 ? ? ? ? 3D ? ? ? ?"));
+        gPatterns.C_Entity__GameDone            = reinterpret_cast<uint64_t>(hook::get_pattern("40 57 48 83 EC ? 8B 41 ? 48 8B F9 25 ? ? ? ?"));
+        gPatterns.C_Entity__GameInit            = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8B D9 8B 49 ? 8B C1 C1 E8 ? A8 ?"));
+        gPatterns.C_Entity__Release             = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 8B 41 ? 48 8B D9 25 ? ? ? ?"));
+        gPatterns.C_Entity__SetEntityDelSlotFlag = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 83 B9 D0 00 00 00 00 48 8B D9"));
 
         // C_EntityFactory
         gPatterns.C_EntityFactory__ComputeHash    = reinterpret_cast<uint64_t>(hook::get_pattern("0F B6 11 33 C0 84 D2 74 2C"));

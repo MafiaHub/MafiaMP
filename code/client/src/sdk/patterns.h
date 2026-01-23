@@ -118,11 +118,12 @@ namespace SDK {
         uint64_t C_Door__Unlock        = 0x0;
 
         // C_Entity
-        uint64_t C_Entity__Activate   = 0x0;
-        uint64_t C_Entity__Deactivate = 0x0;
-        uint64_t C_Entity__GameDone   = 0x0;
-        uint64_t C_Entity__GameInit   = 0x0;
-        uint64_t C_Entity__Release    = 0x0;
+        uint64_t C_Entity__Activate            = 0x0;
+        uint64_t C_Entity__Deactivate          = 0x0;
+        uint64_t C_Entity__GameDone            = 0x0;
+        uint64_t C_Entity__GameInit            = 0x0;
+        uint64_t C_Entity__Release             = 0x0;
+        uint64_t C_Entity__SetEntityDelSlotFlag = 0x0;
 
         // C_EntityFactory
         uint64_t C_EntityFactory__ComputeHash    = 0x0;

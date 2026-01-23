@@ -185,6 +185,16 @@ namespace SDK {
 
         void Release();
 
+        void SetOwnerSlotID(uint32_t slotId) {
+            m_nOwnerSlotID = slotId;
+        }
+
+        uint32_t GetOwnerSlotID() const {
+            return m_nOwnerSlotID;
+        }
+
+        void SetEntityDelSlotFlag();
+
       protected:
         void *m_pMessageReceiverList;                        // 0x08 - 0x10
         void *m_pMessageReceiverListEnd;                     // 0x10 - 0x18
@@ -217,7 +227,7 @@ namespace SDK {
         uint16_t m_nSceneObjectRefFlags;                     // 0xC0 - 0xC2
         uint8_t m_nPadC2[6];                                 // 0xC2 - 0xC8
         void *m_pSceneObjectFix;                             // 0xC8 - 0xD0
-        uint32_t m_nDelSlot;                                 // 0xD0 - 0xD4
+        uint32_t m_nOwnerSlotID;                             // 0xD0 - 0xD4
         uint8_t m_nPadD4[4];                                 // 0xD4 - 0xD8
         void *m_pSound;                                      // 0xD8 - 0xE0
     };

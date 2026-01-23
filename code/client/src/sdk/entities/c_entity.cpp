@@ -22,4 +22,8 @@ namespace SDK {
     void C_Entity::Release() {
         hook::this_call<void>(gPatterns.C_Entity__Release, this);
     }
+
+    void C_Entity::SetEntityDelSlotFlag() {
+        hook::this_call<void>(gPatterns.C_Entity__SetEntityDelSlotFlag, this);
+    }
 } // namespace SDK
