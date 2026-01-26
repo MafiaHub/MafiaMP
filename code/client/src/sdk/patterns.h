@@ -355,7 +355,9 @@ namespace SDK {
         uint64_t C_SceneObject__SetTransform = 0x0;
 
         // C_SceneObjectManager
-        uint64_t C_SceneObjectManager__GetSceneObject = 0x0;
+        uint64_t C_SceneObjectManager__GetSceneObject       = 0x0;
+        uint64_t C_SceneObjectManager__RegisterSceneObject  = 0x0;
+        uint64_t C_SceneObjectManager__UnregisterSceneObject = 0x0;
 
         // C_SceneObjectRequestCache
         uint64_t C_SceneObjectRequestCache__AddCache      = 0x0;

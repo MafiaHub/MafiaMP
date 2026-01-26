@@ -376,7 +376,9 @@ namespace SDK {
         gPatterns.C_SceneObject__SetTransform = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC ? 48 8D 41 ? 48 8B D9 0F 10 02"));
 
         // C_SceneObjectManager
-        gPatterns.C_SceneObjectManager__GetSceneObject = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC 20 49 8B 00 48 8B FA"));
+        gPatterns.C_SceneObjectManager__GetSceneObject        = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC 20 49 8B 00 48 8B FA"));
+        gPatterns.C_SceneObjectManager__RegisterSceneObject   = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 48 8B 02 48 8B FA 48 8B D9 48 8B 70 48"));
+        gPatterns.C_SceneObjectManager__UnregisterSceneObject = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B 42 48"));
 
         // C_SceneObjectRequestCache
         gPatterns.C_SceneObjectRequestCache__AddCache     = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 54 41 55 41 56 41 57 48 83 EC ? 45 33 ED"));
