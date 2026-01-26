@@ -14,6 +14,7 @@
 #include "ui/devs/debug_world.h"
 #include "ui/devs/entity_browser.h"
 #include "ui/devs/network_stats.h"
+#include "ui/devs/scene_object_browser.h"
 
 namespace MafiaMP::Core {
     class DevFeatures final {
@@ -37,6 +38,8 @@ namespace MafiaMP::Core {
 
         std::shared_ptr<UI::Devs::NetworkStats> _networkStats {};
 
+        std::shared_ptr<UI::Devs::SceneObjectBrowser> _sceneObjectBrowser {};
+
       public:
         DevFeatures();
         void Init();
@@ -55,6 +58,7 @@ namespace MafiaMP::Core {
         void ToggleDebugWorld();
         void ToggleEntityBrowser();
         void ToggleNetworkStats();
+        void ToggleSceneObjectBrowser();
 
         void Disconnect();
         void CrashMe();

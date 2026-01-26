@@ -28,8 +28,9 @@ namespace MafiaMP::Core {
         _debugPrefab     = std::make_shared<UI::Devs::DebugPrefab>();
         _debugVehicle    = std::make_shared<UI::Devs::DebugVehicle>();
         _debugWorld      = std::make_shared<UI::Devs::DebugWorld>();
-        _entityBrowser   = std::make_shared<UI::Devs::EntityBrowser>();
-        _networkStats    = std::make_shared<UI::Devs::NetworkStats>();
+        _entityBrowser      = std::make_shared<UI::Devs::EntityBrowser>();
+        _networkStats       = std::make_shared<UI::Devs::NetworkStats>();
+        _sceneObjectBrowser = std::make_shared<UI::Devs::SceneObjectBrowser>();
     }
 
     void DevFeatures::Init() {
@@ -46,6 +47,7 @@ namespace MafiaMP::Core {
         _debugWorld->Update();
         _entityBrowser->Update();
         _networkStats->Update();
+        _sceneObjectBrowser->Update();
 
         /**
          * F1 is reserved for bypassing lock controls
@@ -301,6 +303,9 @@ namespace MafiaMP::Core {
                 if (ImGui::MenuItem("Entity Browser", "F11")) {
                     ToggleEntityBrowser();
                 }
+                if (ImGui::MenuItem("Scene Object Browser")) {
+                    ToggleSceneObjectBrowser();
+                }
                 if (ImGui::MenuItem("Network stats", "F10")) {
                     ToggleNetworkStats();
                 }
@@ -340,6 +345,10 @@ namespace MafiaMP::Core {
 
     void DevFeatures::ToggleNetworkStats() {
         _networkStats->Toggle();
+    }
+
+    void DevFeatures::ToggleSceneObjectBrowser() {
+        _sceneObjectBrowser->Toggle();
     }
 
     void DevFeatures::Disconnect() {

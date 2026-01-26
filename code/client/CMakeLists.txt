@@ -4,6 +4,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/application.cpp
     src/core/application_module.cpp
     src/core/dev_features.cpp
+    src/core/scene_object_registry.cpp
     src/core/dev/local_replicator.cpp
     src/core/ui/ui_base.cpp
     src/core/ui/chat.cpp
@@ -16,6 +17,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/ui/devs/debug_world.cpp
     src/core/ui/devs/entity_browser.cpp
     src/core/ui/devs/network_stats.cpp
+    src/core/ui/devs/scene_object_browser.cpp
     src/core/states/game_setup.cpp
     src/core/states/initialize.cpp
     src/core/states/main_menu.cpp
@@ -45,6 +47,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/vehicle.cpp
     src/core/hooks/vfs.cpp
     src/core/hooks/weapon_controller.cpp
+    src/core/hooks/scene_object_manager.cpp
     src/core/modules/vehicle.cpp
     src/core/modules/human.cpp
     src/game/entities/factory.cpp
