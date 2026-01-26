@@ -7,13 +7,16 @@ namespace SDK {
         template <typename T>
         class C_Ptr {
           public:
-            uintptr_t unk = 0;
-            T *ptr        = nullptr;
+            T *ptr        = nullptr;  // 0x00 - 0x08
+            uintptr_t unk = 0;        // 0x08 - 0x10
 
             inline T &operator*() {
-                return ptr;
+                return *ptr;
             }
             inline T *operator->() {
+                return ptr;
+            }
+            inline T *Get() const {
                 return ptr;
             }
         };
