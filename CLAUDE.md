@@ -181,3 +181,136 @@ class C_Example {
     void SetSpeed(float speed);
 };
 ```
+
+## IDA Pro Structure Declarations
+
+When reversing game classes with IDA Pro, use proper C++ inheritance syntax for cleaner decompilation output.
+
+### Basic `__cppobj` Inheritance
+
+Use the `__cppobj` keyword to declare C++ classes with inheritance. This allows direct member access without `.base` prefixes:
+
+```c
+// Base class - use __vftable for vtable pointer
+struct __cppobj C_Entity {
+    void *__vftable;                    // 0x00 - 0x08 (MUST be named __vftable)
+    void *m_pSomeField;                 // 0x08 - 0x10
+    unsigned int m_nFlags;              // 0x10 - 0x14
+    // ... more fields
+};
+
+// Empty intermediate class (only virtual overrides, no new fields)
+struct __cppobj C_EntityPos : C_Entity {};
+
+// Derived class - only declare NEW fields
+struct __cppobj C_Actor : C_EntityPos {
+    void *m_pActorActions;              // 0xE0 - 0xE8
+    void *m_pActorStreamingInfo;        // 0xE8 - 0xF0
+    C_Actor *m_pOwner;                  // 0xF0 - 0xF8
+};
+```
+
+**Result in decompiler:**
+- `this->m_nFlags` (direct access to inherited members)
+- `this->__vftable` (proper vtable access)
+- `&this->C_EntityPos` (when passing to grandparent methods)
+
+**Without `__cppobj`:**
+- `this->base.m_nFlags` (ugly nested access)
+
+### Representing std::vector
+
+MSVC std::vector is 24 bytes (3 pointers). Declare helper structs:
+
+```c
+struct vector_void_ptr {
+    void **begin;       // 0x00 - 0x08
+    void **end;         // 0x08 - 0x10
+    void **capacity;    // 0x10 - 0x18
+};
+
+struct S_MyEntry {
+    void *pData;            // 0x00 - 0x08
+    unsigned int nValue;    // 0x08 - 0x0C
+    unsigned int nFlags;    // 0x0C - 0x10
+};
+
+struct vector_S_MyEntry {
+    S_MyEntry *begin;       // 0x00 - 0x08
+    S_MyEntry *end;         // 0x08 - 0x10
+    S_MyEntry *capacity;    // 0x10 - 0x18
+};
+```
+
+### Applying Types to Functions
+
+After declaring structs, apply them to function signatures:
+
+```c
+// Constructor
+C_Actor *__fastcall C_Actor::C_Actor(C_Actor *this, char a2)
+
+// Methods
+void __fastcall C_Actor::OnActivate(C_Actor *this)
+bool __fastcall C_Actor::IsDeath(C_Actor *this)
+void __fastcall C_Actor::SetOwner(C_Actor *this, C_Entity *owner)
+```
+
+### Vtable Structs
+
+To get named virtual function calls instead of `(*((void**)this->__vftable + N))(this)`:
+
+1. Create vtable structs for each class (named `ClassName_vtbl`):
+```c
+// Base class vtable (31 entries for C_Entity)
+struct C_Entity_vtbl {
+    void *Destructor;           // 0
+    void *GetClassTypeInfo;     // 1
+    // ... base class virtuals only
+    void *UpdateIdleRC;         // 30
+};
+
+// Derived class vtable (50 entries for C_Actor)
+struct C_Actor_vtbl {
+    void *Destructor;           // 0 - inherited
+    // ... all inherited + new virtuals
+    void *GetPos;               // 36 - C_Actor specific
+    void *GetDir;               // 37
+    // ...
+};
+```
+
+2. Each class uses its own vtable type:
+```c
+struct __cppobj C_Entity {
+    C_Entity_vtbl *__vftable;   // Base class vtable
+    // ...
+};
+
+struct __cppobj C_Actor : C_EntityPos {
+    // Inherits __vftable from C_Entity
+    // IDA auto-uses C_Actor_vtbl for C_Actor* functions
+};
+```
+
+3. Apply vtable types to data addresses:
+```python
+set_type(0x144CBE3D8, "C_Entity_vtbl")  # C_Entity vtable
+set_type(0x144DB2EE8, "C_Actor_vtbl")   # C_Actor vtable
+```
+
+4. Force decompiler cache refresh:
+```python
+import ida_hexrays
+ida_hexrays.mark_cfunc_dirty(func_addr)
+```
+
+**Result**: `this->GetPos(this)` instead of ugly offset arithmetic.
+
+### Key Rules
+
+1. **Vtable field**: Must be named `__vftable` for IDA to recognize it in `__cppobj` classes
+2. **Vtable struct**: Must be named `ClassName_vtbl` to auto-link with class
+3. **Inheritance**: Only declare new fields in derived structs, inherited fields are accessible directly
+4. **Refresh decompiler**: Use `ida_hexrays.mark_cfunc_dirty(addr)` after struct changes
+5. **Size validation**: Use `static_assert` in SDK headers to verify struct sizes match IDA

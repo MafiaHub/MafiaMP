@@ -6,6 +6,7 @@
 #include "../ue/sys/core/c_scene_object.h"
 
 #include <cstdint>
+#include <vector>
 
 namespace SDK {
     enum class E_EntityType : uint8_t {
@@ -83,6 +84,13 @@ namespace SDK {
         virtual ~I_EntityListener() {}
         virtual void OnEvent(C_Entity *, /*E_EntityEvents*/ int) {}
     };
+
+    struct S_EntityListenerEntry {
+        I_EntityListener *pListener; // 0x00 - 0x08
+        uint32_t nEventMask;         // 0x08 - 0x0C
+        uint32_t nFlags;             // 0x0C - 0x10 (0x400 = pending removal)
+    };
+    static_assert(sizeof(S_EntityListenerEntry) == 0x10, "S_EntityListenerEntry size mismatch");
 
     enum class E_UpdateRate : uint8_t {
         E_UPDATE_RATE_UNK0 = 0,
@@ -185,9 +193,20 @@ namespace SDK {
 
         void Release();
 
+        void SetOwnerSlotID(uint32_t slotId) {
+            m_nOwnerSlotID = slotId;
+        }
+
+        uint32_t GetOwnerSlotID() const {
+            return m_nOwnerSlotID;
+        }
+
+        void SetEntityDelSlotFlag();
+
       protected:
-        void *m_pMessageReceiverList;                        // 0x08 - 0x10
-        void *m_pMessageReceiverListEnd;                     // 0x10 - 0x18
+        // Custom RB-tree for message receivers (56-byte sentinel node)
+        void *m_pMessageReceiverTree;                        // 0x08 - 0x10
+        uint64_t m_nMessageReceiverCount;                    // 0x10 - 0x18
         uint32_t m_nIdAndType;                               // 0x18 - 0x1C (type in low byte, id in upper 24 bits)
         uint32_t m_nFlags;                                   // 0x1C - 0x20
         float m_fUnk20;                                      // 0x20 - 0x24 (initialized to -1.0f)
@@ -196,19 +215,15 @@ namespace SDK {
         E_UpdateRate m_eUpdateRate;                          // 0x26 - 0x27
         uint8_t m_nPad27;                                    // 0x27 - 0x28
         uint64_t m_nNameHash;                                // 0x28 - 0x30
+        // Custom RB-tree for script events (72-byte sentinel node)
         void *m_pScriptEventTree;                            // 0x30 - 0x38
-        void *m_pScriptEventTreeEnd;                         // 0x38 - 0x40
+        uint64_t m_nScriptEventCount;                        // 0x38 - 0x40
+        // Custom RB-tree for Lua events (48-byte sentinel node)
         void *m_pLuaEventTree;                               // 0x40 - 0x48
-        void *m_pLuaEventTreeEnd;                            // 0x48 - 0x50
-        void *m_pEventListStart;                             // 0x50 - 0x58
-        void *m_pEventListEnd;                               // 0x58 - 0x60
-        void *m_pEventListCapacity;                          // 0x60 - 0x68
-        void *m_pListenerListStart;                          // 0x68 - 0x70
-        void *m_pListenerListEnd;                            // 0x70 - 0x78
-        void *m_pListenerListCapacity;                       // 0x78 - 0x80
-        void *m_pPendingListenerStart;                       // 0x80 - 0x88
-        void *m_pPendingListenerEnd;                         // 0x88 - 0x90
-        void *m_pPendingListenerCapacity;                    // 0x90 - 0x98
+        uint64_t m_nLuaEventCount;                           // 0x48 - 0x50
+        std::vector<void *> m_aEventList;                    // 0x50 - 0x68
+        std::vector<S_EntityListenerEntry> m_aListenerList;  // 0x68 - 0x80
+        std::vector<S_EntityListenerEntry> m_aPendingListeners; // 0x80 - 0x98
         void *m_pInitData;                                   // 0x98 - 0xA0
         prefab::C_PrefabInitData m_PrefabInitData;           // 0xA0 - 0xA8
         ue::sys::core::C_SceneObject *m_pSceneObject;        // 0xA8 - 0xB0
@@ -217,10 +232,11 @@ namespace SDK {
         uint16_t m_nSceneObjectRefFlags;                     // 0xC0 - 0xC2
         uint8_t m_nPadC2[6];                                 // 0xC2 - 0xC8
         void *m_pSceneObjectFix;                             // 0xC8 - 0xD0
-        uint32_t m_nDelSlot;                                 // 0xD0 - 0xD4
+        uint32_t m_nOwnerSlotID;                             // 0xD0 - 0xD4
         uint8_t m_nPadD4[4];                                 // 0xD4 - 0xD8
         void *m_pSound;                                      // 0xD8 - 0xE0
     };
 
     static_assert(sizeof(C_Entity) == 0xE0, "C_Entity size mismatch");
+    static_assert(sizeof(std::vector<void *>) == 0x18, "std::vector size mismatch - expected 24 bytes for MSVC x64");
 } // namespace SDK

@@ -4,16 +4,20 @@ set(MAFIAMP_CLIENT_FILES
     src/core/application.cpp
     src/core/application_module.cpp
     src/core/dev_features.cpp
+    src/core/scene_object_registry.cpp
+    src/core/dev/local_replicator.cpp
     src/core/ui/ui_base.cpp
     src/core/ui/chat.cpp
     src/core/ui/console.cpp
     src/core/ui/devs/camera_studio.cpp
     src/core/ui/devs/debug_audio.cpp
     src/core/ui/devs/debug_player.cpp
+    src/core/ui/devs/debug_prefab.cpp
     src/core/ui/devs/debug_vehicle.cpp
     src/core/ui/devs/debug_world.cpp
     src/core/ui/devs/entity_browser.cpp
     src/core/ui/devs/network_stats.cpp
+    src/core/ui/devs/scene_object_browser.cpp
     src/core/states/game_setup.cpp
     src/core/states/initialize.cpp
     src/core/states/main_menu.cpp
@@ -43,6 +47,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/vehicle.cpp
     src/core/hooks/vfs.cpp
     src/core/hooks/weapon_controller.cpp
+    src/core/hooks/scene_object_manager.cpp
     src/core/modules/vehicle.cpp
     src/core/modules/human.cpp
     src/game/entities/factory.cpp
@@ -57,6 +62,7 @@ set(MAFIAMP_CLIENT_FILES
 )
 
 set(MAFIAMP_SDK_FILES
+    src/sdk/entities/human/c_human_head_controller.cpp
     src/sdk/entities/human/c_human_inventory.cpp
     src/sdk/entities/human/c_human_weapon_controller.cpp
     src/sdk/entities/human/c_human_script.cpp
@@ -69,6 +75,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/entities/c_player_2.cpp
     src/sdk/ue/game/vehicle/c_vehicle.cpp
     src/sdk/c_inventory_wrapper.cpp
+    src/sdk/prefab/c_prefab_manager.cpp
     src/sdk/mafia/database/c_ui_database.cpp
     src/sdk/mafia/framework/director/c_game_director.cpp
     src/sdk/mafia/framework/c_mafia_dbs.cpp
@@ -109,6 +116,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.cpp
     src/sdk/ue/gfx/environmenteffects/c_weather_manager_2.cpp
     src/sdk/ue/sys/core/c_scene_object.cpp
+    src/sdk/ue/sys/core/component_utils.cpp
     src/sdk/ue/sys/core/i_core.cpp
     src/sdk/ue/sys/core/c_object_spawner.cpp
     src/sdk/ue/sys/input/c_keyboard.cpp

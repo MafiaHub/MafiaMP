@@ -3,153 +3,146 @@
 #include "../ue/c_ptr.h"
 
 #include <cstdint>
+#include <vector>
 
 namespace SDK {
     namespace prefab {
         // Forward declarations
         class I_PrefabWorker;
         struct S_GlobalInitData;
+        class C_PrefabManager;
 
-        enum E_PREFAB_TYPE {
-            E_PT_Base             = 0,   // Base prefab type
+        enum E_PREFAB_TYPE : int32_t {
+            E_PT_Base             = 0,
             // 1 = unused/reserved
-            E_PT_Car              = 2,   // Vehicles (cars)
-            E_PT_CrashObj         = 3,   // Destructible/crash objects
-            E_PT_ActorDeform      = 4,   // Deformable actors
-            E_PT_Wheel            = 5,   // Vehicle wheels
+            E_PT_Car              = 2,
+            E_PT_CrashObj         = 3,
+            E_PT_ActorDeform      = 4,
+            E_PT_Wheel            = 5,
             // 6 = unused/reserved
-            E_PT_Door             = 7,   // Doors
-            E_PT_Obsolete_Lift    = 8,   // (Obsolete) Lifts
-            E_PT_Boat             = 9,   // Boats
-            E_PT_Obsolete_Wagon   = 10,  // (Obsolete) Wagons
-            E_PT_AIBrain          = 11,  // AI brain configurations
-            E_PT_MountedWeapon    = 12,  // Mounted weapons
-            E_PT_TrafficSemaphore = 13,  // Traffic lights
-            E_PT_None             = 14,  // Default/no specific type
+            E_PT_Door             = 7,
+            E_PT_Obsolete_Lift    = 8,
+            E_PT_Boat             = 9,
+            E_PT_Obsolete_Wagon   = 10,
+            E_PT_AIBrain          = 11,
+            E_PT_MountedWeapon    = 12,
+            E_PT_TrafficSemaphore = 13,
+            E_PT_None             = 14,
         };
 
-        /**
-         * Global init data structure used for prefab initialization.
-         * Used with ue::C_Ptr for reference counting.
-         */
+        // Base class for prefab init data with reference counting
         struct S_GlobalInitData {
-            // Exact structure unknown, used as opaque pointer
+            virtual ~S_GlobalInitData() = default;
         };
 
-        /**
-         * Interface for prefab workers that can process prefabs.
-         */
+        // Interface for prefab worker - handles prefab creation
         class I_PrefabWorker {
           public:
-            virtual ~I_PrefabWorker() = default;
+            virtual ~I_PrefabWorker()                                                  = default;
+            virtual ue::C_Ptr<S_GlobalInitData> CreatePrefab(E_PREFAB_TYPE type) const = 0;
         };
 
-        /**
-         * Prefab manager singleton class that handles prefab lifecycle management.
-         * Manages creation, storage, retrieval, and cleanup of prefabs.
-         *
-         * Class size: 184 bytes (0xB8)
-         */
+        // Key for binary search in prefab array - 16 bytes
+        struct S_PrefabKey {
+            uint64_t m_uGUID;       // 0x00 - 0x08
+            E_PREFAB_TYPE m_eType;  // 0x08 - 0x0C
+            char _pad0[0x4];        // 0x0C - 0x10
+        };
+
+        static_assert(sizeof(S_PrefabKey) == 16, "Wrong size: prefab::S_PrefabKey");
+
+        // Entry in the sorted prefab array - 48 bytes
+        // Sorted by (guid, type) for binary search
+        struct S_PrefabEntry {
+            uint64_t m_uGUID;                            // 0x00 - 0x08
+            E_PREFAB_TYPE m_eType;                       // 0x08 - 0x0C
+            char _pad0[0x4];                             // 0x0C - 0x10
+            std::vector<S_GlobalInitData *> m_aData;     // 0x10 - 0x28
+            bool m_bOwned;                               // 0x28 - 0x29
+            char _pad1[0x7];                             // 0x29 - 0x30
+
+            // Insert entry into sorted array
+            static S_PrefabEntry *Insert(C_PrefabManager *manager, const S_PrefabEntry &entry);
+
+            // Move range of entries
+            static void MoveRange(S_PrefabEntry *dst, S_PrefabEntry *srcEnd, S_PrefabEntry *dstEnd);
+        };
+
+        static_assert(sizeof(S_PrefabEntry) == 48, "Wrong size: prefab::S_PrefabEntry");
+
+        // Streaming context for prefab loading - 24 bytes
+        struct S_StreamingContext {
+            float m_fLoadFactor;       // 0x00 - 0x04 (default 1.0f)
+            char _pad0[0x4];           // 0x04 - 0x08
+            void *m_pStreamingNode;    // 0x08 - 0x10
+            void *m_pUnk10;            // 0x10 - 0x18
+        };
+
+        static_assert(sizeof(S_StreamingContext) == 24, "Wrong size: prefab::S_StreamingContext");
+
+        // Resource notification listener interface
+        class I_ResourceListener {
+          public:
+            virtual ~I_ResourceListener() = default;
+            virtual void OnResourceActivated()   {}
+            virtual void OnResourceDeactivated() {}
+        };
+
+        // Singleton prefab manager - 184 bytes (0xB8)
+        //
+        // Reversed from:
+        // - Constructor: 0x14173e2f0
+        // - Destructor: 0x141747790
+        // - GetInstance: 0x14178b110
+        // - GetPrefab: 0x141793a20
+        // - InsertPrefab: 0x1417b2690
+        // - RemovePrefab: 0x1417a34f0
+        // - MakePrefabOnHeap: 0x1417a97b0
+        // - BinarySearchSlot: 0x1417c3c70
         class C_PrefabManager {
           public:
-            /**
-             * Get the singleton instance of the prefab manager.
-             * Creates the instance if it doesn't exist.
-             * @return Pointer to the singleton C_PrefabManager instance
-             */
             static C_PrefabManager *GetInstance();
 
-            /**
-             * Get a prefab by GUID and type.
-             * If the prefab doesn't exist and type is AI (11), creates it on the heap.
-             * @param guid Reference to the prefab GUID
-             * @param type The prefab type
-             * @return Pointer to the prefab's S_GlobalInitData, or nullptr if not found
-             */
             S_GlobalInitData *GetPrefab(const uint64_t &guid, E_PREFAB_TYPE type);
-
-            /**
-             * Get a prefab by GUID and type (overload with raw type parameter).
-             * @param guid Reference to the prefab GUID
-             * @param type The prefab type as unsigned int
-             * @return Pointer to the prefab's S_GlobalInitData, or nullptr if not found
-             */
             S_GlobalInitData *GetPrefab(const uint64_t &guid, unsigned int type);
-
-            /**
-             * Insert a prefab with the given GUID, type, and init data.
-             * @param guid Reference to the prefab GUID
-             * @param type The prefab type
-             * @param initData Smart pointer to the init data
-             */
             void InsertPrefab(const uint64_t &guid, E_PREFAB_TYPE type, ue::C_Ptr<S_GlobalInitData> initData);
-
-            /**
-             * Remove a specific prefab by GUID, type, and init data pointer.
-             * @param guid Reference to the prefab GUID
-             * @param type The prefab type
-             * @param initData Pointer to the init data to remove
-             */
             void RemovePrefab(const uint64_t &guid, E_PREFAB_TYPE type, S_GlobalInitData *initData);
-
-            /**
-             * Remove all prefabs of a specific type.
-             * @param type The prefab type to remove
-             */
             void RemovePrefabs(E_PREFAB_TYPE type);
-
-            /**
-             * Create a prefab on the heap for the given GUID and type.
-             * Used internally when GetPrefab doesn't find an existing prefab for AI type.
-             * @param guid Reference to the prefab GUID
-             * @param type The prefab type
-             * @return Smart pointer to the created prefab data
-             */
             ue::C_Ptr<S_GlobalInitData> MakePrefabOnHeap(const uint64_t &guid, E_PREFAB_TYPE type);
-
-            /**
-             * Release all prefabs managed by this manager.
-             */
             void ReleaseAll();
-
-            /**
-             * Set the prefab worker for this manager.
-             * @param worker Pointer to the prefab worker
-             */
             void SetPrefabWorker(I_PrefabWorker *worker);
-
-            /**
-             * Shutdown the prefab manager and release all resources.
-             * Also destroys the singleton instance.
-             */
             void Shutdown();
+
+            // Accessors for debug/inspection
+            const std::vector<S_PrefabEntry> &GetPrefabs() const {
+                return m_aPrefabs;
+            }
+
+            size_t GetPrefabCount() const {
+                return m_aPrefabs.size();
+            }
 
           private:
             C_PrefabManager();
             ~C_PrefabManager();
 
-            // Prevent copying
             C_PrefabManager(const C_PrefabManager &)            = delete;
             C_PrefabManager &operator=(const C_PrefabManager &) = delete;
 
-            // Static singleton instance
+            void RemoveHeapPrefabData(S_GlobalInitData *data);
+            S_PrefabEntry *BinarySearchSlot(const S_PrefabKey &key);
+
             static C_PrefabManager *m_PrefabManagerSingleton;
 
-            // Class members (total size: 184 bytes / 0xB8)
-            I_PrefabWorker *m_pPrefabWorker;  // 0x00 - 0x08
-            void *m_pPrefabsStart;            // 0x08 - 0x10 (prefab container start)
-            void *m_pPrefabsEnd;              // 0x10 - 0x18 (prefab container end)
-            void *m_pPrefabsCapacity;         // 0x18 - 0x20 (prefab container capacity)
-            char m_aUnkPadding1[8];           // 0x20 - 0x28 (not initialized in ctor)
-            char m_aUnkStruct[24];            // 0x28 - 0x40 (cleaned by sub_1417C0270)
-            void *m_pResourceListener;        // 0x40 - 0x48
-            char m_aUnkStruct2[8];            // 0x48 - 0x50 (initialized by sub_14173CBA0)
-            char m_aUnkStruct3[16];           // 0x50 - 0x60 (cleaned by sub_1417C17A0)
-            void *m_pOwnedPrefabsStart;       // 0x60 - 0x68
-            void *m_pOwnedPrefabsEnd;         // 0x68 - 0x70
-            void *m_pOwnedPrefabsCapacity;    // 0x70 - 0x78
-            char m_aUnkPadding2[16];          // 0x78 - 0x88
-            char m_aMutex[48];                // 0x88 - 0xB8
+            I_PrefabWorker *m_pPrefabWorker;                   // 0x00 - 0x08
+            std::vector<S_PrefabEntry> m_aPrefabs;             // 0x08 - 0x20
+            char _pad0[0x8];                                   // 0x20 - 0x28
+            std::vector<S_GlobalInitData *> m_aHeapPrefabs;    // 0x28 - 0x40
+            I_ResourceListener *m_pResourceListener;           // 0x40 - 0x48
+            S_StreamingContext m_sStreamingContext;            // 0x48 - 0x60
+            std::vector<S_GlobalInitData *> m_aOwnedPrefabs;   // 0x60 - 0x78
+            char _pad1[0x10];                                  // 0x78 - 0x88
+            char m_sMutex[0x30];                               // 0x88 - 0xB8
         };
 
         static_assert(sizeof(C_PrefabManager) == 184, "Wrong size: prefab::C_PrefabManager");

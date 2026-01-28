@@ -18,6 +18,7 @@ namespace MafiaMP::Game::Overrides {
         bool _stalkMoveOverride                                                                   = false;
         bool _isSprintingOverride                                                                 = false;
         float _sprintMoveSpeed                                                            = 0.0f;
+        float _animMoveSpeed                                                              = 0.0f;
 
         CharacterController();
 
@@ -50,6 +51,9 @@ namespace MafiaMP::Game::Overrides {
             _humanMoveMode            = hmm;
             _isSprintingOverride     = isSprinting;
             _sprintMoveSpeed          = sprintMoveSpeed;
+        }
+        void SetAnimMoveSpeed(float animMoveSpeed) {
+            _animMoveSpeed = animMoveSpeed;
         }
     };
 }

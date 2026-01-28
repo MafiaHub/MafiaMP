@@ -1,12 +1,17 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 
 #include <flecs/flecs.h>
 #include <glm/glm.hpp>
 
 
 namespace MafiaMP::Shared::Modules {
+    // Number of animation variables to sync
+    // We sync the most important ones for visual fidelity
+    static constexpr size_t WANIM_VAR_SYNC_COUNT = 39;
+
     struct HumanSync {
         struct UpdateData {
             float _healthPercent = 100.0f;
@@ -18,6 +23,10 @@ namespace MafiaMP::Shared::Modules {
             bool _isStalking  = false;
 
             float _sprintSpeed = 0.0f;
+
+            // All animation behavior variables (E_WAnimBehaviorVar)
+            // Index corresponds to E_WAnimBehaviorVar enum value
+            std::array<float, WANIM_VAR_SYNC_COUNT> _animVars = {};
 
             struct CarPassenger {
                 uint64_t carId{};

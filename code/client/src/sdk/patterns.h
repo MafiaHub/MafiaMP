@@ -18,6 +18,7 @@ namespace SDK {
         uint64_t C_ActorsSlotWrapper__UpdateToCreateActors    = 0x0;
 
         // C_BehaviorCharacter
+        uint64_t C_BehaviorCharacter__GetWAnimVariable_float = 0x0;
         uint64_t C_BehaviorCharacter__SetWAnimVariable_float = 0x0;
 
         // C_Car
@@ -96,6 +97,11 @@ namespace SDK {
         uint64_t C_CommandLine__GetCommandParamsCount  = 0x0;
         uint64_t C_CommandLine__ProcessCommandLine     = 0x0;
 
+        // ComponentUtils
+        uint64_t ComponentUtils__Attach              = 0x0;
+        uint64_t ComponentUtils__Detach              = 0x0;
+        uint64_t ComponentUtils__DuplicateSceneObject = 0x0;
+
         // C_Ctx
         uint64_t C_Ctx__BeginUpdate = 0x0;
         uint64_t C_Ctx__EndUpdate   = 0x0;
@@ -118,11 +124,12 @@ namespace SDK {
         uint64_t C_Door__Unlock        = 0x0;
 
         // C_Entity
-        uint64_t C_Entity__Activate   = 0x0;
-        uint64_t C_Entity__Deactivate = 0x0;
-        uint64_t C_Entity__GameDone   = 0x0;
-        uint64_t C_Entity__GameInit   = 0x0;
-        uint64_t C_Entity__Release    = 0x0;
+        uint64_t C_Entity__Activate            = 0x0;
+        uint64_t C_Entity__Deactivate          = 0x0;
+        uint64_t C_Entity__GameDone            = 0x0;
+        uint64_t C_Entity__GameInit            = 0x0;
+        uint64_t C_Entity__Release             = 0x0;
+        uint64_t C_Entity__SetEntityDelSlotFlag = 0x0;
 
         // C_EntityFactory
         uint64_t C_EntityFactory__ComputeHash    = 0x0;
@@ -238,6 +245,10 @@ namespace SDK {
         uint64_t C_HumanScript__SetHealth      = 0x0;
         uint64_t C_HumanScript__SetStealthMove = 0x0;
 
+        // C_HumanHeadController
+        uint64_t C_HumanHeadController__ShutUp  = 0x0;
+        uint64_t C_HumanHeadController__Update  = 0x0;
+
         // C_HumanSpawner
         uint64_t C_HumanSpawner__C_HumanSpawnerVtbl          = 0x0;
         uint64_t C_HumanSpawner__SetupDefaultArchetypeObject = 0x0;
@@ -342,6 +353,18 @@ namespace SDK {
 
         // C_SceneObject
         uint64_t C_SceneObject__SetTransform = 0x0;
+
+        // C_SceneObjectManager
+        uint64_t C_SceneObjectManager__GetSceneObject       = 0x0;
+        uint64_t C_SceneObjectManager__RegisterSceneObject  = 0x0;
+        uint64_t C_SceneObjectManager__UnregisterSceneObject = 0x0;
+
+        // C_SceneObjectRequestCache
+        uint64_t C_SceneObjectRequestCache__AddCache      = 0x0;
+        uint64_t C_SceneObjectRequestCache__TryGetObject  = 0x0;
+
+        // C_ScriptObjectDuplicator
+        uint64_t C_ScriptObjectDuplicator__DuplicateSceneObject = 0x0;
 
         // C_ShotManager
         uint64_t C_ShotManager__CreateExplosion = 0x0;

@@ -1,10 +1,9 @@
 #include "character_controller.h"
 
 #include "sdk/c_ie.h"
+#include "sdk/ue/game/anim/e_wanim_behavior_var.h"
 
 #include "scoped_entity_type_faker.h"
-
-#include <logging/logger.h>
 
 namespace MafiaMP::Game::Overrides {
     uintptr_t CharacterController::_vfTables[2]            = {0, 0};
@@ -143,6 +142,14 @@ namespace MafiaMP::Game::Overrides {
 
             SetSprintMoveSpeed(_sprintMoveSpeed);
 
+            // Apply animation move speed (WAnimVariable Speed) every frame for walk/run blend
+            if (_animMoveSpeed > 0.0f) {
+                auto behaviorChar = pMoveHandler->GetBehaviorCharacter();
+                if (behaviorChar) {
+                    behaviorChar->SetWAnimVariable(SDK::ue::game::anim::E_WABV_SPEED, _animMoveSpeed);
+                }
+            }
+
             if (IsSprinting() != _isSprintingOverride) {
                 SetSprinting(_isSprintingOverride);
                 SDK::ue::game::humanai::C_CharacterStateHandlerBaseLocomotion::AddRemoveSprintDescriptor(this, _isSprintingOverride);
@@ -160,7 +167,7 @@ namespace MafiaMP::Game::Overrides {
 
             float depthInWater = m_pCharacter->GetDepthInWater();
             if (depthInWater > 0.0f) {
-                pMoveHandler->GetBehaviorCharacter()->SetWAnimVariable(21, depthInWater * 100.0f);
+                pMoveHandler->GetBehaviorCharacter()->SetWAnimVariable(SDK::ue::game::anim::E_WABV_WATER_DEPTH, depthInWater * 100.0f);
             }
         } else {
             SetSprinting(false);

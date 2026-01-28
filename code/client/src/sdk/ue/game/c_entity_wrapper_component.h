@@ -1,0 +1,78 @@
+#pragma once
+
+#include <cstdint>
+
+#include "../sys/core/i_component.h"
+#include "../sys/utils/c_hash_name.h"
+#include "../../entities/c_entity.h"
+
+namespace SDK {
+    namespace ue::game {
+
+        // Component that wraps entity creation and management.
+        // Stores entity initialization data, flags, and prefab information.
+        // Attached to C_SceneObject via C_ComponentObject system.
+        class C_EntityWrapperComponent : public sys::core::I_Component {
+          public:
+            uint32_t GetFlags() const {
+                return m_iFlags;
+            }
+
+            void SetFlags(uint32_t flags) {
+                m_iFlags = flags;
+            }
+
+            E_EntityType GetGameEntityType() const {
+                return static_cast<E_EntityType>(m_eGameEntityType);
+            }
+
+            void SetGameEntityType(E_EntityType type) {
+                m_eGameEntityType = static_cast<int32_t>(type);
+            }
+
+            sys::utils::C_HashName GetModelNameHash() const {
+                return sys::utils::C_HashName(m_uModelNameHash);
+            }
+
+            void SetModelNameHash(uint64_t hash) {
+                m_uModelNameHash = hash;
+            }
+
+            void *GetBuiltInitProps(size_t *outSize = nullptr) const {
+                if (outSize) {
+                    *outSize = reinterpret_cast<size_t>(m_pBuiltInitPropsEnd) - reinterpret_cast<size_t>(m_pBuiltInitProps);
+                }
+                if (m_pBuiltInitPropsEnd == m_pBuiltInitProps) {
+                    return nullptr;
+                }
+                return m_pBuiltInitProps;
+            }
+
+            void *GetBuiltPrefabs() const {
+                return m_pBuiltPrefabs;
+            }
+
+            void *GetRelatedWrapper() const {
+                return m_pRelatedWrapper;
+            }
+
+          protected:
+            void *m_pRelatedWrapper;        // 0x40 - 0x48 (related component, used in GetResourceIdentification)
+            uint64_t m_uModelNameHash;      // 0x48 - 0x50 (C_HashName)
+            uint32_t m_iFlags;              // 0x50 - 0x54
+            int32_t m_eGameEntityType;      // 0x54 - 0x58 (E_EntityType)
+            uint8_t m_bUnk58;               // 0x58 - 0x59 (initialized to 1)
+            uint8_t m_bDataItemTypeMapInit; // 0x59 - 0x5A (set to 1 after DataItemTypeMap init)
+            char _pad5A[0x06];              // 0x5A - 0x60
+            char *m_sModelName;             // 0x60 - 0x68 (C_String)
+            void *m_pBuiltInitProps;        // 0x68 - 0x70 (S_EntityInitProps array start)
+            void *m_pBuiltInitPropsEnd;     // 0x70 - 0x78 (S_EntityInitProps array end)
+            void *m_pUnk78;                 // 0x78 - 0x80
+            void *m_pBuiltPrefabs;          // 0x80 - 0x88 (C_PrefabInitData*)
+            void *m_pBuiltPrefabsList;      // 0x88 - 0x90
+        };
+
+        static_assert(sizeof(C_EntityWrapperComponent) == 0x90, "C_EntityWrapperComponent size mismatch");
+
+    } // namespace ue::game
+} // namespace SDK

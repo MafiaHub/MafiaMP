@@ -8,17 +8,8 @@
 #include <cstdint>
 
 namespace SDK {
-    /**
-     * C_Actor - Base class for actors (entities with position and transform)
-     *
-     * Size: 0xF8 (248 bytes)
-     *
-     * Members:
-     *   0xE0: I_ActorActions* - Interface vtable for actor actions (type name: E_ActorActions)
-     *   0xE8: S_ActorStreamingInfo* - Streaming info structure (owner at +0x18, activated flag at +0x168)
-     *   0xF0: C_Actor* - Direct owner pointer (used by I_Human2::SetOwner)
-     */
-    class C_Actor: public C_EntityPos {
+    // Size: 0xF8 (248 bytes)
+    class C_Actor : public C_EntityPos {
       public:
         virtual void SetPos(ue::sys::math::C_Vector const &)                                                                              = 0;
         virtual void SetDir(ue::sys::math::C_Vector const &)                                                                              = 0;

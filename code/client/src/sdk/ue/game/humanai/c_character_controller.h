@@ -8,6 +8,7 @@
 #include "c_character_state_handler_aim.h"
 #include "c_character_state_handler_car.h"
 #include "c_character_state_handler_move.h"
+#include "c_character_state_handler_stand.h"
 #include "c_character_state_handler_weapon.h"
 
 namespace SDK {
@@ -119,7 +120,7 @@ namespace SDK {
             C_Human2 *m_pCharacter;
             uint8_t m_pad24[64];
             C_CharacterStateHandlerMove     *m_pMoveStateHandler;
-            C_CharacterStateHandler         *m_pStandStateHandler;
+            C_CharacterStateHandlerStand    *m_pStandStateHandler;
             C_CharacterStateHandler         *m_pMoveStandStateHandler;
             C_CharacterStateHandler         *m_pCoverStateHandler;
             C_CharacterStateHandler         *m_pClimbStateHandler;
@@ -177,6 +178,9 @@ namespace SDK {
             }
             C_CharacterStateHandlerCar *GetCarHandler() {
                 return m_pCarStateHandler;
+            }
+            C_CharacterStateHandlerStand *GetStandHandler() {
+                return m_pStandStateHandler;
             }
             C_CharacterStateHandler *GetCurrentStateHandler() {
                 return m_pCurrentStateHandler;
