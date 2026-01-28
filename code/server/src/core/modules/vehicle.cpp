@@ -1,8 +1,7 @@
 #include "vehicle.h"
 
 #include "networking/network_peer.h"
-#include "world/modules/base.hpp"
-
+#include "utils/time.h"
 #include "world/modules/base.hpp"
 
 #include "shared/game_rpc/vehicle/vehicle_player_enter.h"
@@ -70,49 +69,96 @@ namespace MafiaMP::Core::Modules {
             return false;
         };
 
-        es->modEvents.spawnProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            const auto frame      = e.get<Framework::World::Modules::Base::Frame>();
-            auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            Shared::Messages::Vehicle::VehicleSpawn vehicleSpawn;
-            vehicleSpawn.FromParameters(frame->modelName.c_str(), *trackingMetadata);
-            vehicleSpawn.SetServerID(e.id());
-            net->Send(vehicleSpawn, guid);
-            // todo other stuff
-            return true;
-        };
-
-        es->modEvents.despawnProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            Shared::Messages::Vehicle::VehicleDespawn vehicleDespawn;
-            vehicleDespawn.SetServerID(e.id());
-            net->Send(vehicleDespawn, guid);
-            return true;
-        };
-
-        es->modEvents.updateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-
-            Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
-            vehicleUpdate.SetServerID(e.id());
-            vehicleUpdate.SetData(*trackingMetadata);
-            net->Send(vehicleUpdate, guid);
-            return true;
-        };
-
-        // TODO: deprecate in favor of RPCs
-        /*es->modEvents.ownerUpdateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-
-            Shared::Messages::Vehicle::VehicleOwnerUpdate vehicleUpdate {};
-            vehicleUpdate.SetServerID(e.id());
-            vehicleUpdate.SetData(*trackingMetadata);
-            net->Send(vehicleUpdate, guid);
-            return true;
-        };*/
+        // Message sending is handled by observers set up in SetupMessages
 
         return e;
     }
 
     void Vehicle::SetupMessages(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
+        auto world = srv->GetWorld();
+
+        // Observer: Send VehicleSpawn when StreamedTo relation is added to Vehicle entities
+        world->observer()
+            .with<Framework::World::Modules::Base::StreamedTo>(flecs::Wildcard)
+            .with<Shared::Modules::VehicleSync::UpdateData>()
+            .event(flecs::OnAdd)
+            .each([net](flecs::iter& it, size_t row) {
+                auto e = it.entity(row);
+                auto streamerEntity = it.pair(0).second();
+                if (!streamerEntity.is_valid() || !streamerEntity.is_alive())
+                    return;
+
+                auto streamer = streamerEntity.get<Framework::World::Modules::Base::Streamer>();
+                if (!streamer)
+                    return;
+
+                const auto frame      = e.get<Framework::World::Modules::Base::Frame>();
+                auto trackingMetadata = e.get<Shared::Modules::VehicleSync::UpdateData>();
+                if (!frame || !trackingMetadata)
+                    return;
+
+                Shared::Messages::Vehicle::VehicleSpawn vehicleSpawn;
+                vehicleSpawn.FromParameters(frame->modelName.c_str(), *trackingMetadata);
+                vehicleSpawn.SetServerID(e.id());
+                net->Send(vehicleSpawn, streamer->guid);
+            });
+
+        // Observer: Send VehicleDespawn when StreamedTo relation is removed from Vehicle entities
+        world->observer()
+            .with<Framework::World::Modules::Base::StreamedTo>(flecs::Wildcard)
+            .with<Shared::Modules::VehicleSync::UpdateData>()
+            .event(flecs::OnRemove)
+            .each([net](flecs::iter& it, size_t row) {
+                auto e = it.entity(row);
+                auto streamerEntity = it.pair(0).second();
+                if (!streamerEntity.is_valid() || !streamerEntity.is_alive())
+                    return;
+
+                auto streamer = streamerEntity.get<Framework::World::Modules::Base::Streamer>();
+                if (!streamer)
+                    return;
+
+                Shared::Messages::Vehicle::VehicleDespawn vehicleDespawn;
+                vehicleDespawn.SetServerID(e.id());
+                net->Send(vehicleDespawn, streamer->guid);
+            });
+
+        // System: Send periodic VehicleUpdate for streamed Vehicle entities
+        world->system<Shared::Modules::VehicleSync::UpdateData, Framework::World::Modules::Base::Streamable>("VehicleStreamUpdates")
+            .kind(flecs::PostUpdate)
+            .each([net](flecs::entity e, Shared::Modules::VehicleSync::UpdateData& updateData, Framework::World::Modules::Base::Streamable& streamable) {
+                // Skip entities marked as no-update
+                if (e.has<Framework::World::Modules::Base::NoTickUpdates>())
+                    return;
+
+                // Iterate over all streamers this entity is streamed to
+                e.each<Framework::World::Modules::Base::StreamedTo>([&](flecs::entity streamerEntity) {
+                    if (!streamerEntity.is_valid() || !streamerEntity.is_alive())
+                        return;
+
+                    auto streamer = streamerEntity.get<Framework::World::Modules::Base::Streamer>();
+                    if (!streamer)
+                        return;
+
+                    // Check timing via the StreamedTo relation data
+                    auto streamData = e.get_mut<Framework::World::Modules::Base::StreamedTo>(streamerEntity);
+                    if (!streamData)
+                        return;
+
+                    double currentTime = static_cast<double>(Framework::Utils::Time::GetTime());
+                    if (currentTime - streamData->lastUpdate < streamable.updateInterval)
+                        return;
+
+                    streamData->lastUpdate = currentTime;
+
+                    // Send update (vehicles don't distinguish owner/non-owner updates currently)
+                    Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
+                    vehicleUpdate.SetServerID(e.id());
+                    vehicleUpdate.SetData(updateData);
+                    net->Send(vehicleUpdate, streamer->guid);
+                });
+            });
+
         net->RegisterMessage<Shared::Messages::Vehicle::VehicleUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_UPDATE, [srv](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleUpdate *msg) {
             const auto e = srv->WrapEntity(msg->GetServerID());
             if (!e.is_alive()) {
