@@ -1,5 +1,6 @@
 #include "human.h"
 
+#include "utils/time.h"
 #include "world/modules/base.hpp"
 
 #include "shared/messages/human/human_despawn.h"
@@ -47,50 +48,104 @@ namespace MafiaMP::Core::Modules {
             }
         };
 
-        auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
-
-        es->modEvents.spawnProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            const auto frame = e.get<Framework::World::Modules::Base::Frame>();
-            const auto s     = e.get<Framework::World::Modules::Base::Streamer>();
-            Shared::Messages::Human::HumanSpawn humanSpawn;
-            humanSpawn.FromParameters(frame->modelHash, s->nickname, s->playerIndex);
-            humanSpawn.SetServerID(e.id());
-
-            const auto trackingMetadata = e.get<Shared::Modules::HumanSync::UpdateData>();
-            humanSpawn.SetCarPassenger(trackingMetadata->carPassenger.carId, trackingMetadata->carPassenger.seatId);
-
-            net->Send(humanSpawn, guid);
-            // todo other stuff
-            return true;
-        };
-
-        es->modEvents.despawnProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            Shared::Messages::Human::HumanDespawn humanDespawn;
-            humanDespawn.SetServerID(e.id());
-            net->Send(humanDespawn, guid);
-            return true;
-        };
-
-        es->modEvents.selfUpdateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            Shared::Messages::Human::HumanSelfUpdate humanSelfUpdate;
-            humanSelfUpdate.SetServerID(e.id());
-            net->Send(humanSelfUpdate, guid);
-            return true;
-        };
-
-        es->modEvents.updateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            const auto trackingMetadata = e.get<Shared::Modules::HumanSync::UpdateData>();
-            // const auto frame            = e.get<Framework::World::Modules::Base::Frame>();
-
-            Shared::Messages::Human::HumanUpdate humanUpdate {};
-            humanUpdate.SetServerID(e.id());
-            humanUpdate.SetData(*trackingMetadata);
-            net->Send(humanUpdate, guid);
-            return true;
-        };
+        // Message sending is handled by observers set up in SetupMessages
     }
 
     void Human::SetupMessages(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
+        auto world = srv->GetWorld();
+
+        // Observer: Send HumanSpawn when StreamedTo relation is added to Human entities
+        world->observer()
+            .with<Framework::World::Modules::Base::StreamedTo>(flecs::Wildcard)
+            .with<Shared::Modules::HumanSync::UpdateData>()
+            .event(flecs::OnAdd)
+            .each([net](flecs::iter& it, size_t row) {
+                auto e = it.entity(row);
+                auto streamerEntity = it.pair(0).second();
+                if (!streamerEntity.is_valid() || !streamerEntity.is_alive())
+                    return;
+
+                auto streamer = streamerEntity.get<Framework::World::Modules::Base::Streamer>();
+                if (!streamer)
+                    return;
+
+                const auto frame = e.get<Framework::World::Modules::Base::Frame>();
+                Shared::Messages::Human::HumanSpawn humanSpawn;
+                humanSpawn.FromParameters(frame ? frame->modelHash : 0, streamer->nickname, streamer->playerIndex);
+                humanSpawn.SetServerID(e.id());
+
+                const auto trackingMetadata = e.get<Shared::Modules::HumanSync::UpdateData>();
+                if (trackingMetadata) {
+                    humanSpawn.SetCarPassenger(trackingMetadata->carPassenger.carId, trackingMetadata->carPassenger.seatId);
+                }
+
+                net->Send(humanSpawn, streamer->guid);
+            });
+
+        // Observer: Send HumanDespawn when StreamedTo relation is removed from Human entities
+        world->observer()
+            .with<Framework::World::Modules::Base::StreamedTo>(flecs::Wildcard)
+            .with<Shared::Modules::HumanSync::UpdateData>()
+            .event(flecs::OnRemove)
+            .each([net](flecs::iter& it, size_t row) {
+                auto e = it.entity(row);
+                auto streamerEntity = it.pair(0).second();
+                if (!streamerEntity.is_valid() || !streamerEntity.is_alive())
+                    return;
+
+                auto streamer = streamerEntity.get<Framework::World::Modules::Base::Streamer>();
+                if (!streamer)
+                    return;
+
+                Shared::Messages::Human::HumanDespawn humanDespawn;
+                humanDespawn.SetServerID(e.id());
+                net->Send(humanDespawn, streamer->guid);
+            });
+
+        // System: Send periodic HumanUpdate/HumanSelfUpdate for streamed Human entities
+        world->system<Shared::Modules::HumanSync::UpdateData, Framework::World::Modules::Base::Streamable>("HumanStreamUpdates")
+            .kind(flecs::PostUpdate)
+            .each([net](flecs::entity e, Shared::Modules::HumanSync::UpdateData& updateData, Framework::World::Modules::Base::Streamable& streamable) {
+                // Skip entities not being streamed or marked as no-update
+                if (e.has<Framework::World::Modules::Base::NoTickUpdates>())
+                    return;
+
+                // Iterate over all streamers this entity is streamed to
+                e.each<Framework::World::Modules::Base::StreamedTo>([&](flecs::entity streamerEntity) {
+                    if (!streamerEntity.is_valid() || !streamerEntity.is_alive())
+                        return;
+
+                    auto streamer = streamerEntity.get<Framework::World::Modules::Base::Streamer>();
+                    if (!streamer)
+                        return;
+
+                    // Check timing via the StreamedTo relation data
+                    auto streamData = e.get_mut<Framework::World::Modules::Base::StreamedTo>(streamerEntity);
+                    if (!streamData)
+                        return;
+
+                    double currentTime = static_cast<double>(Framework::Utils::Time::GetTime());
+                    if (currentTime - streamData->lastUpdate < streamable.updateInterval)
+                        return;
+
+                    streamData->lastUpdate = currentTime;
+
+                    // Send appropriate message based on ownership
+                    if (streamer->guid != streamable.owner) {
+                        // Non-owner gets regular update
+                        Shared::Messages::Human::HumanUpdate humanUpdate {};
+                        humanUpdate.SetServerID(e.id());
+                        humanUpdate.SetData(updateData);
+                        net->Send(humanUpdate, streamer->guid);
+                    } else {
+                        // Owner gets self update
+                        Shared::Messages::Human::HumanSelfUpdate humanSelfUpdate;
+                        humanSelfUpdate.SetServerID(e.id());
+                        net->Send(humanSelfUpdate, streamer->guid);
+                    }
+                });
+            });
+
         net->RegisterMessage<Shared::Messages::Human::HumanUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_UPDATE, [srv](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanUpdate *msg) {
             const auto e = srv->WrapEntity(msg->GetServerID());
             if (!e.is_alive()) {

@@ -16,3 +16,6 @@ set(MAFIAMP_SERVER_FILES
 add_executable(MafiaMPServer ${MAFIAMP_SERVER_FILES})
 target_include_directories(MafiaMPServer PRIVATE src)
 target_link_libraries(MafiaMPServer Framework FrameworkServer)
+
+# Reuse FrameworkServer's PCH (includes sol, flecs, and Framework's headers)
+target_precompile_headers(MafiaMPServer REUSE_FROM FrameworkServer)

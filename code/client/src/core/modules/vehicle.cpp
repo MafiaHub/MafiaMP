@@ -112,10 +112,10 @@ namespace MafiaMP::Core::Modules {
 
         // Ensure we hook up vehicle events for special cases
         auto streamable                      = e.get_mut<Framework::World::Modules::Base::Streamable>();
-        streamable->modEvents.disconnectProc = [](flecs::entity e) {
+        streamable->disconnectProc = [](flecs::entity e) {
             Remove(e);
         };
-        streamable->modEvents.updateTransformProc = [](flecs::entity e) {
+        streamable->updateTransformProc = [](flecs::entity e) {
             UpdateTransform(e);
         };
 
@@ -144,18 +144,6 @@ namespace MafiaMP::Core::Modules {
 
                 auto trackingData = ent.get_mut<Core::Modules::Vehicle::Tracking>();
                 trackingData->car = car;
-
-                auto streamable                  = ent.get_mut<Framework::World::Modules::Base::Streamable>();
-                streamable->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                    const auto updateData = e.get<Shared::Modules::VehicleSync::UpdateData>();
-                    const auto serverID   = e.get<Framework::World::Modules::Base::ServerID>();
-
-                    Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
-                    vehicleUpdate.SetServerID(serverID->id);
-                    vehicleUpdate.SetData(*updateData);
-                    peer->Send(vehicleUpdate, guid);
-                    return true;
-                };
 
                 Update(ent);
             }
