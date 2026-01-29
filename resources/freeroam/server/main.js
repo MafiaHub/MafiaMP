@@ -24,7 +24,9 @@ function registerChatCommand(name, handler) {
 }
 
 // Resource lifecycle
-export function onResourceStart() {
+Events.on('resourceStart', (resourceName) => {
+    if (resourceName !== 'freeroam') return;
+
     console.log("[FREEROAM] Resource started!");
 
     // Spawn vehicles
@@ -40,21 +42,23 @@ export function onResourceStart() {
         World.setWeatherSet(weatherSet);
         console.log(`[FREEROAM] Weather set changed to ${weatherSet}.`);
     }
-}
+});
 
-export function onResourceStop() {
+Events.on('resourceStop', (resourceName) => {
+    if (resourceName !== 'freeroam') return;
+
     console.log("[FREEROAM] Resource stopping!");
-}
+});
 
 // Vehicle events
-Framework.events.on("onVehiclePlayerEnter", (vehicle, player, seatIndex) => {
+Events.on("onVehiclePlayerEnter", (vehicle, player, seatIndex) => {
     console.log(
         `[FREEROAM] Player ${player.nickname} entered vehicle ${vehicle.getModelName()} (id: ${vehicle.id}) at seat ${seatIndex}.`
     );
     vehicle.setEngineOn(true);
 });
 
-Framework.events.on("onVehiclePlayerLeave", (vehicle, player) => {
+Events.on("onVehiclePlayerLeave", (vehicle, player) => {
     console.log(
         `[FREEROAM] Player ${player.nickname} exited vehicle ${vehicle.getModelName()} (id: ${vehicle.id}).`
     );
@@ -62,7 +66,7 @@ Framework.events.on("onVehiclePlayerLeave", (vehicle, player) => {
 });
 
 // Player events
-Framework.events.on("onPlayerConnected", (player) => {
+Events.on("onPlayerConnected", (player) => {
     console.log(`[FREEROAM] Player ${player.nickname} connected!`);
     Chat.sendToAll(`[SERVER] ${player.nickname} has joined the session!`);
 
@@ -72,12 +76,12 @@ Framework.events.on("onPlayerConnected", (player) => {
     Chat.sendToPlayer(player, `[SERVER] Welcome ${player.nickname}!`);
 });
 
-Framework.events.on("onPlayerDisconnected", (player) => {
+Events.on("onPlayerDisconnected", (player) => {
     console.log(`[FREEROAM] Player ${player.nickname} disconnected.`);
     Chat.sendToAll(`[SERVER] ${player.nickname} has left the session.`);
 });
 
-Framework.events.on("onPlayerDied", (player) => {
+Events.on("onPlayerDied", (player) => {
     console.log(`[FREEROAM] Player ${player.nickname} died.`);
     Chat.sendToAll(`[SERVER] ${player.nickname} died.`);
 
@@ -88,7 +92,7 @@ Framework.events.on("onPlayerDied", (player) => {
 });
 
 // Chat events
-Framework.events.on("onChatMessage", (player, message) => {
+Events.on("onChatMessage", (player, message) => {
     console.log(`[FREEROAM] Player ${player.nickname} said: ${message}`);
     Chat.sendToAll(`<${player.nickname}>: ${message}`);
 });
@@ -98,13 +102,13 @@ Framework.events.on("onChatMessage", (player, message) => {
  * @param {Player} player
  * @param {string} foo
  */
-Framework.events.on("myCustomEvent", (player, foo) => {
+Events.on("myCustomEvent", (player, foo) => {
     console.log(`[FREEROAM] ${player.nickname} triggered a custom event with foo: ${foo}`);
     player.sendChat(`[SERVER] ${player.nickname} triggered a custom event with foo: ${foo}`);
 });
 
 // Chat command handler
-Framework.events.on("onChatCommand", (player, message, command, args) => {
+Events.on("onChatCommand", (player, message, command, args) => {
     console.log(`[FREEROAM] Player ${player.nickname} used command: "${command}". (${message}).`);
 
     const foundCommand = REGISTERED_CHAT_COMMANDS[command];
@@ -354,7 +358,7 @@ registerChatCommand("time", (player, message, command, args) => {
 });
 
 registerChatCommand("customevent", (player, message, command, args) => {
-    Framework.events.emit("myCustomEvent", player, "bar");
+    Events.emit("myCustomEvent", player, "bar");
 });
 
 // ========== COLLECTION TEST COMMANDS ==========
