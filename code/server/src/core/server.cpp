@@ -14,6 +14,9 @@
 
 #include "shared/game_rpc/human/human_changeskin.h"
 
+#include <scripting/node_engine.h>
+#include <v8pp/convert.hpp>
+
 namespace MafiaMP {
     void Server::PostInit() {
         _serverRef = this;
@@ -63,7 +66,25 @@ namespace MafiaMP {
     }
 
     void Server::ModuleRegister(Framework::Scripting::Engine *engine) {
-        MafiaMP::Scripting::Builtins::Register(GetScriptingModule()->GetEngine()->GetLuaEngine());
+        auto *nodeEngine = dynamic_cast<Framework::Scripting::NodeEngine *>(engine);
+        if (!nodeEngine) {
+            return;
+        }
+
+        v8::Isolate *isolate = nodeEngine->GetIsolate();
+        v8::Locker locker(isolate);
+        v8::Isolate::Scope isolateScope(isolate);
+        v8::HandleScope handleScope(isolate);
+        v8::Local<v8::Context> context = nodeEngine->GetContext();
+        v8::Context::Scope contextScope(context);
+
+        // Get global and Framework objects
+        v8::Local<v8::Object> global = context->Global();
+        v8::Local<v8::Value> frameworkVal;
+        if (global->Get(context, v8pp::to_v8(isolate, "Framework")).ToLocal(&frameworkVal) && frameworkVal->IsObject()) {
+            v8::Local<v8::Object> frameworkObj = frameworkVal.As<v8::Object>();
+            MafiaMP::Scripting::Builtins::Register(isolate, global, frameworkObj);
+        }
     }
 
     void Server::InitRPCs() {

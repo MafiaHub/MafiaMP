@@ -1,16 +1,25 @@
 #pragma once
 
-#include <sol/sol.hpp>
+#include <v8.h>
+#include <v8pp/class.hpp>
+#include <v8pp/convert.hpp>
 
-#include "integrations/server/scripting/builtins/entity.h"
-#include "scripting/builtins/vector_3.h"
-#include "logging/logger.h"
+#include "entity.h"
+
+#include <scripting/builtins/vector3.h>
 
 #include "shared/modules/human_sync.hpp"
 
+#include <fmt/format.h>
+#include <logging/logger.h>
+
+#include <memory>
+#include <optional>
+
 namespace MafiaMP::Scripting {
     class Vehicle;
-    class Human: public Framework::Integrations::Scripting::Entity {
+
+    class Human: public Entity {
       public:
         Human(flecs::entity_t ent): Entity(ent) {
             const auto humanData = _ent.get<Shared::Modules::HumanSync::UpdateData>();
@@ -37,12 +46,17 @@ namespace MafiaMP::Scripting {
         float GetHealth() const;
         void SetHealth(float health);
 
-        sol::optional<Vehicle> GetVehicle() const;
+        // Returns the vehicle entity ID, or 0 if not in a vehicle
+        uint64_t GetVehicleId() const;
 
         int GetVehicleSeatIndex() const;
 
         uint16_t GetWeaponId() const;
 
-        static void Register(sol::state *luaEngine);
+        static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global);
+        static v8pp::class_<Human> &GetClass(v8::Isolate *isolate);
+
+      private:
+        static std::unique_ptr<v8pp::class_<Human>> _class;
     };
 } // namespace MafiaMP::Scripting

@@ -1,43 +1,48 @@
 #pragma once
 
-#include <sol/sol.hpp>
+#include <v8.h>
+#include <v8pp/class.hpp>
+#include <v8pp/convert.hpp>
+
+#include "entity.h"
 
 #include "core/modules/vehicle.h"
 
-#include "integrations/server/scripting/builtins/entity.h"
+#include <scripting/builtins/color.h>
 
-#include "scripting/server_engine.h"
-#include "scripting/builtins/color_rgb.h"
-#include "scripting/builtins/color_rgba.h"
+#include <fmt/format.h>
+
+#include <memory>
 
 namespace MafiaMP::Scripting {
-    class Vehicle final: public Framework::Integrations::Scripting::Entity {
+    class Vehicle final: public Entity {
       public:
-        Vehicle(flecs::entity_t ent) : Entity(ent) {
+        Vehicle(flecs::entity_t ent): Entity(ent) {
             const auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
 
             if (!vehData) {
                 throw std::runtime_error(fmt::format("Entity handle '{}' is not a Vehicle!", ent));
             }
         }
-        
+
         Vehicle(flecs::entity ent): Vehicle(ent.id()) {}
 
         static void EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex);
         static void EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player);
 
-        static void Register(sol::state *luaEngine);
+        static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global);
+        static v8pp::class_<Vehicle> &GetClass(v8::Isolate *isolate);
 
         std::string ToString() const override;
 
         bool GetBeaconLightsOn();
         void SetBeaconLightsOn(bool on);
 
-        Framework::Scripting::Builtins::ColorRGB GetColorPrimary();
-        void SetColorPrimary(Framework::Scripting::Builtins::ColorRGB rgb);
+        Framework::Scripting::Builtins::Color GetColorPrimary();
+        void SetColorPrimary(Framework::Scripting::Builtins::Color color);
 
-        Framework::Scripting::Builtins::ColorRGB GetColorSecondary();
-        void SetColorSecondary(Framework::Scripting::Builtins::ColorRGB rgb);
+        Framework::Scripting::Builtins::Color GetColorSecondary();
+        void SetColorSecondary(Framework::Scripting::Builtins::Color color);
 
         float GetDirt();
         void SetDirt(float dirt);
@@ -51,8 +56,8 @@ namespace MafiaMP::Scripting {
         std::string GetLicensePlate();
         void SetLicensePlate(std::string plate);
 
-        Shared::Modules::VehicleSync::LockState GetLockState();
-        void SetLockState(Shared::Modules::VehicleSync::LockState state);
+        int GetLockState();
+        void SetLockState(int state);
 
         bool GetRadioOn();
         void SetRadioOn(bool on);
@@ -60,8 +65,8 @@ namespace MafiaMP::Scripting {
         int GetRadioStationId();
         void SetRadioStationId(int id);
 
-        Framework::Scripting::Builtins::ColorRGB GetRimColor();
-        void SetRimColor(Framework::Scripting::Builtins::ColorRGB rgb);
+        Framework::Scripting::Builtins::Color GetRimColor();
+        void SetRimColor(Framework::Scripting::Builtins::Color color);
 
         float GetRust();
         void SetRust(float rust);
@@ -69,12 +74,13 @@ namespace MafiaMP::Scripting {
         bool GetSirenOn();
         void SetSirenOn(bool on);
 
-        Framework::Scripting::Builtins::ColorRGB GetTireColor();
-        void SetTireColor(Framework::Scripting::Builtins::ColorRGB rgb);
+        Framework::Scripting::Builtins::Color GetTireColor();
+        void SetTireColor(Framework::Scripting::Builtins::Color color);
 
-        Framework::Scripting::Builtins::ColorRGBA GetWindowTint();
-        void SetWindowTint(Framework::Scripting::Builtins::ColorRGBA tint);
+        Framework::Scripting::Builtins::Color GetWindowTint();
+        void SetWindowTint(Framework::Scripting::Builtins::Color tint);
 
-
+      private:
+        static std::unique_ptr<v8pp::class_<Vehicle>> _class;
     };
 } // namespace MafiaMP::Scripting

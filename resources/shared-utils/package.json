@@ -1,16 +1,13 @@
 {
   "name": "shared-utils",
   "version": "1.0.0",
+  "type": "module",
   "author": "MafiaHub",
   "description": "Shared utility functions for other resources",
-  "server_files": [
-    "utils.lua"
-  ],
-  "client_files": [
-    "utils.lua"
-  ],
-  "exports": [
-    "utils"
-  ],
-  "priority": 0
+  "mafiahub": {
+    "server": "utils.js",
+    "client": "utils.js",
+    "exports": ["utils"],
+    "priority": 0
+  }
 }
