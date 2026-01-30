@@ -10,4 +10,4 @@ const ENUMS = {
     }
 };
 
-module.exports = ENUMS;
+export default ENUMS;

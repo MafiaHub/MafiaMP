@@ -10,7 +10,4 @@ function onResourceStop() {
     console.log("[FREEROAM] Client resource stopping!");
 }
 
-module.exports = {
-    onResourceStart,
-    onResourceStop
-};
+export { onResourceStart, onResourceStop };
