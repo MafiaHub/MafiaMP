@@ -53,14 +53,14 @@ Events.on('resourceStop', (resourceName) => {
 // Vehicle events
 Events.on("vehiclePlayerEnter", (vehicle, player, seatIndex) => {
     console.log(
-        `[FREEROAM] Player ${player.nickname} entered vehicle ${vehicle.getModelName()} (id: ${vehicle.id}) at seat ${seatIndex}.`
+        `[FREEROAM] Player ${player.nickname} entered vehicle ${vehicle.modelName} (id: ${vehicle.id}) at seat ${seatIndex}.`
     );
     vehicle.setEngineOn(true);
 });
 
 Events.on("vehiclePlayerLeave", (vehicle, player) => {
     console.log(
-        `[FREEROAM] Player ${player.nickname} exited vehicle ${vehicle.getModelName()} (id: ${vehicle.id}).`
+        `[FREEROAM] Player ${player.nickname} exited vehicle ${vehicle.modelName} (id: ${vehicle.id}).`
     );
     vehicle.setEngineOn(false);
 });

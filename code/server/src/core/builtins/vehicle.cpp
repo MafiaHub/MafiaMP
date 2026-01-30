@@ -39,8 +39,8 @@ void Vehicle::EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity playe
     v8::Local<v8::Context> context = engine->GetContext();
     v8::Context::Scope contextScope(context);
 
-    auto vehicleObj = Vehicle::GetClass(isolate).wrap_object(new Vehicle(vehicle), isolate);
-    auto playerObj  = Player::GetClass(isolate).wrap_object(new Player(player), isolate);
+    auto vehicleObj = Vehicle::GetClass(isolate).import_external(isolate, new Vehicle(vehicle));
+    auto playerObj  = Player::GetClass(isolate).import_external(isolate, new Player(player));
 
     std::vector<v8::Local<v8::Value>> args;
     args.push_back(vehicleObj);
@@ -73,8 +73,8 @@ void Vehicle::EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity playe
     v8::Local<v8::Context> context = engine->GetContext();
     v8::Context::Scope contextScope(context);
 
-    auto vehicleObj = Vehicle::GetClass(isolate).wrap_object(new Vehicle(vehicle), isolate);
-    auto playerObj  = Player::GetClass(isolate).wrap_object(new Player(player), isolate);
+    auto vehicleObj = Vehicle::GetClass(isolate).import_external(isolate, new Vehicle(vehicle));
+    auto playerObj  = Player::GetClass(isolate).import_external(isolate, new Player(player));
 
     std::vector<v8::Local<v8::Value>> args;
     args.push_back(vehicleObj);

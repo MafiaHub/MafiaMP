@@ -46,6 +46,11 @@ namespace MafiaMP::Scripting {
         float GetHealth() const;
         void SetHealth(float health);
 
+        std::string GetNickname() const;
+
+        // Returns the Vehicle object, or undefined if not in a vehicle
+        v8::Local<v8::Value> GetVehicle(v8::Isolate *isolate) const;
+
         // Returns the vehicle entity ID, or 0 if not in a vehicle
         uint64_t GetVehicleId() const;
 

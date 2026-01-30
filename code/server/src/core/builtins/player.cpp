@@ -7,6 +7,7 @@
 #include <integrations/server/scripting/module.h>
 #include <logging/logger.h>
 #include <scripting/node_engine.h>
+#include <world/modules/base.hpp>
 
 namespace MafiaMP::Scripting {
 
@@ -35,7 +36,7 @@ namespace {
         v8::Local<v8::Context> context = engine->GetContext();
         v8::Context::Scope contextScope(context);
 
-        auto playerObj = Player::GetClass(isolate).wrap_object(new Player(e), isolate);
+        auto playerObj = Player::GetClass(isolate).import_external(isolate, new Player(e));
 
         std::vector<v8::Local<v8::Value>> args;
         args.push_back(playerObj);
@@ -69,13 +70,21 @@ void Player::Destroy() {
     // Nothing should happen here, as the player entity is destroyed by the game and network systems
 }
 
+void Player::SendChat(std::string message) {
+    const auto streamer = _ent.get<Framework::World::Modules::Base::Streamer>();
+    if (streamer) {
+        FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(streamer->guid), message);
+    }
+}
+
 v8pp::class_<Player> &Player::GetClass(v8::Isolate *isolate) {
     if (!_class) {
         _class = std::make_unique<v8pp::class_<Player>>(isolate);
         _class->inherit<Human>()
             .ctor<flecs::entity_t>()
             .set("toString", &Player::ToString)
-            .set("destroy", &Player::Destroy);
+            .set("destroy", &Player::Destroy)
+            .set("sendChat", &Player::SendChat);
     }
     return *_class;
 }

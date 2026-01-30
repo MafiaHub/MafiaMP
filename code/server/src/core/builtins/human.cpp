@@ -7,6 +7,8 @@
 
 #include "shared/modules/human_sync.hpp"
 
+#include <world/modules/base.hpp>
+
 #include "vehicle.h"
 
 namespace MafiaMP::Scripting {
@@ -63,6 +65,24 @@ uint16_t Human::GetWeaponId() const {
     return h->weaponData.currentWeaponId;
 }
 
+std::string Human::GetNickname() const {
+    const auto streamer = _ent.get<Framework::World::Modules::Base::Streamer>();
+    if (streamer) {
+        return streamer->nickname;
+    }
+    return "";
+}
+
+v8::Local<v8::Value> Human::GetVehicle(v8::Isolate *isolate) const {
+    const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+    const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
+    if (carEnt.is_valid() && carEnt.is_alive()) {
+        Vehicle *vehicle = new Vehicle(carEnt);
+        return Vehicle::GetClass(isolate).import_external(isolate, vehicle);
+    }
+    return v8::Undefined(isolate);
+}
+
 uint64_t Human::GetVehicleId() const {
     const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
     const auto carEnt     = flecs::entity(_ent.world(), updateData->carPassenger.carId);
@@ -97,6 +117,25 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
             .set("getVehicleId", &Human::GetVehicleId)
             .set("getVehicleSeatIndex", &Human::GetVehicleSeatIndex)
             .set("getWeaponId", &Human::GetWeaponId);
+
+        // Add nickname property accessor
+        auto protoTemplate = _class->class_function_template()->PrototypeTemplate();
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "nickname").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(v8pp::to_v8(info.GetIsolate(), self->GetNickname()));
+            });
+
+        // Add getVehicle method that returns Vehicle object
+        protoTemplate->Set(
+            v8pp::to_v8(isolate, "getVehicle").As<v8::String>(),
+            v8::FunctionTemplate::New(isolate, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) {
+                    info.GetReturnValue().Set(self->GetVehicle(info.GetIsolate()));
+                }
+            }));
     }
     return *_class;
 }

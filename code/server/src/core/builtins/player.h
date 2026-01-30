@@ -25,6 +25,8 @@ namespace MafiaMP::Scripting {
 
         void Destroy();
 
+        void SendChat(std::string message);
+
         static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global);
         static v8pp::class_<Player> &GetClass(v8::Isolate *isolate);
 
