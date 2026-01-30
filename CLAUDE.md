@@ -127,6 +127,11 @@ cmake --build build --target RunFrameworkTests
 - Uses Framework's ECS (Flecs), networking (SLNet), and scripting (Lua) systems
 - Depends on Framework's logging, utilities, and platform abstraction
 
+### Reserved Events
+- **Framework events** (resourceStart, serverStop, etc.) go in `Framework/code/framework/src/scripting/builtins/events_reserved.h`
+- **MafiaMP-specific events** (playerDied, vehiclePlayerEnter, etc.) go in `code/server/src/core/builtins/events_reserved.h`
+- Do NOT add MafiaMP events to the Framework's reserved events file
+
 ### Platform Support
 - Client: Windows x64 only (game limitation)
 - Server: Cross-platform (Windows, Linux, macOS)

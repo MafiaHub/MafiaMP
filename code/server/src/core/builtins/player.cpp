@@ -80,6 +80,7 @@ void Player::SendChat(std::string message) {
 v8pp::class_<Player> &Player::GetClass(v8::Isolate *isolate) {
     if (!_class) {
         _class = std::make_unique<v8pp::class_<Player>>(isolate);
+        _class->auto_wrap_objects(true);
         _class->inherit<Human>()
             .ctor<flecs::entity_t>()
             .set("toString", &Player::ToString)
