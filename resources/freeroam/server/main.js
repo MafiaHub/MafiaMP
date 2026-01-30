@@ -51,14 +51,14 @@ Events.on('resourceStop', (resourceName) => {
 });
 
 // Vehicle events
-Events.on("onVehiclePlayerEnter", (vehicle, player, seatIndex) => {
+Events.on("vehiclePlayerEnter", (vehicle, player, seatIndex) => {
     console.log(
         `[FREEROAM] Player ${player.nickname} entered vehicle ${vehicle.getModelName()} (id: ${vehicle.id}) at seat ${seatIndex}.`
     );
     vehicle.setEngineOn(true);
 });
 
-Events.on("onVehiclePlayerLeave", (vehicle, player) => {
+Events.on("vehiclePlayerLeave", (vehicle, player) => {
     console.log(
         `[FREEROAM] Player ${player.nickname} exited vehicle ${vehicle.getModelName()} (id: ${vehicle.id}).`
     );
@@ -66,7 +66,7 @@ Events.on("onVehiclePlayerLeave", (vehicle, player) => {
 });
 
 // Player events
-Events.on("onPlayerConnected", (player) => {
+Events.on("playerConnect", (player) => {
     console.log(`[FREEROAM] Player ${player.nickname} connected!`);
     Chat.sendToAll(`[SERVER] ${player.nickname} has joined the session!`);
 
@@ -76,12 +76,12 @@ Events.on("onPlayerConnected", (player) => {
     Chat.sendToPlayer(player, `[SERVER] Welcome ${player.nickname}!`);
 });
 
-Events.on("onPlayerDisconnected", (player) => {
+Events.on("playerDisconnect", (player) => {
     console.log(`[FREEROAM] Player ${player.nickname} disconnected.`);
     Chat.sendToAll(`[SERVER] ${player.nickname} has left the session.`);
 });
 
-Events.on("onPlayerDied", (player) => {
+Events.on("playerDied", (player) => {
     console.log(`[FREEROAM] Player ${player.nickname} died.`);
     Chat.sendToAll(`[SERVER] ${player.nickname} died.`);
 
@@ -92,7 +92,7 @@ Events.on("onPlayerDied", (player) => {
 });
 
 // Chat events
-Events.on("onChatMessage", (player, message) => {
+Events.on("chatMessage", (player, message) => {
     console.log(`[FREEROAM] Player ${player.nickname} said: ${message}`);
     Chat.sendToAll(`<${player.nickname}>: ${message}`);
 });
@@ -108,7 +108,7 @@ Events.on("myCustomEvent", (player, foo) => {
 });
 
 // Chat command handler
-Events.on("onChatCommand", (player, message, command, args) => {
+Events.on("chatCommand", (player, message, command, args) => {
     console.log(`[FREEROAM] Player ${player.nickname} used command: "${command}". (${message}).`);
 
     const foundCommand = REGISTERED_CHAT_COMMANDS[command];

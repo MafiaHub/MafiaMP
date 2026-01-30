@@ -4,27 +4,59 @@
 
 #include "shared/rpc/chat_message.h"
 
+#include <integrations/server/scripting/module.h>
 #include <logging/logger.h>
+#include <scripting/node_engine.h>
 
 namespace MafiaMP::Scripting {
 
 std::unique_ptr<v8pp::class_<Player>> Player::_class;
 
+namespace {
+    // Helper to emit player events with a Player JS object argument
+    void EmitPlayerEvent(flecs::entity e, const std::string &eventName) {
+        auto server = MafiaMP::Server::_serverRef;
+        if (!server)
+            return;
+
+        auto scriptingModule = server->GetScriptingModule();
+        if (!scriptingModule)
+            return;
+
+        auto *engine          = scriptingModule->GetEngine();
+        auto *resourceManager = scriptingModule->GetResourceManager();
+        if (!engine || !resourceManager || !engine->IsInitialized())
+            return;
+
+        v8::Isolate *isolate = engine->GetIsolate();
+        v8::Locker locker(isolate);
+        v8::Isolate::Scope isolateScope(isolate);
+        v8::HandleScope handleScope(isolate);
+        v8::Local<v8::Context> context = engine->GetContext();
+        v8::Context::Scope contextScope(context);
+
+        auto playerObj = Player::GetClass(isolate).wrap_object(new Player(e), isolate);
+
+        std::vector<v8::Local<v8::Value>> args;
+        args.push_back(playerObj);
+
+        resourceManager->GetEvents().EmitReserved(isolate, context, eventName, args);
+    }
+} // namespace
+
 void Player::EventPlayerConnected(flecs::entity e) {
-    // TODO: Implement event dispatch via Framework::Scripting::Events::EmitGlobal()
-    // The old InvokeGlobalEvent API no longer exists in the new V8 scripting system.
-    // For now, this is a stub that can be enhanced later.
     Framework::Logging::GetLogger("Scripting")->debug("Player connected: {}", e.id());
+    EmitPlayerEvent(e, "playerConnect");
 }
 
 void Player::EventPlayerDisconnected(flecs::entity e) {
-    // TODO: Implement event dispatch via Framework::Scripting::Events::EmitGlobal()
     Framework::Logging::GetLogger("Scripting")->debug("Player disconnected: {}", e.id());
+    EmitPlayerEvent(e, "playerDisconnect");
 }
 
 void Player::EventPlayerDied(flecs::entity e) {
-    // TODO: Implement event dispatch via Framework::Scripting::Events::EmitGlobal()
     Framework::Logging::GetLogger("Scripting")->debug("Player died: {}", e.id());
+    EmitPlayerEvent(e, "playerDied");
 }
 
 std::string Player::ToString() const {

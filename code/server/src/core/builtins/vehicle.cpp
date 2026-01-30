@@ -8,20 +8,79 @@
 
 #include "player.h"
 
+#include <integrations/server/scripting/module.h>
 #include <logging/logger.h>
+#include <scripting/node_engine.h>
 
 namespace MafiaMP::Scripting {
 
 std::unique_ptr<v8pp::class_<Vehicle>> Vehicle::_class;
 
 void Vehicle::EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex) {
-    // TODO: Implement event dispatch via Framework::Scripting::Events::EmitGlobal()
     Framework::Logging::GetLogger("Scripting")->debug("Vehicle {} player {} enter seat {}", vehicle.id(), player.id(), seatIndex);
+
+    auto server = MafiaMP::Server::_serverRef;
+    if (!server)
+        return;
+
+    auto scriptingModule = server->GetScriptingModule();
+    if (!scriptingModule)
+        return;
+
+    auto *engine          = scriptingModule->GetEngine();
+    auto *resourceManager = scriptingModule->GetResourceManager();
+    if (!engine || !resourceManager || !engine->IsInitialized())
+        return;
+
+    v8::Isolate *isolate = engine->GetIsolate();
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolateScope(isolate);
+    v8::HandleScope handleScope(isolate);
+    v8::Local<v8::Context> context = engine->GetContext();
+    v8::Context::Scope contextScope(context);
+
+    auto vehicleObj = Vehicle::GetClass(isolate).wrap_object(new Vehicle(vehicle), isolate);
+    auto playerObj  = Player::GetClass(isolate).wrap_object(new Player(player), isolate);
+
+    std::vector<v8::Local<v8::Value>> args;
+    args.push_back(vehicleObj);
+    args.push_back(playerObj);
+    args.push_back(v8::Integer::New(isolate, seatIndex));
+
+    resourceManager->GetEvents().EmitReserved(isolate, context, "vehiclePlayerEnter", args);
 }
 
 void Vehicle::EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player) {
-    // TODO: Implement event dispatch via Framework::Scripting::Events::EmitGlobal()
     Framework::Logging::GetLogger("Scripting")->debug("Vehicle {} player {} leave", vehicle.id(), player.id());
+
+    auto server = MafiaMP::Server::_serverRef;
+    if (!server)
+        return;
+
+    auto scriptingModule = server->GetScriptingModule();
+    if (!scriptingModule)
+        return;
+
+    auto *engine          = scriptingModule->GetEngine();
+    auto *resourceManager = scriptingModule->GetResourceManager();
+    if (!engine || !resourceManager || !engine->IsInitialized())
+        return;
+
+    v8::Isolate *isolate = engine->GetIsolate();
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolateScope(isolate);
+    v8::HandleScope handleScope(isolate);
+    v8::Local<v8::Context> context = engine->GetContext();
+    v8::Context::Scope contextScope(context);
+
+    auto vehicleObj = Vehicle::GetClass(isolate).wrap_object(new Vehicle(vehicle), isolate);
+    auto playerObj  = Player::GetClass(isolate).wrap_object(new Player(player), isolate);
+
+    std::vector<v8::Local<v8::Value>> args;
+    args.push_back(vehicleObj);
+    args.push_back(playerObj);
+
+    resourceManager->GetEvents().EmitReserved(isolate, context, "vehiclePlayerLeave", args);
 }
 
 std::string Vehicle::ToString() const {

@@ -4,6 +4,7 @@
 #include "shared/modules/vehicle_sync.hpp"
 
 #include "core/builtins/builtins.h"
+#include "core/builtins/events_reserved.h"
 
 #include "modules/environment.h"
 #include "modules/human.h"
@@ -15,6 +16,7 @@
 #include "shared/game_rpc/human/human_changeskin.h"
 
 #include <scripting/node_engine.h>
+#include <scripting/resource/resource_manager.h>
 #include <v8pp/convert.hpp>
 
 namespace MafiaMP {
@@ -69,6 +71,12 @@ namespace MafiaMP {
         auto *nodeEngine = dynamic_cast<Framework::Scripting::NodeEngine *>(engine);
         if (!nodeEngine) {
             return;
+        }
+
+        // Register MafiaMP-specific reserved events
+        auto scriptingModule = GetScriptingModule();
+        if (scriptingModule && scriptingModule->GetResourceManager()) {
+            scriptingModule->GetResourceManager()->GetEvents().AddReservedEvents(MafiaMP::Scripting::RESERVED_EVENTS);
         }
 
         v8::Isolate *isolate = nodeEngine->GetIsolate();
