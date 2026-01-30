@@ -26,8 +26,7 @@ namespace MafiaMP::Scripting {
             auto &frame     = e.ensure<Framework::World::Modules::Base::Frame>();
             frame.modelName = modelName;
 
-            Vehicle *vehicle = new Vehicle(e);
-            return Vehicle::GetClass(isolate).import_external(isolate, vehicle);
+            return Vehicle::GetClass(isolate).wrap_object(isolate, new Vehicle(e));
         }
 
         static float GetDayTimeHours() {

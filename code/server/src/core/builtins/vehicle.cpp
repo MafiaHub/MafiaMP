@@ -299,6 +299,7 @@ void Vehicle::SetWindowTint(Framework::Scripting::Builtins::Color color) {
 v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
     if (!_class) {
         _class = std::make_unique<v8pp::class_<Vehicle>>(isolate);
+        _class->auto_wrap_objects(true);
         _class->inherit<Entity>()
             .ctor<flecs::entity_t>()
             .set("toString", &Vehicle::ToString)
