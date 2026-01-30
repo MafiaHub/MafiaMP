@@ -75,7 +75,7 @@ std::string Vehicle::ToString() const {
 }
 
 bool Vehicle::GetBeaconLightsOn() {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->beaconLightsOn;
 }
 
@@ -88,7 +88,7 @@ void Vehicle::SetBeaconLightsOn(bool on) {
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetColorPrimary() {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
     return Framework::Scripting::Builtins::Color(vehData->colorPrimary);
 }
 
@@ -102,7 +102,7 @@ void Vehicle::SetColorPrimary(Framework::Scripting::Builtins::Color color) {
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetColorSecondary() {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
     return Framework::Scripting::Builtins::Color(vehData->colorSecondary);
 }
 
@@ -116,7 +116,7 @@ void Vehicle::SetColorSecondary(Framework::Scripting::Builtins::Color color) {
 }
 
 float Vehicle::GetDirt() {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->dirt;
 }
 
@@ -129,8 +129,8 @@ void Vehicle::SetDirt(float dirt) {
 }
 
 bool Vehicle::GetEngineOn() {
-    auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-    return syncData->engineOn;
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    return vehData->engineOn;
 }
 
 void Vehicle::SetEngineOn(bool on) {
@@ -142,7 +142,7 @@ void Vehicle::SetEngineOn(bool on) {
 }
 
 float Vehicle::GetFuel() {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->fuel;
 }
 
@@ -155,7 +155,7 @@ void Vehicle::SetFuel(float fuel) {
 }
 
 std::string Vehicle::GetLicensePlate() {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->licensePlate;
 }
 
@@ -171,7 +171,7 @@ void Vehicle::SetLicensePlate(std::string plate) {
 }
 
 int Vehicle::GetLockState() {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
     return static_cast<int>(vehData->lockState);
 }
 
@@ -188,8 +188,8 @@ void Vehicle::SetLockState(int lockState) {
 }
 
 bool Vehicle::GetRadioOn() {
-    auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-    return syncData->radioOn;
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    return vehData->radioOn;
 }
 
 void Vehicle::SetRadioOn(bool on) {
@@ -201,8 +201,8 @@ void Vehicle::SetRadioOn(bool on) {
 }
 
 int Vehicle::GetRadioStationId() {
-    auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-    return syncData->radioStationId;
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    return vehData->radioStationId;
 }
 
 void Vehicle::SetRadioStationId(int id) {
@@ -214,7 +214,7 @@ void Vehicle::SetRadioStationId(int id) {
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetRimColor() {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
     return Framework::Scripting::Builtins::Color(vehData->rimColor);
 }
 
@@ -228,7 +228,7 @@ void Vehicle::SetRimColor(Framework::Scripting::Builtins::Color color) {
 }
 
 float Vehicle::GetRust() {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->rust;
 }
 
@@ -241,8 +241,8 @@ void Vehicle::SetRust(float rust) {
 }
 
 bool Vehicle::GetSirenOn() {
-    auto syncData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-    return syncData->sirenOn;
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    return vehData->sirenOn;
 }
 
 void Vehicle::SetSirenOn(bool on) {
@@ -254,7 +254,7 @@ void Vehicle::SetSirenOn(bool on) {
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetTireColor() {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
     return Framework::Scripting::Builtins::Color(vehData->tireColor);
 }
 
@@ -268,7 +268,7 @@ void Vehicle::SetTireColor(Framework::Scripting::Builtins::Color color) {
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetWindowTint() {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
     return Framework::Scripting::Builtins::Color(vehData->windowTint);
 }
 
