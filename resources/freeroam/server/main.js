@@ -104,7 +104,7 @@ Events.on("chatMessage", (player, message) => {
  */
 Events.on("myCustomEvent", (player, foo) => {
     console.log(`[FREEROAM] ${player.nickname} triggered a custom event with foo: ${foo}`);
-    player.sendChat(`[SERVER] ${player.nickname} triggered a custom event with foo: ${foo}`);
+    Chat.sendToPlayer(player,`[SERVER] ${player.nickname} triggered a custom event with foo: ${foo}`);
 });
 
 // Chat command handler
@@ -114,7 +114,7 @@ Events.on("chatCommand", (player, message, command, args) => {
     const foundCommand = REGISTERED_CHAT_COMMANDS[command];
 
     if (!foundCommand) {
-        player.sendChat(`[SERVER] Unknown command "${command}".`);
+        Chat.sendToPlayer(player,`[SERVER] Unknown command "${command}".`);
         return;
     }
 
@@ -128,115 +128,115 @@ registerChatCommand("veh", (player, message, command, args) => {
     const veh = World.createVehicle(modelName);
 
     if (!veh) {
-        player.sendChat(`[SERVER] Unable to create vehicle ${modelName}.`);
+        Chat.sendToPlayer(player,`[SERVER] Unable to create vehicle ${modelName}.`);
         return;
     }
 
     veh.position = player.position;
     veh.rotation = player.rotation;
 
-    player.sendChat(`[SERVER] Vehicle ${modelName} created!`);
+    Chat.sendToPlayer(player,`[SERVER] Vehicle ${modelName} created!`);
 });
 
 registerChatCommand("plate", (player, message, command, args) => {
     const veh = player.getVehicle();
 
     if (!veh) {
-        player.sendChat("[SERVER] You're not in a vehicle.");
+        Chat.sendToPlayer(player,"[SERVER] You're not in a vehicle.");
         return;
     }
 
     const licensePlate = args[0] || "";
     veh.setLicensePlate(licensePlate);
 
-    player.sendChat(`[SERVER] License plate is now ${licensePlate.length > 0 ? licensePlate : "empty"}!`);
+    Chat.sendToPlayer(player,`[SERVER] License plate is now ${licensePlate.length > 0 ? licensePlate : "empty"}!`);
 });
 
 registerChatCommand("dirt", (player, message, command, args) => {
     const veh = player.getVehicle();
 
     if (!veh) {
-        player.sendChat("[SERVER] You're not in a vehicle.");
+        Chat.sendToPlayer(player,"[SERVER] You're not in a vehicle.");
         return;
     }
 
     const dirt = parseFloat(args[0]);
     if (isNaN(dirt)) {
-        player.sendChat("[SERVER] You must provide a dirt value.");
+        Chat.sendToPlayer(player,"[SERVER] You must provide a dirt value.");
         return;
     }
 
     veh.setDirt(dirt);
-    player.sendChat(`[SERVER] Dirt is now ${dirt}!`);
+    Chat.sendToPlayer(player,`[SERVER] Dirt is now ${dirt}!`);
 });
 
 registerChatCommand("radio", (player, message, command, args) => {
     const veh = player.getVehicle();
 
     if (!veh) {
-        player.sendChat("[SERVER] You're not in a vehicle.");
+        Chat.sendToPlayer(player,"[SERVER] You're not in a vehicle.");
         return;
     }
 
     if (args[0] === undefined) {
         veh.setRadioOn(!veh.getRadioOn());
-        player.sendChat(`[SERVER] Radio turned to ${veh.getRadioOn() ? "on" : "off"}!`);
+        Chat.sendToPlayer(player,`[SERVER] Radio turned to ${veh.getRadioOn() ? "on" : "off"}!`);
         return;
     }
 
     const radioStationId = parseInt(args[0]);
     if (isNaN(radioStationId)) {
-        player.sendChat("[SERVER] Wrong radio id.");
+        Chat.sendToPlayer(player,"[SERVER] Wrong radio id.");
         return;
     }
 
     veh.setRadioStationId(radioStationId);
     veh.setRadioOn(true);
 
-    player.sendChat(`[SERVER] Radio station is now ${veh.getRadioStationId()}!`);
+    Chat.sendToPlayer(player,`[SERVER] Radio station is now ${veh.getRadioStationId()}!`);
 });
 
 registerChatCommand("rust", (player, message, command, args) => {
     const veh = player.getVehicle();
 
     if (!veh) {
-        player.sendChat("[SERVER] You're not in a vehicle.");
+        Chat.sendToPlayer(player,"[SERVER] You're not in a vehicle.");
         return;
     }
 
     const rust = parseFloat(args[0]);
     if (isNaN(rust)) {
-        player.sendChat("[SERVER] You must provide a rust value.");
+        Chat.sendToPlayer(player,"[SERVER] You must provide a rust value.");
         return;
     }
 
     veh.setRust(rust);
-    player.sendChat(`[SERVER] Rust is now ${rust}!`);
+    Chat.sendToPlayer(player,`[SERVER] Rust is now ${rust}!`);
 });
 
 registerChatCommand("fuel", (player, message, command, args) => {
     const veh = player.getVehicle();
 
     if (!veh) {
-        player.sendChat("[SERVER] You're not in a vehicle.");
+        Chat.sendToPlayer(player,"[SERVER] You're not in a vehicle.");
         return;
     }
 
     const fuel = parseFloat(args[0]);
     if (isNaN(fuel)) {
-        player.sendChat("[SERVER] You must provide a fuel value.");
+        Chat.sendToPlayer(player,"[SERVER] You must provide a fuel value.");
         return;
     }
 
     veh.setFuel(fuel);
-    player.sendChat(`[SERVER] Fuel is now ${fuel}!`);
+    Chat.sendToPlayer(player,`[SERVER] Fuel is now ${fuel}!`);
 });
 
 registerChatCommand("colors", (player, message, command, args) => {
     const veh = player.getVehicle();
 
     if (!veh) {
-        player.sendChat("[SERVER] You're not in a vehicle.");
+        Chat.sendToPlayer(player,"[SERVER] You're not in a vehicle.");
         return;
     }
 
@@ -244,18 +244,18 @@ registerChatCommand("colors", (player, message, command, args) => {
 
     const colorPrimary = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.setColorPrimary(colorPrimary);
-    player.sendChat(`[SERVER] Primary color is now ${colorPrimary.r}, ${colorPrimary.g}, ${colorPrimary.b}!`);
+    Chat.sendToPlayer(player,`[SERVER] Primary color is now ${colorPrimary.r}, ${colorPrimary.g}, ${colorPrimary.b}!`);
 
     const colorSecondary = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.setColorSecondary(colorSecondary);
-    player.sendChat(`[SERVER] Secondary color is now ${colorSecondary.r}, ${colorSecondary.g}, ${colorSecondary.b}!`);
+    Chat.sendToPlayer(player,`[SERVER] Secondary color is now ${colorSecondary.r}, ${colorSecondary.g}, ${colorSecondary.b}!`);
 });
 
 registerChatCommand("wheelcol", (player, message, command, args) => {
     const veh = player.getVehicle();
 
     if (!veh) {
-        player.sendChat("[SERVER] You're not in a vehicle.");
+        Chat.sendToPlayer(player,"[SERVER] You're not in a vehicle.");
         return;
     }
 
@@ -263,18 +263,18 @@ registerChatCommand("wheelcol", (player, message, command, args) => {
 
     const rimColor = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.setRimColor(rimColor);
-    player.sendChat(`[SERVER] Rim color is now ${rimColor.r}, ${rimColor.g}, ${rimColor.b}!`);
+    Chat.sendToPlayer(player,`[SERVER] Rim color is now ${rimColor.r}, ${rimColor.g}, ${rimColor.b}!`);
 
     const tireColor = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.setTireColor(tireColor);
-    player.sendChat(`[SERVER] Tire color is now ${tireColor.r}, ${tireColor.g}, ${tireColor.b}!`);
+    Chat.sendToPlayer(player,`[SERVER] Tire color is now ${tireColor.r}, ${tireColor.g}, ${tireColor.b}!`);
 });
 
 registerChatCommand("wintint", (player, message, command, args) => {
     const veh = player.getVehicle();
 
     if (!veh) {
-        player.sendChat("[SERVER] You're not in a vehicle.");
+        Chat.sendToPlayer(player,"[SERVER] You're not in a vehicle.");
         return;
     }
 
@@ -282,7 +282,7 @@ registerChatCommand("wintint", (player, message, command, args) => {
 
     const windowTint = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor());
     veh.setWindowTint(windowTint);
-    player.sendChat(`[SERVER] Window tint is now ${windowTint.r}, ${windowTint.g}, ${windowTint.b}, ${windowTint.a}!`);
+    Chat.sendToPlayer(player,`[SERVER] Window tint is now ${windowTint.r}, ${windowTint.g}, ${windowTint.b}, ${windowTint.a}!`);
 });
 
 registerChatCommand("wep", (player, message, command, args) => {
@@ -290,33 +290,33 @@ registerChatCommand("wep", (player, message, command, args) => {
     const ammo = parseInt(args[1]) || 200;
 
     player.addWeapon(weaponId, ammo);
-    player.sendChat(`[SERVER] Weapon ${weaponId} with ${ammo} ammo added!`);
+    Chat.sendToPlayer(player,`[SERVER] Weapon ${weaponId} with ${ammo} ammo added!`);
 });
 
 registerChatCommand("heal", (player, message, command, args) => {
     player.setHealth(100.0);
-    player.sendChat("[SERVER] You've been healed!");
+    Chat.sendToPlayer(player,"[SERVER] You've been healed!");
 });
 
 registerChatCommand("tp", (player, message, command, args) => {
     const tpDestName = args[0];
 
     if (!tpDestName) {
-        player.sendChat("[SERVER] You must provide a teleport destination. (/tp <destination>)");
-        player.sendChat("Available destinations: " + utils.getObjectKeys(TP_DESTINATIONS).join(", "));
+        Chat.sendToPlayer(player,"[SERVER] You must provide a teleport destination. (/tp <destination>)");
+        Chat.sendToPlayer(player,"Available destinations: " + utils.getObjectKeys(TP_DESTINATIONS).join(", "));
         return;
     }
 
     const foundTpDest = TP_DESTINATIONS[tpDestName];
 
     if (!foundTpDest) {
-        player.sendChat(`[SERVER] Unknown teleport destination "${tpDestName}".`);
+        Chat.sendToPlayer(player,`[SERVER] Unknown teleport destination "${tpDestName}".`);
         return;
     }
 
     player.position = foundTpDest.POSITION;
     player.rotation = foundTpDest.ROTATION;
-    player.sendChat(`[SERVER] Teleported to ${tpDestName}!`);
+    Chat.sendToPlayer(player,`[SERVER] Teleported to ${tpDestName}!`);
 });
 
 registerChatCommand("coords", (player, message, command, args) => {
@@ -325,12 +325,12 @@ registerChatCommand("coords", (player, message, command, args) => {
     const z = parseFloat(args[2]);
 
     if (isNaN(x) || isNaN(y) || isNaN(z)) {
-        player.sendChat("[SERVER] You must provide x, y and z. (/coords <x> <y> <z>)");
+        Chat.sendToPlayer(player,"[SERVER] You must provide x, y and z. (/coords <x> <y> <z>)");
         return;
     }
 
     player.position = new Vector3(x, y, z);
-    player.sendChat(`[SERVER] Teleported to ${x}, ${y}, ${z}!`);
+    Chat.sendToPlayer(player,`[SERVER] Teleported to ${x}, ${y}, ${z}!`);
 });
 
 // Where am I?
@@ -338,8 +338,8 @@ registerChatCommand("wai", (player, message, command, args) => {
     const pos = player.position;
     const rot = player.rotation;
 
-    player.sendChat(`[SERVER] Your position: ${pos.x}, ${pos.y}, ${pos.z}`);
-    player.sendChat(`[SERVER] Your rotation: ${rot.x}, ${rot.y}, ${rot.z}`);
+    Chat.sendToPlayer(player,`[SERVER] Your position: ${pos.x}, ${pos.y}, ${pos.z}`);
+    Chat.sendToPlayer(player,`[SERVER] Your rotation: ${rot.x}, ${rot.y}, ${rot.z}`);
 
     // Log in console for easy copy-paste
     console.log(`[FREEROAM] Player ${player.nickname} position: ${pos.x}, ${pos.y}, ${pos.z}`);
@@ -350,7 +350,7 @@ registerChatCommand("time", (player, message, command, args) => {
     const time = parseFloat(args[0]);
 
     if (isNaN(time) || time < 0 || time > 24) {
-        player.sendChat("[SERVER] You must provide time between 0.0 to 24.0. (/time <time>)");
+        Chat.sendToPlayer(player,"[SERVER] You must provide time between 0.0 to 24.0. (/time <time>)");
         return;
     }
 
@@ -365,22 +365,22 @@ registerChatCommand("customevent", (player, message, command, args) => {
 
 registerChatCommand("players", (player, message, command, args) => {
     const count = World.players.length;
-    player.sendChat(`[SERVER] There are ${count} player(s) online.`);
+    Chat.sendToPlayer(player,`[SERVER] There are ${count} player(s) online.`);
 
     // List all players using forEach
     World.players.forEach(p => {
-        player.sendChat(`  - ${p.nickname} (id: ${p.id})`);
+        Chat.sendToPlayer(player,`  - ${p.nickname} (id: ${p.id})`);
     });
 });
 
 registerChatCommand("vehicles", (player, message, command, args) => {
     const count = World.vehicles.length;
-    player.sendChat(`[SERVER] There are ${count} vehicle(s) in the world.`);
+    Chat.sendToPlayer(player,`[SERVER] There are ${count} vehicle(s) in the world.`);
 
     // Get all vehicle positions using map
     const positions = World.vehicles.map(v => v.position);
     positions.forEach((pos, i) => {
-        player.sendChat(`  Vehicle ${i}: ${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}, ${pos.z.toFixed(1)}`);
+        Chat.sendToPlayer(player,`  Vehicle ${i}: ${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}, ${pos.z.toFixed(1)}`);
     });
 });
 
@@ -388,9 +388,9 @@ registerChatCommand("findme", (player, message, command, args) => {
     // Find current player by nickname
     const found = World.players.find(p => p.id === player.id);
     if (found) {
-        player.sendChat(`[SERVER] Found you: ${found.nickname}`);
+        Chat.sendToPlayer(player,`[SERVER] Found you: ${found.nickname}`);
     } else {
-        player.sendChat("[SERVER] Could not find you (unexpected!)");
+        Chat.sendToPlayer(player,"[SERVER] Could not find you (unexpected!)");
     }
 });
 
@@ -415,17 +415,17 @@ registerChatCommand("nearbyveh", (player, message, command, args) => {
         return Math.sqrt(dx*dx + dy*dy + dz*dz) <= maxDist;
     });
 
-    player.sendChat(`[SERVER] Found ${nearby.length} vehicle(s) within ${maxDist}m.`);
+    Chat.sendToPlayer(player,`[SERVER] Found ${nearby.length} vehicle(s) within ${maxDist}m.`);
 });
 
 registerChatCommand("anyplayer", (player, message, command, args) => {
     // Check if any player has more than 50 health
     const hasHealthy = World.players.some(p => p.getHealth() > 50);
-    player.sendChat(`[SERVER] Any player with >50 health? ${hasHealthy ? "Yes" : "No"}`);
+    Chat.sendToPlayer(player,`[SERVER] Any player with >50 health? ${hasHealthy ? "Yes" : "No"}`);
 });
 
 registerChatCommand("allhealthy", (player, message, command, args) => {
     // Check if all players have more than 0 health
     const allAlive = World.players.every(p => p.getHealth() > 0);
-    player.sendChat(`[SERVER] All players alive? ${allAlive ? "Yes" : "No"}`);
+    Chat.sendToPlayer(player,`[SERVER] All players alive? ${allAlive ? "Yes" : "No"}`);
 });
