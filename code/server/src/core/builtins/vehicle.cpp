@@ -191,6 +191,10 @@ int Vehicle::GetLockState() {
 }
 
 void Vehicle::SetLockState(int lockState) {
+    if (lockState < 0 || lockState > 2) {
+        Framework::Logging::GetLogger("Scripting")->warn("Invalid lockState value: {}", lockState);
+        return;
+    }
     auto vehData       = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
     vehData->lockState = static_cast<Shared::Modules::VehicleSync::LockState>(lockState);
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
