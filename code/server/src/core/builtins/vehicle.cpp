@@ -175,8 +175,10 @@ std::string Vehicle::GetLicensePlate() {
 }
 
 void Vehicle::SetLicensePlate(std::string plate) {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
-    std::memcpy(vehData->licensePlate, plate.c_str(), std::min<size_t>(Shared::Constants::VEHICLE_LICENSE_PLATE_MAX_LENGTH - 1, plate.length()));
+    auto vehData      = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    size_t copyLength = std::min<size_t>(Shared::Constants::VEHICLE_LICENSE_PLATE_MAX_LENGTH - 1, plate.length());
+    std::memcpy(vehData->licensePlate, plate.c_str(), copyLength);
+    vehData->licensePlate[copyLength] = '\0';
 
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
     msg.licensePlate = plate.c_str();
