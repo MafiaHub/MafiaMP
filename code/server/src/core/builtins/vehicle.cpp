@@ -16,71 +16,56 @@ namespace MafiaMP::Scripting {
 
 std::unique_ptr<v8pp::class_<Vehicle>> Vehicle::_class;
 
+namespace {
+    // Helper to emit vehicle events with common V8 setup boilerplate
+    template <typename ArgsBuilder>
+    void EmitVehicleEvent(const std::string &eventName, ArgsBuilder &&buildArgs) {
+        auto server = MafiaMP::Server::_serverRef;
+        if (!server)
+            return;
+
+        auto scriptingModule = server->GetScriptingModule();
+        if (!scriptingModule)
+            return;
+
+        auto *engine          = scriptingModule->GetEngine();
+        auto *resourceManager = scriptingModule->GetResourceManager();
+        if (!engine || !resourceManager || !engine->IsInitialized())
+            return;
+
+        v8::Isolate *isolate = engine->GetIsolate();
+        v8::Locker locker(isolate);
+        v8::Isolate::Scope isolateScope(isolate);
+        v8::HandleScope handleScope(isolate);
+        v8::Local<v8::Context> context = engine->GetContext();
+        v8::Context::Scope contextScope(context);
+
+        std::vector<v8::Local<v8::Value>> args = buildArgs(isolate);
+        resourceManager->GetEvents().EmitReserved(isolate, context, eventName, args);
+    }
+} // namespace
+
 void Vehicle::EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex) {
     Framework::Logging::GetLogger("Scripting")->debug("Vehicle {} player {} enter seat {}", vehicle.id(), player.id(), seatIndex);
 
-    auto server = MafiaMP::Server::_serverRef;
-    if (!server)
-        return;
-
-    auto scriptingModule = server->GetScriptingModule();
-    if (!scriptingModule)
-        return;
-
-    auto *engine          = scriptingModule->GetEngine();
-    auto *resourceManager = scriptingModule->GetResourceManager();
-    if (!engine || !resourceManager || !engine->IsInitialized())
-        return;
-
-    v8::Isolate *isolate = engine->GetIsolate();
-    v8::Locker locker(isolate);
-    v8::Isolate::Scope isolateScope(isolate);
-    v8::HandleScope handleScope(isolate);
-    v8::Local<v8::Context> context = engine->GetContext();
-    v8::Context::Scope contextScope(context);
-
-    auto vehicleObj = Vehicle::GetClass(isolate).import_external(isolate, new Vehicle(vehicle));
-    auto playerObj  = Player::GetClass(isolate).import_external(isolate, new Player(player));
-
-    std::vector<v8::Local<v8::Value>> args;
-    args.push_back(vehicleObj);
-    args.push_back(playerObj);
-    args.push_back(v8::Integer::New(isolate, seatIndex));
-
-    resourceManager->GetEvents().EmitReserved(isolate, context, "vehiclePlayerEnter", args);
+    EmitVehicleEvent("vehiclePlayerEnter", [&](v8::Isolate *isolate) {
+        std::vector<v8::Local<v8::Value>> args;
+        args.push_back(v8pp::class_<Vehicle>::create_object(isolate, vehicle));
+        args.push_back(v8pp::class_<Player>::create_object(isolate, player));
+        args.push_back(v8::Integer::New(isolate, seatIndex));
+        return args;
+    });
 }
 
 void Vehicle::EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player) {
     Framework::Logging::GetLogger("Scripting")->debug("Vehicle {} player {} leave", vehicle.id(), player.id());
 
-    auto server = MafiaMP::Server::_serverRef;
-    if (!server)
-        return;
-
-    auto scriptingModule = server->GetScriptingModule();
-    if (!scriptingModule)
-        return;
-
-    auto *engine          = scriptingModule->GetEngine();
-    auto *resourceManager = scriptingModule->GetResourceManager();
-    if (!engine || !resourceManager || !engine->IsInitialized())
-        return;
-
-    v8::Isolate *isolate = engine->GetIsolate();
-    v8::Locker locker(isolate);
-    v8::Isolate::Scope isolateScope(isolate);
-    v8::HandleScope handleScope(isolate);
-    v8::Local<v8::Context> context = engine->GetContext();
-    v8::Context::Scope contextScope(context);
-
-    auto vehicleObj = Vehicle::GetClass(isolate).import_external(isolate, new Vehicle(vehicle));
-    auto playerObj  = Player::GetClass(isolate).import_external(isolate, new Player(player));
-
-    std::vector<v8::Local<v8::Value>> args;
-    args.push_back(vehicleObj);
-    args.push_back(playerObj);
-
-    resourceManager->GetEvents().EmitReserved(isolate, context, "vehiclePlayerLeave", args);
+    EmitVehicleEvent("vehiclePlayerLeave", [&](v8::Isolate *isolate) {
+        std::vector<v8::Local<v8::Value>> args;
+        args.push_back(v8pp::class_<Vehicle>::create_object(isolate, vehicle));
+        args.push_back(v8pp::class_<Player>::create_object(isolate, player));
+        return args;
+    });
 }
 
 std::string Vehicle::ToString() const {

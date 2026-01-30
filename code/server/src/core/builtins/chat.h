@@ -43,7 +43,7 @@ namespace MafiaMP::Scripting {
             v8::Local<v8::Context> context = engine->GetContext();
             v8::Context::Scope contextScope(context);
 
-            auto playerObj = Player::GetClass(isolate).import_external(isolate, new Player(e));
+            auto playerObj = v8pp::class_<Player>::create_object(isolate, e);
 
             std::vector<v8::Local<v8::Value>> args;
             args.push_back(playerObj);
@@ -75,7 +75,7 @@ namespace MafiaMP::Scripting {
             v8::Local<v8::Context> context = engine->GetContext();
             v8::Context::Scope contextScope(context);
 
-            auto playerObj = Player::GetClass(isolate).import_external(isolate, new Player(e));
+            auto playerObj = v8pp::class_<Player>::create_object(isolate, e);
 
             // Convert command args to JS array
             v8::Local<v8::Array> argsArray = v8::Array::New(isolate, static_cast<int>(commandArgs.size()));

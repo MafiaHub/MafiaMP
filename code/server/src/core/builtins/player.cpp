@@ -36,7 +36,7 @@ namespace {
         v8::Local<v8::Context> context = engine->GetContext();
         v8::Context::Scope contextScope(context);
 
-        auto playerObj = Player::GetClass(isolate).import_external(isolate, new Player(e));
+        auto playerObj = v8pp::class_<Player>::create_object(isolate, e);
 
         std::vector<v8::Local<v8::Value>> args;
         args.push_back(playerObj);
