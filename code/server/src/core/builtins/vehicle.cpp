@@ -287,37 +287,227 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
         _class->auto_wrap_objects(true);
         _class->inherit<Entity>()
             .ctor<flecs::entity_t>()
-            .set("toString", &Vehicle::ToString)
-            .set("getBeaconLightsOn", &Vehicle::GetBeaconLightsOn)
-            .set("setBeaconLightsOn", &Vehicle::SetBeaconLightsOn)
-            .set("getColorPrimary", &Vehicle::GetColorPrimary)
-            .set("setColorPrimary", &Vehicle::SetColorPrimary)
-            .set("getColorSecondary", &Vehicle::GetColorSecondary)
-            .set("setColorSecondary", &Vehicle::SetColorSecondary)
-            .set("getDirt", &Vehicle::GetDirt)
-            .set("setDirt", &Vehicle::SetDirt)
-            .set("getEngineOn", &Vehicle::GetEngineOn)
-            .set("setEngineOn", &Vehicle::SetEngineOn)
-            .set("getFuel", &Vehicle::GetFuel)
-            .set("setFuel", &Vehicle::SetFuel)
-            .set("getLicensePlate", &Vehicle::GetLicensePlate)
-            .set("setLicensePlate", &Vehicle::SetLicensePlate)
-            .set("getLockState", &Vehicle::GetLockState)
-            .set("setLockState", &Vehicle::SetLockState)
-            .set("getRadioOn", &Vehicle::GetRadioOn)
-            .set("setRadioOn", &Vehicle::SetRadioOn)
-            .set("getRadioStationId", &Vehicle::GetRadioStationId)
-            .set("setRadioStationId", &Vehicle::SetRadioStationId)
-            .set("getRimColor", &Vehicle::GetRimColor)
-            .set("setRimColor", &Vehicle::SetRimColor)
-            .set("getRust", &Vehicle::GetRust)
-            .set("setRust", &Vehicle::SetRust)
-            .set("getSirenOn", &Vehicle::GetSirenOn)
-            .set("setSirenOn", &Vehicle::SetSirenOn)
-            .set("getTireColor", &Vehicle::GetTireColor)
-            .set("setTireColor", &Vehicle::SetTireColor)
-            .set("getWindowTint", &Vehicle::GetWindowTint)
-            .set("setWindowTint", &Vehicle::SetWindowTint);
+            .set("toString", &Vehicle::ToString);
+
+        auto protoTemplate = _class->class_function_template()->PrototypeTemplate();
+
+        // beaconLightsOn
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "beaconLightsOn").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->GetBeaconLightsOn());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsBoolean()) self->SetBeaconLightsOn(value->BooleanValue(info.GetIsolate()));
+            });
+
+        // colorPrimary
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "colorPrimary").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) {
+                    auto color = self->GetColorPrimary();
+                    auto &cls  = Framework::Scripting::Builtins::Color::GetClass(info.GetIsolate());
+                    info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Color(color)));
+                }
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self  = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                auto *color = v8pp::class_<Framework::Scripting::Builtins::Color>::unwrap_object(info.GetIsolate(), value);
+                if (self && color) self->SetColorPrimary(*color);
+            });
+
+        // colorSecondary
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "colorSecondary").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) {
+                    auto color = self->GetColorSecondary();
+                    auto &cls  = Framework::Scripting::Builtins::Color::GetClass(info.GetIsolate());
+                    info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Color(color)));
+                }
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self  = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                auto *color = v8pp::class_<Framework::Scripting::Builtins::Color>::unwrap_object(info.GetIsolate(), value);
+                if (self && color) self->SetColorSecondary(*color);
+            });
+
+        // dirt
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "dirt").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->GetDirt());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsNumber()) {
+                    self->SetDirt(static_cast<float>(value->NumberValue(info.GetIsolate()->GetCurrentContext()).FromMaybe(0.0)));
+                }
+            });
+
+        // engineOn
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "engineOn").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->GetEngineOn());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsBoolean()) self->SetEngineOn(value->BooleanValue(info.GetIsolate()));
+            });
+
+        // fuel
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "fuel").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->GetFuel());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsNumber()) {
+                    self->SetFuel(static_cast<float>(value->NumberValue(info.GetIsolate()->GetCurrentContext()).FromMaybe(0.0)));
+                }
+            });
+
+        // licensePlate
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "licensePlate").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(v8pp::to_v8(info.GetIsolate(), self->GetLicensePlate()));
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsString()) {
+                    v8::String::Utf8Value str(info.GetIsolate(), value);
+                    self->SetLicensePlate(*str);
+                }
+            });
+
+        // lockState
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "lockState").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->GetLockState());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsInt32()) {
+                    self->SetLockState(value->Int32Value(info.GetIsolate()->GetCurrentContext()).FromMaybe(0));
+                }
+            });
+
+        // radioOn
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "radioOn").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->GetRadioOn());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsBoolean()) self->SetRadioOn(value->BooleanValue(info.GetIsolate()));
+            });
+
+        // radioStationId
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "radioStationId").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->GetRadioStationId());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsInt32()) {
+                    self->SetRadioStationId(value->Int32Value(info.GetIsolate()->GetCurrentContext()).FromMaybe(0));
+                }
+            });
+
+        // rimColor
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "rimColor").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) {
+                    auto color = self->GetRimColor();
+                    auto &cls  = Framework::Scripting::Builtins::Color::GetClass(info.GetIsolate());
+                    info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Color(color)));
+                }
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self  = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                auto *color = v8pp::class_<Framework::Scripting::Builtins::Color>::unwrap_object(info.GetIsolate(), value);
+                if (self && color) self->SetRimColor(*color);
+            });
+
+        // rust
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "rust").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->GetRust());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsNumber()) {
+                    self->SetRust(static_cast<float>(value->NumberValue(info.GetIsolate()->GetCurrentContext()).FromMaybe(0.0)));
+                }
+            });
+
+        // sirenOn
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "sirenOn").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->GetSirenOn());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsBoolean()) self->SetSirenOn(value->BooleanValue(info.GetIsolate()));
+            });
+
+        // tireColor
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "tireColor").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) {
+                    auto color = self->GetTireColor();
+                    auto &cls  = Framework::Scripting::Builtins::Color::GetClass(info.GetIsolate());
+                    info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Color(color)));
+                }
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self  = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                auto *color = v8pp::class_<Framework::Scripting::Builtins::Color>::unwrap_object(info.GetIsolate(), value);
+                if (self && color) self->SetTireColor(*color);
+            });
+
+        // windowTint
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "windowTint").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) {
+                    auto color = self->GetWindowTint();
+                    auto &cls  = Framework::Scripting::Builtins::Color::GetClass(info.GetIsolate());
+                    info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Color(color)));
+                }
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self  = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                auto *color = v8pp::class_<Framework::Scripting::Builtins::Color>::unwrap_object(info.GetIsolate(), value);
+                if (self && color) self->SetWindowTint(*color);
+            });
     }
     return *_class;
 }
