@@ -85,7 +85,7 @@ v8::Local<v8::Value> Human::GetVehicle(v8::Isolate *isolate) const {
     const auto carEnt = flecs::entity(_ent.world(), updateData->carPassenger.carId);
     if (carEnt.is_valid() && carEnt.is_alive()) {
         Vehicle *vehicle = new Vehicle(carEnt);
-        return Vehicle::GetClass(isolate).wrap_object(isolate, vehicle);
+        return Vehicle::GetClass(isolate).import_external(isolate, vehicle);
     }
     return v8::Undefined(isolate);
 }
