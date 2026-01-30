@@ -242,11 +242,11 @@ registerChatCommand("colors", (player, message, command, args) => {
 
     const getRandomColor = () => Math.floor(Math.random() * 256);
 
-    const colorPrimary = new Color(getRandomColor(), getRandomColor(), getRandomColor());
+    const colorPrimary = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.setColorPrimary(colorPrimary);
     player.sendChat(`[SERVER] Primary color is now ${colorPrimary.r}, ${colorPrimary.g}, ${colorPrimary.b}!`);
 
-    const colorSecondary = new Color(getRandomColor(), getRandomColor(), getRandomColor());
+    const colorSecondary = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.setColorSecondary(colorSecondary);
     player.sendChat(`[SERVER] Secondary color is now ${colorSecondary.r}, ${colorSecondary.g}, ${colorSecondary.b}!`);
 });
@@ -261,11 +261,11 @@ registerChatCommand("wheelcol", (player, message, command, args) => {
 
     const getRandomColor = () => Math.floor(Math.random() * 256);
 
-    const rimColor = new Color(getRandomColor(), getRandomColor(), getRandomColor());
+    const rimColor = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.setRimColor(rimColor);
     player.sendChat(`[SERVER] Rim color is now ${rimColor.r}, ${rimColor.g}, ${rimColor.b}!`);
 
-    const tireColor = new Color(getRandomColor(), getRandomColor(), getRandomColor());
+    const tireColor = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.setTireColor(tireColor);
     player.sendChat(`[SERVER] Tire color is now ${tireColor.r}, ${tireColor.g}, ${tireColor.b}!`);
 });
@@ -280,7 +280,7 @@ registerChatCommand("wintint", (player, message, command, args) => {
 
     const getRandomColor = () => Math.floor(Math.random() * 256);
 
-    const windowTint = new Color(getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor());
+    const windowTint = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor());
     veh.setWindowTint(windowTint);
     player.sendChat(`[SERVER] Window tint is now ${windowTint.r}, ${windowTint.g}, ${windowTint.b}, ${windowTint.a}!`);
 });
