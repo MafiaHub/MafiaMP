@@ -48,13 +48,24 @@ class EntityCollection {
     void ForEach(v8::Isolate *isolate, v8::Local<v8::Function> callback) {
         auto *world = Framework::CoreModules::GetWorldEngine()->GetWorld();
         auto ctx    = isolate->GetCurrentContext();
+        bool hadException = false;
 
         world->each<ComponentType>([&](flecs::entity e, ComponentType &) {
+            if (hadException) return;
+
             EntityType *entity     = new EntityType(e);
             v8::Local<v8::Object> jsEntity = EntityType::GetClass(isolate).import_external(isolate, entity);
 
             v8::Local<v8::Value> argv[1] = {jsEntity};
-            callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocalChecked();
+            v8::TryCatch try_catch(isolate);
+            v8::Local<v8::Value> result;
+            if (!callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocal(&result)) {
+                if (try_catch.HasCaught()) {
+                    isolate->ThrowException(try_catch.Exception());
+                }
+                hadException = true;
+                return;
+            }
         });
     }
 
@@ -62,20 +73,35 @@ class EntityCollection {
     v8::Local<v8::Array> Filter(v8::Isolate *isolate, v8::Local<v8::Function> callback) {
         auto *world = Framework::CoreModules::GetWorldEngine()->GetWorld();
         auto ctx    = isolate->GetCurrentContext();
+        bool hadException = false;
 
         std::vector<v8::Local<v8::Value>> results;
 
         world->each<ComponentType>([&](flecs::entity e, ComponentType &) {
+            if (hadException) return;
+
             EntityType *entity     = new EntityType(e);
             v8::Local<v8::Object> jsEntity = EntityType::GetClass(isolate).import_external(isolate, entity);
 
             v8::Local<v8::Value> argv[1] = {jsEntity};
-            v8::Local<v8::Value> result  = callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocalChecked();
+            v8::TryCatch try_catch(isolate);
+            v8::Local<v8::Value> result;
+            if (!callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocal(&result)) {
+                if (try_catch.HasCaught()) {
+                    isolate->ThrowException(try_catch.Exception());
+                }
+                hadException = true;
+                return;
+            }
 
             if (result->BooleanValue(isolate)) {
                 results.push_back(jsEntity);
             }
         });
+
+        if (hadException) {
+            return v8::Array::New(isolate, 0);
+        }
 
         v8::Local<v8::Array> arr = v8::Array::New(isolate, static_cast<int>(results.size()));
         for (size_t i = 0; i < results.size(); i++) {
@@ -91,21 +117,34 @@ class EntityCollection {
 
         v8::Local<v8::Value> found = v8::Undefined(isolate);
         bool foundOne              = false;
+        bool hadException          = false;
 
         world->each<ComponentType>([&](flecs::entity e, ComponentType &) {
-            if (foundOne) return;
+            if (foundOne || hadException) return;
 
             EntityType *entity     = new EntityType(e);
             v8::Local<v8::Object> jsEntity = EntityType::GetClass(isolate).import_external(isolate, entity);
 
             v8::Local<v8::Value> argv[1] = {jsEntity};
-            v8::Local<v8::Value> result  = callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocalChecked();
+            v8::TryCatch try_catch(isolate);
+            v8::Local<v8::Value> result;
+            if (!callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocal(&result)) {
+                if (try_catch.HasCaught()) {
+                    isolate->ThrowException(try_catch.Exception());
+                }
+                hadException = true;
+                return;
+            }
 
             if (result->BooleanValue(isolate)) {
                 found    = jsEntity;
                 foundOne = true;
             }
         });
+
+        if (hadException) {
+            return v8::Undefined(isolate);
+        }
 
         return found;
     }
@@ -114,18 +153,33 @@ class EntityCollection {
     v8::Local<v8::Array> Map(v8::Isolate *isolate, v8::Local<v8::Function> callback) {
         auto *world = Framework::CoreModules::GetWorldEngine()->GetWorld();
         auto ctx    = isolate->GetCurrentContext();
+        bool hadException = false;
 
         std::vector<v8::Local<v8::Value>> results;
 
         world->each<ComponentType>([&](flecs::entity e, ComponentType &) {
+            if (hadException) return;
+
             EntityType *entity     = new EntityType(e);
             v8::Local<v8::Object> jsEntity = EntityType::GetClass(isolate).import_external(isolate, entity);
 
             v8::Local<v8::Value> argv[1] = {jsEntity};
-            v8::Local<v8::Value> result  = callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocalChecked();
+            v8::TryCatch try_catch(isolate);
+            v8::Local<v8::Value> result;
+            if (!callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocal(&result)) {
+                if (try_catch.HasCaught()) {
+                    isolate->ThrowException(try_catch.Exception());
+                }
+                hadException = true;
+                return;
+            }
 
             results.push_back(result);
         });
+
+        if (hadException) {
+            return v8::Array::New(isolate, 0);
+        }
 
         v8::Local<v8::Array> arr = v8::Array::New(isolate, static_cast<int>(results.size()));
         for (size_t i = 0; i < results.size(); i++) {
@@ -138,21 +192,34 @@ class EntityCollection {
     bool Some(v8::Isolate *isolate, v8::Local<v8::Function> callback) {
         auto *world = Framework::CoreModules::GetWorldEngine()->GetWorld();
         auto ctx    = isolate->GetCurrentContext();
-        bool found  = false;
+        bool found        = false;
+        bool hadException = false;
 
         world->each<ComponentType>([&](flecs::entity e, ComponentType &) {
-            if (found) return;
+            if (found || hadException) return;
 
             EntityType *entity     = new EntityType(e);
             v8::Local<v8::Object> jsEntity = EntityType::GetClass(isolate).import_external(isolate, entity);
 
             v8::Local<v8::Value> argv[1] = {jsEntity};
-            v8::Local<v8::Value> result  = callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocalChecked();
+            v8::TryCatch try_catch(isolate);
+            v8::Local<v8::Value> result;
+            if (!callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocal(&result)) {
+                if (try_catch.HasCaught()) {
+                    isolate->ThrowException(try_catch.Exception());
+                }
+                hadException = true;
+                return;
+            }
 
             if (result->BooleanValue(isolate)) {
                 found = true;
             }
         });
+
+        if (hadException) {
+            return false;
+        }
 
         return found;
     }
@@ -161,21 +228,34 @@ class EntityCollection {
     bool Every(v8::Isolate *isolate, v8::Local<v8::Function> callback) {
         auto *world = Framework::CoreModules::GetWorldEngine()->GetWorld();
         auto ctx    = isolate->GetCurrentContext();
-        bool allMatch = true;
+        bool allMatch     = true;
+        bool hadException = false;
 
         world->each<ComponentType>([&](flecs::entity e, ComponentType &) {
-            if (!allMatch) return;
+            if (!allMatch || hadException) return;
 
             EntityType *entity     = new EntityType(e);
             v8::Local<v8::Object> jsEntity = EntityType::GetClass(isolate).import_external(isolate, entity);
 
             v8::Local<v8::Value> argv[1] = {jsEntity};
-            v8::Local<v8::Value> result  = callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocalChecked();
+            v8::TryCatch try_catch(isolate);
+            v8::Local<v8::Value> result;
+            if (!callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocal(&result)) {
+                if (try_catch.HasCaught()) {
+                    isolate->ThrowException(try_catch.Exception());
+                }
+                hadException = true;
+                return;
+            }
 
             if (!result->BooleanValue(isolate)) {
                 allMatch = false;
             }
         });
+
+        if (hadException) {
+            return false;
+        }
 
         return allMatch;
     }
