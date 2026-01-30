@@ -188,11 +188,24 @@ using VehicleCollection = EntityCollection<Vehicle, Shared::Modules::VehicleSync
 /**
  * Helper to register a collection object on the World module.
  * Creates a JS object with forEach, filter, find, map, some, every methods and length property.
+ * Uses ObjectTemplate to properly define the length accessor on the prototype.
  */
 template <typename CollectionType>
 v8::Local<v8::Object> CreateCollectionObject(v8::Isolate *isolate) {
     auto ctx = isolate->GetCurrentContext();
-    auto obj = v8::Object::New(isolate);
+
+    // Create ObjectTemplate to properly set up accessors
+    auto tmpl = v8::ObjectTemplate::New(isolate);
+
+    // length property accessor (must be on template, not instance)
+    tmpl->SetAccessor(v8pp::to_v8(isolate, "length").As<v8::String>(),
+                      [](v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                          CollectionType collection;
+                          info.GetReturnValue().Set(collection.GetLength(info.GetIsolate()));
+                      });
+
+    // Create instance from template
+    auto obj = tmpl->NewInstance(ctx).ToLocalChecked();
 
     // forEach method
     obj->Set(ctx, v8pp::to_v8(isolate, "forEach"),
@@ -265,13 +278,6 @@ v8::Local<v8::Object> CreateCollectionObject(v8::Isolate *isolate) {
                  CollectionType collection;
                  info.GetReturnValue().Set(collection.Every(isolate, info[0].As<v8::Function>()));
              }).ToLocalChecked()).Check();
-
-    // length property (getter)
-    obj->SetAccessor(ctx, v8pp::to_v8(isolate, "length").As<v8::Name>(),
-                     [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                         CollectionType collection;
-                         info.GetReturnValue().Set(collection.GetLength(info.GetIsolate()));
-                     }).Check();
 
     return obj;
 }
