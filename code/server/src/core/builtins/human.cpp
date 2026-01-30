@@ -114,6 +114,7 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
     if (!_class) {
         _class = std::make_unique<v8pp::class_<Human>>(isolate);
         _class->inherit<Entity>()
+            .auto_wrap_objects(true)
             .ctor<flecs::entity_t>()
             .set("toString", &Human::ToString)
             .set("addWeapon", &Human::AddWeapon);
