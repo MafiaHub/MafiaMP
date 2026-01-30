@@ -116,19 +116,73 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
         _class->inherit<Entity>()
             .ctor<flecs::entity_t>()
             .set("toString", &Human::ToString)
-            .set("isAiming", &Human::IsAiming)
-            .set("isFiring", &Human::IsFiring)
-            .set("addWeapon", &Human::AddWeapon)
-            .set("getAimDir", &Human::GetAimDir)
-            .set("getAimPos", &Human::GetAimPos)
-            .set("getHealth", &Human::GetHealth)
-            .set("setHealth", &Human::SetHealth)
-            .set("getVehicleId", &Human::GetVehicleId)
-            .set("getVehicleSeatIndex", &Human::GetVehicleSeatIndex)
-            .set("getWeaponId", &Human::GetWeaponId);
+            .set("addWeapon", &Human::AddWeapon);
 
-        // Add nickname property accessor
         auto protoTemplate = _class->class_function_template()->PrototypeTemplate();
+
+        // aiming (read-only)
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "aiming").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->IsAiming());
+            });
+
+        // firing (read-only)
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "firing").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->IsFiring());
+            });
+
+        // aimDir (read-only)
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "aimDir").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) {
+                    auto dir = self->GetAimDir();
+                    auto &cls = Framework::Scripting::Builtins::Vector3::GetClass(info.GetIsolate());
+                    info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Vector3(dir)));
+                }
+            });
+
+        // aimPos (read-only)
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "aimPos").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) {
+                    auto pos = self->GetAimPos();
+                    auto &cls = Framework::Scripting::Builtins::Vector3::GetClass(info.GetIsolate());
+                    info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Vector3(pos)));
+                }
+            });
+
+        // health
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "health").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->GetHealth());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsNumber()) {
+                    self->SetHealth(static_cast<float>(value->NumberValue(info.GetIsolate()->GetCurrentContext()).FromMaybe(0.0)));
+                }
+            });
+
+        // weaponId (read-only)
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "weaponId").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->GetWeaponId());
+            });
+
+        // nickname (read-only)
         protoTemplate->SetAccessor(
             v8pp::to_v8(isolate, "nickname").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
@@ -136,15 +190,21 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
                 if (self) info.GetReturnValue().Set(v8pp::to_v8(info.GetIsolate(), self->GetNickname()));
             });
 
-        // Add getVehicle method that returns Vehicle object
-        protoTemplate->Set(
-            v8pp::to_v8(isolate, "getVehicle").As<v8::String>(),
-            v8::FunctionTemplate::New(isolate, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+        // vehicle (read-only)
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "vehicle").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) {
-                    info.GetReturnValue().Set(self->GetVehicle(info.GetIsolate()));
-                }
-            }));
+                if (self) info.GetReturnValue().Set(self->GetVehicle(info.GetIsolate()));
+            });
+
+        // vehicleSeatIndex (read-only)
+        protoTemplate->SetAccessor(
+            v8pp::to_v8(isolate, "vehicleSeatIndex").As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set(self->GetVehicleSeatIndex());
+            });
     }
     return *_class;
 }
