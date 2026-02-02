@@ -11,7 +11,7 @@
 
 namespace MafiaMP::Scripting {
 
-std::unique_ptr<v8pp::class_<Entity>> Entity::_class;
+std::unordered_map<v8::Isolate*, std::unique_ptr<v8pp::class_<Entity>>> Entity::_classes;
 
 Entity::Entity(flecs::entity_t ent) {
     _ent = flecs::entity(Framework::CoreModules::GetWorldEngine()->GetWorld()->get_world(), ent);
@@ -83,87 +83,92 @@ std::string Entity::ToString() const {
 }
 
 v8pp::class_<Entity> &Entity::GetClass(v8::Isolate *isolate) {
-    if (!_class) {
-        _class = std::make_unique<v8pp::class_<Entity>>(isolate);
-        _class->auto_wrap_objects(true);
-        _class->ctor<flecs::entity_t>()
-            .set("toString", &Entity::ToString);
-
-        // Add properties using SetAccessor for JS-native property access
-        auto protoTemplate = _class->class_function_template()->PrototypeTemplate();
-
-        // Read-only property: id
-        protoTemplate->SetAccessor(
-            v8pp::to_v8(isolate, "id").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) info.GetReturnValue().Set(static_cast<double>(self->GetId()));
-            });
-
-        // Read-only property: modelName
-        protoTemplate->SetAccessor(
-            v8pp::to_v8(isolate, "modelName").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) info.GetReturnValue().Set(v8pp::to_v8(info.GetIsolate(), self->GetModelName()));
-            });
-
-        // Property: position (Vector3)
-        protoTemplate->SetAccessor(
-            v8pp::to_v8(isolate, "position").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) {
-                    auto pos = self->GetPosition();
-                    auto &cls = Framework::Scripting::Builtins::Vector3::GetClass(info.GetIsolate());
-                    info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Vector3(pos)));
-                }
-            },
-            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
-                auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
-                if (!self) return;
-
-                auto *vec = v8pp::class_<Framework::Scripting::Builtins::Vector3>::unwrap_object(info.GetIsolate(), value);
-                if (vec) {
-                    self->SetPosition(*vec);
-                }
-            });
-
-        // Property: rotation (accepts both Vector3 euler degrees and Quaternion)
-        protoTemplate->SetAccessor(
-            v8pp::to_v8(isolate, "rotation").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) {
-                    auto rot = self->GetRotation();
-                    auto &cls = Framework::Scripting::Builtins::Vector3::GetClass(info.GetIsolate());
-                    info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Vector3(rot)));
-                }
-            },
-            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
-                auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
-                if (!self) return;
-
-                // Try to unwrap as Vector3 first (euler angles in degrees)
-                auto *vec = v8pp::class_<Framework::Scripting::Builtins::Vector3>::unwrap_object(info.GetIsolate(), value);
-                if (vec) {
-                    self->SetRotationFromEuler(*vec);
-                    return;
-                }
-
-                // Try to unwrap as Quaternion
-                auto *quat = v8pp::class_<Framework::Scripting::Builtins::Quaternion>::unwrap_object(info.GetIsolate(), value);
-                if (quat) {
-                    self->SetRotationFromQuaternion(*quat);
-                    return;
-                }
-
-                // Neither type matched - throw an error
-                info.GetIsolate()->ThrowException(v8::Exception::TypeError(
-                    v8pp::to_v8(info.GetIsolate(), "rotation must be a Vector3 (euler degrees) or Quaternion")));
-            });
+    auto it = _classes.find(isolate);
+    if (it != _classes.end()) {
+        return *it->second;
     }
-    return *_class;
+
+    auto &cls = _classes[isolate];
+    cls = std::make_unique<v8pp::class_<Entity>>(isolate);
+    cls->auto_wrap_objects(true);
+    cls->ctor<flecs::entity_t>()
+        .set("toString", &Entity::ToString);
+
+    // Add properties using SetAccessor for JS-native property access
+    auto protoTemplate = cls->class_function_template()->PrototypeTemplate();
+
+    // Read-only property: id
+    protoTemplate->SetAccessor(
+        v8pp::to_v8(isolate, "id").As<v8::Name>(),
+        [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+            auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
+            if (self) info.GetReturnValue().Set(static_cast<double>(self->GetId()));
+        });
+
+    // Read-only property: modelName
+    protoTemplate->SetAccessor(
+        v8pp::to_v8(isolate, "modelName").As<v8::Name>(),
+        [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+            auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
+            if (self) info.GetReturnValue().Set(v8pp::to_v8(info.GetIsolate(), self->GetModelName()));
+        });
+
+    // Property: position (Vector3)
+    protoTemplate->SetAccessor(
+        v8pp::to_v8(isolate, "position").As<v8::Name>(),
+        [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+            auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
+            if (self) {
+                auto pos = self->GetPosition();
+                auto &vecCls = Framework::Scripting::Builtins::Vector3::GetClass(info.GetIsolate());
+                info.GetReturnValue().Set(vecCls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Vector3(pos)));
+            }
+        },
+        [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+            auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
+            if (!self) return;
+
+            auto *vec = v8pp::class_<Framework::Scripting::Builtins::Vector3>::unwrap_object(info.GetIsolate(), value);
+            if (vec) {
+                self->SetPosition(*vec);
+            }
+        });
+
+    // Property: rotation (accepts both Vector3 euler degrees and Quaternion)
+    protoTemplate->SetAccessor(
+        v8pp::to_v8(isolate, "rotation").As<v8::Name>(),
+        [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+            auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
+            if (self) {
+                auto rot = self->GetRotation();
+                auto &vecCls = Framework::Scripting::Builtins::Vector3::GetClass(info.GetIsolate());
+                info.GetReturnValue().Set(vecCls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Vector3(rot)));
+            }
+        },
+        [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+            auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
+            if (!self) return;
+
+            // Try to unwrap as Vector3 first (euler angles in degrees)
+            auto *vec = v8pp::class_<Framework::Scripting::Builtins::Vector3>::unwrap_object(info.GetIsolate(), value);
+            if (vec) {
+                self->SetRotationFromEuler(*vec);
+                return;
+            }
+
+            // Try to unwrap as Quaternion
+            auto *quat = v8pp::class_<Framework::Scripting::Builtins::Quaternion>::unwrap_object(info.GetIsolate(), value);
+            if (quat) {
+                self->SetRotationFromQuaternion(*quat);
+                return;
+            }
+
+            // Neither type matched - throw an error
+            info.GetIsolate()->ThrowException(v8::Exception::TypeError(
+                v8pp::to_v8(info.GetIsolate(), "rotation must be a Vector3 (euler degrees) or Quaternion")));
+        });
+
+    return *cls;
 }
 
 void Entity::Register(v8::Isolate *isolate, v8::Local<v8::Object> global) {

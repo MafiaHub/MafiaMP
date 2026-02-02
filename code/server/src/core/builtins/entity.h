@@ -13,6 +13,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 
 namespace MafiaMP::Scripting {
 
@@ -51,7 +52,7 @@ namespace MafiaMP::Scripting {
 
       protected:
         flecs::entity _ent;
-        static std::unique_ptr<v8pp::class_<Entity>> _class;
+        static std::unordered_map<v8::Isolate*, std::unique_ptr<v8pp::class_<Entity>>> _classes;
     };
 
 } // namespace MafiaMP::Scripting
