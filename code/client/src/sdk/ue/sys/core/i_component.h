@@ -30,6 +30,8 @@ namespace SDK {
             }
         };
 
+        // Base interface for all components in the component system.
+        // vtable: 0x144F03EC8 | constructor: 0x1432a4e20
         class I_Component {
           public:
             virtual ~I_Component()                                            = default;
