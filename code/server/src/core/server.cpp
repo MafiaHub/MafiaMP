@@ -4,6 +4,7 @@
 #include "shared/modules/vehicle_sync.hpp"
 
 #include "core/builtins/builtins.h"
+#include "core/builtins/events_reserved.h"
 
 #include "modules/environment.h"
 #include "modules/human.h"
@@ -13,6 +14,10 @@
 #include "shared/rpc/environment.h"
 
 #include "shared/game_rpc/human/human_changeskin.h"
+
+#include <scripting/node_engine.h>
+#include <scripting/resource/resource_manager.h>
+#include <v8pp/convert.hpp>
 
 namespace MafiaMP {
     void Server::PostInit() {
@@ -47,7 +52,10 @@ namespace MafiaMP {
 
             // Broadcast the environment setup
             const auto weather = GetWorldEngine()->GetWorld()->get<Core::Modules::Environment::Weather>();
-            FW_SEND_COMPONENT_RPC_TO(Shared::RPC::SetEnvironment, SLNet::RakNetGUID(guid), SLNet::RakString(weather->_weatherSetName.c_str()), weather->_dayTimeHours);
+            Framework::Utils::Optional<SLNet::RakString> weatherSet = weather->_weatherSetName.empty()
+                ? Framework::Utils::Optional<SLNet::RakString>{}
+                : Framework::Utils::Optional<SLNet::RakString>(SLNet::RakString(weather->_weatherSetName.c_str()));
+            FW_SEND_COMPONENT_RPC_TO(Shared::RPC::SetEnvironment, SLNet::RakNetGUID(guid), weatherSet, weather->_dayTimeHours);
 
             Scripting::Player::EventPlayerConnected(player);
         });
@@ -63,7 +71,31 @@ namespace MafiaMP {
     }
 
     void Server::ModuleRegister(Framework::Scripting::Engine *engine) {
-        MafiaMP::Scripting::Builtins::Register(GetScriptingModule()->GetEngine()->GetLuaEngine());
+        auto *nodeEngine = dynamic_cast<Framework::Scripting::NodeEngine *>(engine);
+        if (!nodeEngine) {
+            return;
+        }
+
+        // Register MafiaMP-specific reserved events
+        auto scriptingModule = GetScriptingModule();
+        if (scriptingModule && scriptingModule->GetResourceManager()) {
+            scriptingModule->GetResourceManager()->GetEvents().AddReservedEvents(MafiaMP::Scripting::RESERVED_EVENTS);
+        }
+
+        v8::Isolate *isolate = nodeEngine->GetIsolate();
+        v8::Locker locker(isolate);
+        v8::Isolate::Scope isolateScope(isolate);
+        v8::HandleScope handleScope(isolate);
+        v8::Local<v8::Context> context = nodeEngine->GetContext();
+        v8::Context::Scope contextScope(context);
+
+        // Get global and Framework objects
+        v8::Local<v8::Object> global = context->Global();
+        v8::Local<v8::Value> frameworkVal;
+        if (global->Get(context, v8pp::to_v8(isolate, "Framework")).ToLocal(&frameworkVal) && frameworkVal->IsObject()) {
+            v8::Local<v8::Object> frameworkObj = frameworkVal.As<v8::Object>();
+            MafiaMP::Scripting::Builtins::Register(isolate, global, frameworkObj);
+        }
     }
 
     void Server::InitRPCs() {

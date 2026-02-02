@@ -2,8 +2,6 @@
 
 #include <integrations/server/instance.h>
 
-#include <scripting/server_engine.h>
-
 namespace MafiaMP {
     class Server: public Framework::Integrations::Server::Instance {
       private:

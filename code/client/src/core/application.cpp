@@ -205,7 +205,18 @@ namespace MafiaMP::Core {
     void Application::PostRender() {}
 
     void Application::ModuleRegister(Framework::Scripting::Engine *engine) {
-        MafiaMP::Scripting::Builtins::Register(GetScriptingModule()->GetEngine()->GetLuaEngine());
+        if (!engine || !engine->IsInitialized()) {
+            return;
+        }
+
+        v8::Isolate *isolate = engine->GetIsolate();
+        v8::Locker locker(isolate);
+        v8::Isolate::Scope isolateScope(isolate);
+        v8::HandleScope handleScope(isolate);
+        v8::Local<v8::Context> context = engine->GetContext();
+        v8::Context::Scope contextScope(context);
+
+        MafiaMP::Scripting::Builtins::Register(isolate, context);
     }
 
     void Application::InitNetworkingMessages() {

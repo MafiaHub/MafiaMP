@@ -2,6 +2,7 @@ set(MAFIAMP_SERVER_FILES
     src/main.cpp
     src/core/server.cpp
 
+    src/core/builtins/entity.cpp
     src/core/builtins/human.cpp
     src/core/builtins/player.cpp
     src/core/builtins/vehicle.cpp
@@ -17,5 +18,15 @@ add_executable(MafiaMPServer ${MAFIAMP_SERVER_FILES})
 target_include_directories(MafiaMPServer PRIVATE src)
 target_link_libraries(MafiaMPServer Framework FrameworkServer)
 
+# Match FrameworkServer's compile definitions for PCH compatibility
+if(WIN32)
+    target_compile_definitions(MafiaMPServer PRIVATE NOMINMAX _USE_MATH_DEFINES)
+endif()
+
 # Reuse FrameworkServer's PCH (includes sol, flecs, and Framework's headers)
 target_precompile_headers(MafiaMPServer REUSE_FROM FrameworkServer)
+
+# Copy libnode.dll to output directory on Windows
+if(WIN32 AND TARGET libnode_copy_dll)
+    add_dependencies(MafiaMPServer libnode_copy_dll)
+endif()
