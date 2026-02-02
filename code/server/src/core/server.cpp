@@ -52,7 +52,10 @@ namespace MafiaMP {
 
             // Broadcast the environment setup
             const auto weather = GetWorldEngine()->GetWorld()->get<Core::Modules::Environment::Weather>();
-            FW_SEND_COMPONENT_RPC_TO(Shared::RPC::SetEnvironment, SLNet::RakNetGUID(guid), SLNet::RakString(weather->_weatherSetName.c_str()), weather->_dayTimeHours);
+            Framework::Utils::Optional<SLNet::RakString> weatherSet = weather->_weatherSetName.empty()
+                ? Framework::Utils::Optional<SLNet::RakString>{}
+                : Framework::Utils::Optional<SLNet::RakString>(SLNet::RakString(weather->_weatherSetName.c_str()));
+            FW_SEND_COMPONENT_RPC_TO(Shared::RPC::SetEnvironment, SLNet::RakNetGUID(guid), weatherSet, weather->_dayTimeHours);
 
             Scripting::Player::EventPlayerConnected(player);
         });

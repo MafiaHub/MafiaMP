@@ -1,7 +1,10 @@
 #include "entity.h"
 
 #include <core_modules.h>
+#include <networking/network_server.h>
 #include <world/engine.h>
+#include <world/server.h>
+#include <world/game_rpc/set_transform.h>
 
 #include <fmt/format.h>
 #include <glm/gtc/quaternion.hpp>
@@ -30,6 +33,8 @@ void Entity::SetPosition(const Framework::Scripting::Builtins::Vector3 &pos) {
     if (tr) {
         tr->pos = pos.vec();
         tr->IncrementGeneration();
+        Framework::CoreModules::GetWorldEngine()->WakeEntity(_ent);
+        FW_SEND_SERVER_COMPONENT_GAME_RPC(Framework::World::RPC::SetTransform, _ent, *tr);
     }
 }
 
@@ -48,6 +53,8 @@ void Entity::SetRotationFromEuler(const Framework::Scripting::Builtins::Vector3 
         glm::vec3 radians(glm::radians(rot.vec().x), glm::radians(rot.vec().y), glm::radians(rot.vec().z));
         tr->rot = glm::quat(radians);
         tr->IncrementGeneration();
+        Framework::CoreModules::GetWorldEngine()->WakeEntity(_ent);
+        FW_SEND_SERVER_COMPONENT_GAME_RPC(Framework::World::RPC::SetTransform, _ent, *tr);
     }
 }
 
@@ -56,6 +63,8 @@ void Entity::SetRotationFromQuaternion(const Framework::Scripting::Builtins::Qua
     if (tr) {
         tr->rot = quat.quat();
         tr->IncrementGeneration();
+        Framework::CoreModules::GetWorldEngine()->WakeEntity(_ent);
+        FW_SEND_SERVER_COMPONENT_GAME_RPC(Framework::World::RPC::SetTransform, _ent, *tr);
     }
 }
 
