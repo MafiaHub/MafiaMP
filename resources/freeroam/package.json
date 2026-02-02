@@ -1,7 +1,6 @@
 {
   "name": "freeroam",
   "version": "1.0.0",
-  "type": "module",
   "author": "MafiaHub",
   "description": "Freeroam gamemode with vehicle spawns, player commands, and chat system",
   "mafiahub": {

@@ -3,7 +3,7 @@
  * Only active when ENABLE_DEBUG is true.
  */
 
-import { ENABLE_DEBUG } from "./config.js";
+const { ENABLE_DEBUG } = require("./config.js");
 
 if (ENABLE_DEBUG) {
     // Debug: Log all vehicle streaming events

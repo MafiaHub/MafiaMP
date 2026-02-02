@@ -2,14 +2,14 @@
  * Configuration for freeroam gamemode.
  */
 
-export const ENABLE_DEBUG = false;
+const ENABLE_DEBUG = false;
 
-export const SPAWN_POINT = {
+const SPAWN_POINT = {
     POSITION: new Vector3(-985.871, -299.401, 2.1),
     ROTATION: new Quaternion(0.291, 0, 0, -0.957)
 };
 
-export const VEHICLE_SPAWNS = [
+const VEHICLE_SPAWNS = [
     {
         MODEL_NAME: "berkley_810",
         POSITION: new Vector3(-986.40686, -304.061798, 2.292042),
@@ -282,7 +282,7 @@ export const VEHICLE_SPAWNS = [
     }
 ];
 
-export const WEATHER_SETS = [
+const WEATHER_SETS = [
     "_default_game",
     "_default_game_cloudy",
     "_default_game_foggy",
@@ -292,7 +292,7 @@ export const WEATHER_SETS = [
     "day_cycle_01"
 ];
 
-export const TP_DESTINATIONS = {
+const TP_DESTINATIONS = {
     spawn: SPAWN_POINT,
     start: {
         POSITION: new Vector3(-916.0, -210.0, 2.605),
@@ -303,3 +303,5 @@ export const TP_DESTINATIONS = {
         ROTATION: new Quaternion(0.99, 0.0, 0.0, 0.139)
     }
 };
+
+module.exports = { ENABLE_DEBUG, SPAWN_POINT, VEHICLE_SPAWNS, WEATHER_SETS, TP_DESTINATIONS };

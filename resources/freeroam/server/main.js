@@ -3,13 +3,16 @@
  * Handles player spawning, vehicle management, chat commands, and events.
  */
 
-import { SPAWN_POINT, VEHICLE_SPAWNS, WEATHER_SETS, TP_DESTINATIONS } from "./config.js";
+console.log("[FREEROAM] === SCRIPT LOADING ===");
+
+const { SPAWN_POINT, VEHICLE_SPAWNS, WEATHER_SETS, TP_DESTINATIONS } = require("./config.js");
+console.log("[FREEROAM] Config loaded, VEHICLE_SPAWNS count:", VEHICLE_SPAWNS.length);
 
 // Get utils from shared-utils resource export
 const utils = Framework.Exports.get("shared-utils", "utils");
 
 // Load debug handlers
-import "./debug.js";
+require("./debug.js");
 
 // Chat command registry
 const REGISTERED_CHAT_COMMANDS = {};
@@ -24,17 +27,21 @@ function registerChatCommand(name, handler) {
 }
 
 // Resource lifecycle
+console.log("[FREEROAM] Registering resourceStart handler...");
 Events.on('resourceStart', (resourceName) => {
+    console.log("[FREEROAM] resourceStart fired for:", resourceName);
     if (resourceName !== 'freeroam') return;
 
-    console.log("[FREEROAM] Resource started!");
+    console.log("[FREEROAM] Resource started! Spawning", VEHICLE_SPAWNS.length, "vehicles...");
 
     // Spawn vehicles
     for (const v of VEHICLE_SPAWNS) {
         const veh = World.createVehicle(v.MODEL_NAME);
+        console.log("[FREEROAM] Created vehicle:", v.MODEL_NAME, "id:", veh ? veh.id : "NULL");
         veh.position = v.POSITION;
         veh.rotation = v.ROTATION;  // Accepts both Vector3 (euler degrees) and Quaternion
     }
+    console.log("[FREEROAM] Done spawning vehicles");
 
     // Set random weather
     const weatherSet = utils.getRandomInArray(WEATHER_SETS);
