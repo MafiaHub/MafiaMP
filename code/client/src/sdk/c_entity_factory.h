@@ -21,7 +21,7 @@ namespace SDK {
 
         template <typename entityClass>
         static entityClass CreateEntity(E_EntityType type) {
-            return hook::call<entityClass, E_EntityTypes>(gPatterns.C_EntityFactory__CreateEntity, type);
+            return hook::call<entityClass, E_EntityType>(gPatterns.C_EntityFactory__CreateEntity, type);
         };
     };
 } // namespace SDK
