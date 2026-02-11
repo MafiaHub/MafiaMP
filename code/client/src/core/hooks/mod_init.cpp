@@ -1,4 +1,5 @@
 #include <utils/safe_win32.h>
+#include <cstdlib>
 #include <MinHook.h>
 #include <utils/hooking/hook_function.h>
 
@@ -12,6 +13,16 @@ typedef void(__fastcall *C_InitDone__Init_MafiaFramework_t)(void *_this);
 C_InitDone__Init_MafiaFramework_t C_InitDone__Init_MafiaFramework_original = nullptr;
 void __fastcall C_InitDone__MafiaFramework(void *_this) {
     C_InitDone__Init_MafiaFramework_original(_this);
+
+    // Register a late atexit handler to prevent the game's broken cleanup from crashing.
+    // The game has an atexit ordering bug: its RefCountManager cleanup runs before
+    // BehaviorProfile cleanup, leaving a NULL allocator array that causes an access
+    // violation. Since this runs in LIFO order, registering here ensures we terminate
+    // the process before those handlers run.
+    std::atexit([]() {
+        TerminateProcess(GetCurrentProcess(), 0);
+    });
+
     MafiaMP::Core::gApplicationModule = new MafiaMP::Core::ApplicationModule();
 }
 

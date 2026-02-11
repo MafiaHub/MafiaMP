@@ -22,8 +22,3 @@ target_link_libraries(MafiaMPServer Framework FrameworkServer)
 if(WIN32)
     target_compile_definitions(MafiaMPServer PRIVATE NOMINMAX _USE_MATH_DEFINES)
 endif()
-
-# Copy libnode.dll to output directory on Windows
-if(WIN32 AND TARGET libnode_copy_dll)
-    add_dependencies(MafiaMPServer libnode_copy_dll)
-endif()
