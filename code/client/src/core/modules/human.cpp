@@ -204,10 +204,10 @@ namespace MafiaMP::Core::Modules {
 
         // Ensure we hook up remote human events for special cases
         auto streamable = e.get_mut<Framework::World::Modules::Base::Streamable>();
-        streamable->modEvents.disconnectProc = [](flecs::entity e) {
+        streamable->disconnectProc = [](flecs::entity e) {
             Remove(e);
         };
-        streamable->modEvents.updateTransformProc = [](flecs::entity e) {
+        streamable->updateTransformProc = [](flecs::entity e) {
             UpdateTransform(e);
         };
 
@@ -274,16 +274,7 @@ namespace MafiaMP::Core::Modules {
         e.add<Framework::World::Modules::Base::Frame>();
 
         auto es                  = e.get_mut<Framework::World::Modules::Base::Streamable>();
-        es->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
-
-            Shared::Messages::Human::HumanUpdate humanUpdate {};
-            humanUpdate.SetServerID(Framework::World::ClientEngine::GetServerID(e));
-            humanUpdate.SetData(*updateData);
-            peer->Send(humanUpdate, guid);
-            return true;
-        };
-        es->modEvents.updateTransformProc = [](flecs::entity e) {
+        es->updateTransformProc = [](flecs::entity e) {
             UpdateTransform(e);
         };
     }
@@ -417,18 +408,7 @@ namespace MafiaMP::Core::Modules {
                 humanData->carPassenger.enterForced = true;
             }
 
-            // set up client updates (NPC streaming)
-            // TODO disabled for now, we don't really need to stream NPCs atm
-#if 0
-                const auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
-                es->modEvents.clientUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                    Shared::Messages::Human::HumanClientUpdate humanUpdate;
-                    humanUpdate.FromParameters(e.id());
-                    // set up sync data
-                    peer->Send(humanUpdate, guid);
-                    return true;
-                };
-#endif
+            // NPC streaming not implemented - when needed, use StreamedTo relation observers
         });
         net->RegisterMessage<Shared::Messages::Human::HumanDespawn>(Shared::Messages::ModMessages::MOD_HUMAN_DESPAWN, [app](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanDespawn *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
