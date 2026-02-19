@@ -140,7 +140,7 @@ namespace MafiaMP::Core {
         /*if (GetWebManager() && !_console->IsOpen()) {
             Framework::GUI::View *mainMenuView = GetWebManager()->GetView(_mainMenuViewId);
 
-            if (!mainMenuView->GetInternalView()->HasFocus()) {
+            if (!mainMenuView->HasFocus()) {
                 LockControls(GetWebManager()->IsAnyGCViewFocused());
             }
         }*/
@@ -309,59 +309,42 @@ namespace MafiaMP::Core {
         if (!mainView || !mainView->HasFocus()) {
             return;
         }
-        ultralight::Cursor mainViewCursor = mainView->GetCursor();
-        ImGuiMouseCursor cursor;
-        switch (mainViewCursor) {
-        case ultralight::Cursor::kCursor_Pointer:
-            cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_Cross: cursor = ImGuiMouseCursor_TextInput; break;
-        case ultralight::Cursor::kCursor_Hand: cursor = ImGuiMouseCursor_Hand; break;
-        case ultralight::Cursor::kCursor_IBeam: cursor = ImGuiMouseCursor_TextInput; break;
-        case ultralight::Cursor::kCursor_Wait: cursor = ImGuiMouseCursor_NotAllowed; break;
-        case ultralight::Cursor::kCursor_Help: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_EastResize:
-        case ultralight::Cursor::kCursor_WestResize:
-        case ultralight::Cursor::kCursor_EastWestResize: cursor = ImGuiMouseCursor_ResizeEW; break;
 
-        case ultralight::Cursor::kCursor_NorthResize:
-        case ultralight::Cursor::kCursor_SouthResize:
-        case ultralight::Cursor::kCursor_NorthSouthResize: cursor = ImGuiMouseCursor_ResizeNS; break;
-
-        case ultralight::Cursor::kCursor_NorthEastResize:
-        case ultralight::Cursor::kCursor_SouthWestResize:
-        case ultralight::Cursor::kCursor_NorthEastSouthWestResize: cursor = ImGuiMouseCursor_ResizeNESW; break;
-
-        case ultralight::Cursor::kCursor_NorthWestResize:
-        case ultralight::Cursor::kCursor_SouthEastResize:
-        case ultralight::Cursor::kCursor_NorthWestSouthEastResize: cursor = ImGuiMouseCursor_ResizeNWSE; break;
-
-        // Column/Row resize could map to directional resize
-        case ultralight::Cursor::kCursor_ColumnResize: cursor = ImGuiMouseCursor_ResizeEW; break;
-        case ultralight::Cursor::kCursor_RowResize: cursor = ImGuiMouseCursor_ResizeNS; break;
-
-        // Panning cursors have no direct equivalent in ImGui
-        case ultralight::Cursor::kCursor_Move: cursor = ImGuiMouseCursor_ResizeAll; break;
-
-        // Other cursors - map to closest equivalents
-        case ultralight::Cursor::kCursor_VerticalText: cursor = ImGuiMouseCursor_TextInput; break;
-        case ultralight::Cursor::kCursor_Cell: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_ContextMenu: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_Alias: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_Progress: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_NoDrop: cursor = ImGuiMouseCursor_NotAllowed; break;
-        case ultralight::Cursor::kCursor_Copy: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_None: cursor = ImGuiMouseCursor_None; break;
-        case ultralight::Cursor::kCursor_NotAllowed: cursor = ImGuiMouseCursor_NotAllowed; break;
-        case ultralight::Cursor::kCursor_ZoomIn: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_ZoomOut: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_Grab: cursor = ImGuiMouseCursor_Hand; break;
-        case ultralight::Cursor::kCursor_Grabbing: cursor = ImGuiMouseCursor_Hand; break;
-        case ultralight::Cursor::kCursor_Custom: cursor = ImGuiMouseCursor_Arrow; break;
-
-        default: cursor = ImGuiMouseCursor_Arrow; break;
+        // Map CEF cursor type to ImGui cursor (software cursor rendered by ImGui)
+        switch (mainView->GetCursorType()) {
+        case CT_HAND:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+            break;
+        case CT_IBEAM:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
+            break;
+        case CT_EASTWESTRESIZE:
+        case CT_COLUMNRESIZE:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+            break;
+        case CT_NORTHSOUTHRESIZE:
+        case CT_ROWRESIZE:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+            break;
+        case CT_NORTHWESTSOUTHEASTRESIZE:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
+            break;
+        case CT_NORTHEASTSOUTHWESTRESIZE:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNESW);
+            break;
+        case CT_MOVE:
+        case CT_GRAB:
+        case CT_GRABBING:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+            break;
+        case CT_NOTALLOWED:
+        case CT_NODROP:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_NotAllowed);
+            break;
+        default:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+            break;
         }
-
-        ImGui::SetMouseCursor(cursor);
     }
 
     void Application::ProcessLockControls(bool lock) {

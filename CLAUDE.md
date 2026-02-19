@@ -48,7 +48,7 @@ cmake --build build --target RunFrameworkTests
 - **State Machine**: States in `code/client/src/core/states/` manage client lifecycle (Initialize, MainMenu, SessionConnected, etc.)
 - **Game Integration**: Hook system in `code/client/src/core/hooks/` for low-level game engine integration
 - **Entity Management**: ECS-based entity streaming and synchronization
-- **UI System**: Web-based UI (Ultralight) and ImGui for debug interfaces
+- **UI System**: Web-based UI (CEF) and ImGui for debug interfaces
 
 #### Server Architecture
 - **Server Class**: `code/server/src/core/server.cpp` - Main server instance inheriting from `Framework::Integrations::Server::Instance`
