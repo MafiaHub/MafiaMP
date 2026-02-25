@@ -116,8 +116,8 @@ namespace MafiaMP::Scripting {
 
             // Create Chat module object with static methods
             v8pp::module chatModule(isolate);
-            chatModule.set("sendToAll", &Chat::SendToAll);
-            chatModule.set("sendToPlayer", &Chat::SendToPlayer);
+            chatModule.function("sendToAll", &Chat::SendToAll);
+            chatModule.function("sendToPlayer", &Chat::SendToPlayer);
 
             auto ctx = isolate->GetCurrentContext();
             global->Set(ctx, v8pp::to_v8(isolate, "Chat"), chatModule.new_instance()).Check();

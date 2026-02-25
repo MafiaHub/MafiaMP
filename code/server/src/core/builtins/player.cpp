@@ -83,9 +83,9 @@ v8pp::class_<Player> &Player::GetClass(v8::Isolate *isolate) {
         _class->auto_wrap_objects(true);
         _class->inherit<Human>()
             .ctor<flecs::entity_t>()
-            .set("toString", &Player::ToString)
-            .set("destroy", &Player::Destroy)
-            .set("sendChat", &Player::SendChat);
+            .function("toString", &Player::ToString)
+            .function("destroy", &Player::Destroy)
+            .function("sendChat", &Player::SendChat);
     }
     return *_class;
 }

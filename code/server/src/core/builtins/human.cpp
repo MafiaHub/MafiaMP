@@ -116,13 +116,13 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
         _class->inherit<Entity>()
             .auto_wrap_objects(true)
             .ctor<flecs::entity_t>()
-            .set("toString", &Human::ToString)
-            .set("addWeapon", &Human::AddWeapon);
+            .function("toString", &Human::ToString)
+            .function("addWeapon", &Human::AddWeapon);
 
         auto protoTemplate = _class->class_function_template()->PrototypeTemplate();
 
         // aiming (read-only)
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "aiming").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
@@ -130,7 +130,7 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
             });
 
         // firing (read-only)
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "firing").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
@@ -138,7 +138,7 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
             });
 
         // aimDir (read-only)
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "aimDir").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
@@ -150,7 +150,7 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
             });
 
         // aimPos (read-only)
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "aimPos").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
@@ -162,7 +162,7 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
             });
 
         // health
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "health").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
@@ -176,7 +176,7 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
             });
 
         // weaponId (read-only)
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "weaponId").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
@@ -184,7 +184,7 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
             });
 
         // nickname (read-only)
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "nickname").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
@@ -192,7 +192,7 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
             });
 
         // vehicle (read-only)
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "vehicle").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
@@ -200,7 +200,7 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
             });
 
         // vehicleSeatIndex (read-only)
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "vehicleSeatIndex").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());

@@ -287,12 +287,12 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
         _class->auto_wrap_objects(true);
         _class->inherit<Entity>()
             .ctor<flecs::entity_t>()
-            .set("toString", &Vehicle::ToString);
+            .function("toString", &Vehicle::ToString);
 
         auto protoTemplate = _class->class_function_template()->PrototypeTemplate();
 
         // beaconLightsOn
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "beaconLightsOn").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -304,7 +304,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // colorPrimary
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "colorPrimary").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -321,7 +321,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // colorSecondary
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "colorSecondary").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -338,7 +338,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // dirt
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "dirt").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -352,7 +352,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // engineOn
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "engineOn").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -364,7 +364,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // fuel
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "fuel").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -378,7 +378,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // licensePlate
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "licensePlate").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -393,7 +393,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // lockState
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "lockState").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -407,7 +407,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // radioOn
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "radioOn").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -419,7 +419,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // radioStationId
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "radioStationId").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -433,7 +433,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // rimColor
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "rimColor").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -450,7 +450,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // rust
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "rust").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -464,7 +464,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // sirenOn
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "sirenOn").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -476,7 +476,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // tireColor
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "tireColor").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
@@ -493,7 +493,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             });
 
         // windowTint
-        protoTemplate->SetAccessor(
+        protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "windowTint").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());

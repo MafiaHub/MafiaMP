@@ -92,13 +92,13 @@ v8pp::class_<Entity> &Entity::GetClass(v8::Isolate *isolate) {
     cls = std::make_unique<v8pp::class_<Entity>>(isolate);
     cls->auto_wrap_objects(true);
     cls->ctor<flecs::entity_t>()
-        .set("toString", &Entity::ToString);
+        .function("toString", &Entity::ToString);
 
     // Add properties using SetAccessor for JS-native property access
     auto protoTemplate = cls->class_function_template()->PrototypeTemplate();
 
     // Read-only property: id
-    protoTemplate->SetAccessor(
+    protoTemplate->SetNativeDataProperty(
         v8pp::to_v8(isolate, "id").As<v8::Name>(),
         [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
             auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
@@ -106,7 +106,7 @@ v8pp::class_<Entity> &Entity::GetClass(v8::Isolate *isolate) {
         });
 
     // Read-only property: modelName
-    protoTemplate->SetAccessor(
+    protoTemplate->SetNativeDataProperty(
         v8pp::to_v8(isolate, "modelName").As<v8::Name>(),
         [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
             auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
@@ -114,7 +114,7 @@ v8pp::class_<Entity> &Entity::GetClass(v8::Isolate *isolate) {
         });
 
     // Property: position (Vector3)
-    protoTemplate->SetAccessor(
+    protoTemplate->SetNativeDataProperty(
         v8pp::to_v8(isolate, "position").As<v8::Name>(),
         [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
             auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
@@ -135,7 +135,7 @@ v8pp::class_<Entity> &Entity::GetClass(v8::Isolate *isolate) {
         });
 
     // Property: rotation (accepts both Vector3 euler degrees and Quaternion)
-    protoTemplate->SetAccessor(
+    protoTemplate->SetNativeDataProperty(
         v8pp::to_v8(isolate, "rotation").As<v8::Name>(),
         [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
             auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());

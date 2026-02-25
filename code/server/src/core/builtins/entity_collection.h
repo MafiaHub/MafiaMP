@@ -278,8 +278,8 @@ v8::Local<v8::Object> CreateCollectionObject(v8::Isolate *isolate) {
     auto tmpl = v8::ObjectTemplate::New(isolate);
 
     // length property accessor (must be on template, not instance)
-    tmpl->SetAccessor(v8pp::to_v8(isolate, "length").As<v8::String>(),
-                      [](v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+    tmpl->SetNativeDataProperty(v8pp::to_v8(isolate, "length").As<v8::Name>(),
+                      [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                           CollectionType collection;
                           info.GetReturnValue().Set(collection.GetLength(info.GetIsolate()));
                       });
