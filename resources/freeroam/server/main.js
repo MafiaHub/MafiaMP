@@ -28,7 +28,7 @@ function registerChatCommand(name, handler) {
 
 // Resource lifecycle
 console.log("[FREEROAM] Registering resourceStart handler...");
-Events.on('resourceStart', (resourceName) => {
+Core.Events.on('resourceStart', (resourceName) => {
     console.log("[FREEROAM] resourceStart fired for:", resourceName);
     if (resourceName !== 'freeroam') return;
 
@@ -51,21 +51,21 @@ Events.on('resourceStart', (resourceName) => {
     }
 });
 
-Events.on('resourceStop', (resourceName) => {
+Core.Events.on('resourceStop', (resourceName) => {
     if (resourceName !== 'freeroam') return;
 
     console.log("[FREEROAM] Resource stopping!");
 });
 
 // Vehicle events
-Events.on("vehiclePlayerEnter", (vehicle, player, seatIndex) => {
+Core.Events.on("vehiclePlayerEnter", (vehicle, player, seatIndex) => {
     console.log(
         `[FREEROAM] Player ${player.nickname} entered vehicle ${vehicle.modelName} (id: ${vehicle.id}) at seat ${seatIndex}.`
     );
     vehicle.engineOn = true;
 });
 
-Events.on("vehiclePlayerLeave", (vehicle, player) => {
+Core.Events.on("vehiclePlayerLeave", (vehicle, player) => {
     console.log(
         `[FREEROAM] Player ${player.nickname} exited vehicle ${vehicle.modelName} (id: ${vehicle.id}).`
     );
@@ -73,7 +73,7 @@ Events.on("vehiclePlayerLeave", (vehicle, player) => {
 });
 
 // Player events
-Events.on("playerConnect", (player) => {
+Core.Events.on("playerConnect", (player) => {
     console.log(`[FREEROAM] Player ${player.nickname} connected!`);
     Chat.sendToAll(`[SERVER] ${player.nickname} has joined the session!`);
 
@@ -83,12 +83,12 @@ Events.on("playerConnect", (player) => {
     Chat.sendToPlayer(player, `[SERVER] Welcome ${player.nickname}!`);
 });
 
-Events.on("playerDisconnect", (player) => {
+Core.Events.on("playerDisconnect", (player) => {
     console.log(`[FREEROAM] Player ${player.nickname} disconnected.`);
     Chat.sendToAll(`[SERVER] ${player.nickname} has left the session.`);
 });
 
-Events.on("playerDied", (player) => {
+Core.Events.on("playerDied", (player) => {
     console.log(`[FREEROAM] Player ${player.nickname} died.`);
     Chat.sendToAll(`[SERVER] ${player.nickname} died.`);
 
@@ -99,7 +99,7 @@ Events.on("playerDied", (player) => {
 });
 
 // Chat events
-Events.on("chatMessage", (player, message) => {
+Core.Events.on("chatMessage", (player, message) => {
     console.log(`[FREEROAM] Player ${player.nickname} said: ${message}`);
     Chat.sendToAll(`<${player.nickname}>: ${message}`);
 });
@@ -109,13 +109,13 @@ Events.on("chatMessage", (player, message) => {
  * @param {Player} player
  * @param {string} foo
  */
-Events.on("myCustomEvent", (player, foo) => {
+Core.Events.on("myCustomEvent", (player, foo) => {
     console.log(`[FREEROAM] ${player.nickname} triggered a custom event with foo: ${foo}`);
     Chat.sendToPlayer(player,`[SERVER] ${player.nickname} triggered a custom event with foo: ${foo}`);
 });
 
 // Chat command handler
-Events.on("chatCommand", (player, message, command, args) => {
+Core.Events.on("chatCommand", (player, message, command, args) => {
     console.log(`[FREEROAM] Player ${player.nickname} used command: "${command}". (${message}).`);
 
     const foundCommand = REGISTERED_CHAT_COMMANDS[command];
@@ -249,11 +249,11 @@ registerChatCommand("colors", (player, message, command, args) => {
 
     const getRandomColor = () => Math.floor(Math.random() * 256);
 
-    const colorPrimary = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
+    const colorPrimary = Core.Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.colorPrimary = colorPrimary;
     Chat.sendToPlayer(player,`[SERVER] Primary color is now ${colorPrimary.r}, ${colorPrimary.g}, ${colorPrimary.b}!`);
 
-    const colorSecondary = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
+    const colorSecondary = Core.Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.colorSecondary = colorSecondary;
     Chat.sendToPlayer(player,`[SERVER] Secondary color is now ${colorSecondary.r}, ${colorSecondary.g}, ${colorSecondary.b}!`);
 });
@@ -268,11 +268,11 @@ registerChatCommand("wheelcol", (player, message, command, args) => {
 
     const getRandomColor = () => Math.floor(Math.random() * 256);
 
-    const rimColor = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
+    const rimColor = Core.Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.rimColor = rimColor;
     Chat.sendToPlayer(player,`[SERVER] Rim color is now ${rimColor.r}, ${rimColor.g}, ${rimColor.b}!`);
 
-    const tireColor = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
+    const tireColor = Core.Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.tireColor = tireColor;
     Chat.sendToPlayer(player,`[SERVER] Tire color is now ${tireColor.r}, ${tireColor.g}, ${tireColor.b}!`);
 });
@@ -287,7 +287,7 @@ registerChatCommand("wintint", (player, message, command, args) => {
 
     const getRandomColor = () => Math.floor(Math.random() * 256);
 
-    const windowTint = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor());
+    const windowTint = Core.Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor());
     veh.windowTint = windowTint;
     Chat.sendToPlayer(player,`[SERVER] Window tint is now ${windowTint.r}, ${windowTint.g}, ${windowTint.b}, ${windowTint.a}!`);
 });
@@ -336,7 +336,7 @@ registerChatCommand("coords", (player, message, command, args) => {
         return;
     }
 
-    player.position = new Vector3(x, y, z);
+    player.position = new Core.Vector3(x, y, z);
     Chat.sendToPlayer(player,`[SERVER] Teleported to ${x}, ${y}, ${z}!`);
 });
 
@@ -365,7 +365,7 @@ registerChatCommand("time", (player, message, command, args) => {
 });
 
 registerChatCommand("customevent", (player, message, command, args) => {
-    Events.emit("myCustomEvent", player, "bar");
+    Core.Events.emit("myCustomEvent", player, "bar");
 });
 
 // ========== COLLECTION TEST COMMANDS ==========
