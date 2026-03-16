@@ -12,7 +12,7 @@ namespace MafiaMP::Game {
 
         void Update() override;
 
-        void GetMousePosition(int &x, int &y) override {
+        void GetMousePosition(int &x, int &y) const override {
             x = _mousePosition[0];
             y = _mousePosition[1];
         };
@@ -20,67 +20,67 @@ namespace MafiaMP::Game {
         void SetMouseVisible(bool visible) override {
             SetInputLocked(visible);
         };
-        bool IsMouseVisible() override {
+        bool IsMouseVisible() const override {
             return IsInputLocked();
         };
         void SetMouseLocked(bool locked) override {};
-        bool IsMouseLocked() override {
+        bool IsMouseLocked() const override {
             return false;
         };
         void SetInputLocked(bool locked) override;
-        bool IsInputLocked() override;
+        bool IsInputLocked() const override;
 
-        bool IsKeyDown(int key) override {
+        bool IsKeyDown(int key) const override {
             if (key < 0 || key > 255) {
                 return false;
             }
             return _keysDown[MapKey(key)];
         };
-        bool IsKeyUp(int key) override {
+        bool IsKeyUp(int key) const override {
             if (key < 0 || key > 255) {
                 return false;
             }
             return !_keysDown[MapKey(key)];
         };
-        bool IsKeyPressed(int key) override {
+        bool IsKeyPressed(int key) const override {
             if (key < 0 || key > 255) {
                 return false;
             }
             return _keysPressed[MapKey(key)];
         };
-        bool IsKeyReleased(int key) override {
+        bool IsKeyReleased(int key) const override {
             if (key < 0 || key > 255) {
                 return false;
             }
             return _keysReleased[MapKey(key)];
         };
 
-        bool IsMouseButtonDown(int button) override {
+        bool IsMouseButtonDown(int button) const override {
             if (button < 0 || button > 4) {
                 return false;
             }
             return _buttonsDown[button];
         };
-        bool IsMouseButtonUp(int button) override {
+        bool IsMouseButtonUp(int button) const override {
             if (button < 0 || button > 4) {
                 return false;
             }
             return !_buttonsDown[button];
         };
-        bool IsMouseButtonPressed(int button) override {
+        bool IsMouseButtonPressed(int button) const override {
             if (button < 0 || button > 4) {
                 return false;
             }
             return _buttonsPressed[button];
         };
-        bool IsMouseButtonReleased(int button) override {
+        bool IsMouseButtonReleased(int button) const override {
             if (button < 0 || button > 4) {
                 return false;
             }
             return _buttonsReleased[button];
         };
 
-        uint32_t MapKey(uint32_t key) override;
+        uint32_t MapKey(uint32_t key) const override;
 
         void ProcessEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

@@ -74,15 +74,15 @@ namespace MafiaMP::Core::States {
 
             // Update the application state for further usage
             Framework::Integrations::Client::CurrentState newApplicationState = gApplication->GetCurrentState();
-            newApplicationState._host                                         = parsedPayload["host"];
-            newApplicationState._port                                         = parsedPayload["port"];
-            newApplicationState._nickname                                     = "Player";
+            newApplicationState.host                                          = parsedPayload["host"];
+            newApplicationState.port                                          = parsedPayload["port"];
+            newApplicationState.nickname                                      = "Player";
             if (gApplication->GetPresence()->IsInitialized()) {
                 discord::User currUser {};
                 gApplication->GetPresence()->GetUserManager().GetCurrentUser(&currUser);
                 const char* username = currUser.GetUsername();
                 if (username && strlen(username) > 0) {
-                    newApplicationState._nickname = username;
+                    newApplicationState.nickname = username;
                 }
             }
             gApplication->SetCurrentState(newApplicationState);

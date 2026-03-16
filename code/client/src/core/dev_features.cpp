@@ -159,7 +159,7 @@ namespace MafiaMP::Core {
             "chat", {{"m,msg", "message to send", cxxopts::value<std::string>()->default_value("")}},
             [this](const cxxopts::ParseResult &result) {
                 const auto net = gApplication->GetNetworkingEngine()->GetNetworkClient();
-                if (net->GetConnectionState() == Framework::Networking::CONNECTED) {
+                if (net->GetConnectionState() == Framework::Networking::PeerState::CONNECTED) {
                     MafiaMP::Shared::RPC::ChatMessage chatMessage {};
                     chatMessage.FromParameters(result["msg"].as<std::string>());
                     net->SendRPC(chatMessage, SLNet::UNASSIGNED_RAKNET_GUID);

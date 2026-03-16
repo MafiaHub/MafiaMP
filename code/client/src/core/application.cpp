@@ -39,9 +39,9 @@
 #include "application_module.h"
 
 namespace MafiaMP::Core {
-    std::unique_ptr<Application> gApplication = nullptr;
+    std::unique_ptr<Application> gApplication;
 
-    bool Application::PostInit() {
+    void Application::PostInit() {
         // Create the state machine and initialize
         _stateMachine = std::make_shared<Framework::Utils::States::Machine>();
         _stateMachine->RegisterState<States::GameSetupState>();
@@ -72,9 +72,9 @@ namespace MafiaMP::Core {
                 vhRect.right - vhRect.left,
                 vhRect.bottom - vhRect.top,
             };
-            if (!GetWebManager()->Init(gProjectPath, vhConfiguration, GetRenderer(), false)) {
+            if (GetWebManager()->Init(gProjectPath, vhConfiguration, GetRenderer(), false) != Framework::GUI::GUIError::GUI_NONE) {
                 Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
-                return false;
+                return;
             }
         }
 
@@ -107,17 +107,14 @@ namespace MafiaMP::Core {
 
         // This must always be the last call
         _stateMachine->RequestNextState(States::StateIds::Initialize);
-        return true;
     }
 
-    bool Application::PreShutdown() {
+    void Application::PreShutdown() {
         if (_entityFactory) {
             _entityFactory->ReturnAll();
         }
 
         _devFeatures.Shutdown();
-
-        return true;
     }
 
     void Application::PostUpdate() {
@@ -174,7 +171,7 @@ namespace MafiaMP::Core {
             const auto net = GetNetworkingEngine()->GetNetworkClient();
 
             // Bypass locked controls
-            if (AreControlsLocked() && net->GetConnectionState() != Framework::Networking::CONNECTING) {
+            if (AreControlsLocked() && net->GetConnectionState() != Framework::Networking::PeerState::CONNECTING) {
                 DrawCornerText(CORNER_RIGHT_TOP, fmt::format("Press F1 to {} controls locked", AreControlsLockedBypassed() ? "RESTORE" : "BYPASS "));
 
                 if (_input->IsKeyPressed(FW_KEY_F1)) {
@@ -193,7 +190,7 @@ namespace MafiaMP::Core {
             const auto ping              = networkClient->GetPing();
             const char *connStateNames[] = {"Connecting", "Online", "Offline"};
 
-            DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[connState]));
+            DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[static_cast<int>(connState)]));
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Ping: {}", ping));
         });
 

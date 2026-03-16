@@ -22,7 +22,7 @@ namespace MafiaMP::Core::UI::Devs {
             const auto net   = gApplication->GetNetworkingEngine()->GetNetworkClient();
             const auto state = net->GetConnectionState();
 
-            if (state != Framework::Networking::CONNECTED) {
+            if (state != Framework::Networking::PeerState::CONNECTED) {
                 ImGui::Text("You are currently not connected to a server!");
                 return;
             }

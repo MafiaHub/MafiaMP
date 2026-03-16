@@ -45,8 +45,8 @@ namespace MafiaMP::Core {
         void ProcessLockControls(bool lock);
 
       public:
-        bool PostInit() override;
-        bool PreShutdown() override;
+        void PostInit() override;
+        void PreShutdown() override;
         void PostUpdate() override;
         void PostRender() override;
 
