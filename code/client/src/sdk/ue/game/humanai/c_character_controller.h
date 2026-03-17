@@ -6,9 +6,21 @@
 #include "c_character_state_handler.h"
 
 #include "c_character_state_handler_aim.h"
+#include "c_character_state_handler_boat.h"
 #include "c_character_state_handler_car.h"
+#include "c_character_state_handler_death.h"
+#include "c_character_state_handler_downed.h"
+#include "c_character_state_handler_grenade.h"
+#include "c_character_state_handler_lookat.h"
+#include "c_character_state_handler_motorcycle.h"
 #include "c_character_state_handler_move.h"
+#include "c_character_state_handler_play_animation.h"
+#include "c_character_state_handler_play_overlay_animation.h"
+#include "c_character_state_handler_player_reaction.h"
 #include "c_character_state_handler_stand.h"
+#include "c_character_state_handler_swim.h"
+#include "c_character_state_handler_train.h"
+#include "c_character_state_handler_turret.h"
 #include "c_character_state_handler_weapon.h"
 
 namespace SDK {
@@ -119,37 +131,37 @@ namespace SDK {
           protected:
             C_Human2 *m_pCharacter;
             uint8_t m_pad24[64];
-            C_CharacterStateHandlerMove     *m_pMoveStateHandler;
-            C_CharacterStateHandlerStand    *m_pStandStateHandler;
-            C_CharacterStateHandler         *m_pMoveStandStateHandler;
-            C_CharacterStateHandler         *m_pCoverStateHandler;
-            C_CharacterStateHandler         *m_pClimbStateHandler;
-            C_CharacterStateHandler         *m_pActionAIStateHandler;
-            C_CharacterStateHandler         *m_pInvestigateStateHandler;
-            C_CharacterStateHandler         *m_pMeleeStateHandler;
-            C_CharacterStateHandler         *m_pLockPullStateHandler;
-            C_CharacterStateHandler         *m_pTurretStateHandler;
-            C_CharacterStateHandler         *m_pPlayAnimStateHandler;
-            C_CharacterStateHandler         *m_pDeathStateHandler;
-            C_CharacterStateHandlerCar      *m_pCarStateHandler;
-            C_CharacterStateHandler         *m_pBoatStateHandler;
-            C_CharacterStateHandler         *m_pTrainStateHandler;
-            C_CharacterStateHandler         *m_pMotorcycleStateHandler;
-            C_CharacterStateHandler         *m_pAwarenessStateHandler;
-            C_CharacterStateHandler         *m_pInjuryStateHandler;
-            C_CharacterStateHandler         *m_pSpeechStateHandler;
-            C_CharacterStateHandler         *m_pSwimStateHandler;
-            C_CharacterStateHandler         *m_pPreviewStateHandler;
-            C_CharacterStateHandler         *m_pFallStateHandler;
-            C_CharacterStateHandler         *m_pCurrentStateHandler;
-            C_CharacterStateHandlerWeapon   *m_pWeaponStateHandler;
-            C_CharacterStateHandler         *m_pGrenadeStateHandler;
-            C_CharacterStateHandlerAim      *m_pAimStateHandler;
-            C_CharacterStateHandler         *m_pPlayOverlayAnimStateHandler;
-            C_CharacterStateHandler         *m_pLookAtStateHandler;
-            C_CharacterStateHandler         *m_pDownedStateHandler;
-            C_CharacterStateHandler         *m_pPlayerReactionStateHandler;
-            C_CharacterStateHandler         *m_pActionOverlayStateHandler;
+            C_CharacterStateHandlerMove                 *m_pMoveStateHandler;
+            C_CharacterStateHandlerStand                *m_pStandStateHandler;
+            C_CharacterStateHandler                     *m_pMoveStandStateHandler;
+            C_CharacterStateHandler                     *m_pCoverStateHandler;
+            C_CharacterStateHandler                     *m_pClimbStateHandler;
+            C_CharacterStateHandler                     *m_pActionAIStateHandler;
+            C_CharacterStateHandler                     *m_pInvestigateStateHandler;
+            C_CharacterStateHandler                     *m_pMeleeStateHandler;
+            C_CharacterStateHandler                     *m_pLockPullStateHandler;
+            C_CharacterStateHandlerTurret               *m_pTurretStateHandler;
+            C_CharacterStateHandlerPlayAnimation        *m_pPlayAnimStateHandler;
+            C_CharacterStateHandlerDeath                *m_pDeathStateHandler;
+            C_CharacterStateHandlerCar                  *m_pCarStateHandler;
+            C_CharacterStateHandlerBoat                 *m_pBoatStateHandler;
+            C_CharacterStateHandlerTrain                *m_pTrainStateHandler;
+            C_CharacterStateHandlerMotorcycle           *m_pMotorcycleStateHandler;
+            C_CharacterStateHandler                     *m_pAwarenessStateHandler;
+            C_CharacterStateHandler                     *m_pInjuryStateHandler;
+            C_CharacterStateHandler                     *m_pSpeechStateHandler;
+            C_CharacterStateHandlerSwim                 *m_pSwimStateHandler;
+            C_CharacterStateHandler                     *m_pPreviewStateHandler;
+            C_CharacterStateHandler                     *m_pFallStateHandler;
+            C_CharacterStateHandler                     *m_pCurrentStateHandler;
+            C_CharacterStateHandlerWeapon               *m_pWeaponStateHandler;
+            C_CharacterStateHandlerGrenade              *m_pGrenadeStateHandler;
+            C_CharacterStateHandlerAim                  *m_pAimStateHandler;
+            C_CharacterStateHandlerPlayOverlayAnimation *m_pPlayOverlayAnimStateHandler;
+            C_CharacterStateHandlerLookAt               *m_pLookAtStateHandler;
+            C_CharacterStateHandlerDowned               *m_pDownedStateHandler;
+            C_CharacterStateHandlerPlayerReaction       *m_pPlayerReactionStateHandler;
+            C_CharacterStateHandler                     *m_pActionOverlayStateHandler;
             uintptr_t m_pCharacterLocomotionController;
             uint8_t m_pad344[96];
             S_PlayerControllerInput *m_pPlayerControllerInput;
@@ -173,7 +185,7 @@ namespace SDK {
             C_Human2 *GetCharacter() {
                 return m_pCharacter;
             }
-            C_CharacterStateHandlerAim* GetAimHandler() {
+            C_CharacterStateHandlerAim *GetAimHandler() {
                 return m_pAimStateHandler;
             }
             C_CharacterStateHandlerCar *GetCarHandler() {
@@ -181,6 +193,39 @@ namespace SDK {
             }
             C_CharacterStateHandlerStand *GetStandHandler() {
                 return m_pStandStateHandler;
+            }
+            C_CharacterStateHandlerMove *GetMoveHandler() {
+                return m_pMoveStateHandler;
+            }
+            C_CharacterStateHandlerWeapon *GetWeaponHandler() {
+                return m_pWeaponStateHandler;
+            }
+            C_CharacterStateHandlerDeath *GetDeathHandler() {
+                return m_pDeathStateHandler;
+            }
+            C_CharacterStateHandlerBoat *GetBoatHandler() {
+                return m_pBoatStateHandler;
+            }
+            C_CharacterStateHandlerTrain *GetTrainHandler() {
+                return m_pTrainStateHandler;
+            }
+            C_CharacterStateHandlerMotorcycle *GetMotorcycleHandler() {
+                return m_pMotorcycleStateHandler;
+            }
+            C_CharacterStateHandlerSwim *GetSwimHandler() {
+                return m_pSwimStateHandler;
+            }
+            C_CharacterStateHandlerGrenade *GetGrenadeHandler() {
+                return m_pGrenadeStateHandler;
+            }
+            C_CharacterStateHandlerTurret *GetTurretHandler() {
+                return m_pTurretStateHandler;
+            }
+            C_CharacterStateHandlerDowned *GetDownedHandler() {
+                return m_pDownedStateHandler;
+            }
+            C_CharacterStateHandlerLookAt *GetLookAtHandler() {
+                return m_pLookAtStateHandler;
             }
             C_CharacterStateHandler *GetCurrentStateHandler() {
                 return m_pCurrentStateHandler;
