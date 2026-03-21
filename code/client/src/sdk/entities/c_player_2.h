@@ -3,6 +3,7 @@
 #include "c_human_2.h"
 #include "sdk/mafia/health_system/c_health_system.h"
 #include "sdk/ue/sys/math/c_vector.h"
+#include <sdk/c_gui_controller.h>
 
 namespace SDK {
     namespace mafia {
@@ -17,7 +18,6 @@ namespace SDK {
         class C_ScriptRangedScalarController;
     }
 
-    class C_GuiController;
     class C_Perks;
 
     class C_Player2 : public C_Human2 {
