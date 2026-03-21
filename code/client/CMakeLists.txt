@@ -68,7 +68,6 @@ set(MAFIAMP_SDK_FILES
     src/sdk/entities/human/c_human_weapon_controller.cpp
     src/sdk/entities/human/c_human_script.cpp
     src/sdk/entities/c_car.cpp
-    src/sdk/entities/c_car_tuning_manager.cpp
     src/sdk/entities/c_door.cpp
     src/sdk/entities/c_entity.cpp
     src/sdk/entities/c_entity_list.cpp
@@ -127,6 +126,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/sys/sodb/c_database_system.cpp
     src/sdk/ue/c_string.cpp
     src/sdk/wrappers/c_human_2_car_wrapper.cpp
+    src/sdk/c_car_tuning_manager.cpp
     src/sdk/c_command_line.cpp
     src/sdk/c_entity_factory.cpp
     src/sdk/c_game.cpp

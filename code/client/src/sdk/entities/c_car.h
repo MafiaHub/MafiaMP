@@ -1,8 +1,9 @@
 #pragma once
 
 #include "c_actor_vehicle.h"
-#include "c_car_tuning_manager.h"
-#include "../ue/game/vehicle/c_vehicle.h"
+
+#include <sdk/c_car_tuning_manager.h>
+#include <sdk/ue/game/vehicle/c_vehicle.h>
 
 namespace SDK {
     class I_Human2;

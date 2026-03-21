@@ -1,5 +1,5 @@
 #include "c_car_tuning_manager.h"
-#include "../patterns.h"
+#include <sdk/patterns.h>
 
 namespace SDK {
     bool C_CarTuningManager::SetItemToSlot(uint16_t itemId) {
