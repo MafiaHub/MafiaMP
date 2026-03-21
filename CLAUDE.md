@@ -154,6 +154,12 @@ cmake --build build --target RunFrameworkTests
 
 SDK files should be minimal and clean. Follow these guidelines:
 
+**Types:**
+- Always use the real type for members when known — include/forward-declare the header. Never use `void *` with a comment naming the actual type.
+- Use proper std containers (`std::vector<T>`, etc.) when the member is a std container, not raw begin/end/capacity pointer triples.
+- NO vtable index comments (`// vf0`, `// vf7`, etc.) on virtual method declarations. The order in the class IS the vtable order.
+- If a base class is missing virtual methods that derived classes need, fix the base class instead of commenting them out or working around it.
+
 **Comments:**
 - Use offset comments on class members: `// 0x00 - 0x08`
 - Brief section headers are acceptable: `// Seat management`
