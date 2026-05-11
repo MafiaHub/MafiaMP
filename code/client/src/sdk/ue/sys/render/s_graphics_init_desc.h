@@ -40,9 +40,11 @@ namespace SDK {
             uint32_t m_nBackBufferHeight;       // 0xCC - 0xD0  (-> S_RenderDeviceDesc.m_nBackBufferHeight)
             uint32_t m_nDisplayWidth;           // 0xD0 - 0xD4  (cached at C_RenderCore[+512])
             uint32_t m_nDisplayHeight;          // 0xD4 - 0xD8  (cached at C_RenderCore[+516])
-            uint32_t m_nUnknown216;             // 0xD8 - 0xDC  (default 256, packed flags)
-            uint8_t m_bAsyncRenderDevice;       // 0xDC - 0xDD
-            char _pad4[0x3];                    // 0xDD - 0xE0
+            uint8_t m_nUnknownD8;               // 0xD8 - 0xD9  (default 0)
+            uint8_t m_nUnknownD9;               // 0xD9 - 0xDA  (default 1; together with D8/DA/DB forms the dword set to 256 by the ctor)
+            uint8_t m_bAsyncRenderDevice;       // 0xDA - 0xDB  (read by C_RenderCore::Init to pick async vs sync ctx)
+            uint8_t m_nUnknownDB;               // 0xDB - 0xDC
+            char _pad4[0x4];                    // 0xDC - 0xE0
             char _pad5[0x20];                   // 0xE0 - 0x100
         };
     } // namespace ue::sys::render

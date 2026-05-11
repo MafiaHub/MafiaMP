@@ -26,7 +26,7 @@ namespace SDK {
                 int32_t m_nUnknown14;               // 0x14 - 0x18  (default -1)
                 HWND m_hWindow;                     // 0x18 - 0x20
                 IDXGISwapChain *m_pSwapChain;       // 0x20 - 0x28  (populated by InitSwapChainInternal)
-                void *m_pUnknown28;                 // 0x28 - 0x30
+                IDXGIOutput *m_pOutput;             // 0x28 - 0x30  (set via swap_chain->GetContainingOutput in InitSwapChainInternal)
                 ID3D11Texture2D *m_pBackBufferTex;  // 0x30 - 0x38
                 ID3D11ShaderResourceView *m_pBackBufferSRV;     // 0x38 - 0x40
                 ID3D11UnorderedAccessView *m_pBackBufferUAV;    // 0x40 - 0x48
