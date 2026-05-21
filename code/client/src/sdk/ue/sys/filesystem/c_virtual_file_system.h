@@ -75,7 +75,7 @@ namespace SDK::ue::sys::filesystem {
         //TODO: continue
     };
 
-    class C_VirtualFileSystem : public I_VirtualFileSystem {
+    class C_VirtualFileSystem /*: public I_VirtualFileSystem */ {
 
     };
 }
