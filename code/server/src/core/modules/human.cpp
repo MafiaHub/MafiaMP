@@ -91,7 +91,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::SetupMessages(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
-        net->RegisterMessage<Shared::Messages::Human::HumanUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_UPDATE, [srv](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanUpdate *msg) {
+        net->RegisterMessage<Shared::Messages::Human::HumanUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_UPDATE, [srv](MafiaNet::RakNetGUID guid, Shared::Messages::Human::HumanUpdate *msg) {
             const auto e = srv->WrapEntity(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
@@ -133,7 +133,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::InitRPCs(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
-        net->RegisterGameRPC<Shared::RPC::HumanShoot>([srv, net](SLNet::RakNetGUID guid, Shared::RPC::HumanShoot *msg) {
+        net->RegisterGameRPC<Shared::RPC::HumanShoot>([srv, net](MafiaNet::RakNetGUID guid, Shared::RPC::HumanShoot *msg) {
             const auto e = srv->GetEntityByGUID(guid.g);
             if (!e.is_alive()) {
                 return;
@@ -142,7 +142,7 @@ namespace MafiaMP::Core::Modules {
             FW_SEND_SERVER_COMPONENT_GAME_RPC_EXCEPT(Shared::RPC::HumanShoot, e, guid, msg->GetAimPos(), msg->GetAimDir(), msg->GetUnk0(), msg->GetUnk1());
         });
 
-        net->RegisterGameRPC<Shared::RPC::HumanReload>([srv, net](SLNet::RakNetGUID guid, Shared::RPC::HumanReload *msg) {
+        net->RegisterGameRPC<Shared::RPC::HumanReload>([srv, net](MafiaNet::RakNetGUID guid, Shared::RPC::HumanReload *msg) {
             const auto e = srv->GetEntityByGUID(guid.g);
             if (!e.is_alive()) {
                 return;
@@ -151,7 +151,7 @@ namespace MafiaMP::Core::Modules {
             FW_SEND_SERVER_COMPONENT_GAME_RPC_EXCEPT(Shared::RPC::HumanReload, e, guid, msg->GetUnk0());
         });
 
-        net->RegisterGameRPC<Shared::RPC::HumanDeath>([srv, net](SLNet::RakNetGUID guid, Shared::RPC::HumanDeath *msg) {
+        net->RegisterGameRPC<Shared::RPC::HumanDeath>([srv, net](MafiaNet::RakNetGUID guid, Shared::RPC::HumanDeath *msg) {
             const auto e = srv->GetEntityByGUID(guid.g);
             if (!e.is_alive()) {
                 return;

@@ -8,7 +8,7 @@
 namespace MafiaMP::Shared::Messages::Vehicle {
     class VehicleSpawn final: public Framework::Networking::Messages::GameSyncMessage {
       private:
-        SLNet::RakString _modelName;
+        MafiaNet::RakString _modelName;
         MafiaMP::Shared::Modules::VehicleSync::UpdateData _spawnData;
 
       public:
@@ -21,7 +21,7 @@ namespace MafiaMP::Shared::Messages::Vehicle {
             _spawnData = spawnData;
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             bs->Serialize(write, _modelName);
             bs->SerializeCompressed(write, _spawnData);
         }

@@ -13,7 +13,7 @@ namespace MafiaMP::Shared::Messages::Human {
             return MOD_HUMAN_SELF_UPDATE;
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             bs->Serialize(write, _spawnProfile);
         }
 

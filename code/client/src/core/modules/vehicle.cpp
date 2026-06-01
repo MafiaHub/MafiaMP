@@ -257,7 +257,7 @@ namespace MafiaMP::Core::Modules {
 
     void Vehicle::SetupMessages(Application *app) {
         const auto net = app->GetNetworkingEngine()->GetNetworkClient();
-        net->RegisterMessage<Shared::Messages::Vehicle::VehicleSpawn>(Shared::Messages::ModMessages::MOD_VEHICLE_SPAWN, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleSpawn *msg) {
+        net->RegisterMessage<Shared::Messages::Vehicle::VehicleSpawn>(Shared::Messages::ModMessages::MOD_VEHICLE_SPAWN, [app](MafiaNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleSpawn *msg) {
             auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
@@ -270,7 +270,7 @@ namespace MafiaMP::Core::Modules {
             auto vehicleData = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
             *vehicleData     = msg->GetSpawnData();
         });
-        net->RegisterMessage<Shared::Messages::Vehicle::VehicleDespawn>(Shared::Messages::ModMessages::MOD_VEHICLE_DESPAWN, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleDespawn *msg) {
+        net->RegisterMessage<Shared::Messages::Vehicle::VehicleDespawn>(Shared::Messages::ModMessages::MOD_VEHICLE_DESPAWN, [app](MafiaNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleDespawn *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
@@ -278,7 +278,7 @@ namespace MafiaMP::Core::Modules {
 
             Remove(e);
         });
-        net->RegisterMessage<Shared::Messages::Vehicle::VehicleUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleUpdate *msg) {
+        net->RegisterMessage<Shared::Messages::Vehicle::VehicleUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_UPDATE, [app](MafiaNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleUpdate *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
@@ -289,7 +289,7 @@ namespace MafiaMP::Core::Modules {
             Update(e);
         });
         // TODO: deprecate in favor of RPCs
-        /*net->RegisterMessage<Shared::Messages::Vehicle::VehicleOwnerUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_OWNER_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleOwnerUpdate *msg) {
+        /*net->RegisterMessage<Shared::Messages::Vehicle::VehicleOwnerUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_OWNER_UPDATE, [app](MafiaNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleOwnerUpdate *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
@@ -303,7 +303,7 @@ namespace MafiaMP::Core::Modules {
     void Vehicle::InitRPCs(Application *app) {
         const auto net = app->GetNetworkingEngine()->GetNetworkClient();
 
-        net->RegisterGameRPC<Shared::RPC::VehicleSetProps>([app](SLNet::RakNetGUID guid, Shared::RPC::VehicleSetProps *msg) {
+        net->RegisterGameRPC<Shared::RPC::VehicleSetProps>([app](MafiaNet::RakNetGUID guid, Shared::RPC::VehicleSetProps *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;

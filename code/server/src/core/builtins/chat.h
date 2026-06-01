@@ -105,7 +105,7 @@ namespace MafiaMP::Scripting {
                     return;
                 }
 
-                FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(streamer->guid), message);
+                FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, MafiaNet::RakNetGUID(streamer->guid), message);
             }
         }
 

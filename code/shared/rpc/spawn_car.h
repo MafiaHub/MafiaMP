@@ -7,7 +7,7 @@
 namespace MafiaMP::Shared::RPC {
     class SpawnCar final: public Framework::Networking::RPC::IRPC<SpawnCar> {
       private:
-        SLNet::RakString _modelName {};
+        MafiaNet::RakString _modelName {};
 
       public:
         void SetModelName(const std::string &name) {
@@ -18,7 +18,7 @@ namespace MafiaMP::Shared::RPC {
             return _modelName.C_String();
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             bs->Serialize(write, _modelName);
         }
 

@@ -11,7 +11,7 @@ namespace MafiaMP::Shared::Messages::Vehicle {
             return MOD_VEHICLE_DESPAWN;
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             // noop
         }
 

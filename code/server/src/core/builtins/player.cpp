@@ -73,7 +73,7 @@ void Player::Destroy() {
 void Player::SendChat(std::string message) {
     const auto streamer = _ent.try_get<Framework::World::Modules::Base::Streamer>();
     if (streamer) {
-        FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, SLNet::RakNetGUID(streamer->guid), message);
+        FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, MafiaNet::RakNetGUID(streamer->guid), message);
     }
 }
 

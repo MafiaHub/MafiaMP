@@ -8,7 +8,7 @@ namespace MafiaMP::Shared::RPC {
         void FromParameters(void) {
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
         }
 
         bool Valid() const override {

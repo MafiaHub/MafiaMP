@@ -33,7 +33,7 @@ namespace MafiaMP::Shared::RPC {
             return _unk1;
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             bs->Serialize(write, _aimPos);
             bs->Serialize(write, _aimDir);
             bs->Serialize(write, _unk0);

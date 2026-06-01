@@ -17,7 +17,7 @@ namespace MafiaMP::Shared::Messages::Vehicle {
             return MOD_VEHICLE_OWNER_UPDATE;
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             bs->SerializeCompressed(write, _updateData);
         }
 

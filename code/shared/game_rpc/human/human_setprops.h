@@ -12,7 +12,7 @@ namespace MafiaMP::Shared::RPC {
             this->health = props.health;
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             health.Serialize(bs, write);
         }
         

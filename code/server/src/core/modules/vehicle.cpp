@@ -44,7 +44,7 @@ namespace MafiaMP::Core::Modules {
     flecs::entity Vehicle::Create(MafiaMP::Server *server) {
         const auto net = server->GetNetworkingEngine()->GetNetworkServer();
         auto e         = server->GetWorldEngine()->CreateEntity();
-        server->GetStreamingFactory()->SetupServer(e, SLNet::UNASSIGNED_RAKNET_GUID.g);
+        server->GetStreamingFactory()->SetupServer(e, MafiaNet::UNASSIGNED_RAKNET_GUID.g);
         auto &frame     = e.ensure<Framework::World::Modules::Base::Frame>();
         frame.modelName = "berkley_810"; /* TODO */
 
@@ -113,7 +113,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Vehicle::SetupMessages(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
-        net->RegisterMessage<Shared::Messages::Vehicle::VehicleUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_UPDATE, [srv](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleUpdate *msg) {
+        net->RegisterMessage<Shared::Messages::Vehicle::VehicleUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_UPDATE, [srv](MafiaNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleUpdate *msg) {
             const auto e = srv->WrapEntity(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
@@ -130,7 +130,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Vehicle::InitRPCs(std::shared_ptr<Framework::World::ServerEngine> srv, Framework::Networking::NetworkServer *net) {
-        net->RegisterGameRPC<Shared::RPC::VehiclePlayerEnter>([srv](SLNet::RakNetGUID guid, Shared::RPC::VehiclePlayerEnter *msg) {
+        net->RegisterGameRPC<Shared::RPC::VehiclePlayerEnter>([srv](MafiaNet::RakNetGUID guid, Shared::RPC::VehiclePlayerEnter *msg) {
             const auto playerEntity = srv->GetEntityByGUID(guid.g);
             if (!playerEntity.is_alive()) {
                 return;
@@ -144,7 +144,7 @@ namespace MafiaMP::Core::Modules {
             Scripting::Vehicle::EventVehiclePlayerEnter(vehicleEntity, playerEntity, msg->seatIndex);
         });
 
-        net->RegisterGameRPC<Shared::RPC::VehiclePlayerLeave>([srv](SLNet::RakNetGUID guid, Shared::RPC::VehiclePlayerLeave *msg) {
+        net->RegisterGameRPC<Shared::RPC::VehiclePlayerLeave>([srv](MafiaNet::RakNetGUID guid, Shared::RPC::VehiclePlayerLeave *msg) {
             const auto playerEntity = srv->GetEntityByGUID(guid.g);
             if (!playerEntity.is_alive()) {
                 return;

@@ -7,16 +7,16 @@
 namespace MafiaMP::Shared::RPC {
     class SetEnvironment final: public Framework::Networking::RPC::IRPC<SetEnvironment> {
       private:
-        Framework::Utils::Optional<SLNet::RakString> _weatherSet{};
+        Framework::Utils::Optional<MafiaNet::RakString> _weatherSet{};
         Framework::Utils::Optional<float> _dayTimeHours{};
 
         public:
-        void FromParameters(const Framework::Utils::Optional<SLNet::RakString> &weatherSet = {}, Framework::Utils::Optional<float> dayTimeHours = {}) {
+        void FromParameters(const Framework::Utils::Optional<MafiaNet::RakString> &weatherSet = {}, Framework::Utils::Optional<float> dayTimeHours = {}) {
             _weatherSet = weatherSet;
             _dayTimeHours = dayTimeHours;
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             _weatherSet.Serialize(bs, write);
             _dayTimeHours.Serialize(bs, write);
         }
@@ -31,7 +31,7 @@ namespace MafiaMP::Shared::RPC {
             return true;
         }
 
-        Framework::Utils::Optional<SLNet::RakString> GetWeatherSet() const {
+        Framework::Utils::Optional<MafiaNet::RakString> GetWeatherSet() const {
             return _weatherSet;
         }
 

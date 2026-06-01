@@ -83,7 +83,7 @@ namespace MafiaMP::Core {
 
             MafiaMP::Shared::RPC::ChatMessage chatMessage {};
             chatMessage.FromParameters(msg);
-            net->SendRPC(chatMessage, SLNet::UNASSIGNED_RAKNET_GUID);
+            net->SendRPC(chatMessage, MafiaNet::UNASSIGNED_RAKNET_GUID);
         });
 
         // setup debug routines
@@ -401,14 +401,14 @@ namespace MafiaMP::Core {
     void Application::InitRPCs() {
         const auto net = GetNetworkingEngine()->GetNetworkClient();
 
-        net->RegisterRPC<Shared::RPC::ChatMessage>([this](SLNet::RakNetGUID guid, Shared::RPC::ChatMessage *chatMessage) {
+        net->RegisterRPC<Shared::RPC::ChatMessage>([this](MafiaNet::RakNetGUID guid, Shared::RPC::ChatMessage *chatMessage) {
             if (!chatMessage->Valid())
                 return;
             _chat->AddMessage(chatMessage->GetText());
 
             Framework::Logging::GetLogger("chat")->trace(chatMessage->GetText());
         });
-        net->RegisterRPC<Shared::RPC::SetEnvironment>([this](SLNet::RakNetGUID guid, Shared::RPC::SetEnvironment *environmentMsg) {
+        net->RegisterRPC<Shared::RPC::SetEnvironment>([this](MafiaNet::RakNetGUID guid, Shared::RPC::SetEnvironment *environmentMsg) {
             if (!environmentMsg->Valid()) {
                 return;
             }
@@ -420,7 +420,7 @@ namespace MafiaMP::Core {
             if (environmentMsg->GetDayTimeHours().HasValue())
                 gfx->GetWeatherManager()->SetDayTimeHours(environmentMsg->GetDayTimeHours().Value());
         });
-        net->RegisterGameRPC<Framework::World::RPC::SetTransform>([this](SLNet::RakNetGUID guid, Framework::World::RPC::SetTransform *msg) {
+        net->RegisterGameRPC<Framework::World::RPC::SetTransform>([this](MafiaNet::RakNetGUID guid, Framework::World::RPC::SetTransform *msg) {
             if (!msg->Valid()) {
                 return;
             }

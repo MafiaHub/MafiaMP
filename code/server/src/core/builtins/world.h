@@ -56,7 +56,7 @@ namespace MafiaMP::Scripting {
 
             auto weather             = world->try_get_mut<Core::Modules::Environment::Weather>();
             weather->_weatherSetName = weatherSetName;
-            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, SLNet::RakString(weather->_weatherSetName.c_str()), {});
+            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, MafiaNet::RakString(weather->_weatherSetName.c_str()), {});
         }
 
         static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global) {

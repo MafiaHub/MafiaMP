@@ -52,10 +52,10 @@ namespace MafiaMP {
 
             // Broadcast the environment setup
             const auto weather = GetWorldEngine()->GetWorld()->try_get<Core::Modules::Environment::Weather>();
-            Framework::Utils::Optional<SLNet::RakString> weatherSet = weather->_weatherSetName.empty()
-                ? Framework::Utils::Optional<SLNet::RakString>{}
-                : Framework::Utils::Optional<SLNet::RakString>(SLNet::RakString(weather->_weatherSetName.c_str()));
-            FW_SEND_COMPONENT_RPC_TO(Shared::RPC::SetEnvironment, SLNet::RakNetGUID(guid), weatherSet, weather->_dayTimeHours);
+            Framework::Utils::Optional<MafiaNet::RakString> weatherSet = weather->_weatherSetName.empty()
+                ? Framework::Utils::Optional<MafiaNet::RakString>{}
+                : Framework::Utils::Optional<MafiaNet::RakString>(MafiaNet::RakString(weather->_weatherSetName.c_str()));
+            FW_SEND_COMPONENT_RPC_TO(Shared::RPC::SetEnvironment, MafiaNet::RakNetGUID(guid), weatherSet, weather->_dayTimeHours);
 
             Scripting::Player::EventPlayerConnected(player);
         });
@@ -100,7 +100,7 @@ namespace MafiaMP {
 
     void Server::InitRPCs() {
         const auto net = GetNetworkingEngine()->GetNetworkServer();
-        net->RegisterRPC<Shared::RPC::ChatMessage>([this](SLNet::RakNetGUID guid, Shared::RPC::ChatMessage *chatMessage) {
+        net->RegisterRPC<Shared::RPC::ChatMessage>([this](MafiaNet::RakNetGUID guid, Shared::RPC::ChatMessage *chatMessage) {
             if (!chatMessage->Valid())
                 return;
 
@@ -135,7 +135,7 @@ namespace MafiaMP {
         });
 
         // test until we do it via nodejs builtins
-        net->RegisterGameRPC<Shared::RPC::HumanChangeSkin>([this](SLNet::RakNetGUID guid, Shared::RPC::HumanChangeSkin *msg) {
+        net->RegisterGameRPC<Shared::RPC::HumanChangeSkin>([this](MafiaNet::RakNetGUID guid, Shared::RPC::HumanChangeSkin *msg) {
             if (!msg->Valid())
                 return;
 

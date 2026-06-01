@@ -15,7 +15,7 @@ namespace MafiaMP::Shared::RPC {
             this->seatIndex = props.seatIndex;
         }
 
-        void Serialize(SLNet::BitStream* bs, bool write) override {
+        void Serialize(MafiaNet::BitStream* bs, bool write) override {
             bs->Serialize(write, vehicleId);
             bs->Serialize(write, seatIndex);
         }
