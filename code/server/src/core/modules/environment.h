@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <flecs/flecs.h>
+#include <flecs/distr/flecs.h>
 
 namespace MafiaMP::Core::Modules {
     class Environment {

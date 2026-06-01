@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <flecs/flecs.h>
+#include <flecs/distr/flecs.h>
 #include <glm/glm.hpp>
 
 #include "shared/constants.h"

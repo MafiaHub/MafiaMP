@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <array>
 
-#include <flecs/flecs.h>
+#include <flecs/distr/flecs.h>
 #include <glm/glm.hpp>
 
 

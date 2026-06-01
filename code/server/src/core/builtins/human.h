@@ -22,7 +22,7 @@ namespace MafiaMP::Scripting {
     class Human: public Entity {
       public:
         Human(flecs::entity_t ent): Entity(ent) {
-            const auto humanData = _ent.get<Shared::Modules::HumanSync::UpdateData>();
+            const auto humanData = _ent.try_get<Shared::Modules::HumanSync::UpdateData>();
 
             if (!humanData) {
                 throw std::runtime_error(fmt::format("Entity handle '{}' is not a Human!", ent));

@@ -18,7 +18,7 @@
 
 #include <utils/safe_string.h>
 
-#include <flecs/flecs.h>
+#include <flecs/distr/flecs.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,17 +52,17 @@ namespace MafiaMP::Core::Modules {
         e.add<CarData>();
         e.add<Framework::World::Modules::Base::RemovedOnResourceReload>();
 
-        auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        auto es = e.try_get_mut<Framework::World::Modules::Base::Streamable>();
 
         es->assignOwnerProc = [](flecs::entity e, Framework::World::Modules::Base::Streamable &es) {
-            const auto carData = e.get<CarData>();
+            const auto carData = e.try_get<CarData>();
             for (const auto seat : carData->seats) {
                 if (seat) {
                     const auto playerEnt = flecs::entity(e.world(), seat);
                     if (!playerEnt.is_alive())
                         continue;
 
-                    const auto streamable = playerEnt.get<Framework::World::Modules::Base::Streamable>();
+                    const auto streamable = playerEnt.try_get<Framework::World::Modules::Base::Streamable>();
                     es.owner              = streamable->owner;
                     return true;
                 }
@@ -71,8 +71,8 @@ namespace MafiaMP::Core::Modules {
         };
 
         es->modEvents.spawnProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            const auto frame      = e.get<Framework::World::Modules::Base::Frame>();
-            auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            const auto frame      = e.try_get<Framework::World::Modules::Base::Frame>();
+            auto trackingMetadata = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
             Shared::Messages::Vehicle::VehicleSpawn vehicleSpawn;
             vehicleSpawn.FromParameters(frame->modelName.c_str(), *trackingMetadata);
             vehicleSpawn.SetServerID(e.id());
@@ -89,7 +89,7 @@ namespace MafiaMP::Core::Modules {
         };
 
         es->modEvents.updateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            auto trackingMetadata = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
             Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
             vehicleUpdate.SetServerID(e.id());
@@ -100,7 +100,7 @@ namespace MafiaMP::Core::Modules {
 
         // TODO: deprecate in favor of RPCs
         /*es->modEvents.ownerUpdateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            auto trackingMetadata = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            auto trackingMetadata = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
             Shared::Messages::Vehicle::VehicleOwnerUpdate vehicleUpdate {};
             vehicleUpdate.SetServerID(e.id());
@@ -122,7 +122,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            auto updateData = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
             *updateData     = msg->GetData();
         });
 

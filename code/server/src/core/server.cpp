@@ -51,7 +51,7 @@ namespace MafiaMP {
             Core::Modules::Human::Create(net, player);
 
             // Broadcast the environment setup
-            const auto weather = GetWorldEngine()->GetWorld()->get<Core::Modules::Environment::Weather>();
+            const auto weather = GetWorldEngine()->GetWorld()->try_get<Core::Modules::Environment::Weather>();
             Framework::Utils::Optional<SLNet::RakString> weatherSet = weather->_weatherSetName.empty()
                 ? Framework::Utils::Optional<SLNet::RakString>{}
                 : Framework::Utils::Optional<SLNet::RakString>(SLNet::RakString(weather->_weatherSetName.c_str()));
@@ -143,7 +143,7 @@ namespace MafiaMP {
             if (!ent.is_alive())
                 return;
 
-            auto frame       = ent.get_mut<Framework::World::Modules::Base::Frame>();
+            auto frame       = ent.try_get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelHash = msg->GetSpawnProfile();
             FW_SEND_SERVER_COMPONENT_GAME_RPC(Shared::RPC::HumanChangeSkin, ent, msg->GetSpawnProfile());
         });

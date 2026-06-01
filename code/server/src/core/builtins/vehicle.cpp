@@ -75,12 +75,12 @@ std::string Vehicle::ToString() const {
 }
 
 bool Vehicle::GetBeaconLightsOn() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->beaconLightsOn;
 }
 
 void Vehicle::SetBeaconLightsOn(bool on) {
-    auto vehData            = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData            = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
     vehData->beaconLightsOn = on;
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
     msg.beaconLightsOn = on;
@@ -88,12 +88,12 @@ void Vehicle::SetBeaconLightsOn(bool on) {
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetColorPrimary() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return Framework::Scripting::Builtins::Color(vehData->colorPrimary);
 }
 
 void Vehicle::SetColorPrimary(Framework::Scripting::Builtins::Color color) {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
     vehData->colorPrimary = color.vec();
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
@@ -102,12 +102,12 @@ void Vehicle::SetColorPrimary(Framework::Scripting::Builtins::Color color) {
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetColorSecondary() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return Framework::Scripting::Builtins::Color(vehData->colorSecondary);
 }
 
 void Vehicle::SetColorSecondary(Framework::Scripting::Builtins::Color color) {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
     vehData->colorSecondary = color.vec();
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
@@ -116,12 +116,12 @@ void Vehicle::SetColorSecondary(Framework::Scripting::Builtins::Color color) {
 }
 
 float Vehicle::GetDirt() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->dirt;
 }
 
 void Vehicle::SetDirt(float dirt) {
-    auto vehData  = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData  = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
     vehData->dirt = dirt;
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
     msg.dirt = dirt;
@@ -129,12 +129,12 @@ void Vehicle::SetDirt(float dirt) {
 }
 
 bool Vehicle::GetEngineOn() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->engineOn;
 }
 
 void Vehicle::SetEngineOn(bool on) {
-    auto vehData      = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData      = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
     vehData->engineOn = on;
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
     msg.engineOn = on;
@@ -142,12 +142,12 @@ void Vehicle::SetEngineOn(bool on) {
 }
 
 float Vehicle::GetFuel() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->fuel;
 }
 
 void Vehicle::SetFuel(float fuel) {
-    auto vehData  = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData  = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
     vehData->fuel = fuel;
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
     msg.fuel = fuel;
@@ -155,12 +155,12 @@ void Vehicle::SetFuel(float fuel) {
 }
 
 std::string Vehicle::GetLicensePlate() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->licensePlate;
 }
 
 void Vehicle::SetLicensePlate(std::string plate) {
-    auto vehData      = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData      = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
     size_t copyLength = std::min<size_t>(Shared::Constants::VEHICLE_LICENSE_PLATE_MAX_LENGTH - 1, plate.length());
     std::memcpy(vehData->licensePlate, plate.c_str(), copyLength);
     vehData->licensePlate[copyLength] = '\0';
@@ -171,7 +171,7 @@ void Vehicle::SetLicensePlate(std::string plate) {
 }
 
 int Vehicle::GetLockState() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return static_cast<int>(vehData->lockState);
 }
 
@@ -180,7 +180,7 @@ void Vehicle::SetLockState(int lockState) {
         Framework::Logging::GetLogger("Scripting")->warn("Invalid lockState value: {}", lockState);
         return;
     }
-    auto vehData       = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData       = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
     vehData->lockState = static_cast<Shared::Modules::VehicleSync::LockState>(lockState);
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
     msg.lockState = vehData->lockState;
@@ -188,12 +188,12 @@ void Vehicle::SetLockState(int lockState) {
 }
 
 bool Vehicle::GetRadioOn() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->radioOn;
 }
 
 void Vehicle::SetRadioOn(bool on) {
-    auto vehData     = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData     = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
     vehData->radioOn = on;
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
     msg.radioOn = on;
@@ -201,12 +201,12 @@ void Vehicle::SetRadioOn(bool on) {
 }
 
 int Vehicle::GetRadioStationId() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->radioStationId;
 }
 
 void Vehicle::SetRadioStationId(int id) {
-    auto vehData            = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData            = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
     vehData->radioStationId = id;
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
     msg.radioStationId = id;
@@ -214,12 +214,12 @@ void Vehicle::SetRadioStationId(int id) {
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetRimColor() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return Framework::Scripting::Builtins::Color(vehData->rimColor);
 }
 
 void Vehicle::SetRimColor(Framework::Scripting::Builtins::Color color) {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
     vehData->rimColor = color.vec();
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
@@ -228,12 +228,12 @@ void Vehicle::SetRimColor(Framework::Scripting::Builtins::Color color) {
 }
 
 float Vehicle::GetRust() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->rust;
 }
 
 void Vehicle::SetRust(float rust) {
-    auto vehData  = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData  = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
     vehData->rust = rust;
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
     msg.rust = rust;
@@ -241,12 +241,12 @@ void Vehicle::SetRust(float rust) {
 }
 
 bool Vehicle::GetSirenOn() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return vehData->sirenOn;
 }
 
 void Vehicle::SetSirenOn(bool on) {
-    auto vehData     = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData     = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
     vehData->sirenOn = on;
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
     msg.sirenOn = on;
@@ -254,12 +254,12 @@ void Vehicle::SetSirenOn(bool on) {
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetTireColor() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return Framework::Scripting::Builtins::Color(vehData->tireColor);
 }
 
 void Vehicle::SetTireColor(Framework::Scripting::Builtins::Color color) {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
     vehData->tireColor = color.vec();
     MafiaMP::Shared::RPC::VehicleSetProps msg {};
@@ -268,12 +268,12 @@ void Vehicle::SetTireColor(Framework::Scripting::Builtins::Color color) {
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetWindowTint() {
-    auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
     return Framework::Scripting::Builtins::Color(vehData->windowTint);
 }
 
 void Vehicle::SetWindowTint(Framework::Scripting::Builtins::Color color) {
-    auto vehData = _ent.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+    auto vehData = _ent.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
     vehData->windowTint = color.vec();
     MafiaMP::Shared::RPC::VehicleSetProps msg {};

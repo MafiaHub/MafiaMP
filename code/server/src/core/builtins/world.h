@@ -32,14 +32,14 @@ namespace MafiaMP::Scripting {
         static float GetDayTimeHours() {
             auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
-            auto weather = world->get_mut<Core::Modules::Environment::Weather>();
+            auto weather = world->try_get_mut<Core::Modules::Environment::Weather>();
             return weather->_dayTimeHours;
         }
 
         static void SetDayTimeHours(float dayTimeHours) {
             auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
-            auto weather           = world->get_mut<Core::Modules::Environment::Weather>();
+            auto weather           = world->try_get_mut<Core::Modules::Environment::Weather>();
             weather->_dayTimeHours = dayTimeHours;
             FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, {}, weather->_dayTimeHours);
         }
@@ -47,14 +47,14 @@ namespace MafiaMP::Scripting {
         static std::string GetWeatherSet() {
             auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
-            auto weather = world->get_mut<Core::Modules::Environment::Weather>();
+            auto weather = world->try_get_mut<Core::Modules::Environment::Weather>();
             return weather->_weatherSetName;
         }
 
         static void SetWeatherSet(std::string weatherSetName) {
             auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
 
-            auto weather             = world->get_mut<Core::Modules::Environment::Weather>();
+            auto weather             = world->try_get_mut<Core::Modules::Environment::Weather>();
             weather->_weatherSetName = weatherSetName;
             FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, SLNet::RakString(weather->_weatherSetName.c_str()), {});
         }

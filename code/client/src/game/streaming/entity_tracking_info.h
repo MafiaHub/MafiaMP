@@ -4,7 +4,7 @@
 
 #include <functional>
 
-#include <flecs/flecs.h>
+#include <flecs/distr/flecs.h>
 
 namespace MafiaMP::Game::Streaming {
     class EntityTrackingInfo {

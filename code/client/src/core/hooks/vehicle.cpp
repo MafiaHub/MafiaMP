@@ -33,7 +33,7 @@ bool C_CarActionEnter__TestActionInternal(void *pThis, SDK::C_Actor *actor, bool
         return true;
     }
 
-    const auto carData = vehicle.get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
+    const auto carData = vehicle.try_get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
     if (!carData) {
         return true;
     }
@@ -52,7 +52,7 @@ bool C_CarActionBreakIn__TestActionInternal(void *pThis, SDK::C_Actor *actor, bo
         return true;
     }
 
-    const auto carData = vehicle.get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
+    const auto carData = vehicle.try_get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
     if (!carData) {
         return true;
     }
@@ -71,7 +71,7 @@ bool C_CarActionLeave__TestAction(void *pThis, SDK::C_Actor *actor) {
         return true;
     }
 
-    const auto carData = vehicle.get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
+    const auto carData = vehicle.try_get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
     if (!carData) {
         return true;
     }
@@ -87,7 +87,7 @@ bool C_CarActionBailOut__TestAction(void *pThis, SDK::C_Actor *pActor) {
         return true;
     }
 
-    const auto carData = vehicle.get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
+    const auto carData = vehicle.try_get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
     if (!carData) {
         return true;
     }
@@ -101,7 +101,7 @@ bool C_CarActionOpenCloseX__TestAction(void *pThis, SDK::C_Actor *actor) {
         return true;
     }
 
-    const auto carData = vehicle.get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
+    const auto carData = vehicle.try_get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
     if (!carData) {
         return true;
     }

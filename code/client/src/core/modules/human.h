@@ -1,6 +1,6 @@
 #pragma once
 
-#include <flecs/flecs.h>
+#include <flecs/distr/flecs.h>
 
 #include "sdk/entities/c_player_2.h"
 

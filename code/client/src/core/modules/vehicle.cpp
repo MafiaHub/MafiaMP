@@ -111,7 +111,7 @@ namespace MafiaMP::Core::Modules {
         e.add<Shared::Modules::VehicleSync::UpdateData>();
 
         // Ensure we hook up vehicle events for special cases
-        auto streamable                      = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        auto streamable                      = e.try_get_mut<Framework::World::Modules::Base::Streamable>();
         streamable->modEvents.disconnectProc = [](flecs::entity e) {
             Remove(e);
         };
@@ -130,7 +130,7 @@ namespace MafiaMP::Core::Modules {
                 car->Unlock();
 
                 const auto ent                         = info->GetNetworkEntity();
-                const auto tr                          = ent.get<Framework::World::Modules::Base::Transform>();
+                const auto tr                          = ent.try_get<Framework::World::Modules::Base::Transform>();
                 SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
                 SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
                 SDK::ue::sys::math::C_Matrix transform = {};
@@ -139,16 +139,16 @@ namespace MafiaMP::Core::Modules {
                 transform.SetPos(newPos);
                 car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
 
-                const auto vehicleData = ent.get<Shared::Modules::VehicleSync::UpdateData>();
+                const auto vehicleData = ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
                 car->GetVehicle()->SetBrake(vehicleData->brake, true);
 
-                auto trackingData = ent.get_mut<Core::Modules::Vehicle::Tracking>();
+                auto trackingData = ent.try_get_mut<Core::Modules::Vehicle::Tracking>();
                 trackingData->car = car;
 
-                auto streamable                  = ent.get_mut<Framework::World::Modules::Base::Streamable>();
+                auto streamable                  = ent.try_get_mut<Framework::World::Modules::Base::Streamable>();
                 streamable->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                    const auto updateData = e.get<Shared::Modules::VehicleSync::UpdateData>();
-                    const auto serverID   = e.get<Framework::World::Modules::Base::ServerID>();
+                    const auto updateData = e.try_get<Shared::Modules::VehicleSync::UpdateData>();
+                    const auto serverID   = e.try_get<Framework::World::Modules::Base::ServerID>();
 
                     Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
                     vehicleUpdate.SetServerID(serverID->id);
@@ -180,14 +180,14 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Vehicle::Update(flecs::entity e) {
-        const auto trackingData = e.get<Core::Modules::Vehicle::Tracking>();
+        const auto trackingData = e.try_get<Core::Modules::Vehicle::Tracking>();
         if (!trackingData || !trackingData->car) {
             return;
         }
 
         // Update basic data
-        const auto tr = e.get<Framework::World::Modules::Base::Transform>();
-        auto interp   = e.get_mut<Interpolated>();
+        const auto tr = e.try_get<Framework::World::Modules::Base::Transform>();
+        auto interp   = e.try_get_mut<Interpolated>();
         if (interp) {
             const auto vehicleRot = trackingData->car->GetRot();
             const auto vehiclePos = trackingData->car->GetPos();
@@ -201,7 +201,7 @@ namespace MafiaMP::Core::Modules {
             trackingData->car->SetPos(newPos);
         }
 
-        auto updateData         = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+        auto updateData         = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
         SDK::C_Car *car         = trackingData->car;
         SDK::ue::game::vehicle::C_Vehicle *vehicle = car->GetVehicle();
 
@@ -246,7 +246,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Vehicle::Remove(flecs::entity e) {
-        auto trackingData = e.get_mut<Core::Modules::Vehicle::Tracking>();
+        auto trackingData = e.try_get_mut<Core::Modules::Vehicle::Tracking>();
         if (!trackingData) {
             return;
         }
@@ -267,7 +267,7 @@ namespace MafiaMP::Core::Modules {
             Create(e, msg->GetModelName());
 
             // Setup other components
-            auto vehicleData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            auto vehicleData = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
             *vehicleData     = msg->GetSpawnData();
         });
         net->RegisterMessage<Shared::Messages::Vehicle::VehicleDespawn>(Shared::Messages::ModMessages::MOD_VEHICLE_DESPAWN, [app](SLNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleDespawn *msg) {
@@ -284,7 +284,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            auto updateData = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
             *updateData     = msg->GetData();
             Update(e);
         });
@@ -309,7 +309,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto updateData = e.get_mut<Shared::Modules::VehicleSync::UpdateData>();
+            auto updateData = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
 
             const auto beaconLightsOn = msg->beaconLightsOn;
             const auto colorPrimary   = msg->colorPrimary;
@@ -393,14 +393,14 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Vehicle::UpdateTransform(flecs::entity e) {
-        const auto trackingData = e.get<Core::Modules::Vehicle::Tracking>();
+        const auto trackingData = e.try_get<Core::Modules::Vehicle::Tracking>();
         if (!trackingData || !trackingData->car) {
             return;
         }
 
         // Update basic data
-        const auto tr = e.get<Framework::World::Modules::Base::Transform>();
-        auto interp   = e.get_mut<Interpolated>();
+        const auto tr = e.try_get<Framework::World::Modules::Base::Transform>();
+        auto interp   = e.try_get_mut<Interpolated>();
         if (interp) {
             // TODO reset lerp
             const auto vehicleRot = trackingData->car->GetRot();

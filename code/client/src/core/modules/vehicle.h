@@ -1,6 +1,6 @@
 #pragma once
 
-#include <flecs/flecs.h>
+#include <flecs/distr/flecs.h>
 
 #include "game/streaming/entity_factory.h"
 #include "sdk/c_game.h"

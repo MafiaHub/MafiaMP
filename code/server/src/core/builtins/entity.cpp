@@ -21,7 +21,7 @@ Entity::Entity(flecs::entity_t ent) {
 }
 
 Framework::Scripting::Builtins::Vector3 Entity::GetPosition() const {
-    const auto tr = _ent.get<Framework::World::Modules::Base::Transform>();
+    const auto tr = _ent.try_get<Framework::World::Modules::Base::Transform>();
     if (tr) {
         return Framework::Scripting::Builtins::Vector3(tr->pos.x, tr->pos.y, tr->pos.z);
     }
@@ -29,7 +29,7 @@ Framework::Scripting::Builtins::Vector3 Entity::GetPosition() const {
 }
 
 void Entity::SetPosition(const Framework::Scripting::Builtins::Vector3 &pos) {
-    auto tr = _ent.get_mut<Framework::World::Modules::Base::Transform>();
+    auto tr = _ent.try_get_mut<Framework::World::Modules::Base::Transform>();
     if (tr) {
         tr->pos = pos.vec();
         tr->IncrementGeneration();
@@ -39,7 +39,7 @@ void Entity::SetPosition(const Framework::Scripting::Builtins::Vector3 &pos) {
 }
 
 Framework::Scripting::Builtins::Vector3 Entity::GetRotation() const {
-    const auto tr = _ent.get<Framework::World::Modules::Base::Transform>();
+    const auto tr = _ent.try_get<Framework::World::Modules::Base::Transform>();
     if (tr) {
         glm::vec3 euler = glm::eulerAngles(tr->rot);
         return Framework::Scripting::Builtins::Vector3(glm::degrees(euler.x), glm::degrees(euler.y), glm::degrees(euler.z));
@@ -48,7 +48,7 @@ Framework::Scripting::Builtins::Vector3 Entity::GetRotation() const {
 }
 
 void Entity::SetRotationFromEuler(const Framework::Scripting::Builtins::Vector3 &rot) {
-    auto tr = _ent.get_mut<Framework::World::Modules::Base::Transform>();
+    auto tr = _ent.try_get_mut<Framework::World::Modules::Base::Transform>();
     if (tr) {
         glm::vec3 radians(glm::radians(rot.vec().x), glm::radians(rot.vec().y), glm::radians(rot.vec().z));
         tr->rot = glm::quat(radians);
@@ -59,7 +59,7 @@ void Entity::SetRotationFromEuler(const Framework::Scripting::Builtins::Vector3 
 }
 
 void Entity::SetRotationFromQuaternion(const Framework::Scripting::Builtins::Quaternion &quat) {
-    auto tr = _ent.get_mut<Framework::World::Modules::Base::Transform>();
+    auto tr = _ent.try_get_mut<Framework::World::Modules::Base::Transform>();
     if (tr) {
         tr->rot = quat.quat();
         tr->IncrementGeneration();
@@ -69,7 +69,7 @@ void Entity::SetRotationFromQuaternion(const Framework::Scripting::Builtins::Qua
 }
 
 std::string Entity::GetModelName() const {
-    const auto frame = _ent.get<Framework::World::Modules::Base::Frame>();
+    const auto frame = _ent.try_get<Framework::World::Modules::Base::Frame>();
     if (frame) {
         return frame->modelName;
     }

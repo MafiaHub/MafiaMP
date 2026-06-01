@@ -22,13 +22,13 @@ std::string Human::ToString() const {
 }
 
 bool Human::IsAiming() const {
-    const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+    const auto h = _ent.try_get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
     if (!h) return false;
     return h->weaponData.isAiming;
 }
 
 bool Human::IsFiring() const {
-    const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+    const auto h = _ent.try_get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
     if (!h) return false;
     return h->weaponData.isFiring;
 }
@@ -38,27 +38,27 @@ void Human::AddWeapon(int weaponId, int ammo) {
 }
 
 Framework::Scripting::Builtins::Vector3 Human::GetAimDir() const {
-    const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+    const auto h = _ent.try_get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
     if (!h) return Framework::Scripting::Builtins::Vector3(0, 0, 0);
     const auto dir = h->weaponData.aimDir;
     return Framework::Scripting::Builtins::Vector3(dir.x, dir.y, dir.z);
 }
 
 Framework::Scripting::Builtins::Vector3 Human::GetAimPos() const {
-    const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+    const auto h = _ent.try_get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
     if (!h) return Framework::Scripting::Builtins::Vector3(0, 0, 0);
     const auto pos = h->weaponData.aimPos;
     return Framework::Scripting::Builtins::Vector3(pos.x, pos.y, pos.z);
 }
 
 float Human::GetHealth() const {
-    const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+    const auto h = _ent.try_get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
     if (!h) return 0.0f;
     return h->_healthPercent;
 }
 
 void Human::SetHealth(float health) {
-    auto h            = _ent.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+    auto h            = _ent.try_get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
     h->_healthPercent = health;
     MafiaMP::Shared::RPC::HumanSetProps msg {};
     msg.health = health;
@@ -66,13 +66,13 @@ void Human::SetHealth(float health) {
 }
 
 uint16_t Human::GetWeaponId() const {
-    const auto h = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+    const auto h = _ent.try_get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
     if (!h) return 0;
     return h->weaponData.currentWeaponId;
 }
 
 std::string Human::GetNickname() const {
-    const auto streamer = _ent.get<Framework::World::Modules::Base::Streamer>();
+    const auto streamer = _ent.try_get<Framework::World::Modules::Base::Streamer>();
     if (streamer) {
         return streamer->nickname;
     }
@@ -80,7 +80,7 @@ std::string Human::GetNickname() const {
 }
 
 v8::Local<v8::Value> Human::GetVehicle(v8::Isolate *isolate) const {
-    const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+    const auto updateData = _ent.try_get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
     if (!updateData) return v8::Undefined(isolate);
     const auto carEnt = flecs::entity(_ent.world(), updateData->carPassenger.carId);
     if (carEnt.is_valid() && carEnt.is_alive()) {
@@ -91,7 +91,7 @@ v8::Local<v8::Value> Human::GetVehicle(v8::Isolate *isolate) const {
 }
 
 uint64_t Human::GetVehicleId() const {
-    const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+    const auto updateData = _ent.try_get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
     if (!updateData) return 0;
     const auto carEnt = flecs::entity(_ent.world(), updateData->carPassenger.carId);
     if (carEnt.is_valid() && carEnt.is_alive()) {
@@ -101,7 +101,7 @@ uint64_t Human::GetVehicleId() const {
 }
 
 int Human::GetVehicleSeatIndex() const {
-    const auto updateData = _ent.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+    const auto updateData = _ent.try_get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
     if (!updateData) return -1;
     const auto carEnt = flecs::entity(_ent.world(), updateData->carPassenger.carId);
     if (carEnt.is_valid() && carEnt.is_alive()) {

@@ -385,7 +385,7 @@ namespace MafiaMP::Core {
             return 0;
         }
 
-        const auto sid = _localPlayer.get<Framework::World::Modules::Base::ServerID>();
+        const auto sid = _localPlayer.try_get<Framework::World::Modules::Base::ServerID>();
         return sid->id;
     }
 
@@ -394,7 +394,7 @@ namespace MafiaMP::Core {
             return 0;
         }
 
-        const auto str = _localPlayer.get<Framework::World::Modules::Base::Streamable>();
+        const auto str = _localPlayer.try_get<Framework::World::Modules::Base::Streamable>();
         return str->owner;
     }
 

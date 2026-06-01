@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/server.h"
-#include <flecs/flecs.h>
+#include <flecs/distr/flecs.h>
 
 namespace MafiaMP::Core::Modules {
     class Human {

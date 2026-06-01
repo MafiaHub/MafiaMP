@@ -99,7 +99,7 @@ namespace MafiaMP::Scripting {
         static void SendToPlayer(Player *player, std::string message) {
             if (player) {
                 const auto ent      = player->GetHandle();
-                const auto streamer = ent.get<Framework::World::Modules::Base::Streamer>();
+                const auto streamer = ent.try_get<Framework::World::Modules::Base::Streamer>();
 
                 if (!streamer) {
                     return;

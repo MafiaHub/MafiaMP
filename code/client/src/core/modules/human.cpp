@@ -2,7 +2,7 @@
 
 #include "human.h"
 
-#include <flecs/flecs.h>
+#include <flecs/distr/flecs.h>
 #include <glm/glm.hpp>
 #include <imgui/imgui.h>
 
@@ -125,14 +125,14 @@ namespace MafiaMP::Core::Modules {
             });
 
         world.system<Tracking, Interpolated>("UpdateRemoteHuman").each([](flecs::entity e, Tracking &tracking, Interpolated &interpolated) {
-            if (tracking.human && e.get<LocalPlayer>() == nullptr) {
-                auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
-                auto humanData  = e.get_mut<HumanData>();
+            if (tracking.human && e.try_get<LocalPlayer>() == nullptr) {
+                auto updateData = e.try_get_mut<Shared::Modules::HumanSync::UpdateData>();
+                auto humanData  = e.try_get_mut<HumanData>();
                 if (tracking.charController->GetCurrentStateHandlerType() != SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
                     if (humanData->carPassenger.enterState == STATE_ENTERING) {
                         const auto carEnt = Core::gApplication->GetWorldEngine()->GetEntityByServerID(updateData->carPassenger.carId);
                         if (carEnt.is_valid()) {
-                            const auto carTracking = carEnt.get<Core::Modules::Vehicle::Tracking>();
+                            const auto carTracking = carEnt.try_get<Core::Modules::Vehicle::Tracking>();
                             if (carTracking) {
                                 if (Game::Helpers::Human::PutIntoCar(tracking.charController, carTracking->car, updateData->carPassenger.seatId, humanData->carPassenger.enterForced)) {
                                     humanData->carPassenger.enterState  = STATE_INSIDE;
@@ -203,7 +203,7 @@ namespace MafiaMP::Core::Modules {
         e.add<Shared::Modules::HumanSync::UpdateData>();
 
         // Ensure we hook up remote human events for special cases
-        auto streamable = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        auto streamable = e.try_get_mut<Framework::World::Modules::Base::Streamable>();
         streamable->modEvents.disconnectProc = [](flecs::entity e) {
             Remove(e);
         };
@@ -222,7 +222,7 @@ namespace MafiaMP::Core::Modules {
                 human->Activate();
 
                 const auto ent                         = info->GetNetworkEntity();
-                const auto tr                          = ent.get<Framework::World::Modules::Base::Transform>();
+                const auto tr                          = ent.try_get<Framework::World::Modules::Base::Transform>();
                 SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
                 SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
                 SDK::ue::sys::math::C_Matrix transform = {};
@@ -231,7 +231,7 @@ namespace MafiaMP::Core::Modules {
                 transform.SetPos(newPos);
                 human->SetTransform(transform);
 
-                auto trackingData            = ent.get_mut<Core::Modules::Human::Tracking>();
+                auto trackingData            = ent.try_get_mut<Core::Modules::Human::Tracking>();
                 trackingData->human          = human;
                 trackingData->charController = reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(human->GetCharacterController());
                 assert(MafiaMP::Game::Overrides::CharacterController::IsInstanceOfClass(trackingData->charController));
@@ -273,9 +273,9 @@ namespace MafiaMP::Core::Modules {
         e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_PLAYER});
         e.add<Framework::World::Modules::Base::Frame>();
 
-        auto es                  = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        auto es                  = e.try_get_mut<Framework::World::Modules::Base::Streamable>();
         es->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
+            const auto updateData = e.try_get<Shared::Modules::HumanSync::UpdateData>();
 
             Shared::Messages::Human::HumanUpdate humanUpdate {};
             humanUpdate.SetServerID(Framework::World::ClientEngine::GetServerID(e));
@@ -289,7 +289,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::Update(flecs::entity e) {
-        const auto trackingData = e.get<Core::Modules::Human::Tracking>();
+        const auto trackingData = e.try_get<Core::Modules::Human::Tracking>();
         if (!trackingData || !trackingData->human) {
             return;
         }
@@ -302,8 +302,8 @@ namespace MafiaMP::Core::Modules {
         trackingData->human->GetHumanScript()->SetDemigod(true);
         trackingData->human->GetHumanScript()->SetInvulnerabilityByScript(true);
 
-        auto updateData                    = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
-        auto humanData                     = e.get_mut<HumanData>();
+        auto updateData                    = e.try_get_mut<Shared::Modules::HumanSync::UpdateData>();
+        auto humanData                     = e.try_get_mut<HumanData>();
         const auto desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(updateData->_charStateHandlerType);
 
         // exit vehicle if we're no longer a passenger
@@ -329,9 +329,9 @@ namespace MafiaMP::Core::Modules {
         }
 
         // Update basic data
-        const auto tr = e.get<Framework::World::Modules::Base::Transform>();
-        if (e.get<Interpolated>()) {
-            auto interp         = e.get_mut<Interpolated>();
+        const auto tr = e.try_get<Framework::World::Modules::Base::Transform>();
+        if (e.try_get<Interpolated>()) {
+            auto interp         = e.try_get_mut<Interpolated>();
             const auto humanPos = trackingData->human->GetPos();
             const auto humanRot = trackingData->human->GetRot();
             interp->interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
@@ -382,8 +382,8 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::Remove(flecs::entity e) {
-        auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
-        if (!trackingData || e.get<LocalPlayer>() != nullptr) {
+        auto trackingData = e.try_get_mut<Core::Modules::Human::Tracking>();
+        if (!trackingData || e.try_get<LocalPlayer>() != nullptr) {
             return;
         }
 
@@ -403,8 +403,8 @@ namespace MafiaMP::Core::Modules {
             Create(e, msg->GetSpawnProfile());
 
             // Setup other components
-            auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
-            auto humanData  = e.get_mut<HumanData>();
+            auto updateData = e.try_get_mut<Shared::Modules::HumanSync::UpdateData>();
+            auto humanData  = e.try_get_mut<HumanData>();
 
             humanData->nickname    = msg->GetNickname();
             humanData->playerIndex = msg->GetPlayerIndex();
@@ -420,7 +420,7 @@ namespace MafiaMP::Core::Modules {
             // set up client updates (NPC streaming)
             // TODO disabled for now, we don't really need to stream NPCs atm
 #if 0
-                const auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
+                const auto es = e.try_get_mut<Framework::World::Modules::Base::Streamable>();
                 es->modEvents.clientUpdateProc = [&](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
                     Shared::Messages::Human::HumanClientUpdate humanUpdate;
                     humanUpdate.FromParameters(e.id());
@@ -444,7 +444,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto updateData = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+            auto updateData = e.try_get_mut<Shared::Modules::HumanSync::UpdateData>();
             *updateData     = msg->GetData();
 
             Update(e);
@@ -455,12 +455,12 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            auto trackingData = e.try_get_mut<Core::Modules::Human::Tracking>();
             if (!trackingData) {
                 return;
             }
 
-            auto frame       = e.get_mut<Framework::World::Modules::Base::Frame>();
+            auto frame       = e.try_get_mut<Framework::World::Modules::Base::Frame>();
             frame->modelHash = msg->GetSpawnProfile();
 
             // update actor data
@@ -478,7 +478,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            auto trackingData = e.try_get_mut<Core::Modules::Human::Tracking>();
             if (!trackingData) {
                 return;
             }
@@ -499,7 +499,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            auto trackingData = e.try_get_mut<Core::Modules::Human::Tracking>();
             if (!trackingData) {
                 return;
             }
@@ -520,7 +520,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            auto trackingData = e.try_get_mut<Core::Modules::Human::Tracking>();
             if (!trackingData) {
                 return;
             }
@@ -542,7 +542,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            auto trackingData = e.try_get_mut<Core::Modules::Human::Tracking>();
             if (trackingData && !trackingData->human) {
                 return;
             }
@@ -563,7 +563,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto trackingData = e.get_mut<Core::Modules::Human::Tracking>();
+            auto trackingData = e.try_get_mut<Core::Modules::Human::Tracking>();
             if (trackingData && !trackingData->human) {
                 return;
             }
@@ -573,15 +573,15 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::UpdateTransform(flecs::entity e) {
-        const auto trackingData = e.get<Core::Modules::Human::Tracking>();
+        const auto trackingData = e.try_get<Core::Modules::Human::Tracking>();
         if (!trackingData || !trackingData->human) {
             return;
         }
 
         // Update basic data
-        const auto tr = e.get<Framework::World::Modules::Base::Transform>();
-        if (e.get<Interpolated>()) {
-            auto interp = e.get_mut<Interpolated>();
+        const auto tr = e.try_get<Framework::World::Modules::Base::Transform>();
+        if (e.try_get<Interpolated>()) {
+            auto interp = e.try_get_mut<Interpolated>();
             // todo reset lerp
             const auto humanRot = trackingData->human->GetRot();
             const auto humanPos = trackingData->human->GetPos();

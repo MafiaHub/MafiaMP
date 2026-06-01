@@ -25,7 +25,7 @@
 
 #include <logging/logger.h>
 
-#include <flecs/flecs.h>
+#include <flecs/distr/flecs.h>
 
 #include <core/modules/human.h>
 
@@ -49,12 +49,12 @@ bool C_HumanWeaponController__SetAiming(SDK::C_HumanWeaponController *_this, boo
     auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
     if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
         if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
-            auto updateData                 = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            auto updateData                 = localPlayer.try_get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
             updateData->weaponData.isAiming = aiming;
         }
     }
     else if (const auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
-        const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+        const auto updateData = remoteHuman.try_get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         aiming                = updateData->weaponData.isAiming;
         Framework::Logging::GetLogger("Hooks")->info("Remote ped aiming {}", aiming);
     }
@@ -68,12 +68,12 @@ bool C_HumanWeaponController__SetFirePressedFlag(SDK::C_HumanWeaponController *_
     auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
     if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
         if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
-            auto updateData                 = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            auto updateData                 = localPlayer.try_get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
             updateData->weaponData.isFiring = firePressed;
         }
     }
     else if (const auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
-        const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+        const auto updateData = remoteHuman.try_get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         firePressed           = updateData->weaponData.isFiring;
     }
 
@@ -88,14 +88,14 @@ void C_HumanWeaponController__GetShotPosDir(SDK::C_HumanWeaponController *_this,
     if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
         if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
             C_HumanWeaponController__GetShotPosDir_Original(_this, pos, dir, distance);
-            auto updateData               = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            auto updateData               = localPlayer.try_get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
             updateData->weaponData.aimPos = {pos.x, pos.y, pos.z};
             updateData->weaponData.aimDir = {dir.x, dir.y, dir.z};
         }
     }
     else if (auto remoteHuman = FindHumanByHumanWeaponController(_this)) {
         // But if it's the remote ped, we don't want to grab game info and we just set pointers to broadcasted data
-        const auto updateData = remoteHuman.get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+        const auto updateData = remoteHuman.try_get<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
         pos                   = {updateData->weaponData.aimPos.x, updateData->weaponData.aimPos.y, updateData->weaponData.aimPos.z};
         dir                   = {updateData->weaponData.aimDir.x, updateData->weaponData.aimDir.y, updateData->weaponData.aimDir.z};
     }
@@ -107,7 +107,7 @@ bool C_HumanWeaponController__DoWeaponSelectByItemId(SDK::C_HumanWeaponControlle
     auto gameLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
     if (gameLocalPlayer && gameLocalPlayer->GetHumanWeaponController() == _this) {
         if (const auto localPlayer = MafiaMP::Core::gApplication->GetLocalPlayer()) {
-            auto updateData                        = localPlayer.get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
+            auto updateData                        = localPlayer.try_get_mut<MafiaMP::Shared::Modules::HumanSync::UpdateData>();
             updateData->weaponData.currentWeaponId = uint16_t(itemId);
         }
     }

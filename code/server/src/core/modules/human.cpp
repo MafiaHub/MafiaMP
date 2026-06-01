@@ -15,7 +15,7 @@
 #include "shared/game_rpc/human/human_reload.h"
 #include "shared/game_rpc/human/human_shoot.h"
 
-#include <flecs/flecs.h>
+#include <flecs/distr/flecs.h>
 
 namespace MafiaMP::Core::Modules {
     Human::Human(flecs::world &world) {
@@ -29,15 +29,15 @@ namespace MafiaMP::Core::Modules {
         e.add<Shared::Modules::HumanSync::UpdateData>();
         e.add<Framework::World::Modules::Base::RemovedOnResourceReload>();
 
-        auto er                            = e.get_mut<Framework::World::Modules::Base::Streamer>();
+        auto er                            = e.try_get_mut<Framework::World::Modules::Base::Streamer>();
         er->collectRangeExemptEntitiesProc = [](flecs::entity e, Framework::World::Modules::Base::Streamer &streamer) {
-            const auto updateData = e.get<Shared::Modules::HumanSync::UpdateData>();
+            const auto updateData = e.try_get<Shared::Modules::HumanSync::UpdateData>();
 
             auto carEnt = Framework::CoreModules::GetWorldEngine()->WrapEntity(updateData->carPassenger.carId);
             if (carEnt.is_valid() && carEnt.is_alive()) {
                 streamer.rangeExemptEntities.insert(carEnt.id());
 
-                const auto carData = carEnt.get<Modules::Vehicle::CarData>();
+                const auto carData = carEnt.try_get<Modules::Vehicle::CarData>();
                 if (carData) {
                     for (int i = 0; i < 4 /* TODO: use MAX_SEATS constexpr var */; ++i) {
                         if (e.id() != carData->seats[i])
@@ -47,16 +47,16 @@ namespace MafiaMP::Core::Modules {
             }
         };
 
-        auto es = e.get_mut<Framework::World::Modules::Base::Streamable>();
+        auto es = e.try_get_mut<Framework::World::Modules::Base::Streamable>();
 
         es->modEvents.spawnProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            const auto frame = e.get<Framework::World::Modules::Base::Frame>();
-            const auto s     = e.get<Framework::World::Modules::Base::Streamer>();
+            const auto frame = e.try_get<Framework::World::Modules::Base::Frame>();
+            const auto s     = e.try_get<Framework::World::Modules::Base::Streamer>();
             Shared::Messages::Human::HumanSpawn humanSpawn;
             humanSpawn.FromParameters(frame->modelHash, s->nickname, s->playerIndex);
             humanSpawn.SetServerID(e.id());
 
-            const auto trackingMetadata = e.get<Shared::Modules::HumanSync::UpdateData>();
+            const auto trackingMetadata = e.try_get<Shared::Modules::HumanSync::UpdateData>();
             humanSpawn.SetCarPassenger(trackingMetadata->carPassenger.carId, trackingMetadata->carPassenger.seatId);
 
             net->Send(humanSpawn, guid);
@@ -79,8 +79,8 @@ namespace MafiaMP::Core::Modules {
         };
 
         es->modEvents.updateProc = [net](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-            const auto trackingMetadata = e.get<Shared::Modules::HumanSync::UpdateData>();
-            // const auto frame            = e.get<Framework::World::Modules::Base::Frame>();
+            const auto trackingMetadata = e.try_get<Shared::Modules::HumanSync::UpdateData>();
+            // const auto frame            = e.try_get<Framework::World::Modules::Base::Frame>();
 
             Shared::Messages::Human::HumanUpdate humanUpdate {};
             humanUpdate.SetServerID(e.id());
@@ -100,7 +100,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
 
-            auto trackingMetadata    = e.get_mut<Shared::Modules::HumanSync::UpdateData>();
+            auto trackingMetadata    = e.try_get_mut<Shared::Modules::HumanSync::UpdateData>();
             const auto newData       = msg->GetData();
             const auto &carPassenger = newData.carPassenger;
 
@@ -110,7 +110,7 @@ namespace MafiaMP::Core::Modules {
                     const auto carEnt = srv->WrapEntity(trackingMetadata->carPassenger.carId);
 
                     if (carEnt.is_alive()) {
-                        auto car                                          = carEnt.get_mut<Modules::Vehicle::CarData>();
+                        auto car                                          = carEnt.try_get_mut<Modules::Vehicle::CarData>();
                         car->seats[trackingMetadata->carPassenger.seatId] = 0;
                     }
                 }
@@ -118,7 +118,7 @@ namespace MafiaMP::Core::Modules {
                     const auto carEnt = srv->WrapEntity(carPassenger.carId);
 
                     if (carEnt.is_alive()) {
-                        auto car                        = carEnt.get_mut<Modules::Vehicle::CarData>();
+                        auto car                        = carEnt.try_get_mut<Modules::Vehicle::CarData>();
                         car->seats[carPassenger.seatId] = e.id();
 
                         // TODO rework so that we can ensure player doesn't sit in fully occupied vehicle etc

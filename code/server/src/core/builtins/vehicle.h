@@ -18,7 +18,7 @@ namespace MafiaMP::Scripting {
     class Vehicle final: public Entity {
       public:
         Vehicle(flecs::entity_t ent): Entity(ent) {
-            const auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+            const auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
 
             if (!vehData) {
                 throw std::runtime_error(fmt::format("Entity handle '{}' is not a Vehicle!", ent));
