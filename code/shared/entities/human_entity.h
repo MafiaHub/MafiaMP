@@ -13,8 +13,9 @@ namespace MafiaMP::Shared::Entities {
     namespace Replication = Framework::Networking::Replication;
 
     // A replicated human (player avatar or NPC). The base modelHash carries the spawn profile (skin)
-    // used by the client to request the game ped; nickname/playerIndex are spawn-time metadata, and
-    // HumanSync::UpdateData carries the per-tick animation/weapon/seating state.
+    // used by the client to request the game ped and re-applied when it changes; nickname/playerIndex
+    // are spawn-time metadata, and HumanSync::UpdateData carries the per-tick animation/weapon/health/
+    // seating state. All of it syncs through the DeltaSerializer — there are no per-property RPCs.
     class HumanEntity final : public Replication::NetworkEntity {
       public:
         static constexpr const char *kTypeName = "MafiaMP::Human";
@@ -43,10 +44,12 @@ namespace MafiaMP::Shared::Entities {
         }
 
         void SerializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::SerializationContext *ctx) override {
+            vds->SerializeVariable(ctx, modelHash); // skin; re-applied by the client when it changes
             vds->SerializeVariable(ctx, data);
         }
 
         void DeserializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::DeserializationContext *ctx) override {
+            vds->DeserializeVariable(ctx, modelHash);
             vds->DeserializeVariable(ctx, data);
         }
     };
