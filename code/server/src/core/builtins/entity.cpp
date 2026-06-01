@@ -114,50 +114,53 @@ v8pp::class_<Entity> &Entity::GetClass(v8::Isolate *isolate) {
         });
 
     // Property: position (Vector3)
-    protoTemplate->SetNativeDataProperty(
-        v8pp::to_v8(isolate, "position").As<v8::Name>(),
-        [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+    // NOTE: must be a real accessor property (SetAccessorProperty). SetNativeDataProperty
+    // on a prototype behaves like a data property in modern V8, so assignment writes an
+    // own shadowing property on the instance and never invokes the setter.
+    {
+        auto positionGetter = v8::FunctionTemplate::New(isolate, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
             auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
             if (self) {
                 auto pos = self->GetPosition();
                 auto &vecCls = Framework::Scripting::Builtins::Vector3::GetClass(info.GetIsolate());
                 info.GetReturnValue().Set(vecCls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Vector3(pos)));
             }
-        },
-        [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+        });
+        auto positionSetter = v8::FunctionTemplate::New(isolate, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
             auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
-            if (!self) return;
+            if (!self || info.Length() < 1) return;
 
-            auto *vec = v8pp::class_<Framework::Scripting::Builtins::Vector3>::unwrap_object(info.GetIsolate(), value);
+            auto *vec = v8pp::class_<Framework::Scripting::Builtins::Vector3>::unwrap_object(info.GetIsolate(), info[0]);
             if (vec) {
                 self->SetPosition(*vec);
             }
         });
+        protoTemplate->SetAccessorProperty(v8pp::to_v8(isolate, "position").As<v8::Name>(), positionGetter, positionSetter);
+    }
 
     // Property: rotation (accepts both Vector3 euler degrees and Quaternion)
-    protoTemplate->SetNativeDataProperty(
-        v8pp::to_v8(isolate, "rotation").As<v8::Name>(),
-        [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+    {
+        auto rotationGetter = v8::FunctionTemplate::New(isolate, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
             auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
             if (self) {
                 auto rot = self->GetRotation();
                 auto &vecCls = Framework::Scripting::Builtins::Vector3::GetClass(info.GetIsolate());
                 info.GetReturnValue().Set(vecCls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Vector3(rot)));
             }
-        },
-        [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+        });
+        auto rotationSetter = v8::FunctionTemplate::New(isolate, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
             auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
-            if (!self) return;
+            if (!self || info.Length() < 1) return;
 
             // Try to unwrap as Vector3 first (euler angles in degrees)
-            auto *vec = v8pp::class_<Framework::Scripting::Builtins::Vector3>::unwrap_object(info.GetIsolate(), value);
+            auto *vec = v8pp::class_<Framework::Scripting::Builtins::Vector3>::unwrap_object(info.GetIsolate(), info[0]);
             if (vec) {
                 self->SetRotationFromEuler(*vec);
                 return;
             }
 
             // Try to unwrap as Quaternion
-            auto *quat = v8pp::class_<Framework::Scripting::Builtins::Quaternion>::unwrap_object(info.GetIsolate(), value);
+            auto *quat = v8pp::class_<Framework::Scripting::Builtins::Quaternion>::unwrap_object(info.GetIsolate(), info[0]);
             if (quat) {
                 self->SetRotationFromQuaternion(*quat);
                 return;
@@ -167,6 +170,8 @@ v8pp::class_<Entity> &Entity::GetClass(v8::Isolate *isolate) {
             info.GetIsolate()->ThrowException(v8::Exception::TypeError(
                 v8pp::to_v8(info.GetIsolate(), "rotation must be a Vector3 (euler degrees) or Quaternion")));
         });
+        protoTemplate->SetAccessorProperty(v8pp::to_v8(isolate, "rotation").As<v8::Name>(), rotationGetter, rotationSetter);
+    }
 
     return *cls;
 }

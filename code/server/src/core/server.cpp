@@ -4,7 +4,6 @@
 #include "shared/modules/vehicle_sync.hpp"
 
 #include "core/builtins/builtins.h"
-#include "core/builtins/events_reserved.h"
 
 #include "modules/environment.h"
 #include "modules/human.h"
@@ -74,12 +73,6 @@ namespace MafiaMP {
         auto *nodeEngine = dynamic_cast<Framework::Scripting::NodeEngine *>(engine);
         if (!nodeEngine) {
             return;
-        }
-
-        // Register MafiaMP-specific reserved events
-        auto scriptingModule = GetScriptingModule();
-        if (scriptingModule && scriptingModule->GetResourceManager()) {
-            scriptingModule->GetResourceManager()->GetEvents().AddReservedEvents(MafiaMP::Scripting::RESERVED_EVENTS);
         }
 
         v8::Isolate *isolate = nodeEngine->GetIsolate();
