@@ -1,84 +1,70 @@
 #include "entity.h"
 
 #include <core_modules.h>
-#include <networking/network_server.h>
 #include <world/engine.h>
-#include <world/server.h>
-#include <world/game_rpc/set_transform.h>
 
 #include <fmt/format.h>
 #include <glm/gtc/quaternion.hpp>
 
 namespace MafiaMP::Scripting {
 
-std::unordered_map<v8::Isolate*, std::unique_ptr<v8pp::class_<Entity>>> Entity::_classes;
+std::unordered_map<v8::Isolate *, std::unique_ptr<v8pp::class_<Entity>>> Entity::_classes;
 
-Entity::Entity(flecs::entity_t ent) {
-    _ent = flecs::entity(Framework::CoreModules::GetWorldEngine()->GetWorld()->get_world(), ent);
-    if (!_ent.is_valid() || !_ent.is_alive()) {
-        throw std::runtime_error(fmt::format("Entity handle '{}' is not valid!", ent));
+Entity::Entity(uint64_t networkId): _id(networkId) {
+    if (!Resolve()) {
+        throw std::runtime_error(fmt::format("Entity handle '{}' is not valid!", networkId));
     }
 }
 
+Replication::NetworkEntity *Entity::Resolve() const {
+    auto *world = Framework::CoreModules::GetWorldEngine();
+    return world ? world->GetEntityByNetworkID(_id) : nullptr;
+}
+
 Framework::Scripting::Builtins::Vector3 Entity::GetPosition() const {
-    const auto tr = _ent.try_get<Framework::World::Modules::Base::Transform>();
-    if (tr) {
-        return Framework::Scripting::Builtins::Vector3(tr->pos.x, tr->pos.y, tr->pos.z);
+    if (auto *e = Resolve()) {
+        return Framework::Scripting::Builtins::Vector3(e->position.x, e->position.y, e->position.z);
     }
     return Framework::Scripting::Builtins::Vector3(0, 0, 0);
 }
 
 void Entity::SetPosition(const Framework::Scripting::Builtins::Vector3 &pos) {
-    auto tr = _ent.try_get_mut<Framework::World::Modules::Base::Transform>();
-    if (tr) {
-        tr->pos = pos.vec();
-        tr->IncrementGeneration();
-        Framework::CoreModules::GetWorldEngine()->WakeEntity(_ent);
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Framework::World::RPC::SetTransform, _ent, *tr);
+    if (auto *e = Resolve()) {
+        e->position = pos.vec();
     }
 }
 
 Framework::Scripting::Builtins::Vector3 Entity::GetRotation() const {
-    const auto tr = _ent.try_get<Framework::World::Modules::Base::Transform>();
-    if (tr) {
-        glm::vec3 euler = glm::eulerAngles(tr->rot);
+    if (auto *e = Resolve()) {
+        glm::vec3 euler = glm::eulerAngles(e->rotation);
         return Framework::Scripting::Builtins::Vector3(glm::degrees(euler.x), glm::degrees(euler.y), glm::degrees(euler.z));
     }
     return Framework::Scripting::Builtins::Vector3(0, 0, 0);
 }
 
 void Entity::SetRotationFromEuler(const Framework::Scripting::Builtins::Vector3 &rot) {
-    auto tr = _ent.try_get_mut<Framework::World::Modules::Base::Transform>();
-    if (tr) {
+    if (auto *e = Resolve()) {
         glm::vec3 radians(glm::radians(rot.vec().x), glm::radians(rot.vec().y), glm::radians(rot.vec().z));
-        tr->rot = glm::quat(radians);
-        tr->IncrementGeneration();
-        Framework::CoreModules::GetWorldEngine()->WakeEntity(_ent);
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Framework::World::RPC::SetTransform, _ent, *tr);
+        e->rotation = glm::quat(radians);
     }
 }
 
 void Entity::SetRotationFromQuaternion(const Framework::Scripting::Builtins::Quaternion &quat) {
-    auto tr = _ent.try_get_mut<Framework::World::Modules::Base::Transform>();
-    if (tr) {
-        tr->rot = quat.quat();
-        tr->IncrementGeneration();
-        Framework::CoreModules::GetWorldEngine()->WakeEntity(_ent);
-        FW_SEND_SERVER_COMPONENT_GAME_RPC(Framework::World::RPC::SetTransform, _ent, *tr);
+    if (auto *e = Resolve()) {
+        e->rotation = quat.quat();
     }
 }
 
 std::string Entity::GetModelName() const {
-    const auto frame = _ent.try_get<Framework::World::Modules::Base::Frame>();
-    if (frame) {
-        return frame->modelName;
+    if (auto *e = Resolve()) {
+        return e->modelName;
     }
     return "";
 }
 
 std::string Entity::ToString() const {
     std::ostringstream ss;
-    ss << "Entity{ id: " << _ent.id() << " }";
+    ss << "Entity{ id: " << _id << " }";
     return ss.str();
 }
 
@@ -91,10 +77,9 @@ v8pp::class_<Entity> &Entity::GetClass(v8::Isolate *isolate) {
     auto &cls = _classes[isolate];
     cls = std::make_unique<v8pp::class_<Entity>>(isolate);
     cls->auto_wrap_objects(true);
-    cls->ctor<flecs::entity_t>()
+    cls->ctor<uint64_t>()
         .function("toString", &Entity::ToString);
 
-    // Add properties using SetAccessor for JS-native property access
     auto protoTemplate = cls->class_function_template()->PrototypeTemplate();
 
     // Read-only property: id
@@ -114,9 +99,6 @@ v8pp::class_<Entity> &Entity::GetClass(v8::Isolate *isolate) {
         });
 
     // Property: position (Vector3)
-    // NOTE: must be a real accessor property (SetAccessorProperty). SetNativeDataProperty
-    // on a prototype behaves like a data property in modern V8, so assignment writes an
-    // own shadowing property on the instance and never invokes the setter.
     {
         auto positionGetter = v8::FunctionTemplate::New(isolate, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
             auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
@@ -152,21 +134,18 @@ v8pp::class_<Entity> &Entity::GetClass(v8::Isolate *isolate) {
             auto *self = v8pp::class_<Entity>::unwrap_object(info.GetIsolate(), info.This());
             if (!self || info.Length() < 1) return;
 
-            // Try to unwrap as Vector3 first (euler angles in degrees)
             auto *vec = v8pp::class_<Framework::Scripting::Builtins::Vector3>::unwrap_object(info.GetIsolate(), info[0]);
             if (vec) {
                 self->SetRotationFromEuler(*vec);
                 return;
             }
 
-            // Try to unwrap as Quaternion
             auto *quat = v8pp::class_<Framework::Scripting::Builtins::Quaternion>::unwrap_object(info.GetIsolate(), info[0]);
             if (quat) {
                 self->SetRotationFromQuaternion(*quat);
                 return;
             }
 
-            // Neither type matched - throw an error
             info.GetIsolate()->ThrowException(v8::Exception::TypeError(
                 v8pp::to_v8(info.GetIsolate(), "rotation must be a Vector3 (euler degrees) or Quaternion")));
         });

@@ -3,15 +3,14 @@
 #include <v8.h>
 #include <v8pp/class.hpp>
 #include <v8pp/convert.hpp>
-#include <v8pp/module.hpp>
 
 #include "core/server.h"
-#include "core_modules.h"
 
-#include "core/modules/environment.h"
-#include "core/modules/vehicle.h"
+#include "shared/entities/register_entities.h"
+#include "shared/entities/vehicle_entity.h"
 
-#include "shared/rpc/environment.h"
+#include <core_modules.h>
+#include <world/server.h>
 
 #include "entity_collection.h"
 #include "player.h"
@@ -20,43 +19,39 @@
 namespace MafiaMP::Scripting {
     class World final {
       public:
-        static v8::Local<v8::Object> CreateVehicle(v8::Isolate *isolate, std::string modelName) {
-            auto e = MafiaMP::Core::Modules::Vehicle::Create(Server::_serverRef);
-
-            auto &frame     = e.ensure<Framework::World::Modules::Base::Frame>();
-            frame.modelName = modelName;
-
-            return v8pp::class_<Vehicle>::create_object(isolate, e);
+        static v8::Local<v8::Value> CreateVehicle(v8::Isolate *isolate, std::string modelName) {
+            auto *engine = static_cast<Framework::World::ServerEngine *>(Framework::CoreModules::GetWorldEngine());
+            if (!engine) {
+                return v8::Undefined(isolate);
+            }
+            auto *entity = dynamic_cast<Shared::Entities::VehicleEntity *>(engine->CreateEntity(Shared::Entities::VehicleTypeId()));
+            if (!entity) {
+                return v8::Undefined(isolate);
+            }
+            entity->modelName = modelName;
+            return v8pp::class_<Vehicle>::create_object(isolate, entity->GetNetworkID());
         }
 
         static float GetDayTimeHours() {
-            auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
-
-            auto weather = world->try_get_mut<Core::Modules::Environment::Weather>();
-            return weather->_dayTimeHours;
+            auto *server = Server::_serverRef;
+            return server ? server->GetEnvironment().dayTimeHours : 0.0f;
         }
 
         static void SetDayTimeHours(float dayTimeHours) {
-            auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
-
-            auto weather           = world->try_get_mut<Core::Modules::Environment::Weather>();
-            weather->_dayTimeHours = dayTimeHours;
-            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, {}, weather->_dayTimeHours);
+            if (auto *server = Server::_serverRef) {
+                server->SetDayTimeHours(dayTimeHours);
+            }
         }
 
         static std::string GetWeatherSet() {
-            auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
-
-            auto weather = world->try_get_mut<Core::Modules::Environment::Weather>();
-            return weather->_weatherSetName;
+            auto *server = Server::_serverRef;
+            return server ? server->GetEnvironment().weatherSet : "";
         }
 
         static void SetWeatherSet(std::string weatherSetName) {
-            auto world = Framework::CoreModules::GetWorldEngine()->GetWorld();
-
-            auto weather             = world->try_get_mut<Core::Modules::Environment::Weather>();
-            weather->_weatherSetName = weatherSetName;
-            FW_SEND_COMPONENT_RPC(MafiaMP::Shared::RPC::SetEnvironment, MafiaNet::RakString(weather->_weatherSetName.c_str()), {});
+            if (auto *server = Server::_serverRef) {
+                server->SetWeatherSet(weatherSetName);
+            }
         }
 
         static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global) {
@@ -64,17 +59,14 @@ namespace MafiaMP::Scripting {
                 return;
             }
 
-            // Ensure Entity and Vehicle classes are initialized for v8pp type conversion
+            // Ensure the entity classes exist for v8pp type conversion.
             Entity::GetClass(isolate);
             Vehicle::GetClass(isolate);
             Player::GetClass(isolate);
 
-            auto ctx = isolate->GetCurrentContext();
-
-            // Create the World object
+            auto ctx      = isolate->GetCurrentContext();
             auto worldObj = v8::Object::New(isolate);
 
-            // Add methods
             worldObj->Set(ctx, v8pp::to_v8(isolate, "createVehicle"),
                           v8::Function::New(ctx, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
                               auto isolate = info.GetIsolate();
@@ -117,13 +109,8 @@ namespace MafiaMP::Scripting {
                               World::SetWeatherSet(*weatherSet);
                           }).ToLocalChecked()).Check();
 
-            // Add players collection with array-like methods
-            worldObj->Set(ctx, v8pp::to_v8(isolate, "players"),
-                          CreateCollectionObject<PlayerCollection>(isolate)).Check();
-
-            // Add vehicles collection with array-like methods
-            worldObj->Set(ctx, v8pp::to_v8(isolate, "vehicles"),
-                          CreateCollectionObject<VehicleCollection>(isolate)).Check();
+            worldObj->Set(ctx, v8pp::to_v8(isolate, "players"), CreateCollectionObject<PlayerCollection>(isolate)).Check();
+            worldObj->Set(ctx, v8pp::to_v8(isolate, "vehicles"), CreateCollectionObject<VehicleCollection>(isolate)).Check();
 
             global->Set(ctx, v8pp::to_v8(isolate, "World"), worldObj).Check();
         }

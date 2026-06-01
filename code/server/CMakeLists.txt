@@ -7,9 +7,7 @@ set(MAFIAMP_SERVER_FILES
     src/core/builtins/player.cpp
     src/core/builtins/vehicle.cpp
 
-    src/core/modules/environment.cpp
-    src/core/modules/human.cpp
-    src/core/modules/vehicle.cpp
+    ../shared/entities/register_entities.cpp
 
     ${CMAKE_BINARY_DIR}/mafiamp_version.cpp
 )

@@ -7,35 +7,33 @@
 #include <scripting/builtins/quaternion.h>
 #include <scripting/builtins/vector3.h>
 
-#include <flecs.h>
-#include <world/modules/base.hpp>
+#include <networking/replication/network_entity.h>
 
+#include <cstdint>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <unordered_map>
 
 namespace MafiaMP::Scripting {
+    namespace Replication = Framework::Networking::Replication;
 
-    /**
-     * Base Entity class for MafiaMP scripting.
-     * Provides common entity functionality accessible from JavaScript.
-     */
+    // Base scripting handle for a replicated entity. Wraps the entity's NetworkID and resolves the
+    // live NetworkEntity on demand through the ReplicationManager, so a stale JS handle to a
+    // destroyed entity resolves to null instead of dangling.
     class Entity {
       public:
-        Entity(flecs::entity_t ent);
-        Entity(flecs::entity ent): Entity(ent.id()) {}
+        Entity(uint64_t networkId);
         virtual ~Entity() = default;
 
         uint64_t GetId() const {
-            return _ent.id();
+            return _id;
         }
 
-        flecs::entity GetHandle() const {
-            return _ent;
+        Replication::NetworkEntity *GetHandle() const {
+            return Resolve();
         }
 
-        // Property accessors (used by v8 SetAccessor)
         Framework::Scripting::Builtins::Vector3 GetPosition() const;
         void SetPosition(const Framework::Scripting::Builtins::Vector3 &pos);
 
@@ -51,8 +49,9 @@ namespace MafiaMP::Scripting {
         static v8pp::class_<Entity> &GetClass(v8::Isolate *isolate);
 
       protected:
-        flecs::entity _ent;
-        static std::unordered_map<v8::Isolate*, std::unique_ptr<v8pp::class_<Entity>>> _classes;
-    };
+        Replication::NetworkEntity *Resolve() const;
 
+        uint64_t _id = 0;
+        static std::unordered_map<v8::Isolate *, std::unique_ptr<v8pp::class_<Entity>>> _classes;
+    };
 } // namespace MafiaMP::Scripting
