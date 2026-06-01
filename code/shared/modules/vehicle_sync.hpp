@@ -1,12 +1,13 @@
 #pragma once
 
 #include <cstdint>
-#include <flecs/distr/flecs.h>
 #include <glm/glm.hpp>
 
 #include "shared/constants.h"
 
 namespace MafiaMP::Shared::Modules {
+    // Per-tick vehicle state replicated through VehicleEntity (trivially copyable, delta-tracked as a
+    // whole by VariableDeltaSerializer).
     struct VehicleSync {
         enum class LockState {
             UNLOCKED,
@@ -39,11 +40,5 @@ namespace MafiaMP::Shared::Modules {
             glm::vec3 velocity {};
             glm::vec4 windowTint {0.0f, 0.0f, 0.0f, 20.0f / 255.0f};
         };
-
-        VehicleSync(flecs::world &world) {
-            world.module<VehicleSync>();
-
-            world.component<UpdateData>();
-        }
     };
 } // namespace MafiaMP::Shared::Modules

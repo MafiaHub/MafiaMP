@@ -2,12 +2,20 @@
 
 #include "shared/constants.h"
 #include "shared/modules/vehicle_sync.hpp"
-#include "src/networking/rpc/game_rpc.h"
-#include "utils/optional.h"
+
+#include <mafianet/BitStream.h>
+#include <mafianet/string.h>
+#include <utils/optional.h>
+
+#include <cstdint>
 
 namespace MafiaMP::Shared::RPC {
-    class VehicleSetProps final: public Framework::Networking::RPC::IGameRPC<VehicleSetProps> {
-      public:
+    // Sets a subset of properties on the vehicle identified by entityId. Each field is optional;
+    // only present fields are applied by the receiver.
+    struct VehicleSetProps {
+        static constexpr const char *kIdentifier = "MafiaMP::VehicleSetProps";
+
+        uint64_t entityId = 0;
         Framework::Utils::Optional<bool> beaconLightsOn;
         Framework::Utils::Optional<glm::vec4> colorPrimary;
         Framework::Utils::Optional<glm::vec4> colorSecondary;
@@ -24,25 +32,8 @@ namespace MafiaMP::Shared::RPC {
         Framework::Utils::Optional<glm::vec4> tireColor;
         Framework::Utils::Optional<glm::vec4> windowTint;
 
-        void FromParameters(VehicleSetProps props) {
-            this->beaconLightsOn = props.beaconLightsOn;
-            this->colorPrimary   = props.colorPrimary;
-            this->colorSecondary = props.colorSecondary;
-            this->dirt           = props.dirt;
-            this->engineOn       = props.engineOn;
-            this->fuel           = props.fuel;
-            this->licensePlate   = props.licensePlate;
-            this->lockState      = props.lockState;
-            this->radioOn        = props.radioOn;
-            this->radioStationId = props.radioStationId;
-            this->rimColor       = props.rimColor;
-            this->rust           = props.rust;
-            this->sirenOn        = props.sirenOn;
-            this->tireColor      = props.tireColor;
-            this->windowTint     = props.windowTint;
-        }
-
-        void Serialize(MafiaNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) {
+            bs->Serialize(write, entityId);
             beaconLightsOn.Serialize(bs, write);
             colorPrimary.Serialize(bs, write);
             colorSecondary.Serialize(bs, write);
@@ -60,15 +51,13 @@ namespace MafiaMP::Shared::RPC {
             windowTint.Serialize(bs, write);
         }
 
-        bool Valid() const override {
+        bool Valid() const {
             if (licensePlate.HasValue() && licensePlate().GetLength() > Constants::VEHICLE_LICENSE_PLATE_MAX_LENGTH) {
                 return false;
             }
-
             if (radioStationId.HasValue() && (radioStationId() >= -1 && radioStationId() < 4 /* E_RADIO_POLICE */)) {
                 return false;
             }
-
             return true;
         }
     };

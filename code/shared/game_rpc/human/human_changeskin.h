@@ -1,26 +1,29 @@
 #pragma once
 
-#include "src/networking/rpc/game_rpc.h"
+#include <mafianet/BitStream.h>
+
+#include <cstdint>
 
 namespace MafiaMP::Shared::RPC {
-    class HumanChangeSkin final: public Framework::Networking::RPC::IGameRPC<HumanChangeSkin> {
-      private:
-        uint64_t _spawnProfile;
-      public:
-        void FromParameters(uint64_t spawnProfile) {
-            _spawnProfile = spawnProfile;
+    // Changes the skin (spawn profile) of the human identified by entityId.
+    struct HumanChangeSkin {
+        static constexpr const char *kIdentifier = "MafiaMP::HumanChangeSkin";
+
+        uint64_t entityId     = 0;
+        uint64_t spawnProfile = 0;
+
+        void FromParameters(uint64_t id, uint64_t profile) {
+            entityId     = id;
+            spawnProfile = profile;
         }
 
-        uint64_t GetSpawnProfile() const {
-            return _spawnProfile;
+        void Serialize(MafiaNet::BitStream *bs, bool write) {
+            bs->Serialize(write, entityId);
+            bs->Serialize(write, spawnProfile);
         }
 
-        void Serialize(MafiaNet::BitStream *bs, bool write) override {
-            bs->Serialize(write, _spawnProfile);
-        }
-
-        bool Valid() const override {
-            return _spawnProfile > 0;
+        bool Valid() const {
+            return spawnProfile > 0;
         }
     };
 } // namespace MafiaMP::Shared::RPC

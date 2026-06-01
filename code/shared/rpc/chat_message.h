@@ -1,4 +1,3 @@
-
 /*
  * MafiaHub OSS license
  * Copyright (c) 2022, MafiaHub. All rights reserved.
@@ -9,30 +8,31 @@
 
 #pragma once
 
-#include "shared/messages/messages.h"
-#include "src/networking/rpc/rpc.h"
+#include <mafianet/BitStream.h>
+#include <mafianet/string.h>
 
 #include <string>
 
 namespace MafiaMP::Shared::RPC {
-    class ChatMessage final: public Framework::Networking::RPC::IRPC<ChatMessage> {
-      private:
-        MafiaNet::RakString _text;
-      public:
+    struct ChatMessage {
+        static constexpr const char *kIdentifier = "MafiaMP::ChatMessage";
+
+        MafiaNet::RakString text;
+
         void FromParameters(const std::string &msg) {
-            _text = msg.c_str();
+            text = msg.c_str();
         }
 
-        void Serialize(MafiaNet::BitStream *bs, bool write) override {
-            bs->Serialize(write, _text);
+        void Serialize(MafiaNet::BitStream *bs, bool write) {
+            bs->Serialize(write, text);
         }
 
-        bool Valid() const override {
-            return !_text.IsEmpty() && _text.GetLength() < 1024;
+        bool Valid() const {
+            return !text.IsEmpty() && text.GetLength() < 1024;
         }
 
         std::string GetText() const {
-            return _text.C_String();
+            return text.C_String();
         }
     };
 } // namespace MafiaMP::Shared::RPC

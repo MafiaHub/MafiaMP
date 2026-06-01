@@ -1,42 +1,42 @@
 #pragma once
 
-#include "shared/messages/messages.h"
-#include "src/networking/rpc/rpc.h"
-#include "utils/optional.h"
+#include <mafianet/BitStream.h>
+#include <mafianet/string.h>
+#include <utils/optional.h>
 
 namespace MafiaMP::Shared::RPC {
-    class SetEnvironment final: public Framework::Networking::RPC::IRPC<SetEnvironment> {
-      private:
-        Framework::Utils::Optional<MafiaNet::RakString> _weatherSet{};
-        Framework::Utils::Optional<float> _dayTimeHours{};
+    struct SetEnvironment {
+        static constexpr const char *kIdentifier = "MafiaMP::SetEnvironment";
 
-        public:
-        void FromParameters(const Framework::Utils::Optional<MafiaNet::RakString> &weatherSet = {}, Framework::Utils::Optional<float> dayTimeHours = {}) {
-            _weatherSet = weatherSet;
-            _dayTimeHours = dayTimeHours;
+        Framework::Utils::Optional<MafiaNet::RakString> weatherSet {};
+        Framework::Utils::Optional<float> dayTimeHours {};
+
+        void FromParameters(const Framework::Utils::Optional<MafiaNet::RakString> &weatherSet_ = {}, Framework::Utils::Optional<float> dayTimeHours_ = {}) {
+            weatherSet   = weatherSet_;
+            dayTimeHours = dayTimeHours_;
         }
 
-        void Serialize(MafiaNet::BitStream *bs, bool write) override {
-            _weatherSet.Serialize(bs, write);
-            _dayTimeHours.Serialize(bs, write);
+        void Serialize(MafiaNet::BitStream *bs, bool write) {
+            weatherSet.Serialize(bs, write);
+            dayTimeHours.Serialize(bs, write);
         }
 
-        bool Valid() const override {
-            if (_weatherSet.HasValue() && _weatherSet().IsEmpty()) {
+        bool Valid() const {
+            if (weatherSet.HasValue() && weatherSet().IsEmpty()) {
                 return false;
             }
-            if (_dayTimeHours.HasValue() && (_dayTimeHours() < 0.0f || _dayTimeHours() > 24.0f)) {
+            if (dayTimeHours.HasValue() && (dayTimeHours() < 0.0f || dayTimeHours() > 24.0f)) {
                 return false;
             }
             return true;
         }
 
         Framework::Utils::Optional<MafiaNet::RakString> GetWeatherSet() const {
-            return _weatherSet;
+            return weatherSet;
         }
 
         Framework::Utils::Optional<float> GetDayTimeHours() const {
-            return _dayTimeHours;
+            return dayTimeHours;
         }
     };
-}
+} // namespace MafiaMP::Shared::RPC

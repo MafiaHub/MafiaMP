@@ -1,29 +1,30 @@
 #pragma once
 
-#include "src/networking/rpc/rpc.h"
+#include <mafianet/BitStream.h>
+#include <mafianet/string.h>
 
 #include <string>
 
 namespace MafiaMP::Shared::RPC {
-    class SpawnCar final: public Framework::Networking::RPC::IRPC<SpawnCar> {
-      private:
-        MafiaNet::RakString _modelName {};
+    struct SpawnCar {
+        static constexpr const char *kIdentifier = "MafiaMP::SpawnCar";
 
-      public:
+        MafiaNet::RakString modelName {};
+
         void SetModelName(const std::string &name) {
-            _modelName = name.c_str();
+            modelName = name.c_str();
         }
 
-        std::string GetModelName() {
-            return _modelName.C_String();
+        std::string GetModelName() const {
+            return modelName.C_String();
         }
 
-        void Serialize(MafiaNet::BitStream *bs, bool write) override {
-            bs->Serialize(write, _modelName);
+        void Serialize(MafiaNet::BitStream *bs, bool write) {
+            bs->Serialize(write, modelName);
         }
 
-        bool Valid() const override {
-            return !_modelName.IsEmpty();
+        bool Valid() const {
+            return !modelName.IsEmpty();
         }
     };
 } // namespace MafiaMP::Shared::RPC

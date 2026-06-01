@@ -1,37 +1,28 @@
 #pragma once
 
-#include "shared/modules/human_sync.hpp"
-#include "src/networking/rpc/game_rpc.h"
+#include <mafianet/BitStream.h>
 
-#include <string>
+#include <cstdint>
 
 namespace MafiaMP::Shared::RPC {
-    class HumanAddWeapon final: public Framework::Networking::RPC::IGameRPC<HumanAddWeapon> {
-      private:
-        int weaponId;
-        int ammo;
+    // Adds a weapon with ammo to the human identified by entityId.
+    struct HumanAddWeapon {
+        static constexpr const char *kIdentifier = "MafiaMP::HumanAddWeapon";
 
-      public:
-        void FromParameters(int _weaponId, int _ammo) {
-            this->weaponId = _weaponId;
-            this->ammo     = _ammo;
+        uint64_t entityId = 0;
+        int weaponId      = 0;
+        int ammo          = 0;
+
+        void FromParameters(uint64_t id, int weaponId_, int ammo_) {
+            entityId = id;
+            weaponId = weaponId_;
+            ammo     = ammo_;
         }
 
-        int GetWeaponId() const {
-            return weaponId;
-        }
-
-        int GetAmmo() const {
-            return ammo;
-        }
-
-        void Serialize(MafiaNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) {
+            bs->Serialize(write, entityId);
             bs->Serialize(write, weaponId);
             bs->Serialize(write, ammo);
-        }
-
-        bool Valid() const override {
-            return true;
         }
     };
 } // namespace MafiaMP::Shared::RPC

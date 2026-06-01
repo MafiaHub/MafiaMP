@@ -1,26 +1,25 @@
 #pragma once
 
-#include "src/networking/rpc/game_rpc.h"
+#include <mafianet/BitStream.h>
+
+#include <cstdint>
 
 namespace MafiaMP::Shared::RPC {
-    class HumanReload final: public Framework::Networking::RPC::IGameRPC<HumanReload> {
-      private:
-        int _unk0;
-      public:
-        void FromParameters(bool unk0) {
-            _unk0 = unk0;
+    // A weapon reload by the human identified by entityId, relayed to others.
+    struct HumanReload {
+        static constexpr const char *kIdentifier = "MafiaMP::HumanReload";
+
+        uint64_t entityId = 0;
+        int unk0          = 0;
+
+        void FromParameters(uint64_t id, bool unk0_) {
+            entityId = id;
+            unk0     = unk0_;
         }
 
-        bool GetUnk0() const {
-            return _unk0;
-        }
-
-        void Serialize(MafiaNet::BitStream *bs, bool write) override {
-            bs->Serialize(write, _unk0);
-        }
-
-        bool Valid() const override {
-            return true;
+        void Serialize(MafiaNet::BitStream *bs, bool write) {
+            bs->Serialize(write, entityId);
+            bs->Serialize(write, unk0);
         }
     };
 } // namespace MafiaMP::Shared::RPC

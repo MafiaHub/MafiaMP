@@ -1,24 +1,18 @@
 #pragma once
 
-#include "shared/modules/vehicle_sync.hpp"
-#include "src/networking/rpc/game_rpc.h"
-#include "utils/optional.h"
+#include <mafianet/BitStream.h>
+
+#include <cstdint>
 
 namespace MafiaMP::Shared::RPC {
-    class VehiclePlayerLeave final: public Framework::Networking::RPC::IGameRPC<VehiclePlayerLeave> {
-      public:
-        uint64_t vehicleId;
+    // A player (resolved from the sender) left the vehicle identified by vehicleId.
+    struct VehiclePlayerLeave {
+        static constexpr const char *kIdentifier = "MafiaMP::VehiclePlayerLeave";
 
-        void FromParameters(VehiclePlayerLeave props) {
-            this->vehicleId = props.vehicleId;
-        }
+        uint64_t vehicleId = 0;
 
-        void Serialize(MafiaNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) {
             bs->Serialize(write, vehicleId);
-        }
-
-        bool Valid() const override {
-            return true;
         }
     };
 } // namespace MafiaMP::Shared::RPC

@@ -1,18 +1,17 @@
 #pragma once
 
-#include "src/networking/rpc/game_rpc.h"
+#include <mafianet/BitStream.h>
 
 namespace MafiaMP::Shared::RPC {
-    class HumanDeath final: public Framework::Networking::RPC::IGameRPC<HumanDeath> {
-      public:
-        void FromParameters(void) {
-        }
+    // The sending client reports its player died; the server resolves the player from the sender.
+    struct HumanDeath {
+        static constexpr const char *kIdentifier = "MafiaMP::HumanDeath";
 
-        void Serialize(MafiaNet::BitStream *bs, bool write) override {
-        }
+        void FromParameters() {}
 
-        bool Valid() const override {
-            return true;
+        void Serialize(MafiaNet::BitStream *bs, bool write) {
+            (void)bs;
+            (void)write;
         }
     };
 } // namespace MafiaMP::Shared::RPC

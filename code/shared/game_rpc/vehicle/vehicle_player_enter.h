@@ -1,28 +1,20 @@
 #pragma once
 
-#include "shared/modules/vehicle_sync.hpp"
-#include "src/networking/rpc/game_rpc.h"
-#include "utils/optional.h"
+#include <mafianet/BitStream.h>
+
+#include <cstdint>
 
 namespace MafiaMP::Shared::RPC {
-    class VehiclePlayerEnter final : public Framework::Networking::RPC::IGameRPC<VehiclePlayerEnter> {
-      public:
-        uint64_t vehicleId;
-        int seatIndex;
+    // A player (resolved from the sender) entered the vehicle identified by vehicleId at seatIndex.
+    struct VehiclePlayerEnter {
+        static constexpr const char *kIdentifier = "MafiaMP::VehiclePlayerEnter";
 
-        void FromParameters(VehiclePlayerEnter props) {
-            this->vehicleId = props.vehicleId;
-            this->seatIndex = props.seatIndex;
-        }
+        uint64_t vehicleId = 0;
+        int seatIndex      = 0;
 
-        void Serialize(MafiaNet::BitStream* bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) {
             bs->Serialize(write, vehicleId);
             bs->Serialize(write, seatIndex);
         }
-
-        bool Valid() const override {
-            // TODO: validate seat index
-            return true;
-        }
     };
-}
+} // namespace MafiaMP::Shared::RPC
