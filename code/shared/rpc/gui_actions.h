@@ -25,7 +25,7 @@ namespace MafiaMP::Shared::RPC {
             _text = msg.c_str();
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             bs->Serialize(write, _text);
         }
 

@@ -14,7 +14,7 @@ namespace MafiaMP::Shared::RPC {
         Framework::Utils::Optional<float> dirt;
         Framework::Utils::Optional<bool> engineOn;
         Framework::Utils::Optional<float> fuel;
-        Framework::Utils::Optional<SLNet::RakString> licensePlate;
+        Framework::Utils::Optional<MafiaNet::RakString> licensePlate;
         Framework::Utils::Optional<Modules::VehicleSync::LockState> lockState;
         Framework::Utils::Optional<bool> radioOn;
         Framework::Utils::Optional<int> radioStationId;
@@ -42,7 +42,7 @@ namespace MafiaMP::Shared::RPC {
             this->windowTint     = props.windowTint;
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             beaconLightsOn.Serialize(bs, write);
             colorPrimary.Serialize(bs, write);
             colorSecondary.Serialize(bs, write);

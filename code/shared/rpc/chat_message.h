@@ -17,13 +17,13 @@
 namespace MafiaMP::Shared::RPC {
     class ChatMessage final: public Framework::Networking::RPC::IRPC<ChatMessage> {
       private:
-        SLNet::RakString _text;
+        MafiaNet::RakString _text;
       public:
         void FromParameters(const std::string &msg) {
             _text = msg.c_str();
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             bs->Serialize(write, _text);
         }
 

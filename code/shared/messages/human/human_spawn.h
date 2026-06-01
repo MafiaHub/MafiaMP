@@ -7,7 +7,7 @@ namespace MafiaMP::Shared::Messages::Human {
     class HumanSpawn final: public Framework::Networking::Messages::GameSyncMessage {
       private:
         uint64_t _spawnProfile;
-        SLNet::RakString _nickname;
+        MafiaNet::RakString _nickname;
         uint16_t _playerIndex;
 
         struct CarPassenger {
@@ -26,7 +26,7 @@ namespace MafiaMP::Shared::Messages::Human {
             _playerIndex  = playerIndex;
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             bs->Serialize(write, _spawnProfile);
             bs->Serialize(write, _nickname);
             bs->Serialize(write, _playerIndex);

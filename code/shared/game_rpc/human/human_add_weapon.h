@@ -25,7 +25,7 @@ namespace MafiaMP::Shared::RPC {
             return ammo;
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             bs->Serialize(write, weaponId);
             bs->Serialize(write, ammo);
         }

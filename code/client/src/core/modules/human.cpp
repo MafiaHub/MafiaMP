@@ -393,7 +393,7 @@ namespace MafiaMP::Core::Modules {
 
     void Human::SetupMessages(Application *app) {
         const auto net = app->GetNetworkingEngine()->GetNetworkClient();
-        net->RegisterMessage<Shared::Messages::Human::HumanSpawn>(Shared::Messages::ModMessages::MOD_HUMAN_SPAWN, [app](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanSpawn *msg) {
+        net->RegisterMessage<Shared::Messages::Human::HumanSpawn>(Shared::Messages::ModMessages::MOD_HUMAN_SPAWN, [app](MafiaNet::RakNetGUID guid, Shared::Messages::Human::HumanSpawn *msg) {
             auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
@@ -430,7 +430,7 @@ namespace MafiaMP::Core::Modules {
                 };
 #endif
         });
-        net->RegisterMessage<Shared::Messages::Human::HumanDespawn>(Shared::Messages::ModMessages::MOD_HUMAN_DESPAWN, [app](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanDespawn *msg) {
+        net->RegisterMessage<Shared::Messages::Human::HumanDespawn>(Shared::Messages::ModMessages::MOD_HUMAN_DESPAWN, [app](MafiaNet::RakNetGUID guid, Shared::Messages::Human::HumanDespawn *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
@@ -438,7 +438,7 @@ namespace MafiaMP::Core::Modules {
 
             Remove(e);
         });
-        net->RegisterMessage<Shared::Messages::Human::HumanUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanUpdate *msg) {
+        net->RegisterMessage<Shared::Messages::Human::HumanUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_UPDATE, [app](MafiaNet::RakNetGUID guid, Shared::Messages::Human::HumanUpdate *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
@@ -449,7 +449,7 @@ namespace MafiaMP::Core::Modules {
 
             Update(e);
         });
-        net->RegisterMessage<Shared::Messages::Human::HumanSelfUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_SELF_UPDATE, [app](SLNet::RakNetGUID guid, Shared::Messages::Human::HumanSelfUpdate *msg) {
+        net->RegisterMessage<Shared::Messages::Human::HumanSelfUpdate>(Shared::Messages::ModMessages::MOD_HUMAN_SELF_UPDATE, [app](MafiaNet::RakNetGUID guid, Shared::Messages::Human::HumanSelfUpdate *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
@@ -472,7 +472,7 @@ namespace MafiaMP::Core::Modules {
     void Human::InitRPCs(Application *app) {
         const auto net = app->GetNetworkingEngine()->GetNetworkClient();
 
-        net->RegisterGameRPC<Shared::RPC::HumanShoot>([app](SLNet::RakNetGUID guid, Shared::RPC::HumanShoot *msg) {
+        net->RegisterGameRPC<Shared::RPC::HumanShoot>([app](MafiaNet::RakNetGUID guid, Shared::RPC::HumanShoot *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
@@ -493,7 +493,7 @@ namespace MafiaMP::Core::Modules {
             wepController->DoShot(nullptr, &pos, &dir, msg->GetUnk0(), msg->GetUnk1());
         });
 
-        net->RegisterGameRPC<Shared::RPC::HumanReload>([app](SLNet::RakNetGUID guid, Shared::RPC::HumanReload *msg) {
+        net->RegisterGameRPC<Shared::RPC::HumanReload>([app](MafiaNet::RakNetGUID guid, Shared::RPC::HumanReload *msg) {
             const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
             if (!e.is_alive()) {
                 return;
@@ -511,7 +511,7 @@ namespace MafiaMP::Core::Modules {
             wepController->DoWeaponReloadInventory(msg->GetUnk0());
         });
 
-        net->RegisterGameRPC<Shared::RPC::HumanChangeSkin>([app](SLNet::RakNetGUID guid, Shared::RPC::HumanChangeSkin *msg) {
+        net->RegisterGameRPC<Shared::RPC::HumanChangeSkin>([app](MafiaNet::RakNetGUID guid, Shared::RPC::HumanChangeSkin *msg) {
             if (!msg->Valid())
                 return;
 
@@ -533,7 +533,7 @@ namespace MafiaMP::Core::Modules {
             }
         });
 
-        net->RegisterGameRPC<Shared::RPC::HumanSetProps>([app](SLNet::RakNetGUID guid, Shared::RPC::HumanSetProps *msg) {
+        net->RegisterGameRPC<Shared::RPC::HumanSetProps>([app](MafiaNet::RakNetGUID guid, Shared::RPC::HumanSetProps *msg) {
             if (!msg->Valid())
                 return;
 
@@ -554,7 +554,7 @@ namespace MafiaMP::Core::Modules {
             }
         });
 
-        net->RegisterGameRPC<Shared::RPC::HumanAddWeapon>([app](SLNet::RakNetGUID guid, Shared::RPC::HumanAddWeapon *msg) {
+        net->RegisterGameRPC<Shared::RPC::HumanAddWeapon>([app](MafiaNet::RakNetGUID guid, Shared::RPC::HumanAddWeapon *msg) {
             if (!msg->Valid())
                 return;
 

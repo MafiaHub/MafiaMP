@@ -162,7 +162,7 @@ namespace MafiaMP::Core {
                 if (net->GetConnectionState() == Framework::Networking::PeerState::CONNECTED) {
                     MafiaMP::Shared::RPC::ChatMessage chatMessage {};
                     chatMessage.FromParameters(result["msg"].as<std::string>());
-                    net->SendRPC(chatMessage, SLNet::UNASSIGNED_RAKNET_GUID);
+                    net->SendRPC(chatMessage, MafiaNet::UNASSIGNED_RAKNET_GUID);
                 }
             },
             "sends a chat message");

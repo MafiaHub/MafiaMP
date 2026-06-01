@@ -13,7 +13,7 @@ namespace MafiaMP::Shared::RPC {
             this->vehicleId = props.vehicleId;
         }
 
-        void Serialize(SLNet::BitStream *bs, bool write) override {
+        void Serialize(MafiaNet::BitStream *bs, bool write) override {
             bs->Serialize(write, vehicleId);
         }
 
