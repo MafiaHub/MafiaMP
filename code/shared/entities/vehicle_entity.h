@@ -17,7 +17,7 @@ namespace MafiaMP::Shared::Entities {
     // A replicated vehicle. The base modelName carries the model used by the client to request the
     // game car; VehicleSync::UpdateData carries the per-tick physics/customization state. The server
     // tracks which entity occupies each seat to drive ownership and interest.
-    class VehicleEntity final : public Replication::NetworkEntity {
+    class VehicleEntity : public Replication::NetworkEntity {
       public:
         static constexpr const char *kTypeName = "MafiaMP::Vehicle";
         static constexpr int kMaxSeats         = 4;

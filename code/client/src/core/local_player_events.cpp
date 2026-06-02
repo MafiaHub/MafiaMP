@@ -1,3 +1,5 @@
+#include <utils/safe_win32.h>
+
 #include "local_player_events.h"
 
 #include "application.h"

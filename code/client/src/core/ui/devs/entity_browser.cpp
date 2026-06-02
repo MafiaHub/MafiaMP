@@ -1,3 +1,5 @@
+#include <utils/safe_win32.h>
+
 #include "entity_browser.h"
 
 #include "core/application.h"

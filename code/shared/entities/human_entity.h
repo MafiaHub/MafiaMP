@@ -16,7 +16,7 @@ namespace MafiaMP::Shared::Entities {
     // used by the client to request the game ped and re-applied when it changes; nickname/playerIndex
     // are spawn-time metadata, and HumanSync::UpdateData carries the per-tick animation/weapon/health/
     // seating state. All of it syncs through the DeltaSerializer — there are no per-property RPCs.
-    class HumanEntity final : public Replication::NetworkEntity {
+    class HumanEntity : public Replication::NetworkEntity {
       public:
         static constexpr const char *kTypeName = "MafiaMP::Human";
 

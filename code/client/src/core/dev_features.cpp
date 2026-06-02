@@ -1,3 +1,5 @@
+#include <utils/safe_win32.h>
+
 #include "dev_features.h"
 
 #include <cppfs/FileHandle.h>
@@ -17,7 +19,11 @@
 #include "sdk/entities/c_player_2.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
-#include "shared/rpc/chat_message.h"
+#include "shared/rpc/ids.h"
+
+#include <networking/network_peer.h>
+#include <mafianet/BitStream.h>
+#include <mafianet/string.h>
 
 namespace MafiaMP::Core {
     DevFeatures::DevFeatures() {
@@ -160,9 +166,10 @@ namespace MafiaMP::Core {
             [this](const cxxopts::ParseResult &result) {
                 const auto net = gApplication->GetNetworkingEngine()->GetNetworkClient();
                 if (net->GetConnectionState() == Framework::Networking::PeerState::CONNECTED) {
-                    MafiaMP::Shared::RPC::ChatMessage chatMessage {};
-                    chatMessage.FromParameters(result["msg"].as<std::string>());
-                    net->SendRPC(chatMessage, MafiaNet::UNASSIGNED_RAKNET_GUID);
+                    const std::string msg = result["msg"].as<std::string>();
+                    MafiaNet::BitStream bs;
+                    bs.Write(MafiaNet::RakString(msg.c_str()));
+                    net->GetRPC()->Signal(MafiaMP::Shared::RPC::kChatMessage, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
                 }
             },
             "sends a chat message");
