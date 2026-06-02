@@ -2,10 +2,15 @@
 
 #include "sdk/entities/c_entity.h"
 
-#include <networking/replication/network_entity.h>
-
 #include <functional>
 #include <utility>
+
+// Only a NetworkEntity pointer is stored here, so a forward declaration is enough — this keeps the
+// streaming layer from pulling in MafiaNet (winsock2) headers, which clash with the game SDK's
+// winsock.h. Translation units that dereference the pointer include network_entity.h themselves.
+namespace Framework::Networking::Replication {
+    class NetworkEntity;
+} // namespace Framework::Networking::Replication
 
 namespace MafiaMP::Game::Streaming {
     class EntityTrackingInfo {
