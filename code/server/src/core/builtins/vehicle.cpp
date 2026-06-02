@@ -42,6 +42,69 @@ namespace {
         std::vector<v8::Local<v8::Value>> args = buildArgs(isolate);
         resourceManager->GetEvents().EmitReserved(isolate, context, eventName, args);
     }
+
+    // V8 accessor callbacks must be non-capturing function pointers. Passing the getter/setter as
+    // template parameters keeps these lambdas capture-free while still being reusable per property.
+    template <bool (Vehicle::*Getter)(), void (Vehicle::*Setter)(bool)>
+    void RegisterBoolProp(v8::Isolate *isolate, v8::Local<v8::ObjectTemplate> proto, const char *name) {
+        proto->SetNativeDataProperty(
+            v8pp::to_v8(isolate, name).As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set((self->*Getter)());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsBoolean()) (self->*Setter)(value->BooleanValue(info.GetIsolate()));
+            });
+    }
+
+    template <float (Vehicle::*Getter)(), void (Vehicle::*Setter)(float)>
+    void RegisterFloatProp(v8::Isolate *isolate, v8::Local<v8::ObjectTemplate> proto, const char *name) {
+        proto->SetNativeDataProperty(
+            v8pp::to_v8(isolate, name).As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set((self->*Getter)());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsNumber()) (self->*Setter)(static_cast<float>(value->NumberValue(info.GetIsolate()->GetCurrentContext()).FromMaybe(0.0)));
+            });
+    }
+
+    template <int (Vehicle::*Getter)(), void (Vehicle::*Setter)(int)>
+    void RegisterIntProp(v8::Isolate *isolate, v8::Local<v8::ObjectTemplate> proto, const char *name) {
+        proto->SetNativeDataProperty(
+            v8pp::to_v8(isolate, name).As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) info.GetReturnValue().Set((self->*Getter)());
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self && value->IsInt32()) (self->*Setter)(value->Int32Value(info.GetIsolate()->GetCurrentContext()).FromMaybe(0));
+            });
+    }
+
+    template <Framework::Scripting::Builtins::Color (Vehicle::*Getter)(), void (Vehicle::*Setter)(Framework::Scripting::Builtins::Color)>
+    void RegisterColorProp(v8::Isolate *isolate, v8::Local<v8::ObjectTemplate> proto, const char *name) {
+        proto->SetNativeDataProperty(
+            v8pp::to_v8(isolate, name).As<v8::Name>(),
+            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+                auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                if (self) {
+                    auto color = (self->*Getter)();
+                    auto &cls  = Framework::Scripting::Builtins::Color::GetClass(info.GetIsolate());
+                    info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Color(color)));
+                }
+            },
+            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
+                auto *self  = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());
+                auto *color = v8pp::class_<Framework::Scripting::Builtins::Color>::unwrap_object(info.GetIsolate(), value);
+                if (self && color) (self->*Setter)(*color);
+            });
+    }
 } // namespace
 
 Vehicle::Vehicle(uint64_t networkId): Entity(networkId) {
@@ -221,80 +284,20 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
 
         auto protoTemplate = _class->class_function_template()->PrototypeTemplate();
 
-// V8 accessor callbacks must be non-capturing function pointers, so each property is registered
-// explicitly. These macros keep the boilerplate readable without capturing anything.
-#define FW_VEH_BOOL(NAME, GETTER, SETTER)                                                                                                   \
-    protoTemplate->SetNativeDataProperty(                                                                                                   \
-        v8pp::to_v8(isolate, NAME).As<v8::Name>(),                                                                                          \
-        [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {                                                          \
-            auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());                                              \
-            if (self) info.GetReturnValue().Set(self->GETTER());                                                                            \
-        },                                                                                                                                  \
-        [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {                                   \
-            auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());                                              \
-            if (self && value->IsBoolean()) self->SETTER(value->BooleanValue(info.GetIsolate()));                                           \
-        })
-
-#define FW_VEH_FLOAT(NAME, GETTER, SETTER)                                                                                                  \
-    protoTemplate->SetNativeDataProperty(                                                                                                   \
-        v8pp::to_v8(isolate, NAME).As<v8::Name>(),                                                                                          \
-        [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {                                                          \
-            auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());                                              \
-            if (self) info.GetReturnValue().Set(self->GETTER());                                                                            \
-        },                                                                                                                                  \
-        [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {                                   \
-            auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());                                              \
-            if (self && value->IsNumber()) self->SETTER(static_cast<float>(value->NumberValue(info.GetIsolate()->GetCurrentContext()).FromMaybe(0.0))); \
-        })
-
-#define FW_VEH_INT(NAME, GETTER, SETTER)                                                                                                    \
-    protoTemplate->SetNativeDataProperty(                                                                                                   \
-        v8pp::to_v8(isolate, NAME).As<v8::Name>(),                                                                                          \
-        [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {                                                          \
-            auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());                                              \
-            if (self) info.GetReturnValue().Set(self->GETTER());                                                                            \
-        },                                                                                                                                  \
-        [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {                                   \
-            auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());                                              \
-            if (self && value->IsInt32()) self->SETTER(value->Int32Value(info.GetIsolate()->GetCurrentContext()).FromMaybe(0));            \
-        })
-
-#define FW_VEH_COLOR(NAME, GETTER, SETTER)                                                                                                  \
-    protoTemplate->SetNativeDataProperty(                                                                                                   \
-        v8pp::to_v8(isolate, NAME).As<v8::Name>(),                                                                                          \
-        [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {                                                          \
-            auto *self = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());                                              \
-            if (self) {                                                                                                                     \
-                auto color = self->GETTER();                                                                                                \
-                auto &cls  = Framework::Scripting::Builtins::Color::GetClass(info.GetIsolate());                                            \
-                info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Color(color)));        \
-            }                                                                                                                               \
-        },                                                                                                                                  \
-        [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {                                   \
-            auto *self  = v8pp::class_<Vehicle>::unwrap_object(info.GetIsolate(), info.This());                                            \
-            auto *color = v8pp::class_<Framework::Scripting::Builtins::Color>::unwrap_object(info.GetIsolate(), value);                     \
-            if (self && color) self->SETTER(*color);                                                                                        \
-        })
-
-        FW_VEH_BOOL("beaconLightsOn", GetBeaconLightsOn, SetBeaconLightsOn);
-        FW_VEH_COLOR("colorPrimary", GetColorPrimary, SetColorPrimary);
-        FW_VEH_COLOR("colorSecondary", GetColorSecondary, SetColorSecondary);
-        FW_VEH_FLOAT("dirt", GetDirt, SetDirt);
-        FW_VEH_BOOL("engineOn", GetEngineOn, SetEngineOn);
-        FW_VEH_FLOAT("fuel", GetFuel, SetFuel);
-        FW_VEH_INT("lockState", GetLockState, SetLockState);
-        FW_VEH_BOOL("radioOn", GetRadioOn, SetRadioOn);
-        FW_VEH_INT("radioStationId", GetRadioStationId, SetRadioStationId);
-        FW_VEH_COLOR("rimColor", GetRimColor, SetRimColor);
-        FW_VEH_FLOAT("rust", GetRust, SetRust);
-        FW_VEH_BOOL("sirenOn", GetSirenOn, SetSirenOn);
-        FW_VEH_COLOR("tireColor", GetTireColor, SetTireColor);
-        FW_VEH_COLOR("windowTint", GetWindowTint, SetWindowTint);
-
-#undef FW_VEH_BOOL
-#undef FW_VEH_FLOAT
-#undef FW_VEH_INT
-#undef FW_VEH_COLOR
+        RegisterBoolProp<&Vehicle::GetBeaconLightsOn, &Vehicle::SetBeaconLightsOn>(isolate, protoTemplate, "beaconLightsOn");
+        RegisterColorProp<&Vehicle::GetColorPrimary, &Vehicle::SetColorPrimary>(isolate, protoTemplate, "colorPrimary");
+        RegisterColorProp<&Vehicle::GetColorSecondary, &Vehicle::SetColorSecondary>(isolate, protoTemplate, "colorSecondary");
+        RegisterFloatProp<&Vehicle::GetDirt, &Vehicle::SetDirt>(isolate, protoTemplate, "dirt");
+        RegisterBoolProp<&Vehicle::GetEngineOn, &Vehicle::SetEngineOn>(isolate, protoTemplate, "engineOn");
+        RegisterFloatProp<&Vehicle::GetFuel, &Vehicle::SetFuel>(isolate, protoTemplate, "fuel");
+        RegisterIntProp<&Vehicle::GetLockState, &Vehicle::SetLockState>(isolate, protoTemplate, "lockState");
+        RegisterBoolProp<&Vehicle::GetRadioOn, &Vehicle::SetRadioOn>(isolate, protoTemplate, "radioOn");
+        RegisterIntProp<&Vehicle::GetRadioStationId, &Vehicle::SetRadioStationId>(isolate, protoTemplate, "radioStationId");
+        RegisterColorProp<&Vehicle::GetRimColor, &Vehicle::SetRimColor>(isolate, protoTemplate, "rimColor");
+        RegisterFloatProp<&Vehicle::GetRust, &Vehicle::SetRust>(isolate, protoTemplate, "rust");
+        RegisterBoolProp<&Vehicle::GetSirenOn, &Vehicle::SetSirenOn>(isolate, protoTemplate, "sirenOn");
+        RegisterColorProp<&Vehicle::GetTireColor, &Vehicle::SetTireColor>(isolate, protoTemplate, "tireColor");
+        RegisterColorProp<&Vehicle::GetWindowTint, &Vehicle::SetWindowTint>(isolate, protoTemplate, "windowTint");
 
         // licensePlate (string)
         protoTemplate->SetNativeDataProperty(
