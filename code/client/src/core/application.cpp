@@ -22,15 +22,8 @@
 
 #include "external/imgui/widgets/corner_text.h"
 
-#include "shared/modules/human_sync.hpp"
-#include "shared/modules/mod.hpp"
-#include "shared/modules/vehicle_sync.hpp"
-
-#include "shared/rpc/chat_message.h"
-#include "shared/rpc/environment.h"
-#include "shared/rpc/spawn_car.h"
-
-#include "world/game_rpc/set_transform.h"
+#include "shared/entities/human_entity.h"
+#include "shared/rpc/ids.h"
 
 #include "builtins/builtins.h"
 #include "modules/human.h"
@@ -38,8 +31,46 @@
 
 #include "application_module.h"
 
+#include <networking/network_peer.h>
+#include <mafianet/BitStream.h>
+#include <mafianet/string.h>
+#include <utils/optional.h>
+
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication;
+
+    namespace {
+        // Wire: <text>
+        void OnChatMessage(MafiaNet::BitStream *bs, MafiaNet::Packet *) {
+            MafiaNet::RakString text;
+            if (!bs->Read(text)) {
+                return;
+            }
+            if (gApplication && gApplication->GetChat()) {
+                gApplication->GetChat()->AddMessage(text.C_String());
+                Framework::Logging::GetLogger("chat")->trace(text.C_String());
+            }
+        }
+
+        // Wire: <optional weatherSet><optional dayTimeHours>
+        void OnSetEnvironment(MafiaNet::BitStream *bs, MafiaNet::Packet *) {
+            Framework::Utils::Optional<MafiaNet::RakString> weatherSet;
+            Framework::Utils::Optional<float> dayTimeHours;
+            weatherSet.Serialize(bs, false);
+            dayTimeHours.Serialize(bs, false);
+
+            const auto gfx = SDK::ue::gfx::environmenteffects::C_GfxEnvironmentEffects::GetInstance();
+            if (!gfx) {
+                return;
+            }
+            if (weatherSet.HasValue()) {
+                gfx->GetWeatherManager()->SetWeatherSet(weatherSet().C_String(), 1.0f);
+            }
+            if (dayTimeHours.HasValue()) {
+                gfx->GetWeatherManager()->SetDayTimeHours(dayTimeHours());
+            }
+        }
+    } // namespace
 
     void Application::PostInit() {
         // Create the state machine and initialize
@@ -80,23 +111,16 @@ namespace MafiaMP::Core {
 
         _chat->SetOnMessageSentCallback([this](const std::string &msg) {
             const auto net = gApplication->GetNetworkingEngine()->GetNetworkClient();
-
-            MafiaMP::Shared::RPC::ChatMessage chatMessage {};
-            chatMessage.FromParameters(msg);
-            net->SendRPC(chatMessage, MafiaNet::UNASSIGNED_RAKNET_GUID);
+            // Wire: <text>
+            MafiaNet::BitStream bs;
+            bs.Write(MafiaNet::RakString(msg.c_str()));
+            net->GetRPC()->Signal(Shared::RPC::kChatMessage, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
         });
 
         // setup debug routines
         _devFeatures.Init();
 
-        // Register client modules (sync)
-        GetWorldEngine()->GetWorld()->import <Shared::Modules::Mod>();
-        GetWorldEngine()->GetWorld()->import <Shared::Modules::HumanSync>();
-        GetWorldEngine()->GetWorld()->import <Shared::Modules::VehicleSync>();
-
-        // Register client modules
-        GetWorldEngine()->GetWorld()->import <Modules::Human>();
-        GetWorldEngine()->GetWorld()->import <Modules::Vehicle>();
+        // Entity types and their RPC handlers are registered in InitNetworkingMessages (Install).
 
         // Setup Lua VM wrapper
         _luaVM = std::make_shared<LuaVM>();
@@ -125,6 +149,10 @@ namespace MafiaMP::Core {
         if (_entityFactory) {
             _entityFactory->Update();
         }
+
+        // Drive replicated entities into the game each frame.
+        Core::Modules::Human::UpdateAll();
+        Core::Modules::Vehicle::UpdateAll();
 
         static bool isStyleInitialized = false;
         if (!isStyleInitialized) {
@@ -217,12 +245,11 @@ namespace MafiaMP::Core {
     }
 
     void Application::InitNetworkingMessages() {
-        SetOnConnectionFinalizedCallback([this](flecs::entity newPlayer, float tickInterval) {
+        // The local player's avatar arrives via replication and binds itself (ClientHuman binds to
+        // the game's local player and calls SetLocalPlayer); the handshake only carries the tick rate.
+        SetOnConnectionFinalizedCallback([this](float tickInterval) {
             _tickInterval = tickInterval;
             _stateMachine->RequestNextState(States::StateIds::SessionConnected);
-            _localPlayer = newPlayer;
-            Core::Modules::Human::SetupLocalPlayer(this, newPlayer);
-
             Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Connection established!");
         });
 
@@ -233,8 +260,9 @@ namespace MafiaMP::Core {
 
         InitRPCs();
 
-        Modules::Human::SetupMessages(this);
-        Modules::Vehicle::SetupMessages(this);
+        // Register the client entity types (ClientHuman/ClientVehicle) and their RPC handlers.
+        Modules::Human::Install();
+        Modules::Vehicle::Install();
 
         Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Networking messages registered!");
     }
@@ -381,56 +409,17 @@ namespace MafiaMP::Core {
     }
 
     uint64_t Application::GetLocalPlayerID() {
-        if (!_localPlayer) {
-            return 0;
-        }
-
-        const auto sid = _localPlayer.try_get<Framework::World::Modules::Base::ServerID>();
-        return sid->id;
+        return _localPlayer ? _localPlayer->GetNetworkID() : 0;
     }
 
     uint64_t Application::GetLocalPlayerOwnerID() {
-        if (!_localPlayer) {
-            return 0;
-        }
-
-        const auto str = _localPlayer.try_get<Framework::World::Modules::Base::Streamable>();
-        return str->owner;
+        return _localPlayer ? _localPlayer->ownerGUID : 0;
     }
 
     void Application::InitRPCs() {
-        const auto net = GetNetworkingEngine()->GetNetworkClient();
-
-        net->RegisterRPC<Shared::RPC::ChatMessage>([this](MafiaNet::RakNetGUID guid, Shared::RPC::ChatMessage *chatMessage) {
-            if (!chatMessage->Valid())
-                return;
-            _chat->AddMessage(chatMessage->GetText());
-
-            Framework::Logging::GetLogger("chat")->trace(chatMessage->GetText());
-        });
-        net->RegisterRPC<Shared::RPC::SetEnvironment>([this](MafiaNet::RakNetGUID guid, Shared::RPC::SetEnvironment *environmentMsg) {
-            if (!environmentMsg->Valid()) {
-                return;
-            }
-
-            const auto gfx = SDK::ue::gfx::environmenteffects::C_GfxEnvironmentEffects::GetInstance();
-
-            if (environmentMsg->GetWeatherSet().HasValue())
-                gfx->GetWeatherManager()->SetWeatherSet(environmentMsg->GetWeatherSet().Value().C_String(), 1.0f);
-            if (environmentMsg->GetDayTimeHours().HasValue())
-                gfx->GetWeatherManager()->SetDayTimeHours(environmentMsg->GetDayTimeHours().Value());
-        });
-        net->RegisterGameRPC<Framework::World::RPC::SetTransform>([this](MafiaNet::RakNetGUID guid, Framework::World::RPC::SetTransform *msg) {
-            if (!msg->Valid()) {
-                return;
-            }
-            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            GetWorldEngine()->UpdateEntityTransform(e, msg->GetTransform());
-        });
+        auto *rpc = GetNetworkingEngine()->GetNetworkClient()->GetRPC();
+        rpc->RegisterFunction(Shared::RPC::kChatMessage, &OnChatMessage);
+        rpc->RegisterFunction(Shared::RPC::kSetEnvironment, &OnSetEnvironment);
     }
 
     std::string gProjectPath;

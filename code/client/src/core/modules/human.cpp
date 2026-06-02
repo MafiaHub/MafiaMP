@@ -168,6 +168,7 @@ namespace MafiaMP::Core::Modules {
         if (human) {
             charController = reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(human->GetCharacterController());
         }
+        Core::gApplication->SetLocalPlayer(this);
     }
 
     void Human::RequestPed() {
@@ -183,7 +184,12 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::DeallocReplica(MafiaNet::Connection_RM3 *) {
-        if (!isLocalPlayer && info) {
+        if (isLocalPlayer) {
+            if (Core::gApplication->GetLocalPlayer() == this) {
+                Core::gApplication->SetLocalPlayer(nullptr);
+            }
+        }
+        else if (info) {
             Core::gApplication->GetEntityFactory()->ReturnEntity(info);
             info = nullptr;
         }
