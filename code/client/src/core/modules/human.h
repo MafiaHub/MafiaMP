@@ -45,9 +45,14 @@ namespace MafiaMP::Core::Modules {
         void DeallocReplica(MafiaNet::Connection_RM3 *sourceConnection) override;
         // New network data arrived: apply remote state and refresh interpolation targets.
         void DeserializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::DeserializationContext *ctx) override;
+        // Server forced a transform on us (teleport): move the game ped to the new position.
+        void OnTransformForced() override;
 
         // Per-frame driver for this human.
         void Frame();
+
+        // Teleport the local player's game ped to this entity's replicated transform.
+        void TeleportLocalToReplicated();
 
         // --- Module setup (called once from the client world) ---
         static void Install();

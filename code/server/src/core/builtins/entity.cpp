@@ -31,6 +31,7 @@ Framework::Scripting::Builtins::Vector3 Entity::GetPosition() const {
 void Entity::SetPosition(const Framework::Scripting::Builtins::Vector3 &pos) {
     if (auto *e = Resolve()) {
         e->position = pos.vec();
+        e->ForceTransform();
     }
 }
 
@@ -46,12 +47,14 @@ void Entity::SetRotationFromEuler(const Framework::Scripting::Builtins::Vector3 
     if (auto *e = Resolve()) {
         glm::vec3 radians(glm::radians(rot.vec().x), glm::radians(rot.vec().y), glm::radians(rot.vec().z));
         e->rotation = glm::quat(radians);
+        e->ForceTransform();
     }
 }
 
 void Entity::SetRotationFromQuaternion(const Framework::Scripting::Builtins::Quaternion &quat) {
     if (auto *e = Resolve()) {
         e->rotation = quat.quat();
+        e->ForceTransform();
     }
 }
 

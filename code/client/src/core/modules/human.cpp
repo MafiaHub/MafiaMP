@@ -5,6 +5,7 @@
 #include "vehicle.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <imgui/imgui.h>
 
 #include <external/imgui/widgets/nametag.h>
@@ -146,6 +147,7 @@ namespace MafiaMP::Core::Modules {
             }
             self->human->GetInventoryWrapper()->AddWeapon(weaponId, ammo);
         }
+
     } // namespace
 
     bool Human::IsOwnedByUs() const {
@@ -169,6 +171,36 @@ namespace MafiaMP::Core::Modules {
             charController = reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(human->GetCharacterController());
         }
         Core::gApplication->SetLocalPlayer(this);
+        // Adopt the server-assigned spawn that arrived with construction.
+        TeleportLocalToReplicated();
+    }
+
+    void Human::OnTransformForced() {
+        // The framework already applied the new position/rotation; move the game ped to match.
+        if (isLocalPlayer) {
+            TeleportLocalToReplicated();
+        }
+    }
+
+    void Human::TeleportLocalToReplicated() {
+        if (!human) {
+            return;
+        }
+        SDK::ue::sys::math::C_Vector newPos    = {position.x, position.y, position.z};
+        SDK::ue::sys::math::C_Quat newRot      = {rotation.x, rotation.y, rotation.z, rotation.w};
+        SDK::ue::sys::math::C_Matrix transform = {};
+        transform.Identity();
+        transform.SetRot(newRot);
+        transform.SetPos(newPos);
+
+        // TeleportPlayer preloads the world (collisions) and moves the car the player is in. It needs
+        // a direction, which we derive from the rotation.
+        glm::mat4 rotMatrix                 = glm::mat4_cast(rotation);
+        SDK::ue::sys::math::C_Vector newDir = {-rotMatrix[1][0], rotMatrix[1][1], rotMatrix[1][2]};
+        SDK::ue::C_CntPtr<uintptr_t> syncObject;
+        SDK::GetPlayerTeleportModule()->TeleportPlayer(syncObject, newPos, newDir, true, true, true, false);
+
+        human->SetTransform(transform);
     }
 
     void Human::RequestPed() {
