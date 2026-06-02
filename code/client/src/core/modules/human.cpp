@@ -93,7 +93,7 @@ namespace MafiaMP::Core::Modules {
         // --- Raw RPC4 event handlers ---
 
         // Wire: <human NetworkID><aimPos><aimDir><unk0><unk1>
-        void OnHumanShoot(MafiaNet::BitStream *bs, MafiaNet::Packet *) {
+        void OnHumanShoot(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
             uint64_t id = 0;
             glm::vec3 aimPos {}, aimDir {};
             bool unk0 = false, unk1 = false;
@@ -117,7 +117,7 @@ namespace MafiaMP::Core::Modules {
         }
 
         // Wire: <human NetworkID><unk0>
-        void OnHumanReload(MafiaNet::BitStream *bs, MafiaNet::Packet *) {
+        void OnHumanReload(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
             uint64_t id = 0;
             int unk0    = 0;
             bs->Read(id);
@@ -134,7 +134,7 @@ namespace MafiaMP::Core::Modules {
         }
 
         // Wire: <human NetworkID><weaponId><ammo>
-        void OnHumanAddWeapon(MafiaNet::BitStream *bs, MafiaNet::Packet *) {
+        void OnHumanAddWeapon(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
             uint64_t id = 0;
             int weaponId = 0, ammo = 0;
             bs->Read(id);
@@ -440,9 +440,9 @@ namespace MafiaMP::Core::Modules {
 
         auto *rpc = Framework::CoreModules::GetNetworkPeer()->GetRPC();
         // Human action RPCs received from peers.
-        rpc->RegisterSlot(Shared::RPC::kHumanShoot, &OnHumanShoot, 0);
-        rpc->RegisterSlot(Shared::RPC::kHumanReload, &OnHumanReload, 0);
-        rpc->RegisterSlot(Shared::RPC::kHumanAddWeapon, &OnHumanAddWeapon, 0);
+        rpc->RegisterSlot(Shared::RPC::kHumanShoot, &OnHumanShoot, nullptr, 0);
+        rpc->RegisterSlot(Shared::RPC::kHumanReload, &OnHumanReload, nullptr, 0);
+        rpc->RegisterSlot(Shared::RPC::kHumanAddWeapon, &OnHumanAddWeapon, nullptr, 0);
     }
 
     void Human::UpdateAll() {

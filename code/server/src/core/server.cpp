@@ -58,7 +58,7 @@ namespace MafiaMP {
         // --- Raw RPC4 event handlers ---
 
         // Wire: <shooter NetworkID><aimPos><aimDir><unk0><unk1>. Relayed to everyone but the shooter.
-        void OnHumanShoot(MafiaNet::BitStream *bs, MafiaNet::Packet *packet) {
+        void OnHumanShoot(MafiaNet::BitStream *bs, MafiaNet::Packet *packet, void *) {
             uint64_t shooterId = 0;
             glm::vec3 aimPos {}, aimDir {};
             bool unk0 = false, unk1 = false;
@@ -82,7 +82,7 @@ namespace MafiaMP {
         }
 
         // Wire: <shooter NetworkID><unk0>. Relayed to everyone but the shooter.
-        void OnHumanReload(MafiaNet::BitStream *bs, MafiaNet::Packet *packet) {
+        void OnHumanReload(MafiaNet::BitStream *bs, MafiaNet::Packet *packet, void *) {
             uint64_t shooterId = 0;
             int unk0           = 0;
             bs->Read(shooterId);
@@ -99,14 +99,14 @@ namespace MafiaMP {
         }
 
         // Wire: empty. The dying player is resolved from the sender.
-        void OnHumanDeath(MafiaNet::BitStream *, MafiaNet::Packet *packet) {
+        void OnHumanDeath(MafiaNet::BitStream *, MafiaNet::Packet *packet, void *) {
             if (auto *human = ViewerHuman(packet->guid.g)) {
                 Scripting::Player::EventPlayerDied(human->GetNetworkID());
             }
         }
 
         // Wire: <vehicle NetworkID><seatIndex>.
-        void OnVehiclePlayerEnter(MafiaNet::BitStream *bs, MafiaNet::Packet *packet) {
+        void OnVehiclePlayerEnter(MafiaNet::BitStream *bs, MafiaNet::Packet *packet, void *) {
             uint64_t vehicleId = 0;
             int seatIndex      = 0;
             bs->Read(vehicleId);
@@ -128,7 +128,7 @@ namespace MafiaMP {
         }
 
         // Wire: <vehicle NetworkID>.
-        void OnVehiclePlayerLeave(MafiaNet::BitStream *bs, MafiaNet::Packet *packet) {
+        void OnVehiclePlayerLeave(MafiaNet::BitStream *bs, MafiaNet::Packet *packet, void *) {
             uint64_t vehicleId = 0;
             bs->Read(vehicleId);
 
@@ -150,7 +150,7 @@ namespace MafiaMP {
         }
 
         // Wire: <modelName>.
-        void OnSpawnCar(MafiaNet::BitStream *bs, MafiaNet::Packet *) {
+        void OnSpawnCar(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
             MafiaNet::RakString modelName;
             if (!bs->Read(modelName)) {
                 return;
@@ -246,12 +246,12 @@ namespace MafiaMP {
     void Server::InitRPCs() {
         auto *rpc = GetNetworkingEngine()->GetNetworkServer()->GetRPC();
         // Gameplay RPCs received from clients.
-        rpc->RegisterSlot(Shared::RPC::kHumanShoot, &OnHumanShoot, 0);
-        rpc->RegisterSlot(Shared::RPC::kHumanReload, &OnHumanReload, 0);
-        rpc->RegisterSlot(Shared::RPC::kHumanDeath, &OnHumanDeath, 0);
-        rpc->RegisterSlot(Shared::RPC::kVehiclePlayerEnter, &OnVehiclePlayerEnter, 0);
-        rpc->RegisterSlot(Shared::RPC::kVehiclePlayerLeave, &OnVehiclePlayerLeave, 0);
-        rpc->RegisterSlot(Shared::RPC::kSpawnCar, &OnSpawnCar, 0);
+        rpc->RegisterSlot(Shared::RPC::kHumanShoot, &OnHumanShoot, nullptr, 0);
+        rpc->RegisterSlot(Shared::RPC::kHumanReload, &OnHumanReload, nullptr, 0);
+        rpc->RegisterSlot(Shared::RPC::kHumanDeath, &OnHumanDeath, nullptr, 0);
+        rpc->RegisterSlot(Shared::RPC::kVehiclePlayerEnter, &OnVehiclePlayerEnter, nullptr, 0);
+        rpc->RegisterSlot(Shared::RPC::kVehiclePlayerLeave, &OnVehiclePlayerLeave, nullptr, 0);
+        rpc->RegisterSlot(Shared::RPC::kSpawnCar, &OnSpawnCar, nullptr, 0);
     }
 
     void Server::ModuleRegister(Framework::Scripting::Engine *engine) {

@@ -166,10 +166,7 @@ namespace MafiaMP::Core {
             [this](const cxxopts::ParseResult &result) {
                 const auto net = gApplication->GetNetworkingEngine()->GetNetworkClient();
                 if (net->GetConnectionState() == Framework::Networking::PeerState::CONNECTED) {
-                    const std::string msg = result["msg"].as<std::string>();
-                    MafiaNet::BitStream bs;
-                    bs.Write(MafiaNet::RakString(msg.c_str()));
-                    net->GetRPC()->Signal(MafiaMP::Shared::RPC::kChatMessage, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
+                    gApplication->SendChatMessage(result["msg"].as<std::string>());
                 }
             },
             "sends a chat message");

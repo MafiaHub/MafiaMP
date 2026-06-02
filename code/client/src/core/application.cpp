@@ -41,7 +41,7 @@ namespace MafiaMP::Core {
 
     namespace {
         // Wire: <optional weatherSet><optional dayTimeHours>
-        void OnSetEnvironment(MafiaNet::BitStream *bs, MafiaNet::Packet *) {
+        void OnSetEnvironment(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
             Framework::Utils::Optional<MafiaNet::RakString> weatherSet;
             Framework::Utils::Optional<float> dayTimeHours;
             weatherSet.Serialize(bs, false);
@@ -411,7 +411,7 @@ namespace MafiaMP::Core {
     void Application::InitRPCs() {
         auto *rpc = GetNetworkingEngine()->GetNetworkClient()->GetRPC();
         // RPCs received from the server. (Chat is handled by the framework client instance.)
-        rpc->RegisterSlot(Shared::RPC::kSetEnvironment, &OnSetEnvironment, 0);
+        rpc->RegisterSlot(Shared::RPC::kSetEnvironment, &OnSetEnvironment, nullptr, 0);
     }
 
     std::string gProjectPath;
