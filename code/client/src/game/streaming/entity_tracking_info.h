@@ -2,9 +2,10 @@
 
 #include "sdk/entities/c_entity.h"
 
-#include <functional>
+#include <networking/replication/network_entity.h>
 
-#include <flecs/distr/flecs.h>
+#include <functional>
+#include <utility>
 
 namespace MafiaMP::Game::Streaming {
     class EntityTrackingInfo {
@@ -23,7 +24,7 @@ namespace MafiaMP::Game::Streaming {
         BeforeSpawnCallback _beforeSpawn;
         RequestFinishCallback _requestFinish;
         ReturnCallback _return;
-        flecs::entity _ecsEntity;
+        Framework::Networking::Replication::NetworkEntity *_networkEntity = nullptr;
 
       public:
         EntityTrackingInfo(SDK::E_EntityType type) noexcept: _type(type) {};
@@ -40,8 +41,8 @@ namespace MafiaMP::Game::Streaming {
         SDK::C_Entity *GetEntity() const {
             return _entity;
         }
-        flecs::entity GetNetworkEntity() const {
-            return _ecsEntity;
+        Framework::Networking::Replication::NetworkEntity *GetNetworkEntity() const {
+            return _networkEntity;
         }
 
         bool IsCreated() const {
@@ -57,8 +58,8 @@ namespace MafiaMP::Game::Streaming {
         void SetReturnCallback(ReturnCallback cb) {
             _return = cb;
         }
-        void SetNetworkEntity(flecs::entity ent) {
-            _ecsEntity = ent;
+        void SetNetworkEntity(Framework::Networking::Replication::NetworkEntity *entity) {
+            _networkEntity = entity;
         }
     };
 } // namespace MafiaMP::Game::Streaming
