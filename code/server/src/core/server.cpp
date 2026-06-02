@@ -160,7 +160,7 @@ namespace MafiaMP {
                 vehicle->seats[seatIndex] = player->GetNetworkID();
                 if (seatIndex == 0) {
                     // The driver's client becomes authoritative for the vehicle.
-                    vehicle->ownerGUID = packet->guid.g;
+                    vehicle->SetOwner(packet->guid.g);
                 }
             }
             Scripting::Vehicle::EventVehiclePlayerEnter(vehicleId, player->GetNetworkID(), seatIndex);
@@ -181,7 +181,7 @@ namespace MafiaMP {
                 if (vehicle->seats[i] == playerId) {
                     vehicle->seats[i] = 0;
                     if (i == 0) {
-                        vehicle->ownerGUID = 0xFFFFFFFFFFFFFFFF; // back to the server
+                        vehicle->SetOwner(0xFFFFFFFFFFFFFFFF); // back to the server
                     }
                 }
             }
@@ -275,7 +275,7 @@ namespace MafiaMP {
 
     void Server::InitRPCs() {
         auto *rpc = GetNetworkingEngine()->GetNetworkServer()->GetRPC();
-        // Slots, not functions: clients deliver these with Signal(), which only invokes slots.
+        // Gameplay RPCs received from clients.
         rpc->RegisterSlot(Shared::RPC::kChatMessage, &OnChatMessage, 0);
         rpc->RegisterSlot(Shared::RPC::kHumanShoot, &OnHumanShoot, 0);
         rpc->RegisterSlot(Shared::RPC::kHumanReload, &OnHumanReload, 0);
