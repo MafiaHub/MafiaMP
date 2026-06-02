@@ -6,6 +6,7 @@
 
 #include <core_modules.h>
 #include <networking/network_peer.h>
+#include <scripting/builtins/property.h>
 #include <world/engine.h>
 
 #include <mafianet/BitStream.h>
@@ -125,81 +126,23 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
 
         auto protoTemplate = _class->class_function_template()->PrototypeTemplate();
 
-        protoTemplate->SetNativeDataProperty(
-            v8pp::to_v8(isolate, "aiming").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) info.GetReturnValue().Set(self->IsAiming());
-            });
+        using namespace Framework::Scripting::Builtins;
 
-        protoTemplate->SetNativeDataProperty(
-            v8pp::to_v8(isolate, "firing").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) info.GetReturnValue().Set(self->IsFiring());
-            });
+        RegisterReadonlyProperty<Human, &Human::IsAiming>(isolate, protoTemplate, "aiming");
+        RegisterReadonlyProperty<Human, &Human::IsFiring>(isolate, protoTemplate, "firing");
+        RegisterReadonlyObjectProperty<Human, &Human::GetAimDir>(isolate, protoTemplate, "aimDir");
+        RegisterReadonlyObjectProperty<Human, &Human::GetAimPos>(isolate, protoTemplate, "aimPos");
+        RegisterProperty<Human, &Human::GetHealth, &Human::SetHealth>(isolate, protoTemplate, "health");
+        RegisterReadonlyProperty<Human, &Human::GetWeaponId>(isolate, protoTemplate, "weaponId");
+        RegisterReadonlyProperty<Human, &Human::GetNickname>(isolate, protoTemplate, "nickname");
+        RegisterReadonlyProperty<Human, &Human::GetVehicleSeatIndex>(isolate, protoTemplate, "vehicleSeatIndex");
 
-        protoTemplate->SetNativeDataProperty(
-            v8pp::to_v8(isolate, "aimDir").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) {
-                    auto dir = self->GetAimDir();
-                    auto &cls = Framework::Scripting::Builtins::Vector3::GetClass(info.GetIsolate());
-                    info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Vector3(dir)));
-                }
-            });
-
-        protoTemplate->SetNativeDataProperty(
-            v8pp::to_v8(isolate, "aimPos").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) {
-                    auto pos = self->GetAimPos();
-                    auto &cls = Framework::Scripting::Builtins::Vector3::GetClass(info.GetIsolate());
-                    info.GetReturnValue().Set(cls.import_external(info.GetIsolate(), new Framework::Scripting::Builtins::Vector3(pos)));
-                }
-            });
-
-        protoTemplate->SetNativeDataProperty(
-            v8pp::to_v8(isolate, "health").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) info.GetReturnValue().Set(self->GetHealth());
-            },
-            [](v8::Local<v8::Name>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info) {
-                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
-                if (self && value->IsNumber()) {
-                    self->SetHealth(static_cast<float>(value->NumberValue(info.GetIsolate()->GetCurrentContext()).FromMaybe(0.0)));
-                }
-            });
-
-        protoTemplate->SetNativeDataProperty(
-            v8pp::to_v8(isolate, "weaponId").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) info.GetReturnValue().Set(self->GetWeaponId());
-            });
-
-        protoTemplate->SetNativeDataProperty(
-            v8pp::to_v8(isolate, "nickname").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) info.GetReturnValue().Set(v8pp::to_v8(info.GetIsolate(), self->GetNickname()));
-            });
-
+        // vehicle returns a wrapped Vehicle handle and needs the isolate, so it stays bespoke.
         protoTemplate->SetNativeDataProperty(
             v8pp::to_v8(isolate, "vehicle").As<v8::Name>(),
             [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
                 auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
                 if (self) info.GetReturnValue().Set(self->GetVehicle(info.GetIsolate()));
-            });
-
-        protoTemplate->SetNativeDataProperty(
-            v8pp::to_v8(isolate, "vehicleSeatIndex").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) info.GetReturnValue().Set(self->GetVehicleSeatIndex());
             });
     }
     return *_class;
