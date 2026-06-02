@@ -275,13 +275,14 @@ namespace MafiaMP {
 
     void Server::InitRPCs() {
         auto *rpc = GetNetworkingEngine()->GetNetworkServer()->GetRPC();
-        rpc->RegisterFunction(Shared::RPC::kChatMessage, &OnChatMessage);
-        rpc->RegisterFunction(Shared::RPC::kHumanShoot, &OnHumanShoot);
-        rpc->RegisterFunction(Shared::RPC::kHumanReload, &OnHumanReload);
-        rpc->RegisterFunction(Shared::RPC::kHumanDeath, &OnHumanDeath);
-        rpc->RegisterFunction(Shared::RPC::kVehiclePlayerEnter, &OnVehiclePlayerEnter);
-        rpc->RegisterFunction(Shared::RPC::kVehiclePlayerLeave, &OnVehiclePlayerLeave);
-        rpc->RegisterFunction(Shared::RPC::kSpawnCar, &OnSpawnCar);
+        // Slots, not functions: clients deliver these with Signal(), which only invokes slots.
+        rpc->RegisterSlot(Shared::RPC::kChatMessage, &OnChatMessage, 0);
+        rpc->RegisterSlot(Shared::RPC::kHumanShoot, &OnHumanShoot, 0);
+        rpc->RegisterSlot(Shared::RPC::kHumanReload, &OnHumanReload, 0);
+        rpc->RegisterSlot(Shared::RPC::kHumanDeath, &OnHumanDeath, 0);
+        rpc->RegisterSlot(Shared::RPC::kVehiclePlayerEnter, &OnVehiclePlayerEnter, 0);
+        rpc->RegisterSlot(Shared::RPC::kVehiclePlayerLeave, &OnVehiclePlayerLeave, 0);
+        rpc->RegisterSlot(Shared::RPC::kSpawnCar, &OnSpawnCar, 0);
     }
 
     void Server::ModuleRegister(Framework::Scripting::Engine *engine) {

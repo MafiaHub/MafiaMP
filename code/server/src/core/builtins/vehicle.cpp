@@ -45,7 +45,7 @@ namespace {
     }
 } // namespace
 
-Vehicle::Vehicle(uint64_t networkId): Entity(networkId) {
+Vehicle::Vehicle(uint64_t networkId): Framework::Scripting::Builtins::Entity(networkId) {
     if (!ResolveVehicle()) {
         throw std::runtime_error("Entity handle is not a Vehicle!");
     }
@@ -82,14 +82,16 @@ std::string Vehicle::ToString() const {
     return ss.str();
 }
 
-// Vehicle properties are replicated state on the entity; setting one syncs via the DeltaSerializer.
+// Vehicle properties are replicated state on the entity. For an unowned vehicle the change syncs to
+// everyone via the DeltaSerializer; for an owned (driven) vehicle MutateData also forces it onto the
+// owner, since the server's word is final even over an entity a client is authoritative for.
 
 bool Vehicle::GetBeaconLightsOn() {
     auto *v = ResolveVehicle();
     return v && v->data.beaconLightsOn;
 }
 void Vehicle::SetBeaconLightsOn(bool on) {
-    if (auto *v = ResolveVehicle()) v->data.beaconLightsOn = on;
+    MutateData([&](auto &data) { data.beaconLightsOn = on; });
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetColorPrimary() {
@@ -97,7 +99,7 @@ Framework::Scripting::Builtins::Color Vehicle::GetColorPrimary() {
     return Framework::Scripting::Builtins::Color(v ? v->data.colorPrimary : glm::vec4(0));
 }
 void Vehicle::SetColorPrimary(Framework::Scripting::Builtins::Color color) {
-    if (auto *v = ResolveVehicle()) v->data.colorPrimary = color.vec();
+    MutateData([&](auto &data) { data.colorPrimary = color.vec(); });
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetColorSecondary() {
@@ -105,7 +107,7 @@ Framework::Scripting::Builtins::Color Vehicle::GetColorSecondary() {
     return Framework::Scripting::Builtins::Color(v ? v->data.colorSecondary : glm::vec4(0));
 }
 void Vehicle::SetColorSecondary(Framework::Scripting::Builtins::Color color) {
-    if (auto *v = ResolveVehicle()) v->data.colorSecondary = color.vec();
+    MutateData([&](auto &data) { data.colorSecondary = color.vec(); });
 }
 
 float Vehicle::GetDirt() {
@@ -113,7 +115,7 @@ float Vehicle::GetDirt() {
     return v ? v->data.dirt : 0.0f;
 }
 void Vehicle::SetDirt(float dirt) {
-    if (auto *v = ResolveVehicle()) v->data.dirt = dirt;
+    MutateData([&](auto &data) { data.dirt = dirt; });
 }
 
 bool Vehicle::GetEngineOn() {
@@ -121,7 +123,7 @@ bool Vehicle::GetEngineOn() {
     return v && v->data.engineOn;
 }
 void Vehicle::SetEngineOn(bool on) {
-    if (auto *v = ResolveVehicle()) v->data.engineOn = on;
+    MutateData([&](auto &data) { data.engineOn = on; });
 }
 
 float Vehicle::GetFuel() {
@@ -129,19 +131,19 @@ float Vehicle::GetFuel() {
     return v ? v->data.fuel : 0.0f;
 }
 void Vehicle::SetFuel(float fuel) {
-    if (auto *v = ResolveVehicle()) v->data.fuel = fuel;
+    MutateData([&](auto &data) { data.fuel = fuel; });
 }
 
 std::string Vehicle::GetLicensePlate() {
     auto *v = ResolveVehicle();
-    return v ? std::string(v->data.licensePlate) : "";
+    return v ? std::string(v->data.licensePlate.data()) : "";
 }
 void Vehicle::SetLicensePlate(std::string plate) {
-    auto *v = ResolveVehicle();
-    if (!v) return;
-    const size_t copyLength = std::min<size_t>(Shared::Constants::VEHICLE_LICENSE_PLATE_MAX_LENGTH - 1, plate.length());
-    std::memcpy(v->data.licensePlate, plate.c_str(), copyLength);
-    v->data.licensePlate[copyLength] = '\0';
+    MutateData([&](auto &data) {
+        const size_t copyLength = std::min<size_t>(Shared::Constants::VEHICLE_LICENSE_PLATE_MAX_LENGTH - 1, plate.length());
+        std::memcpy(data.licensePlate.data(), plate.c_str(), copyLength);
+        data.licensePlate[copyLength] = '\0';
+    });
 }
 
 int Vehicle::GetLockState() {
@@ -153,7 +155,7 @@ void Vehicle::SetLockState(int lockState) {
         Framework::Logging::GetLogger("Scripting")->warn("Invalid lockState value: {}", lockState);
         return;
     }
-    if (auto *v = ResolveVehicle()) v->data.lockState = static_cast<Shared::Modules::VehicleSync::LockState>(lockState);
+    MutateData([&](auto &data) { data.lockState = static_cast<Shared::Modules::VehicleSync::LockState>(lockState); });
 }
 
 bool Vehicle::GetRadioOn() {
@@ -161,7 +163,7 @@ bool Vehicle::GetRadioOn() {
     return v && v->data.radioOn;
 }
 void Vehicle::SetRadioOn(bool on) {
-    if (auto *v = ResolveVehicle()) v->data.radioOn = on;
+    MutateData([&](auto &data) { data.radioOn = on; });
 }
 
 int Vehicle::GetRadioStationId() {
@@ -169,7 +171,7 @@ int Vehicle::GetRadioStationId() {
     return v ? v->data.radioStationId : 0;
 }
 void Vehicle::SetRadioStationId(int id) {
-    if (auto *v = ResolveVehicle()) v->data.radioStationId = id;
+    MutateData([&](auto &data) { data.radioStationId = id; });
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetRimColor() {
@@ -177,7 +179,7 @@ Framework::Scripting::Builtins::Color Vehicle::GetRimColor() {
     return Framework::Scripting::Builtins::Color(v ? v->data.rimColor : glm::vec4(0));
 }
 void Vehicle::SetRimColor(Framework::Scripting::Builtins::Color color) {
-    if (auto *v = ResolveVehicle()) v->data.rimColor = color.vec();
+    MutateData([&](auto &data) { data.rimColor = color.vec(); });
 }
 
 float Vehicle::GetRust() {
@@ -185,7 +187,7 @@ float Vehicle::GetRust() {
     return v ? v->data.rust : 0.0f;
 }
 void Vehicle::SetRust(float rust) {
-    if (auto *v = ResolveVehicle()) v->data.rust = rust;
+    MutateData([&](auto &data) { data.rust = rust; });
 }
 
 bool Vehicle::GetSirenOn() {
@@ -193,7 +195,7 @@ bool Vehicle::GetSirenOn() {
     return v && v->data.sirenOn;
 }
 void Vehicle::SetSirenOn(bool on) {
-    if (auto *v = ResolveVehicle()) v->data.sirenOn = on;
+    MutateData([&](auto &data) { data.sirenOn = on; });
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetTireColor() {
@@ -201,7 +203,7 @@ Framework::Scripting::Builtins::Color Vehicle::GetTireColor() {
     return Framework::Scripting::Builtins::Color(v ? v->data.tireColor : glm::vec4(0));
 }
 void Vehicle::SetTireColor(Framework::Scripting::Builtins::Color color) {
-    if (auto *v = ResolveVehicle()) v->data.tireColor = color.vec();
+    MutateData([&](auto &data) { data.tireColor = color.vec(); });
 }
 
 Framework::Scripting::Builtins::Color Vehicle::GetWindowTint() {
@@ -209,14 +211,14 @@ Framework::Scripting::Builtins::Color Vehicle::GetWindowTint() {
     return Framework::Scripting::Builtins::Color(v ? v->data.windowTint : glm::vec4(0));
 }
 void Vehicle::SetWindowTint(Framework::Scripting::Builtins::Color color) {
-    if (auto *v = ResolveVehicle()) v->data.windowTint = color.vec();
+    MutateData([&](auto &data) { data.windowTint = color.vec(); });
 }
 
 v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
     if (!_class) {
         _class = std::make_unique<v8pp::class_<Vehicle>>(isolate);
         _class->auto_wrap_objects(true);
-        _class->inherit<Entity>()
+        _class->inherit<Framework::Scripting::Builtins::Entity>()
             .ctor<uint64_t>()
             .function("toString", &Vehicle::ToString);
 

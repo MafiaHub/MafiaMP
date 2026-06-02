@@ -4,10 +4,9 @@
 #include <v8pp/class.hpp>
 #include <v8pp/convert.hpp>
 
-#include "entity.h"
-
 #include "shared/entities/human_entity.h"
 
+#include <scripting/builtins/entity.h>
 #include <scripting/builtins/vector3.h>
 
 #include <cstdint>
@@ -15,7 +14,7 @@
 #include <string>
 
 namespace MafiaMP::Scripting {
-    class Human: public Entity {
+    class Human: public Framework::Scripting::Builtins::Entity {
       public:
         Human(uint64_t networkId);
 

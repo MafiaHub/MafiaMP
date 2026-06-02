@@ -38,7 +38,7 @@ class EntityCollection {
         if (!repl) {
             return;
         }
-        repl->ForEachEntity([&](Replication::NetworkEntity *e) {
+        repl->ForEachEntity([&](Framework::Networking::Replication::NetworkEntity *e) {
             auto *typed = dynamic_cast<NativeType *>(e);
             if (!typed) {
                 return;

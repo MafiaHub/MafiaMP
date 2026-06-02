@@ -4,18 +4,17 @@
 #include <v8pp/class.hpp>
 #include <v8pp/convert.hpp>
 
-#include "entity.h"
-
 #include "shared/entities/vehicle_entity.h"
 
 #include <scripting/builtins/color.h>
+#include <scripting/builtins/entity.h>
 
 #include <cstdint>
 #include <memory>
 #include <string>
 
 namespace MafiaMP::Scripting {
-    class Vehicle final: public Entity {
+    class Vehicle final: public Framework::Scripting::Builtins::Entity {
       public:
         Vehicle(uint64_t networkId);
 
@@ -77,6 +76,17 @@ namespace MafiaMP::Scripting {
         void SetWindowTint(Framework::Scripting::Builtins::Color tint);
 
       private:
+        // Mutates the vehicle's replicated data, then lets the server have the last word over the
+        // owner: ForceState pushes the change to the owning client (no-op for unowned vehicles, which
+        // replicate the change to everyone through the DeltaSerializer instead).
+        template <typename Mutator>
+        void MutateData(Mutator &&mutate) {
+            if (auto *v = ResolveVehicle()) {
+                mutate(v->data);
+                v->ForceState();
+            }
+        }
+
         static std::unique_ptr<v8pp::class_<Vehicle>> _class;
     };
 } // namespace MafiaMP::Scripting

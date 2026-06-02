@@ -10,6 +10,7 @@
 #include "shared/entities/vehicle_entity.h"
 
 #include <core_modules.h>
+#include <scripting/builtins/entity.h>
 #include <world/server.h>
 
 #include "entity_collection.h"
@@ -60,7 +61,7 @@ namespace MafiaMP::Scripting {
             }
 
             // Ensure the entity classes exist for v8pp type conversion.
-            Entity::GetClass(isolate);
+            Framework::Scripting::Builtins::Entity::GetClass(isolate);
             Vehicle::GetClass(isolate);
             Player::GetClass(isolate);
 

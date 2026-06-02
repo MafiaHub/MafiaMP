@@ -2,8 +2,9 @@
 
 #include <v8.h>
 
+#include <scripting/builtins/entity.h>
+
 #include "chat.h"
-#include "entity.h"
 #include "human.h"
 #include "player.h"
 #include "vehicle.h"
@@ -18,7 +19,7 @@ namespace MafiaMP::Scripting {
             }
 
             // Register entity classes on Framework object
-            Scripting::Entity::Register(isolate, frameworkObj);
+            Framework::Scripting::Builtins::Entity::Register(isolate, frameworkObj);
             Scripting::Human::Register(isolate, frameworkObj);
             Scripting::Player::Register(isolate, frameworkObj);
             Scripting::Vehicle::Register(isolate, frameworkObj);
