@@ -2,16 +2,10 @@
 
 #include "core/server.h"
 
-#include "shared/rpc/ids.h"
-
-#include <core_modules.h>
 #include <integrations/server/scripting/module.h>
 #include <logging/logger.h>
-#include <networking/network_peer.h>
+#include <scripting/builtins/chat.h>
 #include <scripting/node_engine.h>
-
-#include <mafianet/BitStream.h>
-#include <mafianet/string.h>
 
 namespace MafiaMP::Scripting {
 
@@ -74,15 +68,7 @@ void Player::Destroy() {
 }
 
 void Player::SendChat(std::string message) {
-    auto *human = ResolveHuman();
-    auto *net   = Framework::CoreModules::GetNetworkPeer();
-    if (!human || !net) {
-        return;
-    }
-    // Wire: <text>
-    MafiaNet::BitStream bs;
-    bs.Write(MafiaNet::RakString(message.c_str()));
-    net->GetRPC()->Signal(Shared::RPC::kChatMessage, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, MafiaNet::RakNetGUID(human->ownerGUID), false, false);
+    Framework::Scripting::Builtins::Chat::SendToPlayer(this, message);
 }
 
 v8pp::class_<Player> &Player::GetClass(v8::Isolate *isolate) {

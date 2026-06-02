@@ -3,27 +3,22 @@
 #include <v8.h>
 #include <v8pp/class.hpp>
 #include <v8pp/convert.hpp>
-#include <v8pp/module.hpp>
 
 #include "core/server.h"
 
-#include "shared/rpc/ids.h"
-
 #include "player.h"
 
-#include <core_modules.h>
 #include <integrations/server/scripting/module.h>
 #include <logging/logger.h>
-#include <networking/network_peer.h>
 #include <scripting/node_engine.h>
-
-#include <mafianet/BitStream.h>
-#include <mafianet/string.h>
 
 #include <string>
 #include <vector>
 
 namespace MafiaMP::Scripting {
+    // Bridges incoming chat (received and parsed by the framework) into the gamemode's reserved
+    // events, carrying the mod's Player handle. Outbound chat and the JS `Chat` API live in the
+    // framework (Framework::Scripting::Builtins::Chat).
     class Chat final {
       public:
         static void EventChatMessage(uint64_t playerId, std::string message) {
@@ -49,45 +44,7 @@ namespace MafiaMP::Scripting {
             }, "chatCommand");
         }
 
-        static void SendToAll(std::string message) {
-            Send(message, MafiaNet::UNASSIGNED_RAKNET_GUID, true);
-        }
-
-        static void SendToPlayer(Player *player, std::string message) {
-            if (!player) {
-                return;
-            }
-            auto *human = player->ResolveHuman();
-            if (!human) {
-                return;
-            }
-            Send(message, MafiaNet::RakNetGUID(human->ownerGUID), false);
-        }
-
-        static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global) {
-            if (!isolate || global.IsEmpty()) {
-                return;
-            }
-            v8pp::module chatModule(isolate);
-            chatModule.function("sendToAll", &Chat::SendToAll);
-            chatModule.function("sendToPlayer", &Chat::SendToPlayer);
-
-            auto ctx = isolate->GetCurrentContext();
-            global->Set(ctx, v8pp::to_v8(isolate, "Chat"), chatModule.new_instance()).Check();
-        }
-
       private:
-        // Wire: <text>
-        static void Send(const std::string &message, MafiaNet::RakNetGUID target, bool broadcast) {
-            auto *net = Framework::CoreModules::GetNetworkPeer();
-            if (!net) {
-                return;
-            }
-            MafiaNet::BitStream bs;
-            bs.Write(MafiaNet::RakString(message.c_str()));
-            net->GetRPC()->Signal(Shared::RPC::kChatMessage, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, target, broadcast, false);
-        }
-
         template <typename ArgsBuilder>
         static void EmitChat(ArgsBuilder &&buildArgs, const std::string &eventName) {
             auto server = MafiaMP::Server::_serverRef;

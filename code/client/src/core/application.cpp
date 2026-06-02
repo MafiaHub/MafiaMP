@@ -40,18 +40,6 @@ namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication;
 
     namespace {
-        // Wire: <text>
-        void OnChatMessage(MafiaNet::BitStream *bs, MafiaNet::Packet *) {
-            MafiaNet::RakString text;
-            if (!bs->Read(text)) {
-                return;
-            }
-            if (gApplication && gApplication->GetChat()) {
-                gApplication->GetChat()->AddMessage(text.C_String());
-                Framework::Logging::GetLogger("chat")->trace(text.C_String());
-            }
-        }
-
         // Wire: <optional weatherSet><optional dayTimeHours>
         void OnSetEnvironment(MafiaNet::BitStream *bs, MafiaNet::Packet *) {
             Framework::Utils::Optional<MafiaNet::RakString> weatherSet;
@@ -110,11 +98,15 @@ namespace MafiaMP::Core {
         }
 
         _chat->SetOnMessageSentCallback([this](const std::string &msg) {
-            const auto net = gApplication->GetNetworkingEngine()->GetNetworkClient();
-            // Wire: <text>
-            MafiaNet::BitStream bs;
-            bs.Write(MafiaNet::RakString(msg.c_str()));
-            net->GetRPC()->Signal(Shared::RPC::kChatMessage, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
+            SendChatMessage(msg);
+        });
+
+        // Display chat lines pushed by the server.
+        SetOnChatMessageReceivedCallback([this](const std::string &text) {
+            if (_chat) {
+                _chat->AddMessage(text);
+                Framework::Logging::GetLogger("chat")->trace(text);
+            }
         });
 
         // setup debug routines
@@ -418,8 +410,7 @@ namespace MafiaMP::Core {
 
     void Application::InitRPCs() {
         auto *rpc = GetNetworkingEngine()->GetNetworkClient()->GetRPC();
-        // RPCs received from the server.
-        rpc->RegisterSlot(Shared::RPC::kChatMessage, &OnChatMessage, 0);
+        // RPCs received from the server. (Chat is handled by the framework client instance.)
         rpc->RegisterSlot(Shared::RPC::kSetEnvironment, &OnSetEnvironment, 0);
     }
 

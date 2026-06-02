@@ -57,45 +57,6 @@ namespace MafiaMP {
 
         // --- Raw RPC4 event handlers ---
 
-        // Wire: <text>
-        void OnChatMessage(MafiaNet::BitStream *bs, MafiaNet::Packet *packet) {
-            MafiaNet::RakString raw;
-            if (!bs->Read(raw)) {
-                return;
-            }
-            auto *human = ViewerHuman(packet->guid.g);
-            if (!human) {
-                return;
-            }
-            const std::string text = raw.C_String();
-            if (text.empty()) {
-                return;
-            }
-            const uint64_t playerId = human->GetNetworkID();
-
-            if (text[0] == '/') {
-                std::string command, argsPart;
-                const auto space = text.find(' ');
-                if (space != std::string::npos) {
-                    command  = text.substr(1, space - 1);
-                    argsPart = text.substr(space + 1);
-                }
-                else {
-                    command = text.substr(1);
-                }
-                std::vector<std::string> args;
-                std::string arg;
-                std::istringstream iss(argsPart);
-                while (iss >> arg) {
-                    args.push_back(arg);
-                }
-                Scripting::Chat::EventChatCommand(playerId, text, command, args);
-            }
-            else {
-                Scripting::Chat::EventChatMessage(playerId, text);
-            }
-        }
-
         // Wire: <shooter NetworkID><aimPos><aimDir><unk0><unk1>. Relayed to everyone but the shooter.
         void OnHumanShoot(MafiaNet::BitStream *bs, MafiaNet::Packet *packet) {
             uint64_t shooterId = 0;
@@ -210,6 +171,15 @@ namespace MafiaMP {
         // Register the replicated entity types so the server can construct them.
         Shared::Entities::RegisterEntities();
 
+        // Bridge framework chat into the gamemode's scripting events (the framework receives, parses
+        // and resolves the sender; we surface it to JS with the mod's Player handle).
+        SetOnChatMessageCallback([](uint64_t senderId, const std::string &text) {
+            Scripting::Chat::EventChatMessage(senderId, text);
+        });
+        SetOnChatCommandCallback([](uint64_t senderId, const std::string &text, const std::string &command, const std::vector<std::string> &args) {
+            Scripting::Chat::EventChatCommand(senderId, text, command, args);
+        });
+
         InitNetworkingMessages();
     }
 
@@ -276,7 +246,6 @@ namespace MafiaMP {
     void Server::InitRPCs() {
         auto *rpc = GetNetworkingEngine()->GetNetworkServer()->GetRPC();
         // Gameplay RPCs received from clients.
-        rpc->RegisterSlot(Shared::RPC::kChatMessage, &OnChatMessage, 0);
         rpc->RegisterSlot(Shared::RPC::kHumanShoot, &OnHumanShoot, 0);
         rpc->RegisterSlot(Shared::RPC::kHumanReload, &OnHumanReload, 0);
         rpc->RegisterSlot(Shared::RPC::kHumanDeath, &OnHumanDeath, 0);

@@ -19,7 +19,6 @@ namespace MafiaMP::Shared::RPC {
     constexpr const char *kVehiclePlayerLeave = "MafiaMP::VehiclePlayerLeave";
 
     // Commands
-    constexpr const char *kChatMessage    = "MafiaMP::ChatMessage";
     constexpr const char *kSetEnvironment = "MafiaMP::SetEnvironment";
     constexpr const char *kSpawnCar       = "MafiaMP::SpawnCar";
 } // namespace MafiaMP::Shared::RPC
