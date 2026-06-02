@@ -46,7 +46,15 @@ namespace MafiaMP::Core::Modules {
             car->GetVehicle()->SetBrake(self->data.brake, true);
 
             self->car = car;
-            self->Frame();
+            // The replicated state arrived before the game car existed; apply it now. With per-field
+            // deltas, unchanged fields are never re-sent, so a late ApplyRemote is the only chance to
+            // catch up the car's configuration.
+            if (self->IsOwnedByUs()) {
+                self->Frame();
+            }
+            else {
+                self->ApplyRemote();
+            }
         }
 
         void OnVehicleReturned(Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
@@ -153,6 +161,38 @@ namespace MafiaMP::Core::Modules {
         data.windowTint      = {windowTint.r, windowTint.g, windowTint.b, windowTint.a};
     }
 
+    void Vehicle::ApplyConfig() {
+        if (!car) {
+            return;
+        }
+        SDK::ue::game::vehicle::C_Vehicle *vehicle = car->GetVehicle();
+
+        SDK::ue::sys::math::C_Vector4 colorPrimary   = {data.colorPrimary.r, data.colorPrimary.g, data.colorPrimary.b, data.colorPrimary.a};
+        SDK::ue::sys::math::C_Vector4 colorSecondary = {data.colorSecondary.r, data.colorSecondary.g, data.colorSecondary.b, data.colorSecondary.a};
+        SDK::ue::sys::math::C_Vector4 rimColor       = {data.rimColor.r, data.rimColor.g, data.rimColor.b, data.rimColor.a};
+        SDK::ue::sys::math::C_Vector4 tireColor      = {data.tireColor.r, data.tireColor.g, data.tireColor.b, data.tireColor.a};
+        SDK::ue::sys::math::C_Vector4 windowTint     = {data.windowTint.r, data.windowTint.g, data.windowTint.b, data.windowTint.a};
+
+        vehicle->SetBeaconLightsOn(data.beaconLightsOn);
+        vehicle->SetVehicleColor(&colorPrimary, &colorSecondary, false);
+        car->SetVehicleDirty(data.dirt); // must go through the car or the value resets
+        vehicle->SetEngineOn(data.engineOn, data.engineOn);
+        car->SetActualFuel(data.fuel);
+        if (std::strcmp(vehicle->GetSPZText(), data.licensePlate.data()) != 0) {
+            vehicle->SetSPZText(data.licensePlate.data(), true);
+        }
+        if (vehicle->IsRadioOn() != data.radioOn) {
+            vehicle->TurnRadioOn(data.radioOn);
+        }
+        if (vehicle->GetRadioStation() != data.radioStationId) {
+            vehicle->ChangeRadioStation(data.radioStationId);
+        }
+        vehicle->SetSiren(data.sirenOn);
+        vehicle->SetVehicleRust(data.rust);
+        vehicle->SetWheelColor(&rimColor, &tireColor);
+        vehicle->SetWindowTintColor(windowTint);
+    }
+
     void Vehicle::ApplyRemote() {
         if (!car) {
             return;
@@ -164,40 +204,25 @@ namespace MafiaMP::Core::Modules {
         interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, rotation, MafiaMP::Core::gApplication->GetTickInterval());
         interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, position, MafiaMP::Core::gApplication->GetTickInterval());
 
+        ApplyConfig();
+
+        // Owner-authoritative physics, replicated to the other clients.
         SDK::ue::game::vehicle::C_Vehicle *vehicle = car->GetVehicle();
-
-        SDK::ue::sys::math::C_Vector4 colorPrimary   = {data.colorPrimary.r, data.colorPrimary.g, data.colorPrimary.b, data.colorPrimary.a};
-        SDK::ue::sys::math::C_Vector4 colorSecondary = {data.colorSecondary.r, data.colorSecondary.g, data.colorSecondary.b, data.colorSecondary.a};
-        SDK::ue::sys::math::C_Vector4 rimColor       = {data.rimColor.r, data.rimColor.g, data.rimColor.b, data.rimColor.a};
-        SDK::ue::sys::math::C_Vector4 tireColor      = {data.tireColor.r, data.tireColor.g, data.tireColor.b, data.tireColor.a};
-        SDK::ue::sys::math::C_Vector4 windowTint     = {data.windowTint.r, data.windowTint.g, data.windowTint.b, data.windowTint.a};
-
         vehicle->SetAngularSpeed({data.angularVelocity.x, data.angularVelocity.y, data.angularVelocity.z}, false);
-        vehicle->SetBeaconLightsOn(data.beaconLightsOn);
         vehicle->SetBrake(data.brake, false);
-        vehicle->SetVehicleColor(&colorPrimary, &colorSecondary, false);
-        car->SetVehicleDirty(data.dirt); // must go through the car or the value resets
-        vehicle->SetEngineOn(data.engineOn, data.engineOn);
-        car->SetActualFuel(data.fuel);
         vehicle->SetGear(data.gear);
         vehicle->SetHandbrake(data.handbrake, false);
         vehicle->SetHorn(data.hornOn);
-        if (std::strcmp(vehicle->GetSPZText(), data.licensePlate) != 0) {
-            vehicle->SetSPZText(data.licensePlate, true);
-        }
         vehicle->SetPower(data.power);
-        if (vehicle->IsRadioOn() != data.radioOn) {
-            vehicle->TurnRadioOn(data.radioOn);
-        }
-        if (vehicle->GetRadioStation() != data.radioStationId) {
-            vehicle->ChangeRadioStation(data.radioStationId);
-        }
-        vehicle->SetSiren(data.sirenOn);
-        vehicle->SetVehicleRust(data.rust);
         vehicle->SetSpeed({data.velocity.x, data.velocity.y, data.velocity.z}, false, false);
         vehicle->SetSteer(data.steer);
-        vehicle->SetWheelColor(&rimColor, &tireColor);
-        vehicle->SetWindowTintColor(windowTint);
+    }
+
+    void Vehicle::OnStateForced() {
+        // We own this vehicle, so the server withholds normal serialize to us; this is how it gets
+        // the last word over our configuration. Apply it to the car — ReadLocal then streams the
+        // corrected values back, so there is no fight with the server.
+        ApplyConfig();
     }
 
     void Vehicle::Install() {

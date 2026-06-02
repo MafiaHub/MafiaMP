@@ -30,8 +30,15 @@ namespace MafiaMP::Core::Modules {
         void OnConstructed() override;
         void DeallocReplica(MafiaNet::Connection_RM3 *sourceConnection) override;
         void DeserializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::DeserializationContext *ctx) override;
+        // The server overrode our owned vehicle's configuration; apply it to the game car, then we
+        // resume streaming it back from the corrected state.
+        void OnStateForced() override;
 
         void Frame();
+        bool IsOwnedByUs() const;
+        // Apply the full replicated snapshot to the game car (remote vehicles, and once the streamed
+        // car becomes ready).
+        void ApplyRemote();
 
         static void Install();
         static void UpdateAll();
@@ -40,8 +47,8 @@ namespace MafiaMP::Core::Modules {
         static Vehicle *GetByNetworkId(uint64_t networkId);
 
       private:
-        bool IsOwnedByUs() const;
-        void ApplyRemote();
+        // Apply the server-settable configuration (engine, colors, fuel, ...) to the game car.
+        void ApplyConfig();
         void ReadLocal();
     };
 } // namespace MafiaMP::Core::Modules

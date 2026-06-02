@@ -418,8 +418,9 @@ namespace MafiaMP::Core {
 
     void Application::InitRPCs() {
         auto *rpc = GetNetworkingEngine()->GetNetworkClient()->GetRPC();
-        rpc->RegisterFunction(Shared::RPC::kChatMessage, &OnChatMessage);
-        rpc->RegisterFunction(Shared::RPC::kSetEnvironment, &OnSetEnvironment);
+        // Slots, not functions: the server delivers these with Signal(), which only invokes slots.
+        rpc->RegisterSlot(Shared::RPC::kChatMessage, &OnChatMessage, 0);
+        rpc->RegisterSlot(Shared::RPC::kSetEnvironment, &OnSetEnvironment, 0);
     }
 
     std::string gProjectPath;

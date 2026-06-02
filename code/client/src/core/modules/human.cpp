@@ -175,8 +175,9 @@ namespace MafiaMP::Core::Modules {
         TeleportLocalToReplicated();
     }
 
-    void Human::OnTransformForced() {
-        // The framework already applied the new position/rotation; move the game ped to match.
+    void Human::OnStateForced() {
+        // ReadForcedState applied the server's authoritative position/rotation; move the game ped to
+        // match. We then resume streaming the ped's transform from the corrected state.
         if (isLocalPlayer) {
             TeleportLocalToReplicated();
         }
@@ -438,9 +439,10 @@ namespace MafiaMP::Core::Modules {
         });
 
         auto *rpc = Framework::CoreModules::GetNetworkPeer()->GetRPC();
-        rpc->RegisterFunction(Shared::RPC::kHumanShoot, &OnHumanShoot);
-        rpc->RegisterFunction(Shared::RPC::kHumanReload, &OnHumanReload);
-        rpc->RegisterFunction(Shared::RPC::kHumanAddWeapon, &OnHumanAddWeapon);
+        // Slots, not functions: peers deliver these with Signal(), which only invokes slots.
+        rpc->RegisterSlot(Shared::RPC::kHumanShoot, &OnHumanShoot, 0);
+        rpc->RegisterSlot(Shared::RPC::kHumanReload, &OnHumanReload, 0);
+        rpc->RegisterSlot(Shared::RPC::kHumanAddWeapon, &OnHumanAddWeapon, 0);
     }
 
     void Human::UpdateAll() {
