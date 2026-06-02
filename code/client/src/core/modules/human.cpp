@@ -439,7 +439,7 @@ namespace MafiaMP::Core::Modules {
         });
 
         auto *rpc = Framework::CoreModules::GetNetworkPeer()->GetRPC();
-        // Slots, not functions: peers deliver these with Signal(), which only invokes slots.
+        // Human action RPCs received from peers.
         rpc->RegisterSlot(Shared::RPC::kHumanShoot, &OnHumanShoot, 0);
         rpc->RegisterSlot(Shared::RPC::kHumanReload, &OnHumanReload, 0);
         rpc->RegisterSlot(Shared::RPC::kHumanAddWeapon, &OnHumanAddWeapon, 0);

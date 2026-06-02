@@ -418,7 +418,7 @@ namespace MafiaMP::Core {
 
     void Application::InitRPCs() {
         auto *rpc = GetNetworkingEngine()->GetNetworkClient()->GetRPC();
-        // Slots, not functions: the server delivers these with Signal(), which only invokes slots.
+        // RPCs received from the server.
         rpc->RegisterSlot(Shared::RPC::kChatMessage, &OnChatMessage, 0);
         rpc->RegisterSlot(Shared::RPC::kSetEnvironment, &OnSetEnvironment, 0);
     }
