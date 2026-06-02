@@ -1,9 +1,10 @@
 #pragma once
 
 namespace MafiaMP::Shared::RPC {
-    // RPC4 identifiers for transient events and commands. Senders Signal()/Call() by these names;
-    // receivers RegisterFunction() the same name. The argument wire format (the order of
-    // BitStream reads/writes) is documented at each handler/send site.
+    // RPC4 identifiers for transient events and commands. Senders Signal() by these names; receivers
+    // RegisterSlot() the same name (Signal dispatches to slots — RegisterFunction handlers are only
+    // reached by Call()). The argument wire format (the order of BitStream reads/writes) is
+    // documented at each handler/send site.
     //
     // Continuous per-entity state (health, skin, vehicle properties, seating) is NOT here: it lives
     // on the replicated entity and syncs via the DeltaSerializer, not via RPC.

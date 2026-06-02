@@ -1,13 +1,16 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <glm/glm.hpp>
 
 #include "shared/constants.h"
 
 namespace MafiaMP::Shared::Modules {
-    // Per-tick vehicle state replicated through VehicleEntity (trivially copyable, delta-tracked as a
-    // whole by VariableDeltaSerializer).
+    // Per-tick vehicle state. Each field is delta-tracked individually by VehicleEntity, so changing
+    // one property only puts that property on the wire. Every field must therefore be a value type
+    // BitStream serializes by value (licensePlate is a std::array, not a char[], so it is not
+    // mistaken for a C string).
     struct VehicleSync {
         enum class LockState {
             UNLOCKED,
@@ -26,9 +29,9 @@ namespace MafiaMP::Shared::Modules {
             float fuel                                                     = 100.0f; // We use arbitrary value, the max depends of the vehicle. See C_Motor::GetFuelSettings.
             int gear                                                       = 0;
             float handbrake                                                = 0.0f;
-            bool hornOn                                                    = false;
-            char licensePlate[Constants::VEHICLE_LICENSE_PLATE_MAX_LENGTH] = "AZ-000";
-            LockState lockState                                            = LockState::UNLOCKED;
+            bool hornOn                                                                 = false;
+            std::array<char, Constants::VEHICLE_LICENSE_PLATE_MAX_LENGTH> licensePlate   = {'A', 'Z', '-', '0', '0', '0'};
+            LockState lockState                                                         = LockState::UNLOCKED;
             float power                                                    = 0.0f;
             bool radioOn                                                   = false;
             int radioStationId                                             = 0;
