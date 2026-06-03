@@ -208,23 +208,26 @@ namespace MafiaMP {
     void Server::InitNetworkingMessages() {
         const auto net = GetNetworkingEngine()->GetNetworkServer();
 
-        SetOnPlayerConnectCallback([this, net](uint64_t guid) {
+        SetOnPlayerConnectCallback([this, net](const Framework::Integrations::Server::PlayerConnectionData &info) {
             auto *engine = Replication();
             auto *repl   = net->GetReplicationManager();
             if (!engine || !repl) {
                 return;
             }
 
-            // Create the player's avatar, own it, and make it this connection's viewer.
+            // Create the player's avatar, own it, populate its spawn metadata, and make it this
+            // connection's viewer.
             auto *human = dynamic_cast<Shared::Entities::HumanEntity *>(engine->CreateEntity(Shared::Entities::HumanTypeId()));
             if (!human) {
                 return;
             }
-            human->ownerGUID = guid;
-            human->modelHash = kDefaultSkin;
-            repl->SetViewer(guid, human);
+            human->ownerGUID   = info.guid;
+            human->modelHash   = kDefaultSkin;
+            human->nickname    = info.nickname;
+            human->playerIndex = info.playerIndex;
+            repl->SetViewer(info.guid, human);
 
-            SendEnvironment(MafiaNet::RakNetGUID(guid), false);
+            SendEnvironment(MafiaNet::RakNetGUID(info.guid), false);
             Scripting::Player::EventPlayerConnected(human->GetNetworkID());
         });
 
