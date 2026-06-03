@@ -150,13 +150,8 @@ namespace MafiaMP::Core::Modules {
 
     } // namespace
 
-    bool Human::IsOwnedByUs() const {
-        const auto *manager = static_cast<const Framework::Networking::Replication::ReplicationManager *>(replicaManager);
-        return manager && ownerGUID == manager->GetMyGUID();
-    }
-
     void Human::OnConstructed() {
-        if (IsOwnedByUs()) {
+        if (IsOwner()) {
             BindLocalPlayer();
         }
         else {

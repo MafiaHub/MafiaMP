@@ -49,7 +49,7 @@ namespace MafiaMP::Core::Modules {
             // The replicated state arrived before the game car existed; apply it now. With per-field
             // deltas, unchanged fields are never re-sent, so a late ApplyRemote is the only chance to
             // catch up the car's configuration.
-            if (self->IsOwnedByUs()) {
+            if (self->IsOwner()) {
                 self->Frame();
             }
             else {
@@ -70,11 +70,6 @@ namespace MafiaMP::Core::Modules {
         }
     } // namespace
 
-    bool Vehicle::IsOwnedByUs() const {
-        const auto *manager = static_cast<const Framework::Networking::Replication::ReplicationManager *>(replicaManager);
-        return manager && ownerGUID == manager->GetMyGUID();
-    }
-
     void Vehicle::OnConstructed() {
         info = Core::gApplication->GetEntityFactory()->RequestVehicle(modelName);
         interpolator.GetPosition()->SetCompensationFactor(1.5f);
@@ -93,7 +88,7 @@ namespace MafiaMP::Core::Modules {
 
     void Vehicle::DeserializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::DeserializationContext *ctx) {
         VehicleEntity::DeserializeFields(vds, ctx);
-        if (!IsOwnedByUs()) {
+        if (!IsOwner()) {
             ApplyRemote();
         }
     }
@@ -102,7 +97,7 @@ namespace MafiaMP::Core::Modules {
         if (!car) {
             return;
         }
-        if (IsOwnedByUs()) {
+        if (IsOwner()) {
             ReadLocal();
         }
         else {

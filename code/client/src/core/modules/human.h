@@ -60,7 +60,6 @@ namespace MafiaMP::Core::Modules {
         static Human *GetByPed(SDK::C_Human2 *ptr);
 
       private:
-        bool IsOwnedByUs() const;
         void BindLocalPlayer();
         void RequestPed();
         void ApplyRemote();

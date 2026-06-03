@@ -35,7 +35,6 @@ namespace MafiaMP::Core::Modules {
         void OnStateForced() override;
 
         void Frame();
-        bool IsOwnedByUs() const;
         // Apply the full replicated snapshot to the game car (remote vehicles, and once the streamed
         // car becomes ready).
         void ApplyRemote();
