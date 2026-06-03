@@ -277,6 +277,17 @@ namespace MafiaMP::Core::Modules {
 
         data._healthPercent        = MafiaMP::Game::Helpers::Human::GetHealthPercent(human);
         data._charStateHandlerType = charController->GetCurrentStateHandler()->GetStateHandlerType();
+
+        // A seated ped stops updating its own transform, so GetPos() above is frozen at the point we
+        // entered the car. This avatar is the connection's streaming viewer, so follow the car instead
+        // — otherwise interest stays anchored at the entry point and the vehicle (and the player) get
+        // streamed out after driving one stream radius away.
+        if (data._charStateHandlerType == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
+            if (auto *car = reinterpret_cast<SDK::C_Car *>(human->GetOwner())) {
+                const SDK::ue::sys::math::C_Vector carPos = car->GetPos();
+                position                                  = {carPos.x, carPos.y, carPos.z};
+            }
+        }
         data._isStalking           = charController->IsStalkMove();
         data._isSprinting          = charController->IsSprinting();
         data._sprintSpeed          = charController->GetSprintMoveSpeed();
