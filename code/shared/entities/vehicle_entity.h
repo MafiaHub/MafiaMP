@@ -14,19 +14,31 @@
 namespace MafiaMP::Shared::Entities {
     namespace Replication = Framework::Networking::Replication;
 
-    // A replicated vehicle. The base modelName carries the model used by the client to request the
-    // game car; VehicleSync::UpdateData carries the per-tick physics/customization state. The server
-    // tracks which entity occupies each seat to drive ownership and interest.
+    // A replicated vehicle. modelName carries the model used by the client to request the game car
+    // (spawn-time identity, sent in the construction snapshot); VehicleSync::UpdateData carries the
+    // per-tick physics/customization state. The server tracks which entity occupies each seat to
+    // drive ownership and interest.
     class VehicleEntity : public Replication::NetworkEntity {
       public:
         static constexpr const char *kTypeName = "MafiaMP::Vehicle";
         static constexpr int kMaxSeats         = 4;
 
+        std::string modelName;
         Modules::VehicleSync::UpdateData data {};
 
         // NetworkIDs of the human entity in each seat (0 = empty). Server-side bookkeeping; not part
         // of the replicated payload (seating is derived from each human's UpdateData.carPassenger).
         std::array<uint64_t, kMaxSeats> seats {};
+
+        void OnSerializeConstruction(MafiaNet::BitStream *bs) override {
+            bs->Write(MafiaNet::RakString(modelName.c_str()));
+        }
+
+        void OnDeserializeConstruction(MafiaNet::BitStream *bs) override {
+            MafiaNet::RakString name;
+            bs->Read(name);
+            modelName = name.C_String();
+        }
 
         void SerializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::SerializationContext *ctx) override {
             ForEachSyncedField([&](auto &field) {

@@ -82,6 +82,11 @@ std::string Vehicle::ToString() const {
     return ss.str();
 }
 
+std::string Vehicle::GetModelName() {
+    auto *v = ResolveVehicle();
+    return v ? v->modelName : "";
+}
+
 // Vehicle properties are replicated state on the entity. For an unowned vehicle the change syncs to
 // everyone via the DeltaSerializer; for an owned (driven) vehicle MutateData also forces it onto the
 // owner, since the server's word is final even over an entity a client is authoritative for.
@@ -226,6 +231,7 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
 
         using namespace Framework::Scripting::Builtins;
 
+        RegisterReadonlyProperty<Vehicle, &Vehicle::GetModelName>(isolate, protoTemplate, "modelName");
         RegisterProperty<Vehicle, &Vehicle::GetBeaconLightsOn, &Vehicle::SetBeaconLightsOn>(isolate, protoTemplate, "beaconLightsOn");
         RegisterObjectProperty<Vehicle, &Vehicle::GetColorPrimary, &Vehicle::SetColorPrimary>(isolate, protoTemplate, "colorPrimary");
         RegisterObjectProperty<Vehicle, &Vehicle::GetColorSecondary, &Vehicle::SetColorSecondary>(isolate, protoTemplate, "colorSecondary");

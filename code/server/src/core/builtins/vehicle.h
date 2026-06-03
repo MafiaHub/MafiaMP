@@ -30,6 +30,8 @@ namespace MafiaMP::Scripting {
 
         std::string ToString() const override;
 
+        std::string GetModelName();
+
         bool GetBeaconLightsOn();
         void SetBeaconLightsOn(bool on);
 
