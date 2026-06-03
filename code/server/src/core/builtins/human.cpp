@@ -7,7 +7,7 @@
 #include <core_modules.h>
 #include <networking/network_peer.h>
 #include <scripting/builtins/property.h>
-#include <world/engine.h>
+#include <networking/replication/replication_manager.h>
 
 #include <mafianet/BitStream.h>
 
@@ -105,8 +105,8 @@ uint64_t Human::GetVehicleId() const {
     if (!h) return 0;
     const uint64_t carId = h->data.carPassenger.carId;
     if (carId == 0) return 0;
-    auto *world = Framework::CoreModules::GetWorldEngine();
-    return (world && world->GetEntityByNetworkID(carId)) ? carId : 0;
+    auto *repl = Framework::CoreModules::GetReplication();
+    return (repl && repl->GetEntityByNetworkID(carId)) ? carId : 0;
 }
 
 int Human::GetVehicleSeatIndex() const {

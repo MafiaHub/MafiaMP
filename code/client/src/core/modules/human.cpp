@@ -33,14 +33,14 @@
 #include <networking/network_peer.h>
 #include <networking/replication/entity_factory.h>
 #include <networking/replication/replication_manager.h>
-#include <world/engine.h>
+#include <networking/replication/replication_manager.h>
 
 #include <mafianet/BitStream.h>
 
 namespace MafiaMP::Core::Modules {
     namespace {
         Human *ResolveHuman(uint64_t networkId) {
-            auto *world = Framework::CoreModules::GetWorldEngine();
+            auto *world = Framework::CoreModules::GetReplication();
             return world ? dynamic_cast<Human *>(world->GetEntityByNetworkID(networkId)) : nullptr;
         }
 
@@ -446,8 +446,8 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::UpdateAll() {
-        auto *world = Framework::CoreModules::GetWorldEngine();
-        auto *repl  = world ? world->GetReplication() : nullptr;
+        auto *world = Framework::CoreModules::GetReplication();
+        auto *repl  = world;
         if (!repl) {
             return;
         }
@@ -459,8 +459,8 @@ namespace MafiaMP::Core::Modules {
     }
 
     Human *Human::GetByPed(SDK::C_Human2 *ptr) {
-        auto *world = Framework::CoreModules::GetWorldEngine();
-        auto *repl  = world ? world->GetReplication() : nullptr;
+        auto *world = Framework::CoreModules::GetReplication();
+        auto *repl  = world;
         if (!repl || !ptr) {
             return nullptr;
         }

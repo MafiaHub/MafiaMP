@@ -19,7 +19,7 @@
 
 #include <core_modules.h>
 #include <networking/replication/replication_manager.h>
-#include <world/engine.h>
+#include <networking/replication/replication_manager.h>
 
 #include <logging/logger.h>
 
@@ -27,8 +27,8 @@ using namespace SDK;
 
 // Resolve the ClientHuman whose game ped uses this weapon controller.
 static MafiaMP::Core::Modules::Human *FindHumanByHumanWeaponController(SDK::C_HumanWeaponController *controller) {
-    auto *world = Framework::CoreModules::GetWorldEngine();
-    auto *repl  = world ? world->GetReplication() : nullptr;
+    auto *world = Framework::CoreModules::GetReplication();
+    auto *repl  = world;
     if (!repl || !controller) {
         return nullptr;
     }

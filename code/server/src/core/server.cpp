@@ -13,7 +13,6 @@
 #include <core_modules.h>
 #include <networking/network_server.h>
 #include <networking/replication/replication_manager.h>
-#include <world/server.h>
 
 #include <scripting/node_engine.h>
 #include <scripting/resource/resource_manager.h>
@@ -34,13 +33,8 @@ namespace MafiaMP {
         // Default human skin/spawn-profile until the game assigns one.
         constexpr uint64_t kDefaultSkin = 335218123840277515ULL;
 
-        Framework::World::ServerEngine *Engine() {
-            return static_cast<Framework::World::ServerEngine *>(Framework::CoreModules::GetWorldEngine());
-        }
-
         Framework::Networking::Replication::ReplicationManager *Replication() {
-            auto *net = Framework::CoreModules::GetNetworkPeer();
-            return net ? net->GetReplicationManager() : nullptr;
+            return Framework::CoreModules::GetReplication();
         }
 
         // Resolve the human a connection looks through (its avatar).
@@ -51,8 +45,8 @@ namespace MafiaMP {
 
         template <typename T>
         T *ResolveEntity(uint64_t networkId) {
-            auto *world = Framework::CoreModules::GetWorldEngine();
-            return world ? dynamic_cast<T *>(world->GetEntityByNetworkID(networkId)) : nullptr;
+            auto *repl = Replication();
+            return repl ? dynamic_cast<T *>(repl->GetEntityByNetworkID(networkId)) : nullptr;
         }
 
         // --- Raw RPC4 event handlers ---
@@ -155,7 +149,7 @@ namespace MafiaMP {
             if (!bs->Read(modelName)) {
                 return;
             }
-            auto *engine = Engine();
+            auto *engine = Replication();
             if (!engine) {
                 return;
             }
@@ -215,7 +209,7 @@ namespace MafiaMP {
         const auto net = GetNetworkingEngine()->GetNetworkServer();
 
         SetOnPlayerConnectCallback([this, net](uint64_t guid) {
-            auto *engine = Engine();
+            auto *engine = Replication();
             auto *repl   = net->GetReplicationManager();
             if (!engine || !repl) {
                 return;

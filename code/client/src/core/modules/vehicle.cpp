@@ -11,7 +11,7 @@
 #include <core_modules.h>
 #include <networking/replication/entity_factory.h>
 #include <networking/replication/replication_manager.h>
-#include <world/engine.h>
+#include <networking/replication/replication_manager.h>
 
 #include <cstring>
 #include <utility>
@@ -232,8 +232,8 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Vehicle::UpdateAll() {
-        auto *world = Framework::CoreModules::GetWorldEngine();
-        auto *repl  = world ? world->GetReplication() : nullptr;
+        auto *world = Framework::CoreModules::GetReplication();
+        auto *repl  = world;
         if (!repl) {
             return;
         }
@@ -245,8 +245,8 @@ namespace MafiaMP::Core::Modules {
     }
 
     Vehicle *Vehicle::GetByCar(SDK::C_Car *carPtr) {
-        auto *world = Framework::CoreModules::GetWorldEngine();
-        auto *repl  = world ? world->GetReplication() : nullptr;
+        auto *world = Framework::CoreModules::GetReplication();
+        auto *repl  = world;
         if (!repl || !carPtr) {
             return nullptr;
         }
@@ -263,8 +263,8 @@ namespace MafiaMP::Core::Modules {
     }
 
     Vehicle *Vehicle::GetByVehicle(SDK::ue::game::vehicle::C_Vehicle *vehiclePtr) {
-        auto *world = Framework::CoreModules::GetWorldEngine();
-        auto *repl  = world ? world->GetReplication() : nullptr;
+        auto *world = Framework::CoreModules::GetReplication();
+        auto *repl  = world;
         if (!repl || !vehiclePtr) {
             return nullptr;
         }
@@ -281,7 +281,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     Vehicle *Vehicle::GetByNetworkId(uint64_t networkId) {
-        auto *world = Framework::CoreModules::GetWorldEngine();
+        auto *world = Framework::CoreModules::GetReplication();
         return world ? dynamic_cast<Vehicle *>(world->GetEntityByNetworkID(networkId)) : nullptr;
     }
 } // namespace MafiaMP::Core::Modules

@@ -11,7 +11,7 @@
 
 #include <core_modules.h>
 #include <scripting/builtins/entity.h>
-#include <world/server.h>
+#include <networking/replication/replication_manager.h>
 
 #include "entity_collection.h"
 #include "player.h"
@@ -21,7 +21,7 @@ namespace MafiaMP::Scripting {
     class World final {
       public:
         static v8::Local<v8::Value> CreateVehicle(v8::Isolate *isolate, std::string modelName) {
-            auto *engine = static_cast<Framework::World::ServerEngine *>(Framework::CoreModules::GetWorldEngine());
+            auto *engine = Framework::CoreModules::GetReplication();
             if (!engine) {
                 return v8::Undefined(isolate);
             }

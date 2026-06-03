@@ -5,7 +5,7 @@
 #include <v8pp/convert.hpp>
 
 #include <core_modules.h>
-#include <world/engine.h>
+#include <networking/replication/replication_manager.h>
 
 #include "shared/entities/human_entity.h"
 #include "shared/entities/vehicle_entity.h"
@@ -33,8 +33,7 @@ class EntityCollection {
 
     template <typename Fn>
     static void ForEachNative(Fn &&fn) {
-        auto *world = Framework::CoreModules::GetWorldEngine();
-        auto *repl  = world ? world->GetReplication() : nullptr;
+        auto *repl = Framework::CoreModules::GetReplication();
         if (!repl) {
             return;
         }
