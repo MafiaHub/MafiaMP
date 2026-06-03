@@ -397,6 +397,25 @@ registerChatCommand("players", (player, message, command, args) => {
     });
 });
 
+// /kick <id> [reason]
+registerChatCommand("kick", (player, message, command, args) => {
+    const targetId = parseInt(args[0]);
+    if (isNaN(targetId)) {
+        Chat.sendToPlayer(player, "[SERVER] Usage: /kick <id> [reason]");
+        return;
+    }
+
+    const target = World.players.find(p => p.id === targetId);
+    if (!target) {
+        Chat.sendToPlayer(player, `[SERVER] No player with id ${targetId}.`);
+        return;
+    }
+
+    const reason = args.slice(1).join(" ");
+    Chat.sendToAll(`[SERVER] ${target.nickname} was kicked${reason ? ` (${reason})` : ""}.`);
+    target.kick(reason);
+});
+
 registerChatCommand("vehicles", (player, message, command, args) => {
     const count = World.vehicles.length;
     Chat.sendToPlayer(player,`[SERVER] There are ${count} vehicle(s) in the world.`);

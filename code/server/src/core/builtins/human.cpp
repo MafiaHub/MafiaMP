@@ -15,7 +15,7 @@ namespace MafiaMP::Scripting {
 
 std::unique_ptr<v8pp::class_<Human>> Human::_class;
 
-Human::Human(uint64_t networkId): Framework::Scripting::Builtins::Entity(networkId) {
+Human::Human(uint64_t networkId): Framework::Scripting::Builtins::Player(networkId) {
     if (!ResolveHuman()) {
         throw std::runtime_error("Entity handle is not a Human!");
     }
@@ -117,8 +117,11 @@ int Human::GetVehicleSeatIndex() const {
 
 v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
     if (!_class) {
+        // v8pp inherit<Player> requires Player registered first.
+        Framework::Scripting::Builtins::Player::GetClass(isolate);
+
         _class = std::make_unique<v8pp::class_<Human>>(isolate);
-        _class->inherit<Framework::Scripting::Builtins::Entity>()
+        _class->inherit<Framework::Scripting::Builtins::Player>()
             .auto_wrap_objects(true)
             .ctor<uint64_t>()
             .function("toString", &Human::ToString)

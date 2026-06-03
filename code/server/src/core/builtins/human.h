@@ -6,7 +6,7 @@
 
 #include "shared/entities/human_entity.h"
 
-#include <scripting/builtins/entity.h>
+#include <scripting/builtins/player.h>
 #include <scripting/builtins/vector3.h>
 
 #include <cstdint>
@@ -14,7 +14,7 @@
 #include <string>
 
 namespace MafiaMP::Scripting {
-    class Human: public Framework::Scripting::Builtins::Entity {
+    class Human: public Framework::Scripting::Builtins::Player {
       public:
         Human(uint64_t networkId);
 
