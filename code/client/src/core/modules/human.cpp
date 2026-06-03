@@ -397,11 +397,16 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::DrawNametag() {
-        const auto humanPtr  = human;
-        const auto hp        = data._healthPercent;
-        const auto nick      = nickname;
-        const auto playerId  = playerIndex;
-        gApplication->GetImGUI()->PushWidget([humanPtr, hp, nick, playerId]() {
+        // Capture only the stable network id, not the ped pointer: the widget runs deferred (next
+        // ImGUI flush) and the human can stream out and free its ped in between, leaving a captured
+        // raw pointer dangling. Re-resolve the live entity here and bail if it is gone.
+        const auto networkId = GetNetworkID();
+        gApplication->GetImGUI()->PushWidget([networkId]() {
+            auto *self = ResolveHuman(networkId);
+            if (!self || !self->human) {
+                return;
+            }
+
             const auto displaySize = ImGui::GetIO().DisplaySize;
 
             auto gameCamera = SDK::ue::game::camera::C_GameCamera::GetInstanceInternal();
@@ -415,7 +420,7 @@ namespace MafiaMP::Core::Modules {
 
             auto camPos                          = camera->GetPos();
             static const auto headBoneHash       = SDK::ue::sys::utils::C_HashName::ComputeHash("Head");
-            SDK::ue::sys::math::C_Vector headPos = humanPtr->GetBoneWorldPos(headBoneHash);
+            SDK::ue::sys::math::C_Vector headPos = self->human->GetBoneWorldPos(headBoneHash);
             float distFromCam                    = headPos.dist(camPos);
             if (distFromCam <= 250.0f) {
                 headPos.z += 0.335f + (distFromCam * 0.03f);
@@ -425,8 +430,8 @@ namespace MafiaMP::Core::Modules {
                 float unkFloat1, unkFloat2;
                 camera->GetScreenPos(screenPos, headPos, onScreen, &unkFloat1, &unkFloat2, true);
                 if (onScreen) {
-                    const auto playerName = fmt::format("{} ({})", nick.empty() ? "Player" : nick, playerId);
-                    Framework::External::ImGUI::Widgets::DrawNameTag({screenPos.x * displaySize.x, screenPos.y * displaySize.y}, playerName.c_str(), hp);
+                    const auto playerName = fmt::format("{} ({})", self->nickname.empty() ? "Player" : self->nickname, self->playerIndex);
+                    Framework::External::ImGUI::Widgets::DrawNameTag({screenPos.x * displaySize.x, screenPos.y * displaySize.y}, playerName.c_str(), self->data._healthPercent);
                 }
             }
         });
