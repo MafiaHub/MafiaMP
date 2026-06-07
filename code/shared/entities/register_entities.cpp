@@ -8,12 +8,8 @@
 namespace MafiaMP::Shared::Entities {
     void RegisterEntities() {
         auto &factory = Framework::Networking::Replication::EntityFactory::Get();
-        factory.Register(HumanEntity::kTypeName, [] {
-            return new HumanEntity();
-        });
-        factory.Register(VehicleEntity::kTypeName, [] {
-            return new VehicleEntity();
-        });
+        factory.Register<HumanEntity>(HumanEntity::kTypeName);
+        factory.Register<VehicleEntity>(VehicleEntity::kTypeName);
     }
 
     uint32_t HumanTypeId() {
