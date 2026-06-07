@@ -43,7 +43,7 @@ class EntityCollection {
                 return;
             }
             if constexpr (std::is_same_v<NativeType, Shared::Entities::HumanEntity>) {
-                if (!typed->isViewer) {
+                if (!typed->streaming.isViewer) {
                     return; // players only
                 }
             }
