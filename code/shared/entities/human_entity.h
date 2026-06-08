@@ -34,12 +34,10 @@ namespace MafiaMP::Shared::Entities {
 
         void OnSerializeConstruction(MafiaNet::BitStream *bs, bool write) override {
             if (write) {
-                bs->Write(modelHash);
                 bs->Write(MafiaNet::RakString(nickname.c_str()));
                 bs->Write(playerIndex);
             }
             else {
-                bs->Read(modelHash);
                 MafiaNet::RakString name;
                 bs->Read(name);
                 nickname = name.C_String();
