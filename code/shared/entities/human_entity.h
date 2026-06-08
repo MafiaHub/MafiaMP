@@ -32,28 +32,24 @@ namespace MafiaMP::Shared::Entities {
             modelHash = profile;
         }
 
-        void OnSerializeConstruction(MafiaNet::BitStream *bs) override {
-            bs->Write(modelHash);
-            bs->Write(MafiaNet::RakString(nickname.c_str()));
-            bs->Write(playerIndex);
+        void OnSerializeConstruction(MafiaNet::BitStream *bs, bool write) override {
+            if (write) {
+                bs->Write(modelHash);
+                bs->Write(MafiaNet::RakString(nickname.c_str()));
+                bs->Write(playerIndex);
+            }
+            else {
+                bs->Read(modelHash);
+                MafiaNet::RakString name;
+                bs->Read(name);
+                nickname = name.C_String();
+                bs->Read(playerIndex);
+            }
         }
 
-        void OnDeserializeConstruction(MafiaNet::BitStream *bs) override {
-            bs->Read(modelHash);
-            MafiaNet::RakString name;
-            bs->Read(name);
-            nickname = name.C_String();
-            bs->Read(playerIndex);
-        }
-
-        void SerializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::SerializationContext *ctx) override {
-            vds->SerializeVariable(ctx, modelHash); // skin; re-applied by the client when it changes
-            vds->SerializeVariable(ctx, data);
-        }
-
-        void DeserializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::DeserializationContext *ctx) override {
-            vds->DeserializeVariable(ctx, modelHash);
-            vds->DeserializeVariable(ctx, data);
+        void SerializeFields(Replication::FieldSerializer &fields) override {
+            fields.Field(modelHash);
+            fields.Field(data);
         }
     };
 } // namespace MafiaMP::Shared::Entities

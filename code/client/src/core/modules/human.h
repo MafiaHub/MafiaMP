@@ -43,8 +43,7 @@ namespace MafiaMP::Core::Modules {
         // --- Replica3 hooks ---
         void OnConstructed() override;
         void DeallocReplica(MafiaNet::Connection_RM3 *sourceConnection) override;
-        // New network data arrived: apply remote state and refresh interpolation targets.
-        void DeserializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::DeserializationContext *ctx) override;
+        void SerializeFields(Framework::Networking::Replication::FieldSerializer &fields) override;
         // Server overrode our state (teleport): move the game ped to the forced transform.
         void OnStateForced() override;
 

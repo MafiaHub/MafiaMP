@@ -31,7 +31,7 @@
 
 #include <core_modules.h>
 #include <networking/network_peer.h>
-#include <networking/replication/entity_factory.h>
+#include <networking/replication/entity_registry.h>
 #include <networking/replication/replication_manager.h>
 #include <networking/replication/replication_manager.h>
 
@@ -224,9 +224,9 @@ namespace MafiaMP::Core::Modules {
         delete this;
     }
 
-    void Human::DeserializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::DeserializationContext *ctx) {
-        HumanEntity::DeserializeFields(vds, ctx);
-        if (!isLocalPlayer) {
+    void Human::SerializeFields(Framework::Networking::Replication::FieldSerializer &fields) {
+        HumanEntity::SerializeFields(fields);
+        if (!fields.Writing() && !isLocalPlayer) {
             ApplyRemote();
         }
     }
@@ -445,7 +445,7 @@ namespace MafiaMP::Core::Modules {
 
     void Human::Install() {
         // Register the client human type for this id (overrides the server-side plain HumanEntity).
-        Framework::Networking::Replication::EntityFactory::Get().Register(Shared::Entities::HumanEntity::kTypeName, [] {
+        Framework::Networking::Replication::EntityRegistry::Get().Register(Shared::Entities::HumanEntity::kTypeName, [] {
             return new Human();
         });
 

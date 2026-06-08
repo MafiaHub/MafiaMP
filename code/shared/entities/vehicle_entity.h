@@ -30,40 +30,31 @@ namespace MafiaMP::Shared::Entities {
         // of the replicated payload (seating is derived from each human's UpdateData.carPassenger).
         std::array<uint64_t, kMaxSeats> seats {};
 
-        void OnSerializeConstruction(MafiaNet::BitStream *bs) override {
-            bs->Write(MafiaNet::RakString(modelName.c_str()));
+        void OnSerializeConstruction(MafiaNet::BitStream *bs, bool write) override {
+            if (write) {
+                bs->Write(MafiaNet::RakString(modelName.c_str()));
+            }
+            else {
+                MafiaNet::RakString name;
+                bs->Read(name);
+                modelName = name.C_String();
+            }
         }
 
-        void OnDeserializeConstruction(MafiaNet::BitStream *bs) override {
-            MafiaNet::RakString name;
-            bs->Read(name);
-            modelName = name.C_String();
-        }
-
-        void SerializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::SerializationContext *ctx) override {
+        void SerializeFields(Replication::FieldSerializer &fields) override {
             ForEachSyncedField([&](auto &field) {
-                vds->SerializeVariable(ctx, field);
+                fields.Field(field);
             });
         }
 
-        void DeserializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::DeserializationContext *ctx) override {
-            ForEachSyncedField([&](auto &field) {
-                vds->DeserializeVariable(ctx, field);
-            });
-        }
-
-        // The server's authoritative override of a driven (owned) vehicle: its configuration, the
-        // fields scripts set (engine, colors, fuel, ...). Physics (transform/velocity/steer/...) stay
-        // owner-authoritative and are not forced, so a driver is never snapped by a config change.
-        void WriteForcedState(MafiaNet::BitStream *bs) const override {
-            const_cast<VehicleEntity *>(this)->ForEachConfigField([&](auto &field) {
-                bs->Write(field);
-            });
-        }
-
-        void ReadForcedState(MafiaNet::BitStream *bs) override {
+        void SerializeForcedState(MafiaNet::BitStream *bs, bool write) override {
             ForEachConfigField([&](auto &field) {
-                bs->Read(field);
+                if (write) {
+                    bs->Write(field);
+                }
+                else {
+                    bs->Read(field);
+                }
             });
         }
 

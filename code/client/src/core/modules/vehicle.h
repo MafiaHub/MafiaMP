@@ -29,7 +29,7 @@ namespace MafiaMP::Core::Modules {
         // --- Replica3 hooks ---
         void OnConstructed() override;
         void DeallocReplica(MafiaNet::Connection_RM3 *sourceConnection) override;
-        void DeserializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::DeserializationContext *ctx) override;
+        void SerializeFields(Framework::Networking::Replication::FieldSerializer &fields) override;
         // The server overrode our owned vehicle's configuration; apply it to the game car, then we
         // resume streaming it back from the corrected state.
         void OnStateForced() override;

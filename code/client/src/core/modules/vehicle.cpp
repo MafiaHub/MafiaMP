@@ -9,7 +9,7 @@
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
 #include <core_modules.h>
-#include <networking/replication/entity_factory.h>
+#include <networking/replication/entity_registry.h>
 #include <networking/replication/replication_manager.h>
 #include <networking/replication/replication_manager.h>
 
@@ -86,9 +86,9 @@ namespace MafiaMP::Core::Modules {
         delete this;
     }
 
-    void Vehicle::DeserializeFields(MafiaNet::VariableDeltaSerializer *vds, MafiaNet::VariableDeltaSerializer::DeserializationContext *ctx) {
-        VehicleEntity::DeserializeFields(vds, ctx);
-        if (!IsOwner()) {
+    void Vehicle::SerializeFields(Framework::Networking::Replication::FieldSerializer &fields) {
+        VehicleEntity::SerializeFields(fields);
+        if (!fields.Writing() && !IsOwner()) {
             ApplyRemote();
         }
     }
@@ -221,7 +221,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Vehicle::Install() {
-        Framework::Networking::Replication::EntityFactory::Get().Register(Shared::Entities::VehicleEntity::kTypeName, [] {
+        Framework::Networking::Replication::EntityRegistry::Get().Register(Shared::Entities::VehicleEntity::kTypeName, [] {
             return new Vehicle();
         });
     }

@@ -40,7 +40,7 @@ namespace MafiaMP {
         // Resolve the human a connection looks through (its avatar).
         Shared::Entities::HumanEntity *ViewerHuman(uint64_t guid) {
             auto *repl = Replication();
-            return repl ? dynamic_cast<Shared::Entities::HumanEntity *>(repl->GetViewer(guid)) : nullptr;
+            return repl ? dynamic_cast<Shared::Entities::HumanEntity *>(repl->GetViewer(Framework::Networking::Replication::PeerGuid {guid})) : nullptr;
         }
 
         template <typename T>
@@ -115,7 +115,7 @@ namespace MafiaMP {
                 vehicle->seats[seatIndex] = player->GetNetworkID();
                 if (seatIndex == 0) {
                     // The driver's client becomes authoritative for the vehicle.
-                    vehicle->SetOwner(packet->guid.g);
+                    vehicle->SetOwner(Framework::Networking::Replication::ToPeerGuid(packet->guid));
                 }
             }
             Scripting::Vehicle::EventVehiclePlayerEnter(vehicleId, player->GetNetworkID(), seatIndex);
@@ -136,7 +136,7 @@ namespace MafiaMP {
                 if (vehicle->seats[i] == playerId) {
                     vehicle->seats[i] = 0;
                     if (i == 0) {
-                        vehicle->SetOwner(0xFFFFFFFFFFFFFFFF); // back to the server
+                        vehicle->SetOwner(Framework::Networking::Replication::UnassignedPeer()); // back to the server
                     }
                 }
             }
@@ -221,11 +221,11 @@ namespace MafiaMP {
             if (!human) {
                 return;
             }
-            human->ownerGUID   = info.guid;
+            human->ownerGUID   = Framework::Networking::Replication::PeerGuid {info.guid};
             human->modelHash   = kDefaultSkin;
             human->nickname    = info.nickname;
             human->playerIndex = info.playerIndex;
-            repl->SetViewer(info.guid, human);
+            repl->SetViewer(Framework::Networking::Replication::PeerGuid {info.guid}, human);
 
             SendEnvironment(MafiaNet::RakNetGUID(info.guid), false);
             Scripting::Player::EventPlayerConnected(human->GetNetworkID());

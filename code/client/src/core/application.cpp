@@ -405,7 +405,7 @@ namespace MafiaMP::Core {
     }
 
     uint64_t Application::GetLocalPlayerOwnerID() {
-        return _localPlayer ? _localPlayer->ownerGUID : 0;
+        return _localPlayer ? static_cast<uint64_t>(_localPlayer->ownerGUID) : 0;
     }
 
     void Application::InitRPCs() {

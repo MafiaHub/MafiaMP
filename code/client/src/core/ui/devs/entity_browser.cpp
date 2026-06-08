@@ -221,7 +221,7 @@ namespace MafiaMP::Core::UI::Devs {
                         if (!e)
                             continue;
 
-                        if (_streamFilter == StreamFilter::OWNED && e->ownerGUID != gApplication->GetLocalPlayerOwnerID())
+                        if (_streamFilter == StreamFilter::OWNED && static_cast<uint64_t>(e->ownerGUID) != gApplication->GetLocalPlayerOwnerID())
                             continue;
                     }
 
