@@ -38,9 +38,9 @@ namespace MafiaMP {
         }
 
         // Resolve the human a connection looks through (its avatar).
-        Shared::Entities::HumanEntity *ViewerHuman(uint64_t guid) {
+        Shared::Entities::HumanEntity *ViewerHuman(MafiaNet::PeerGuid guid) {
             auto *repl = Replication();
-            return repl ? dynamic_cast<Shared::Entities::HumanEntity *>(repl->GetViewer(Framework::Networking::Replication::PeerGuid {guid})) : nullptr;
+            return repl ? dynamic_cast<Shared::Entities::HumanEntity *>(repl->GetViewer(guid)) : nullptr;
         }
 
         template <typename T>
@@ -94,7 +94,7 @@ namespace MafiaMP {
 
         // Wire: empty. The dying player is resolved from the sender.
         void OnHumanDeath(MafiaNet::BitStream *, MafiaNet::Packet *packet, void *) {
-            if (auto *human = ViewerHuman(packet->guid.g)) {
+            if (auto *human = ViewerHuman(MafiaNet::ToPeerGuid(packet->guid))) {
                 Scripting::Player::EventPlayerDied(human->GetNetworkID());
             }
         }
@@ -106,7 +106,7 @@ namespace MafiaMP {
             bs->Read(vehicleId);
             bs->Read(seatIndex);
 
-            auto *player  = ViewerHuman(packet->guid.g);
+            auto *player  = ViewerHuman(MafiaNet::ToPeerGuid(packet->guid));
             auto *vehicle = ResolveEntity<Shared::Entities::VehicleEntity>(vehicleId);
             if (!player || !vehicle) {
                 return;
@@ -115,7 +115,7 @@ namespace MafiaMP {
                 vehicle->seats[seatIndex] = player->GetNetworkID();
                 if (seatIndex == 0) {
                     // The driver's client becomes authoritative for the vehicle.
-                    vehicle->SetOwner(Framework::Networking::Replication::ToPeerGuid(packet->guid));
+                    vehicle->SetOwner(MafiaNet::ToPeerGuid(packet->guid));
                 }
             }
             Scripting::Vehicle::EventVehiclePlayerEnter(vehicleId, player->GetNetworkID(), seatIndex);
@@ -126,7 +126,7 @@ namespace MafiaMP {
             uint64_t vehicleId = 0;
             bs->Read(vehicleId);
 
-            auto *player  = ViewerHuman(packet->guid.g);
+            auto *player  = ViewerHuman(MafiaNet::ToPeerGuid(packet->guid));
             auto *vehicle = ResolveEntity<Shared::Entities::VehicleEntity>(vehicleId);
             if (!player || !vehicle) {
                 return;
@@ -136,7 +136,7 @@ namespace MafiaMP {
                 if (vehicle->seats[i] == playerId) {
                     vehicle->seats[i] = 0;
                     if (i == 0) {
-                        vehicle->SetOwner(Framework::Networking::Replication::UnassignedPeer()); // back to the server
+                        vehicle->SetOwner(MafiaNet::UNASSIGNED_PEER_GUID); // back to the server
                     }
                 }
             }
@@ -221,17 +221,17 @@ namespace MafiaMP {
             if (!human) {
                 return;
             }
-            human->ownerGUID   = Framework::Networking::Replication::PeerGuid {info.guid};
+            human->ownerGUID   = info.guid;
             human->modelHash   = kDefaultSkin;
             human->nickname    = info.nickname;
             human->playerIndex = info.playerIndex;
-            repl->SetViewer(Framework::Networking::Replication::PeerGuid {info.guid}, human);
+            repl->SetViewer(info.guid, human);
 
-            SendEnvironment(MafiaNet::RakNetGUID(info.guid), false);
+            SendEnvironment(MafiaNet::ToGuid(info.guid), false);
             Scripting::Player::EventPlayerConnected(human->GetNetworkID());
         });
 
-        SetOnPlayerDisconnectCallback([this](uint64_t guid) {
+        SetOnPlayerDisconnectCallback([this](MafiaNet::PeerGuid guid) {
             if (auto *human = ViewerHuman(guid)) {
                 Scripting::Player::EventPlayerDisconnected(human->GetNetworkID());
             }

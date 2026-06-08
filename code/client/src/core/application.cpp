@@ -404,8 +404,8 @@ namespace MafiaMP::Core {
         return _localPlayer ? _localPlayer->GetNetworkID() : 0;
     }
 
-    uint64_t Application::GetLocalPlayerOwnerID() {
-        return _localPlayer ? static_cast<uint64_t>(_localPlayer->ownerGUID) : 0;
+    MafiaNet::PeerGuid Application::GetLocalPlayerOwnerID() {
+        return _localPlayer ? _localPlayer->ownerGUID : MafiaNet::PeerGuid {};
     }
 
     void Application::InitRPCs() {
