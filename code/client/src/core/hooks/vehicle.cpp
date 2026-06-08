@@ -9,10 +9,9 @@
 
 #include <logging/logger.h>
 
+#include "core/application.h"
+
 #include "../modules/vehicle.h"
-#include "shared/modules/vehicle_sync.hpp"
-#include "shared/game_rpc/vehicle/vehicle_player_enter.h"
-#include "shared/game_rpc/vehicle/vehicle_player_leave.h"
 
 #include "sdk/entities/c_actor.h"
 #include "sdk/entities/c_car.h"
@@ -20,92 +19,47 @@
 #include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
 
+using LockState = MafiaMP::Shared::Modules::VehicleSync::LockState;
+
 SDK::C_Actor *C_ActorAction__GetOwnerAsActor(void *pThis) {
     return hook::this_call<SDK::C_Actor *>(0x0000001423434E0, pThis);
+}
+
+// Returns the replicated lock state for the car owning this action, or UNLOCKED if untracked.
+static LockState ActionCarLockState(void *pThis) {
+    const auto actionActor = C_ActorAction__GetOwnerAsActor(pThis);
+    auto *vehicle          = MafiaMP::Core::Modules::Vehicle::GetByCar(reinterpret_cast<SDK::C_Car *>(actionActor));
+    return vehicle ? vehicle->data.lockState : LockState::UNLOCKED;
 }
 
 typedef bool(__fastcall *C_CarActionEnter__TestActionInternal_t)(void *, SDK::C_Actor *, bool);
 C_CarActionEnter__TestActionInternal_t C_CarActionEnter__TestActionInternal_original = nullptr;
 bool C_CarActionEnter__TestActionInternal(void *pThis, SDK::C_Actor *actor, bool locationCheck) {
-    const auto actionActor = C_ActorAction__GetOwnerAsActor(pThis);
-    const auto vehicle     = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actionActor));
-    if (!vehicle) {
-        return true;
-    }
-
-    const auto carData = vehicle.try_get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
-    if (!carData) {
-        return true;
-    }
-
     // TODO: check for seat occupancy status
-
-    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::UNLOCKED;
+    return ActionCarLockState(pThis) == LockState::UNLOCKED;
 }
 
 typedef bool(__fastcall *C_CarActionBreakIn__TestActionInternal_t)(void *, SDK::C_Actor *, bool);
 C_CarActionBreakIn__TestActionInternal_t C_CarActionBreakIn__TestActionInternal_original = nullptr;
 bool C_CarActionBreakIn__TestActionInternal(void *pThis, SDK::C_Actor *actor, bool locationCheck) {
-    const auto actionActor = C_ActorAction__GetOwnerAsActor(pThis);
-    const auto vehicle     = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actionActor));
-    if (!vehicle) {
-        return true;
-    }
-
-    const auto carData = vehicle.try_get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
-    if (!carData) {
-        return true;
-    }
-
     // TODO: check for seat occupancy status
-
-    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::BREAKABLE;
+    return ActionCarLockState(pThis) == LockState::BREAKABLE;
 }
 
 typedef bool(__fastcall *C_CarActionLeave__TestAction_t)(void *, SDK::C_Actor *);
 C_CarActionLeave__TestAction_t C_CarActionLeave__TestAction_original = nullptr;
 bool C_CarActionLeave__TestAction(void *pThis, SDK::C_Actor *actor) {
-    const auto actionActor = C_ActorAction__GetOwnerAsActor(pThis);
-    const auto vehicle     = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actionActor));
-    if (!vehicle) {
-        return true;
-    }
-
-    const auto carData = vehicle.try_get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
-    if (!carData) {
-        return true;
-    }
-    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::UNLOCKED;
+    return ActionCarLockState(pThis) == LockState::UNLOCKED;
 }
 
 typedef bool(__fastcall *C_CarActionBailOut__TestAction_t)(void *, SDK::C_Actor *);
 C_CarActionBailOut__TestAction_t C_CarActionBailOut__TestAction_original = nullptr;
 bool C_CarActionBailOut__TestAction(void *pThis, SDK::C_Actor *pActor) {
-    const auto actionActor = C_ActorAction__GetOwnerAsActor(pThis);
-    const auto vehicle     = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actionActor));
-    if (!vehicle) {
-        return true;
-    }
-
-    const auto carData = vehicle.try_get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
-    if (!carData) {
-        return true;
-    }
-    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::UNLOCKED;
+    return ActionCarLockState(pThis) == LockState::UNLOCKED;
 }
 
 bool C_CarActionOpenCloseX__TestAction(void *pThis, SDK::C_Actor *actor) {
-    const auto actionActor = C_ActorAction__GetOwnerAsActor(pThis);
-    const auto vehicle     = MafiaMP::Core::Modules::Vehicle::GetCarEntity(reinterpret_cast<SDK::C_Car *>(actionActor));
-    if (!vehicle) {
-        return true;
-    }
-
-    const auto carData = vehicle.try_get<MafiaMP::Shared::Modules::VehicleSync::UpdateData>();
-    if (!carData) {
-        return true;
-    }
-    return carData->lockState == MafiaMP::Shared::Modules::VehicleSync::LockState::UNLOCKED;
+    return ActionCarLockState(pThis) == LockState::UNLOCKED;
 }
 
 typedef void(__fastcall *C_Human2CarWrapper__StartDrive_t)(SDK::C_Human2CarWrapper *, SDK::C_Actor *, bool);
@@ -150,21 +104,13 @@ typedef int64_t(__fastcall *C_Human2CarWrapper__GetIn_t)(SDK::C_Human2CarWrapper
 C_Human2CarWrapper__GetIn_t C_Human2CarWrapper__GetIn_original = nullptr;
 
 int64_t C_Human2CarWrapper__GetIn(SDK::C_Human2CarWrapper* pThis, SDK::C_Actor* pActor, int seatID, SDK::C_Human2CarWrapper::S_SeatInfo& seatInfo) {
-    // Notify the server
+    // Notify the server when the local player enters a vehicle.
     auto const pLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
     if (reinterpret_cast<SDK::C_Actor *>(pLocalPlayer) == pActor) {
-        const auto pVehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntity(pThis->m_pUsedCar);
-        if (!pVehicle || !pVehicle.is_valid()) {
-            return C_Human2CarWrapper__GetIn_original(pThis, pActor, seatID, seatInfo);
-        }
-
-        MafiaMP::Shared::RPC::VehiclePlayerEnter rpc;
-        rpc.vehicleId = Framework::World::ClientEngine::GetServerID(pVehicle);
-        rpc.seatIndex = seatID;
-        FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::VehiclePlayerEnter, MafiaMP::Core::gApplication->GetLocalPlayer(), rpc);
+        auto *pVehicle = MafiaMP::Core::Modules::Vehicle::GetByCar(pThis->m_pUsedCar);
+        MafiaMP::Core::gApplication->GetLocalPlayerEvents().EnteredVehicle(pVehicle, seatID);
     }
 
-    // Return to game
     return C_Human2CarWrapper__GetIn_original(pThis, pActor, seatID, seatInfo);
 }
 
@@ -172,20 +118,13 @@ typedef int64_t(__fastcall *C_Human2CarWrapper__GetOut_t)(SDK::C_Human2CarWrappe
 C_Human2CarWrapper__GetOut_t C_Human2CarWrapper__GetOut_original = nullptr;
 
 int64_t C_Human2CarWrapper__GetOut(SDK::C_Human2CarWrapper* pThis, SDK::C_Actor* pActor) {
-    // Notify the server
+    // Notify the server when the local player leaves a vehicle.
     auto const pLocalPlayer = MafiaMP::Game::Helpers::Controls::GetLocalPlayer();
     if (reinterpret_cast<SDK::C_Actor *>(pLocalPlayer) == pActor) {
-        const auto pVehicle = MafiaMP::Core::Modules::Vehicle::GetCarEntity(pThis->m_pUsedCar);
-        if (!pVehicle || !pVehicle.is_valid()) {
-            return C_Human2CarWrapper__GetOut_original(pThis, pActor);
-        }
-
-        MafiaMP::Shared::RPC::VehiclePlayerLeave rpc;
-        rpc.vehicleId = Framework::World::ClientEngine::GetServerID(pVehicle);
-        FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::VehiclePlayerLeave, MafiaMP::Core::gApplication->GetLocalPlayer(), rpc);
+        auto *pVehicle = MafiaMP::Core::Modules::Vehicle::GetByCar(pThis->m_pUsedCar);
+        MafiaMP::Core::gApplication->GetLocalPlayerEvents().LeftVehicle(pVehicle);
     }
 
-    // Return to game
     return C_Human2CarWrapper__GetOut_original(pThis, pActor);
 }
 

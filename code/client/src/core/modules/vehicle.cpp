@@ -2,166 +2,62 @@
 
 #include "vehicle.h"
 
+#include "core/application.h"
+
 #include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/mafia/framework/c_mafia_framework.h"
 #include "sdk/mafia/framework/c_mafia_framework_interfaces.h"
 
-#include "game/streaming/entity_tracking_info.h"
+#include <core_modules.h>
+#include <networking/replication/entity_registry.h>
+#include <networking/replication/replication_manager.h>
+#include <networking/replication/replication_manager.h>
 
+#include <cstring>
 #include <utility>
-#include <world/modules/base.hpp>
-
-#include "shared/messages/vehicle/vehicle_despawn.h"
-#include "shared/messages/vehicle/vehicle_owner_update.h"
-#include "shared/messages/vehicle/vehicle_spawn.h"
-#include "shared/messages/vehicle/vehicle_update.h"
-
-#include "shared/game_rpc/vehicle/vehicle_setprops.h"
-
-#include "shared/modules/mod.hpp"
-#include "shared/modules/vehicle_sync.hpp"
 
 namespace MafiaMP::Core::Modules {
-    flecs::query<Vehicle::Tracking> Vehicle::_findAllVehicles {};
-
-    Vehicle::Vehicle(flecs::world &world) {
-        world.module<Vehicle>();
-
-        world.component<Tracking>();
-        world.component<Interpolated>();
-
-        _findAllVehicles = world.query_builder<Tracking>().build();
-
-        world.system<Tracking, Shared::Modules::VehicleSync::UpdateData, Framework::World::Modules::Base::Transform>("UpdateOwnedVehicles")
-            .each([](flecs::entity e, Tracking &tracking, Shared::Modules::VehicleSync::UpdateData &metadata, Framework::World::Modules::Base::Transform &tr) {
-                const auto myGUID = Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->GetPeer()->GetMyGUID();
-                if (tracking.car && Framework::World::Engine::IsEntityOwner(e, myGUID.g)) {
-                    const auto car = tracking.car;
-
-                    SDK::ue::sys::math::C_Vector carPos = ((SDK::C_Actor *)car)->GetPos();
-                    SDK::ue::sys::math::C_Quat carRot   = ((SDK::C_Actor *)car)->GetRot();
-                    SDK::ue::game::vehicle::C_Vehicle *vehicle             = car->GetVehicle();
-
-                    SDK::ue::sys::math::C_Vector vehicleVelocity        = vehicle->GetSpeed();
-                    SDK::ue::sys::math::C_Vector vehicleAngularVelocity = vehicle->GetAngularSpeed();
-
-                    SDK::ue::sys::math::C_Vector4 colorPrimary, colorSecondary;
-                    vehicle->GetVehicleColor(&colorPrimary, &colorSecondary);
-
-                    SDK::ue::sys::math::C_Vector4 rimColor, tireColor;
-                    vehicle->GetWheelColor(&rimColor, &tireColor);
-
-                    SDK::ue::sys::math::C_Vector4 windowTint = vehicle->GetWindowTintColor();
-
-                    tr.pos = {carPos.x, carPos.y, carPos.z};
-                    tr.rot = {carRot.w, carRot.x, carRot.y, carRot.z};
-
-                    metadata.angularVelocity = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
-                    metadata.beaconLightsOn  = vehicle->GetBeaconLightsOn();
-                    metadata.brake           = vehicle->GetBrake();
-                    metadata.colorPrimary    = {colorPrimary.r, colorPrimary.g, colorPrimary.b, colorPrimary.a};
-                    metadata.colorSecondary  = {colorSecondary.r, colorSecondary.g, colorSecondary.b, colorSecondary.a};
-                    metadata.dirt            = vehicle->GetVehicleDirty();
-                    metadata.engineOn        = car->IsEngineOn();
-                    metadata.fuel            = car->GetActualFuel();
-                    metadata.gear            = car->GetGear();
-                    metadata.handbrake       = vehicle->GetHandbrake();
-                    metadata.hornOn          = vehicle->GetHorn();
-                    metadata.power           = vehicle->GetPower();
-                    metadata.radioOn         = vehicle->IsRadioOn();
-                    metadata.radioStationId  = vehicle->GetRadioStation();
-                    metadata.rimColor        = {rimColor.r, rimColor.g, rimColor.b, rimColor.a};
-                    metadata.rust            = vehicle->GetVehicleRust();
-                    metadata.sirenOn         = vehicle->IsSiren();
-                    metadata.steer           = vehicle->GetSteer();
-                    metadata.tireColor       = {tireColor.r, tireColor.g, tireColor.b, tireColor.a};
-                    metadata.velocity        = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
-                    metadata.windowTint      = {windowTint.r, windowTint.g, windowTint.b, windowTint.a};
-                }
-            });
-
-        world.system<Tracking, Interpolated>("UpdateRemoteVehicles").each([](flecs::entity e, Tracking &tracking, Interpolated &interpolated) {
-            const auto myGUID = Core::gApplication->GetNetworkingEngine()->GetNetworkClient()->GetPeer()->GetMyGUID();
-            if (tracking.car && !Framework::World::Engine::IsEntityOwner(e, myGUID.g)) {
-                const auto car                         = tracking.car;
-                const auto vehiclePos                  = car->GetPos();
-                const auto vehicleRot                  = car->GetRot();
-                const auto newPos                      = interpolated.interpolator.GetPosition()->UpdateTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z});
-                const auto newRot                      = interpolated.interpolator.GetRotation()->UpdateTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z});
-                SDK::ue::sys::math::C_Matrix transform = {};
-                transform.Identity();
-                transform.SetRot({newRot.x, newRot.y, newRot.z, newRot.w});
-                transform.SetPos({newPos.x, newPos.y, newPos.z});
-                car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
+    namespace {
+        // Fires when the streamed game car is ready; binds it to its ClientVehicle.
+        void OnVehicleRequestFinish(Game::Streaming::EntityTrackingInfo *info, bool success) {
+            if (!success) {
+                return;
             }
-        });
-    }
-
-    void Vehicle::Create(flecs::entity e, std::string modelName) {
-        auto info          = Core::gApplication->GetEntityFactory()->RequestVehicle(std::move(modelName));
-        auto &trackingData = e.ensure<Core::Modules::Vehicle::Tracking>();
-        trackingData.info  = info;
-        trackingData.car   = nullptr;
-
-        auto &interp = e.ensure<Interpolated>();
-        interp.interpolator.GetPosition()->SetCompensationFactor(1.5f);
-
-        e.add<Shared::Modules::Mod::EntityKind>();
-        e.set<Shared::Modules::Mod::EntityKind>({Shared::Modules::Mod::MOD_VEHICLE});
-        e.add<Shared::Modules::VehicleSync::UpdateData>();
-
-        // Ensure we hook up vehicle events for special cases
-        auto streamable                      = e.try_get_mut<Framework::World::Modules::Base::Streamable>();
-        streamable->modEvents.disconnectProc = [](flecs::entity e) {
-            Remove(e);
-        };
-        streamable->modEvents.updateTransformProc = [](flecs::entity e) {
-            UpdateTransform(e);
-        };
-
-        const auto OnVehicleRequestFinish = [](Game::Streaming::EntityTrackingInfo *info, bool success) {
-            if (success) {
-                auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
-                if (!car) {
-                    return;
-                }
-                car->GameInit();
-                car->Activate();
-                car->Unlock();
-
-                const auto ent                         = info->GetNetworkEntity();
-                const auto tr                          = ent.try_get<Framework::World::Modules::Base::Transform>();
-                SDK::ue::sys::math::C_Quat newRot      = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
-                SDK::ue::sys::math::C_Vector newPos    = {tr->pos.x, tr->pos.y, tr->pos.z};
-                SDK::ue::sys::math::C_Matrix transform = {};
-                transform.Identity();
-                transform.SetRot(newRot);
-                transform.SetPos(newPos);
-                car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
-
-                const auto vehicleData = ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
-                car->GetVehicle()->SetBrake(vehicleData->brake, true);
-
-                auto trackingData = ent.try_get_mut<Core::Modules::Vehicle::Tracking>();
-                trackingData->car = car;
-
-                auto streamable                  = ent.try_get_mut<Framework::World::Modules::Base::Streamable>();
-                streamable->modEvents.updateProc = [](Framework::Networking::NetworkPeer *peer, uint64_t guid, flecs::entity e) {
-                    const auto updateData = e.try_get<Shared::Modules::VehicleSync::UpdateData>();
-                    const auto serverID   = e.try_get<Framework::World::Modules::Base::ServerID>();
-
-                    Shared::Messages::Vehicle::VehicleUpdate vehicleUpdate {};
-                    vehicleUpdate.SetServerID(serverID->id);
-                    vehicleUpdate.SetData(*updateData);
-                    peer->Send(vehicleUpdate, guid);
-                    return true;
-                };
-
-                Update(ent);
+            auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
+            if (!car) {
+                return;
             }
-        };
+            car->GameInit();
+            car->Activate();
+            car->Unlock();
 
-        const auto OnVehicleReturned = [](Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
+            auto *self = static_cast<Vehicle *>(info->GetNetworkEntity());
+            if (!self) {
+                return;
+            }
+
+            SDK::ue::sys::math::C_Quat newRot      = {self->rotation.x, self->rotation.y, self->rotation.z, self->rotation.w};
+            SDK::ue::sys::math::C_Vector newPos    = {self->position.x, self->position.y, self->position.z};
+            SDK::ue::sys::math::C_Matrix transform = {};
+            transform.Identity();
+            transform.SetRot(newRot);
+            transform.SetPos(newPos);
+            car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
+            car->GetVehicle()->SetBrake(self->data.brake, true);
+
+            self->car = car;
+            // The replicated state arrived before the game car existed; apply it now. With per-field
+            // deltas, unchanged fields are never re-sent, so a late ApplyRemote is the only chance to
+            // catch up the car's configuration.
+            if (self->IsOwner()) {
+                self->Frame();
+            }
+            else {
+                self->ApplyRemote();
+            }
+        }
+
+        void OnVehicleReturned(Game::Streaming::EntityTrackingInfo *info, bool wasCreated) {
             if (!info) {
                 return;
             }
@@ -171,267 +67,216 @@ namespace MafiaMP::Core::Modules {
                 car->GameDone();
                 car->Release();
             }
-        };
+        }
+    } // namespace
 
-        // setup tracking callbacks
-        info->SetRequestFinishCallback(OnVehicleRequestFinish);
-        info->SetReturnCallback(OnVehicleReturned);
-        info->SetNetworkEntity(e);
+    void Vehicle::OnConstructed() {
+        info = Core::gApplication->GetEntityFactory()->RequestVehicle(modelName);
+        interpolator.GetPosition()->SetCompensationFactor(1.5f);
+        info->SetRequestFinishCallback(&OnVehicleRequestFinish);
+        info->SetReturnCallback(&OnVehicleReturned);
+        info->SetNetworkEntity(this);
     }
 
-    void Vehicle::Update(flecs::entity e) {
-        const auto trackingData = e.try_get<Core::Modules::Vehicle::Tracking>();
-        if (!trackingData || !trackingData->car) {
+    void Vehicle::DeallocReplica(MafiaNet::Connection_RM3 *) {
+        if (info) {
+            Core::gApplication->GetEntityFactory()->ReturnEntity(info);
+            info = nullptr;
+        }
+        delete this;
+    }
+
+    void Vehicle::SerializeFields(Framework::Networking::Replication::FieldSerializer &fields) {
+        VehicleEntity::SerializeFields(fields);
+        if (!fields.Writing() && !IsOwner()) {
+            ApplyRemote();
+        }
+    }
+
+    void Vehicle::Frame() {
+        if (!car) {
             return;
         }
-
-        // Update basic data
-        const auto tr = e.try_get<Framework::World::Modules::Base::Transform>();
-        auto interp   = e.try_get_mut<Interpolated>();
-        if (interp) {
-            const auto vehicleRot = trackingData->car->GetRot();
-            const auto vehiclePos = trackingData->car->GetPos();
-            interp->interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, tr->rot, MafiaMP::Core::gApplication->GetTickInterval());
-            interp->interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
+        if (IsOwner()) {
+            ReadLocal();
         }
         else {
-            SDK::ue::sys::math::C_Quat newRot   = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
-            SDK::ue::sys::math::C_Vector newPos = {tr->pos.x, tr->pos.y, tr->pos.z};
-            trackingData->car->SetRot(newRot);
-            trackingData->car->SetPos(newPos);
-        }
+            const auto vehiclePos = car->GetPos();
+            const auto vehicleRot = car->GetRot();
+            const auto newPos     = interpolator.GetPosition()->UpdateTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z});
+            const auto newRot     = interpolator.GetRotation()->UpdateTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z});
 
-        auto updateData         = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
-        SDK::C_Car *car         = trackingData->car;
+            SDK::ue::sys::math::C_Matrix transform = {};
+            transform.Identity();
+            transform.SetRot({newRot.x, newRot.y, newRot.z, newRot.w});
+            transform.SetPos({newPos.x, newPos.y, newPos.z});
+            car->GetVehicle()->SetVehicleMatrix(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
+        }
+    }
+
+    void Vehicle::ReadLocal() {
+        SDK::ue::sys::math::C_Vector carPos = ((SDK::C_Actor *)car)->GetPos();
+        SDK::ue::sys::math::C_Quat carRot   = ((SDK::C_Actor *)car)->GetRot();
         SDK::ue::game::vehicle::C_Vehicle *vehicle = car->GetVehicle();
 
-        SDK::ue::sys::math::C_Vector4 colorPrimary   = {updateData->colorPrimary.r, updateData->colorPrimary.g, updateData->colorPrimary.b, updateData->colorPrimary.a};
-        SDK::ue::sys::math::C_Vector4 colorSecondary = {updateData->colorSecondary.r, updateData->colorSecondary.g, updateData->colorSecondary.b, updateData->colorSecondary.a};
+        SDK::ue::sys::math::C_Vector vehicleVelocity        = vehicle->GetSpeed();
+        SDK::ue::sys::math::C_Vector vehicleAngularVelocity = vehicle->GetAngularSpeed();
 
-        SDK::ue::sys::math::C_Vector4 rimColor  = {updateData->rimColor.r, updateData->rimColor.g, updateData->rimColor.b, updateData->rimColor.a};
-        SDK::ue::sys::math::C_Vector4 tireColor = {updateData->tireColor.r, updateData->tireColor.g, updateData->tireColor.b, updateData->tireColor.a};
+        SDK::ue::sys::math::C_Vector4 colorPrimary, colorSecondary;
+        vehicle->GetVehicleColor(&colorPrimary, &colorSecondary);
 
-        SDK::ue::sys::math::C_Vector4 windowTint = {updateData->windowTint.r, updateData->windowTint.g, updateData->windowTint.b, updateData->windowTint.a};
+        SDK::ue::sys::math::C_Vector4 rimColor, tireColor;
+        vehicle->GetWheelColor(&rimColor, &tireColor);
 
-        vehicle->SetAngularSpeed({updateData->angularVelocity.x, updateData->angularVelocity.y, updateData->angularVelocity.z}, false);
-        vehicle->SetBeaconLightsOn(updateData->beaconLightsOn);
-        vehicle->SetBrake(updateData->brake, false);
+        SDK::ue::sys::math::C_Vector4 windowTint = vehicle->GetWindowTintColor();
+
+        position = {carPos.x, carPos.y, carPos.z};
+        rotation = {carRot.w, carRot.x, carRot.y, carRot.z};
+
+        data.angularVelocity = {vehicleAngularVelocity.x, vehicleAngularVelocity.y, vehicleAngularVelocity.z};
+        data.beaconLightsOn  = vehicle->GetBeaconLightsOn();
+        data.brake           = vehicle->GetBrake();
+        data.colorPrimary    = {colorPrimary.r, colorPrimary.g, colorPrimary.b, colorPrimary.a};
+        data.colorSecondary  = {colorSecondary.r, colorSecondary.g, colorSecondary.b, colorSecondary.a};
+        data.dirt            = vehicle->GetVehicleDirty();
+        data.engineOn        = car->IsEngineOn();
+        data.fuel            = car->GetActualFuel();
+        data.gear            = car->GetGear();
+        data.handbrake       = vehicle->GetHandbrake();
+        data.hornOn          = vehicle->GetHorn();
+        data.power           = vehicle->GetPower();
+        data.radioOn         = vehicle->IsRadioOn();
+        data.radioStationId  = vehicle->GetRadioStation();
+        data.rimColor        = {rimColor.r, rimColor.g, rimColor.b, rimColor.a};
+        data.rust            = vehicle->GetVehicleRust();
+        data.sirenOn         = vehicle->IsSiren();
+        data.steer           = vehicle->GetSteer();
+        data.tireColor       = {tireColor.r, tireColor.g, tireColor.b, tireColor.a};
+        data.velocity        = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
+        data.windowTint      = {windowTint.r, windowTint.g, windowTint.b, windowTint.a};
+    }
+
+    void Vehicle::ApplyConfig() {
+        if (!car) {
+            return;
+        }
+        SDK::ue::game::vehicle::C_Vehicle *vehicle = car->GetVehicle();
+
+        SDK::ue::sys::math::C_Vector4 colorPrimary   = {data.colorPrimary.r, data.colorPrimary.g, data.colorPrimary.b, data.colorPrimary.a};
+        SDK::ue::sys::math::C_Vector4 colorSecondary = {data.colorSecondary.r, data.colorSecondary.g, data.colorSecondary.b, data.colorSecondary.a};
+        SDK::ue::sys::math::C_Vector4 rimColor       = {data.rimColor.r, data.rimColor.g, data.rimColor.b, data.rimColor.a};
+        SDK::ue::sys::math::C_Vector4 tireColor      = {data.tireColor.r, data.tireColor.g, data.tireColor.b, data.tireColor.a};
+        SDK::ue::sys::math::C_Vector4 windowTint     = {data.windowTint.r, data.windowTint.g, data.windowTint.b, data.windowTint.a};
+
+        vehicle->SetBeaconLightsOn(data.beaconLightsOn);
         vehicle->SetVehicleColor(&colorPrimary, &colorSecondary, false);
-        car->SetVehicleDirty(updateData->dirt); // We have to use the car to set the dirt otherwise the value is reset
-        vehicle->SetEngineOn(updateData->engineOn, updateData->engineOn);
-        car->SetActualFuel(updateData->fuel);
-        vehicle->SetGear(updateData->gear);
-        vehicle->SetHandbrake(updateData->handbrake, false);
-        vehicle->SetHorn(updateData->hornOn);
-        if (std::strcmp(vehicle->GetSPZText(), updateData->licensePlate) != 0) {
-            vehicle->SetSPZText(updateData->licensePlate, true);
+        car->SetVehicleDirty(data.dirt); // must go through the car or the value resets
+        vehicle->SetEngineOn(data.engineOn, data.engineOn);
+        car->SetActualFuel(data.fuel);
+        if (std::strcmp(vehicle->GetSPZText(), data.licensePlate.data()) != 0) {
+            vehicle->SetSPZText(data.licensePlate.data(), true);
         }
-        vehicle->SetPower(updateData->power);
-        if (vehicle->IsRadioOn() != updateData->radioOn) {
-            vehicle->TurnRadioOn(updateData->radioOn);
+        if (vehicle->IsRadioOn() != data.radioOn) {
+            vehicle->TurnRadioOn(data.radioOn);
         }
-        if (vehicle->GetRadioStation() != updateData->radioStationId) {
-            vehicle->ChangeRadioStation(updateData->radioStationId);
+        if (vehicle->GetRadioStation() != data.radioStationId) {
+            vehicle->ChangeRadioStation(data.radioStationId);
         }
-        vehicle->SetSiren(updateData->sirenOn);
-        vehicle->SetVehicleRust(updateData->rust);
-        vehicle->SetSpeed({updateData->velocity.x, updateData->velocity.y, updateData->velocity.z}, false, false);
-        vehicle->SetSteer(updateData->steer);
+        vehicle->SetSiren(data.sirenOn);
+        vehicle->SetVehicleRust(data.rust);
         vehicle->SetWheelColor(&rimColor, &tireColor);
         vehicle->SetWindowTintColor(windowTint);
     }
 
-    void Vehicle::SelfUpdate(flecs::entity e, MafiaMP::Shared::Modules::VehicleSync::UpdateData &updateData) {
-        // TODO: deprecate in favor of RPCs
-    }
-
-    void Vehicle::Remove(flecs::entity e) {
-        auto trackingData = e.try_get_mut<Core::Modules::Vehicle::Tracking>();
-        if (!trackingData) {
+    void Vehicle::ApplyRemote() {
+        if (!car) {
             return;
         }
 
-        Core::gApplication->GetEntityFactory()->ReturnEntity(trackingData->info);
-        trackingData->info = nullptr;
+        // Set the interpolation target toward the replicated transform.
+        const auto vehicleRot = car->GetRot();
+        const auto vehiclePos = car->GetPos();
+        interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, rotation, MafiaMP::Core::gApplication->GetTickInterval());
+        interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, position, MafiaMP::Core::gApplication->GetTickInterval());
+
+        ApplyConfig();
+
+        // Owner-authoritative physics, replicated to the other clients.
+        SDK::ue::game::vehicle::C_Vehicle *vehicle = car->GetVehicle();
+        vehicle->SetAngularSpeed({data.angularVelocity.x, data.angularVelocity.y, data.angularVelocity.z}, false);
+        vehicle->SetBrake(data.brake, false);
+        vehicle->SetGear(data.gear);
+        vehicle->SetHandbrake(data.handbrake, false);
+        vehicle->SetHorn(data.hornOn);
+        vehicle->SetPower(data.power);
+        vehicle->SetSpeed({data.velocity.x, data.velocity.y, data.velocity.z}, false, false);
+        vehicle->SetSteer(data.steer);
     }
 
-    void Vehicle::SetupMessages(Application *app) {
-        const auto net = app->GetNetworkingEngine()->GetNetworkClient();
-        net->RegisterMessage<Shared::Messages::Vehicle::VehicleSpawn>(Shared::Messages::ModMessages::MOD_VEHICLE_SPAWN, [app](MafiaNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleSpawn *msg) {
-            auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            // Setup tracking info
-            Create(e, msg->GetModelName());
-
-            // Setup other components
-            auto vehicleData = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            *vehicleData     = msg->GetSpawnData();
-        });
-        net->RegisterMessage<Shared::Messages::Vehicle::VehicleDespawn>(Shared::Messages::ModMessages::MOD_VEHICLE_DESPAWN, [app](MafiaNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleDespawn *msg) {
-            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            Remove(e);
-        });
-        net->RegisterMessage<Shared::Messages::Vehicle::VehicleUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_UPDATE, [app](MafiaNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleUpdate *msg) {
-            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            auto updateData = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
-            *updateData     = msg->GetData();
-            Update(e);
-        });
-        // TODO: deprecate in favor of RPCs
-        /*net->RegisterMessage<Shared::Messages::Vehicle::VehicleOwnerUpdate>(Shared::Messages::ModMessages::MOD_VEHICLE_OWNER_UPDATE, [app](MafiaNet::RakNetGUID guid, Shared::Messages::Vehicle::VehicleOwnerUpdate *msg) {
-            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-            SelfUpdate(e, msg->GetData());
-        });*/
-
-        InitRPCs(app);
+    void Vehicle::OnStateForced() {
+        // We own this vehicle, so the server withholds normal serialize to us; this is how it gets
+        // the last word over our configuration. Apply it to the car — ReadLocal then streams the
+        // corrected values back, so there is no fight with the server.
+        ApplyConfig();
     }
 
-    void Vehicle::InitRPCs(Application *app) {
-        const auto net = app->GetNetworkingEngine()->GetNetworkClient();
-
-        net->RegisterGameRPC<Shared::RPC::VehicleSetProps>([app](MafiaNet::RakNetGUID guid, Shared::RPC::VehicleSetProps *msg) {
-            const auto e = app->GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            auto updateData = e.try_get_mut<Shared::Modules::VehicleSync::UpdateData>();
-
-            const auto beaconLightsOn = msg->beaconLightsOn;
-            const auto colorPrimary   = msg->colorPrimary;
-            const auto colorSecondary = msg->colorSecondary;
-            const auto dirt           = msg->dirt;
-            const auto engineOn       = msg->engineOn;
-            const auto fuel           = msg->fuel;
-            const auto licensePlate   = msg->licensePlate;
-            const auto lockState      = msg->lockState;
-            const auto radioOn        = msg->radioOn;
-            const auto radioStationId = msg->radioStationId;
-            const auto rimColor       = msg->rimColor;
-            const auto rust           = msg->rust;
-            const auto sirenOn        = msg->sirenOn;
-            const auto tireColor      = msg->tireColor;
-            const auto windowTint     = msg->windowTint;
-
-            if (beaconLightsOn.HasValue()) {
-                updateData->beaconLightsOn = beaconLightsOn();
-            }
-
-            if (colorPrimary.HasValue()) {
-                updateData->colorPrimary = colorPrimary();
-            }
-
-            if (colorSecondary.HasValue()) {
-                updateData->colorSecondary = colorSecondary();
-            }
-
-            if (dirt.HasValue()) {
-                updateData->dirt = dirt();
-            }
-
-            if (engineOn.HasValue()) {
-                updateData->engineOn = engineOn();
-            }
-
-            if (fuel.HasValue()) {
-                updateData->fuel = fuel();
-            }
-
-            if (licensePlate.HasValue()) {
-                const auto plate = licensePlate().C_String();
-                std::memcpy(updateData->licensePlate, plate, strlen(plate) + 1);
-            }
-
-            if (lockState.HasValue()) {
-                updateData->lockState = lockState();
-            }
-
-            if (radioOn.HasValue()) {
-                updateData->radioOn = radioOn();
-            }
-
-            if (radioStationId.HasValue()) {
-                updateData->radioStationId = radioStationId();
-            }
-
-            if (rimColor.HasValue()) {
-                updateData->rimColor = rimColor();
-            }
-
-            if (rust.HasValue()) {
-                updateData->rust = rust();
-            }
-
-            if (sirenOn.HasValue()) {
-                updateData->sirenOn = sirenOn();
-            }
-
-            if (tireColor.HasValue()) {
-                updateData->tireColor = tireColor();
-            }
-
-            if (windowTint.HasValue()) {
-                updateData->windowTint = windowTint();
-            }
-
-            Update(e);
+    void Vehicle::Install() {
+        Framework::Networking::Replication::EntityRegistry::Get().Register(Shared::Entities::VehicleEntity::kTypeName, [] {
+            return new Vehicle();
         });
     }
 
-    void Vehicle::UpdateTransform(flecs::entity e) {
-        const auto trackingData = e.try_get<Core::Modules::Vehicle::Tracking>();
-        if (!trackingData || !trackingData->car) {
+    void Vehicle::UpdateAll() {
+        auto *world = Framework::CoreModules::GetReplication();
+        auto *repl  = world;
+        if (!repl) {
             return;
         }
+        repl->ForEachEntity([](Framework::Networking::Replication::NetworkEntity *e) {
+            if (auto *vehicle = dynamic_cast<Vehicle *>(e)) {
+                vehicle->Frame();
+            }
+        });
+    }
 
-        // Update basic data
-        const auto tr = e.try_get<Framework::World::Modules::Base::Transform>();
-        auto interp   = e.try_get_mut<Interpolated>();
-        if (interp) {
-            // TODO reset lerp
-            const auto vehicleRot = trackingData->car->GetRot();
-            const auto vehiclePos = trackingData->car->GetPos();
-            interp->interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, tr->rot, MafiaMP::Core::gApplication->GetTickInterval());
-            interp->interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, tr->pos, MafiaMP::Core::gApplication->GetTickInterval());
+    Vehicle *Vehicle::GetByCar(SDK::C_Car *carPtr) {
+        auto *world = Framework::CoreModules::GetReplication();
+        auto *repl  = world;
+        if (!repl || !carPtr) {
+            return nullptr;
         }
-
-        SDK::ue::sys::math::C_Quat newRot   = {tr->rot.x, tr->rot.y, tr->rot.z, tr->rot.w};
-        SDK::ue::sys::math::C_Vector newPos = {tr->pos.x, tr->pos.y, tr->pos.z};
-        trackingData->car->SetRot(newRot);
-        trackingData->car->SetPos(newPos);
-    }
-
-    flecs::entity Vehicle::GetCarEntity(SDK::C_Car *carPtr) {
-        flecs::entity carID {};
-        _findAllVehicles.each([&carID, carPtr](flecs::entity e, Core::Modules::Vehicle::Tracking &trackingData) {
-            if (trackingData.car == carPtr) {
-                carID = e;
+        Vehicle *found = nullptr;
+        repl->ForEachEntity([&](Framework::Networking::Replication::NetworkEntity *e) {
+            if (found) {
+                return;
+            }
+            if (auto *vehicle = dynamic_cast<Vehicle *>(e); vehicle && vehicle->car == carPtr) {
+                found = vehicle;
             }
         });
-        return carID;
+        return found;
     }
 
-    flecs::entity Vehicle::GetCarEntityByVehicle(SDK::ue::game::vehicle::C_Vehicle *vehiclePtr) {
-        flecs::entity carID {};
-        _findAllVehicles.each([&carID, vehiclePtr](flecs::entity e, Core::Modules::Vehicle::Tracking &trackingData) {
-            if (trackingData.car && trackingData.car->GetVehicle() && trackingData.car->GetVehicle() == vehiclePtr) {
-                carID = e;
+    Vehicle *Vehicle::GetByVehicle(SDK::ue::game::vehicle::C_Vehicle *vehiclePtr) {
+        auto *world = Framework::CoreModules::GetReplication();
+        auto *repl  = world;
+        if (!repl || !vehiclePtr) {
+            return nullptr;
+        }
+        Vehicle *found = nullptr;
+        repl->ForEachEntity([&](Framework::Networking::Replication::NetworkEntity *e) {
+            if (found) {
+                return;
+            }
+            if (auto *vehicle = dynamic_cast<Vehicle *>(e); vehicle && vehicle->car && vehicle->car->GetVehicle() == vehiclePtr) {
+                found = vehicle;
             }
         });
-        return carID;
+        return found;
+    }
+
+    Vehicle *Vehicle::GetByNetworkId(uint64_t networkId) {
+        auto *world = Framework::CoreModules::GetReplication();
+        return world ? dynamic_cast<Vehicle *>(world->GetEntityByNetworkID(networkId)) : nullptr;
     }
 } // namespace MafiaMP::Core::Modules

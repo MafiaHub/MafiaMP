@@ -1,3 +1,5 @@
+#include <utils/safe_win32.h>
+
 #include "entity_browser.h"
 
 #include "core/application.h"
@@ -203,25 +205,23 @@ namespace MafiaMP::Core::UI::Devs {
                         continue;
 
                     if (_streamFilter != StreamFilter::NONE) {
-                        flecs::entity e {};
+                        Framework::Networking::Replication::NetworkEntity *e = nullptr;
 
                         // TODO: better way to detect streamables
 
                         if (sceneObjectType == SDK::E_EntityType::E_ENTITY_CAR) {
                             const auto veh = reinterpret_cast<SDK::C_Car *>(entity);
-
-                            e = Core::Modules::Vehicle::GetCarEntity(veh);
+                            e              = Core::Modules::Vehicle::GetByCar(veh);
                         }
                         else if (sceneObjectType == SDK::E_EntityType::E_ENTITY_HUMAN /*|| sceneObjectType == SDK::E_EntityType::E_ENTITY_PLAYER*/) {
                             const auto human = reinterpret_cast<SDK::C_Human2 *>(entity);
-
-                            e = Core::Modules::Human::GetHumanEntity(human);
+                            e                = Core::Modules::Human::GetByPed(human);
                         }
 
-                        if (!e.is_valid() || !e.is_alive())
+                        if (!e)
                             continue;
 
-                        if (_streamFilter == StreamFilter::OWNED && !Framework::World::Engine::IsEntityOwner(e, gApplication->GetLocalPlayerOwnerID()))
+                        if (_streamFilter == StreamFilter::OWNED && e->ownerGUID != gApplication->GetLocalPlayerOwnerID())
                             continue;
                     }
 

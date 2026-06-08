@@ -2,20 +2,17 @@
 
 #include "core/server.h"
 
-#include "shared/rpc/chat_message.h"
-
 #include <integrations/server/scripting/module.h>
 #include <logging/logger.h>
+#include <scripting/builtins/chat.h>
 #include <scripting/node_engine.h>
-#include <world/modules/base.hpp>
 
 namespace MafiaMP::Scripting {
 
 std::unique_ptr<v8pp::class_<Player>> Player::_class;
 
 namespace {
-    // Helper to emit player events with a Player JS object argument
-    void EmitPlayerEvent(flecs::entity e, const std::string &eventName) {
+    void EmitPlayerEvent(uint64_t networkId, const std::string &eventName) {
         auto server = MafiaMP::Server::_serverRef;
         if (!server)
             return;
@@ -36,7 +33,7 @@ namespace {
         v8::Local<v8::Context> context = engine->GetContext();
         v8::Context::Scope contextScope(context);
 
-        auto playerObj = v8pp::class_<Player>::create_object(isolate, e);
+        auto playerObj = v8pp::class_<Player>::create_object(isolate, networkId);
 
         std::vector<v8::Local<v8::Value>> args;
         args.push_back(playerObj);
@@ -45,36 +42,33 @@ namespace {
     }
 } // namespace
 
-void Player::EventPlayerConnected(flecs::entity e) {
-    Framework::Logging::GetLogger("Scripting")->debug("Player connected: {}", e.id());
-    EmitPlayerEvent(e, "playerConnect");
+void Player::EventPlayerConnected(uint64_t networkId) {
+    Framework::Logging::GetLogger("Scripting")->debug("Player connected: {}", networkId);
+    EmitPlayerEvent(networkId, "playerConnect");
 }
 
-void Player::EventPlayerDisconnected(flecs::entity e) {
-    Framework::Logging::GetLogger("Scripting")->debug("Player disconnected: {}", e.id());
-    EmitPlayerEvent(e, "playerDisconnect");
+void Player::EventPlayerDisconnected(uint64_t networkId) {
+    Framework::Logging::GetLogger("Scripting")->debug("Player disconnected: {}", networkId);
+    EmitPlayerEvent(networkId, "playerDisconnect");
 }
 
-void Player::EventPlayerDied(flecs::entity e) {
-    Framework::Logging::GetLogger("Scripting")->debug("Player died: {}", e.id());
-    EmitPlayerEvent(e, "playerDied");
+void Player::EventPlayerDied(uint64_t networkId) {
+    Framework::Logging::GetLogger("Scripting")->debug("Player died: {}", networkId);
+    EmitPlayerEvent(networkId, "playerDied");
 }
 
 std::string Player::ToString() const {
     std::ostringstream ss;
-    ss << "Player{ id: " << _ent.id() << " }";
+    ss << "Player{ id: " << _id << " }";
     return ss.str();
 }
 
 void Player::Destroy() {
-    // Nothing should happen here, as the player entity is destroyed by the game and network systems
+    // The player entity is destroyed by the game and network systems on disconnect.
 }
 
 void Player::SendChat(std::string message) {
-    const auto streamer = _ent.try_get<Framework::World::Modules::Base::Streamer>();
-    if (streamer) {
-        FW_SEND_COMPONENT_RPC_TO(Shared::RPC::ChatMessage, MafiaNet::RakNetGUID(streamer->guid), message);
-    }
+    Framework::Scripting::Builtins::Chat::SendToPlayer(this, message);
 }
 
 v8pp::class_<Player> &Player::GetClass(v8::Isolate *isolate) {
@@ -82,7 +76,7 @@ v8pp::class_<Player> &Player::GetClass(v8::Isolate *isolate) {
         _class = std::make_unique<v8pp::class_<Player>>(isolate);
         _class->auto_wrap_objects(true);
         _class->inherit<Human>()
-            .ctor<flecs::entity_t>()
+            .ctor<uint64_t>()
             .function("toString", &Player::ToString)
             .function("destroy", &Player::Destroy)
             .function("sendChat", &Player::SendChat);

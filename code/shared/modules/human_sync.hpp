@@ -3,15 +3,15 @@
 #include <cstdint>
 #include <array>
 
-#include <flecs/distr/flecs.h>
 #include <glm/glm.hpp>
-
 
 namespace MafiaMP::Shared::Modules {
     // Number of animation variables to sync
     // We sync the most important ones for visual fidelity
     static constexpr size_t WANIM_VAR_SYNC_COUNT = 39;
 
+    // Per-tick human state replicated through HumanEntity (trivially copyable, delta-tracked as a
+    // whole by VariableDeltaSerializer).
     struct HumanSync {
         struct UpdateData {
             float _healthPercent = 100.0f;
@@ -42,11 +42,5 @@ namespace MafiaMP::Shared::Modules {
                 uint16_t currentWeaponId {};
             } weaponData;
         };
-
-        HumanSync(flecs::world& world) {
-            world.module<HumanSync>();
-
-            world.component<UpdateData>();
-        }
     };
-}
+} // namespace MafiaMP::Shared::Modules

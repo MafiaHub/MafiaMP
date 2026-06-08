@@ -1,16 +1,17 @@
 #pragma once
 
-#include <flecs/distr/flecs.h>
+#include "shared/entities/human_entity.h"
 
 #include "sdk/entities/c_player_2.h"
 
 #include "game/overrides/character_controller.h"
 #include "game/streaming/entity_tracking_info.h"
 
-#include "core/application.h"
+#include <mafianet/ReplicaManager3.h>
 
 #include <utils/interpolator.h>
-#include <world/modules/base.hpp>
+
+#include <cstdint>
 
 enum CarEnterStates {
     STATE_OUTSIDE,
@@ -20,50 +21,48 @@ enum CarEnterStates {
 };
 
 namespace MafiaMP::Core::Modules {
-    struct Human {
-        struct Tracking {
-            SDK::C_Human2 *human                                 = nullptr;
-            Game::Overrides::CharacterController *charController = nullptr;
-            Game::Streaming::EntityTrackingInfo *info            = nullptr;
-        };
+    // Client-side replicated human: a HumanEntity that also owns and drives the local game ped.
+    // Remote humans apply the replicated state to their ped (interpolated); the local player reads
+    // its ped back into the replicated state each frame so it serializes upstream.
+    class Human final : public Shared::Entities::HumanEntity {
+      public:
+        SDK::C_Human2 *human                                 = nullptr;
+        Game::Overrides::CharacterController *charController = nullptr;
+        Game::Streaming::EntityTrackingInfo *info            = nullptr;
+        Framework::Utils::Interpolator interpolator {};
 
-        struct Interpolated {
-            Framework::Utils::Interpolator interpolator = {};
-        };
+        // Local enter/leave-vehicle state machine.
+        CarEnterStates enterState = STATE_OUTSIDE;
+        bool enterForced          = false;
 
-        struct LocalPlayer {
-            [[maybe_unused]] char _unused;
-        };
+        bool isLocalPlayer = false;
 
-        struct HumanData {
-            struct CarPassenger {
-                CarEnterStates enterState = STATE_OUTSIDE;
-                bool enterForced {};
-            } carPassenger {};
+        // Last skin applied to the game ped, to detect replicated skin changes.
+        uint64_t appliedSkin = 0;
 
-            std::string nickname;
-            uint16_t playerIndex;
-        };
+        // --- Replica3 hooks ---
+        void OnConstructed() override;
+        void DeallocReplica(MafiaNet::Connection_RM3 *sourceConnection) override;
+        void SerializeFields(Framework::Networking::Replication::FieldSerializer &fields) override;
+        // Server overrode our state (teleport): move the game ped to the forced transform.
+        void OnStateForced() override;
 
-        Human(flecs::world &world);
+        // Per-frame driver for this human.
+        void Frame();
 
-        static void Create(flecs::entity e, uint64_t spawnProfile);
+        // Teleport the local player's game ped to this entity's replicated transform.
+        void TeleportLocalToReplicated();
 
-        static void SetupLocalPlayer(Application *app, flecs::entity e);
-
-        static void Update(flecs::entity e);
-
-        static void Remove(flecs::entity e);
-
-        static void SetupMessages(Application *app);
-
-        static void UpdateTransform(flecs::entity);
-
-        static flecs::query<Tracking> findAllHumans;
-
-        static flecs::entity GetHumanEntity(SDK::C_Human2 *ptr);
+        // --- Module setup (called once from the client world) ---
+        static void Install();
+        static void UpdateAll();
+        static Human *GetByPed(SDK::C_Human2 *ptr);
 
       private:
-        static void InitRPCs(Application *app);
+        void BindLocalPlayer();
+        void RequestPed();
+        void ApplyRemote();
+        void ReadLocal();
+        void DrawNametag();
     };
 } // namespace MafiaMP::Core::Modules

@@ -2,8 +2,8 @@
 
 #include <v8.h>
 
-#include "chat.h"
-#include "entity.h"
+#include <scripting/builtins/entity.h>
+
 #include "human.h"
 #include "player.h"
 #include "vehicle.h"
@@ -18,13 +18,13 @@ namespace MafiaMP::Scripting {
             }
 
             // Register entity classes on Framework object
-            Scripting::Entity::Register(isolate, frameworkObj);
+            Framework::Scripting::Builtins::Entity::Register(isolate, frameworkObj);
             Scripting::Human::Register(isolate, frameworkObj);
             Scripting::Player::Register(isolate, frameworkObj);
             Scripting::Vehicle::Register(isolate, frameworkObj);
 
-            // Register module singletons on global for direct access (Chat, World)
-            Scripting::Chat::Register(isolate, global);
+            // Register module singletons on global for direct access (World). The Chat API is
+            // registered by the framework.
             Scripting::World::Register(isolate, global);
         }
     };

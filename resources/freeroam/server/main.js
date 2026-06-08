@@ -364,6 +364,23 @@ registerChatCommand("time", (player, message, command, args) => {
     World.setDayTimeHours(time);
 });
 
+registerChatCommand("weather", (player, message, command, args) => {
+    // /weather [set] - use the given weather set, or pick a random one.
+    let weatherSet = args[0];
+
+    if (!weatherSet) {
+        weatherSet = utils.getRandomInArray(WEATHER_SETS);
+    } else if (!WEATHER_SETS.includes(weatherSet)) {
+        Chat.sendToPlayer(player, `[SERVER] Unknown weather set "${weatherSet}".`);
+        Chat.sendToPlayer(player, "Available: " + WEATHER_SETS.join(", "));
+        return;
+    }
+
+    World.setWeatherSet(weatherSet);
+    Chat.sendToAll(`[SERVER] Weather changed to ${weatherSet}.`);
+    console.log(`[FREEROAM] Weather set changed to ${weatherSet}.`);
+});
+
 registerChatCommand("customevent", (player, message, command, args) => {
     Core.Events.emit("myCustomEvent", player, "bar");
 });
@@ -378,6 +395,25 @@ registerChatCommand("players", (player, message, command, args) => {
     World.players.forEach(p => {
         Chat.sendToPlayer(player,`  - ${p.nickname} (id: ${p.id})`);
     });
+});
+
+// /kick <id> [reason]
+registerChatCommand("kick", (player, message, command, args) => {
+    const targetId = parseInt(args[0]);
+    if (isNaN(targetId)) {
+        Chat.sendToPlayer(player, "[SERVER] Usage: /kick <id> [reason]");
+        return;
+    }
+
+    const target = World.players.find(p => p.id === targetId);
+    if (!target) {
+        Chat.sendToPlayer(player, `[SERVER] No player with id ${targetId}.`);
+        return;
+    }
+
+    const reason = args.slice(1).join(" ");
+    Chat.sendToAll(`[SERVER] ${target.nickname} was kicked${reason ? ` (${reason})` : ""}.`);
+    target.kick(reason);
 });
 
 registerChatCommand("vehicles", (player, message, command, args) => {
