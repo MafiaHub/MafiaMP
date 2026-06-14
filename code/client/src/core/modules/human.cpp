@@ -32,7 +32,7 @@
 #include <core_modules.h>
 #include <networking/network_peer.h>
 #include <networking/replication/entity_registry.h>
-`#include` <networking/replication/replication_manager.h>
+#include <networking/replication/replication_manager.h>
 
 #include <mafianet/BitStream.h>
 
