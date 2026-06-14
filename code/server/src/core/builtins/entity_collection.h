@@ -4,360 +4,259 @@
 #include <v8pp/class.hpp>
 #include <v8pp/convert.hpp>
 
-#include <flecs.h>
 #include <core_modules.h>
+#include <networking/replication/replication_manager.h>
+
+#include "shared/entities/human_entity.h"
+#include "shared/entities/vehicle_entity.h"
 
 #include "player.h"
 #include "vehicle.h"
 
-#include "shared/modules/human_sync.hpp"
-#include "shared/modules/vehicle_sync.hpp"
-
-#include <functional>
-#include <memory>
+#include <type_traits>
 #include <vector>
 
 namespace MafiaMP::Scripting {
 
-/**
- * EntityCollection provides array-like iteration methods for entity collections.
- * Supports forEach, filter, find, map operations with JavaScript callbacks.
- *
- * Usage from JS:
- *   World.players.forEach(p => p.sendChat("Hello"));
- *   World.players.filter(p => p.health > 50);
- *   World.players.find(p => p.nickname === "Admin");
- *   World.vehicles.map(v => v.position);
- */
-template <typename EntityType, typename ComponentType>
+// Array-like JS iteration over a category of replicated entities.
+//
+// Usage from JS:
+//   World.players.forEach(p => p.sendChat("Hello"));
+//   World.vehicles.filter(v => v.engineOn);
+//
+// JsType is the scripting wrapper (Player/Vehicle); NativeType is the replicated entity
+// (HumanEntity/VehicleEntity). For humans only viewer entities (actual players) are included.
+template <typename JsType, typename NativeType>
 class EntityCollection {
   public:
     EntityCollection() = default;
 
-    // Get count of entities
-    int GetLength(v8::Isolate *isolate) const {
-        auto *world = Framework::CoreModules::GetWorldEngine()->GetWorld();
-        int count   = 0;
-        world->each<ComponentType>([&count](flecs::entity, ComponentType &) {
+    template <typename Fn>
+    static void ForEachNative(Fn &&fn) {
+        auto *repl = Framework::CoreModules::GetReplication();
+        if (!repl) {
+            return;
+        }
+        repl->ForEachEntity([&](Framework::Networking::Replication::NetworkEntity *e) {
+            auto *typed = dynamic_cast<NativeType *>(e);
+            if (!typed) {
+                return;
+            }
+            if constexpr (std::is_same_v<NativeType, Shared::Entities::HumanEntity>) {
+                if (!typed->streaming.isViewer) {
+                    return; // players only
+                }
+            }
+            fn(typed);
+        });
+    }
+
+    int GetLength(v8::Isolate *) const {
+        int count = 0;
+        ForEachNative([&count](NativeType *) {
             count++;
         });
         return count;
     }
 
-    // forEach - iterate over each entity, calling callback(entity)
     void ForEach(v8::Isolate *isolate, v8::Local<v8::Function> callback) {
-        auto *world = Framework::CoreModules::GetWorldEngine()->GetWorld();
-        auto ctx    = isolate->GetCurrentContext();
+        auto ctx          = isolate->GetCurrentContext();
         bool hadException = false;
-
-        world->each<ComponentType>([&](flecs::entity e, ComponentType &) {
+        ForEachNative([&](NativeType *e) {
             if (hadException) return;
-
-            EntityType *entity     = new EntityType(e);
-            v8::Local<v8::Object> jsEntity = EntityType::GetClass(isolate).import_external(isolate, entity);
-
-            v8::Local<v8::Value> argv[1] = {jsEntity};
+            v8::Local<v8::Object> jsEntity = JsType::GetClass(isolate).import_external(isolate, new JsType(e->GetNetworkID()));
+            v8::Local<v8::Value> argv[1]   = {jsEntity};
             v8::TryCatch try_catch(isolate);
             v8::Local<v8::Value> result;
             if (!callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocal(&result)) {
-                if (try_catch.HasCaught()) {
-                    isolate->ThrowException(try_catch.Exception());
-                }
+                if (try_catch.HasCaught()) isolate->ThrowException(try_catch.Exception());
                 hadException = true;
-                return;
             }
         });
     }
 
-    // filter - return array of entities matching predicate callback(entity) => bool
     v8::Local<v8::Array> Filter(v8::Isolate *isolate, v8::Local<v8::Function> callback) {
-        auto *world = Framework::CoreModules::GetWorldEngine()->GetWorld();
-        auto ctx    = isolate->GetCurrentContext();
+        auto ctx          = isolate->GetCurrentContext();
         bool hadException = false;
-
         std::vector<v8::Local<v8::Value>> results;
-
-        world->each<ComponentType>([&](flecs::entity e, ComponentType &) {
+        ForEachNative([&](NativeType *e) {
             if (hadException) return;
-
-            EntityType *entity     = new EntityType(e);
-            v8::Local<v8::Object> jsEntity = EntityType::GetClass(isolate).import_external(isolate, entity);
-
-            v8::Local<v8::Value> argv[1] = {jsEntity};
+            v8::Local<v8::Object> jsEntity = JsType::GetClass(isolate).import_external(isolate, new JsType(e->GetNetworkID()));
+            v8::Local<v8::Value> argv[1]   = {jsEntity};
             v8::TryCatch try_catch(isolate);
             v8::Local<v8::Value> result;
             if (!callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocal(&result)) {
-                if (try_catch.HasCaught()) {
-                    isolate->ThrowException(try_catch.Exception());
-                }
+                if (try_catch.HasCaught()) isolate->ThrowException(try_catch.Exception());
                 hadException = true;
                 return;
             }
-
-            if (result->BooleanValue(isolate)) {
-                results.push_back(jsEntity);
-            }
+            if (result->BooleanValue(isolate)) results.push_back(jsEntity);
         });
-
-        if (hadException) {
-            return v8::Array::New(isolate, 0);
-        }
-
+        if (hadException) return v8::Array::New(isolate, 0);
         v8::Local<v8::Array> arr = v8::Array::New(isolate, static_cast<int>(results.size()));
-        for (size_t i = 0; i < results.size(); i++) {
-            arr->Set(ctx, static_cast<uint32_t>(i), results[i]).Check();
-        }
+        for (size_t i = 0; i < results.size(); i++) arr->Set(ctx, static_cast<uint32_t>(i), results[i]).Check();
         return arr;
     }
 
-    // find - return first entity matching predicate callback(entity) => bool, or undefined
     v8::Local<v8::Value> Find(v8::Isolate *isolate, v8::Local<v8::Function> callback) {
-        auto *world = Framework::CoreModules::GetWorldEngine()->GetWorld();
-        auto ctx    = isolate->GetCurrentContext();
-
+        auto ctx                   = isolate->GetCurrentContext();
         v8::Local<v8::Value> found = v8::Undefined(isolate);
-        bool foundOne              = false;
-        bool hadException          = false;
-
-        world->each<ComponentType>([&](flecs::entity e, ComponentType &) {
+        bool foundOne = false, hadException = false;
+        ForEachNative([&](NativeType *e) {
             if (foundOne || hadException) return;
-
-            EntityType *entity     = new EntityType(e);
-            v8::Local<v8::Object> jsEntity = EntityType::GetClass(isolate).import_external(isolate, entity);
-
-            v8::Local<v8::Value> argv[1] = {jsEntity};
+            v8::Local<v8::Object> jsEntity = JsType::GetClass(isolate).import_external(isolate, new JsType(e->GetNetworkID()));
+            v8::Local<v8::Value> argv[1]   = {jsEntity};
             v8::TryCatch try_catch(isolate);
             v8::Local<v8::Value> result;
             if (!callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocal(&result)) {
-                if (try_catch.HasCaught()) {
-                    isolate->ThrowException(try_catch.Exception());
-                }
+                if (try_catch.HasCaught()) isolate->ThrowException(try_catch.Exception());
                 hadException = true;
                 return;
             }
-
             if (result->BooleanValue(isolate)) {
                 found    = jsEntity;
                 foundOne = true;
             }
         });
-
-        if (hadException) {
-            return v8::Undefined(isolate);
-        }
-
-        return found;
+        return hadException ? v8::Undefined(isolate) : found;
     }
 
-    // map - return array of callback results for each entity
     v8::Local<v8::Array> Map(v8::Isolate *isolate, v8::Local<v8::Function> callback) {
-        auto *world = Framework::CoreModules::GetWorldEngine()->GetWorld();
-        auto ctx    = isolate->GetCurrentContext();
+        auto ctx          = isolate->GetCurrentContext();
         bool hadException = false;
-
         std::vector<v8::Local<v8::Value>> results;
-
-        world->each<ComponentType>([&](flecs::entity e, ComponentType &) {
+        ForEachNative([&](NativeType *e) {
             if (hadException) return;
-
-            EntityType *entity     = new EntityType(e);
-            v8::Local<v8::Object> jsEntity = EntityType::GetClass(isolate).import_external(isolate, entity);
-
-            v8::Local<v8::Value> argv[1] = {jsEntity};
+            v8::Local<v8::Object> jsEntity = JsType::GetClass(isolate).import_external(isolate, new JsType(e->GetNetworkID()));
+            v8::Local<v8::Value> argv[1]   = {jsEntity};
             v8::TryCatch try_catch(isolate);
             v8::Local<v8::Value> result;
             if (!callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocal(&result)) {
-                if (try_catch.HasCaught()) {
-                    isolate->ThrowException(try_catch.Exception());
-                }
+                if (try_catch.HasCaught()) isolate->ThrowException(try_catch.Exception());
                 hadException = true;
                 return;
             }
-
             results.push_back(result);
         });
-
-        if (hadException) {
-            return v8::Array::New(isolate, 0);
-        }
-
+        if (hadException) return v8::Array::New(isolate, 0);
         v8::Local<v8::Array> arr = v8::Array::New(isolate, static_cast<int>(results.size()));
-        for (size_t i = 0; i < results.size(); i++) {
-            arr->Set(ctx, static_cast<uint32_t>(i), results[i]).Check();
-        }
+        for (size_t i = 0; i < results.size(); i++) arr->Set(ctx, static_cast<uint32_t>(i), results[i]).Check();
         return arr;
     }
 
-    // some - return true if any entity matches predicate
     bool Some(v8::Isolate *isolate, v8::Local<v8::Function> callback) {
-        auto *world = Framework::CoreModules::GetWorldEngine()->GetWorld();
-        auto ctx    = isolate->GetCurrentContext();
-        bool found        = false;
-        bool hadException = false;
-
-        world->each<ComponentType>([&](flecs::entity e, ComponentType &) {
+        auto ctx = isolate->GetCurrentContext();
+        bool found = false, hadException = false;
+        ForEachNative([&](NativeType *e) {
             if (found || hadException) return;
-
-            EntityType *entity     = new EntityType(e);
-            v8::Local<v8::Object> jsEntity = EntityType::GetClass(isolate).import_external(isolate, entity);
-
-            v8::Local<v8::Value> argv[1] = {jsEntity};
+            v8::Local<v8::Object> jsEntity = JsType::GetClass(isolate).import_external(isolate, new JsType(e->GetNetworkID()));
+            v8::Local<v8::Value> argv[1]   = {jsEntity};
             v8::TryCatch try_catch(isolate);
             v8::Local<v8::Value> result;
             if (!callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocal(&result)) {
-                if (try_catch.HasCaught()) {
-                    isolate->ThrowException(try_catch.Exception());
-                }
+                if (try_catch.HasCaught()) isolate->ThrowException(try_catch.Exception());
                 hadException = true;
                 return;
             }
-
-            if (result->BooleanValue(isolate)) {
-                found = true;
-            }
+            if (result->BooleanValue(isolate)) found = true;
         });
-
-        if (hadException) {
-            return false;
-        }
-
-        return found;
+        return hadException ? false : found;
     }
 
-    // every - return true if all entities match predicate
     bool Every(v8::Isolate *isolate, v8::Local<v8::Function> callback) {
-        auto *world = Framework::CoreModules::GetWorldEngine()->GetWorld();
-        auto ctx    = isolate->GetCurrentContext();
-        bool allMatch     = true;
-        bool hadException = false;
-
-        world->each<ComponentType>([&](flecs::entity e, ComponentType &) {
+        auto ctx = isolate->GetCurrentContext();
+        bool allMatch = true, hadException = false;
+        ForEachNative([&](NativeType *e) {
             if (!allMatch || hadException) return;
-
-            EntityType *entity     = new EntityType(e);
-            v8::Local<v8::Object> jsEntity = EntityType::GetClass(isolate).import_external(isolate, entity);
-
-            v8::Local<v8::Value> argv[1] = {jsEntity};
+            v8::Local<v8::Object> jsEntity = JsType::GetClass(isolate).import_external(isolate, new JsType(e->GetNetworkID()));
+            v8::Local<v8::Value> argv[1]   = {jsEntity};
             v8::TryCatch try_catch(isolate);
             v8::Local<v8::Value> result;
             if (!callback->Call(ctx, v8::Undefined(isolate), 1, argv).ToLocal(&result)) {
-                if (try_catch.HasCaught()) {
-                    isolate->ThrowException(try_catch.Exception());
-                }
+                if (try_catch.HasCaught()) isolate->ThrowException(try_catch.Exception());
                 hadException = true;
                 return;
             }
-
-            if (!result->BooleanValue(isolate)) {
-                allMatch = false;
-            }
+            if (!result->BooleanValue(isolate)) allMatch = false;
         });
-
-        if (hadException) {
-            return false;
-        }
-
-        return allMatch;
+        return hadException ? false : allMatch;
     }
 };
 
-// Type aliases for convenience
-using PlayerCollection  = EntityCollection<Player, Shared::Modules::HumanSync::UpdateData>;
-using VehicleCollection = EntityCollection<Vehicle, Shared::Modules::VehicleSync::UpdateData>;
+using PlayerCollection  = EntityCollection<Player, Shared::Entities::HumanEntity>;
+using VehicleCollection = EntityCollection<Vehicle, Shared::Entities::VehicleEntity>;
 
-/**
- * Helper to register a collection object on the World module.
- * Creates a JS object with forEach, filter, find, map, some, every methods and length property.
- * Uses ObjectTemplate to properly define the length accessor on the prototype.
- */
 template <typename CollectionType>
 v8::Local<v8::Object> CreateCollectionObject(v8::Isolate *isolate) {
-    auto ctx = isolate->GetCurrentContext();
-
-    // Create ObjectTemplate to properly set up accessors
+    auto ctx  = isolate->GetCurrentContext();
     auto tmpl = v8::ObjectTemplate::New(isolate);
 
-    // length property accessor (must be on template, not instance)
     tmpl->SetNativeDataProperty(v8pp::to_v8(isolate, "length").As<v8::Name>(),
-                      [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                          CollectionType collection;
-                          info.GetReturnValue().Set(collection.GetLength(info.GetIsolate()));
-                      });
+        [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
+            CollectionType collection;
+            info.GetReturnValue().Set(collection.GetLength(info.GetIsolate()));
+        });
 
-    // Create instance from template
     auto obj = tmpl->NewInstance(ctx).ToLocalChecked();
 
-    // forEach method
-    obj->Set(ctx, v8pp::to_v8(isolate, "forEach"),
-             v8::Function::New(ctx, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
-                 auto isolate = info.GetIsolate();
-                 if (info.Length() < 1 || !info[0]->IsFunction()) {
-                     isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "forEach requires a callback function")));
-                     return;
-                 }
-                 CollectionType collection;
-                 collection.ForEach(isolate, info[0].As<v8::Function>());
-             }).ToLocalChecked()).Check();
+    auto method = [&](const char *name, void (*fn)(const v8::FunctionCallbackInfo<v8::Value> &)) {
+        obj->Set(ctx, v8pp::to_v8(isolate, name), v8::Function::New(ctx, fn).ToLocalChecked()).Check();
+    };
 
-    // filter method
-    obj->Set(ctx, v8pp::to_v8(isolate, "filter"),
-             v8::Function::New(ctx, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
-                 auto isolate = info.GetIsolate();
-                 if (info.Length() < 1 || !info[0]->IsFunction()) {
-                     isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "filter requires a callback function")));
-                     return;
-                 }
-                 CollectionType collection;
-                 info.GetReturnValue().Set(collection.Filter(isolate, info[0].As<v8::Function>()));
-             }).ToLocalChecked()).Check();
-
-    // find method
-    obj->Set(ctx, v8pp::to_v8(isolate, "find"),
-             v8::Function::New(ctx, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
-                 auto isolate = info.GetIsolate();
-                 if (info.Length() < 1 || !info[0]->IsFunction()) {
-                     isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "find requires a callback function")));
-                     return;
-                 }
-                 CollectionType collection;
-                 info.GetReturnValue().Set(collection.Find(isolate, info[0].As<v8::Function>()));
-             }).ToLocalChecked()).Check();
-
-    // map method
-    obj->Set(ctx, v8pp::to_v8(isolate, "map"),
-             v8::Function::New(ctx, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
-                 auto isolate = info.GetIsolate();
-                 if (info.Length() < 1 || !info[0]->IsFunction()) {
-                     isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "map requires a callback function")));
-                     return;
-                 }
-                 CollectionType collection;
-                 info.GetReturnValue().Set(collection.Map(isolate, info[0].As<v8::Function>()));
-             }).ToLocalChecked()).Check();
-
-    // some method
-    obj->Set(ctx, v8pp::to_v8(isolate, "some"),
-             v8::Function::New(ctx, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
-                 auto isolate = info.GetIsolate();
-                 if (info.Length() < 1 || !info[0]->IsFunction()) {
-                     isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "some requires a callback function")));
-                     return;
-                 }
-                 CollectionType collection;
-                 info.GetReturnValue().Set(collection.Some(isolate, info[0].As<v8::Function>()));
-             }).ToLocalChecked()).Check();
-
-    // every method
-    obj->Set(ctx, v8pp::to_v8(isolate, "every"),
-             v8::Function::New(ctx, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
-                 auto isolate = info.GetIsolate();
-                 if (info.Length() < 1 || !info[0]->IsFunction()) {
-                     isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "every requires a callback function")));
-                     return;
-                 }
-                 CollectionType collection;
-                 info.GetReturnValue().Set(collection.Every(isolate, info[0].As<v8::Function>()));
-             }).ToLocalChecked()).Check();
+    method("forEach", [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+        auto isolate = info.GetIsolate();
+        if (info.Length() < 1 || !info[0]->IsFunction()) {
+            isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "forEach requires a callback function")));
+            return;
+        }
+        CollectionType collection;
+        collection.ForEach(isolate, info[0].As<v8::Function>());
+    });
+    method("filter", [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+        auto isolate = info.GetIsolate();
+        if (info.Length() < 1 || !info[0]->IsFunction()) {
+            isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "filter requires a callback function")));
+            return;
+        }
+        CollectionType collection;
+        info.GetReturnValue().Set(collection.Filter(isolate, info[0].As<v8::Function>()));
+    });
+    method("find", [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+        auto isolate = info.GetIsolate();
+        if (info.Length() < 1 || !info[0]->IsFunction()) {
+            isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "find requires a callback function")));
+            return;
+        }
+        CollectionType collection;
+        info.GetReturnValue().Set(collection.Find(isolate, info[0].As<v8::Function>()));
+    });
+    method("map", [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+        auto isolate = info.GetIsolate();
+        if (info.Length() < 1 || !info[0]->IsFunction()) {
+            isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "map requires a callback function")));
+            return;
+        }
+        CollectionType collection;
+        info.GetReturnValue().Set(collection.Map(isolate, info[0].As<v8::Function>()));
+    });
+    method("some", [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+        auto isolate = info.GetIsolate();
+        if (info.Length() < 1 || !info[0]->IsFunction()) {
+            isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "some requires a callback function")));
+            return;
+        }
+        CollectionType collection;
+        info.GetReturnValue().Set(collection.Some(isolate, info[0].As<v8::Function>()));
+    });
+    method("every", [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+        auto isolate = info.GetIsolate();
+        if (info.Length() < 1 || !info[0]->IsFunction()) {
+            isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "every requires a callback function")));
+            return;
+        }
+        CollectionType collection;
+        info.GetReturnValue().Set(collection.Every(isolate, info[0].As<v8::Function>()));
+    });
 
     return obj;
 }

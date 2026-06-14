@@ -3,6 +3,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/luavm.cpp
     src/core/application.cpp
     src/core/application_module.cpp
+    src/core/local_player_events.cpp
     src/core/dev_features.cpp
     src/core/scene_object_registry.cpp
     src/core/dev/local_replicator.cpp

@@ -4,36 +4,33 @@
 #include <v8pp/class.hpp>
 #include <v8pp/convert.hpp>
 
-#include "entity.h"
-
-#include "core/modules/vehicle.h"
+#include "shared/entities/vehicle_entity.h"
 
 #include <scripting/builtins/color.h>
+#include <scripting/builtins/entity.h>
 
-#include <fmt/format.h>
-
+#include <cstdint>
 #include <memory>
+#include <string>
 
 namespace MafiaMP::Scripting {
-    class Vehicle final: public Entity {
+    class Vehicle final: public Framework::Scripting::Builtins::Entity {
       public:
-        Vehicle(flecs::entity_t ent): Entity(ent) {
-            const auto vehData = _ent.try_get<Shared::Modules::VehicleSync::UpdateData>();
+        Vehicle(uint64_t networkId);
 
-            if (!vehData) {
-                throw std::runtime_error(fmt::format("Entity handle '{}' is not a Vehicle!", ent));
-            }
-        }
+        // Resolves the handle as a VehicleEntity, or nullptr if it is gone / not a vehicle.
+        Shared::Entities::VehicleEntity *ResolveVehicle() const;
 
-        Vehicle(flecs::entity ent): Vehicle(ent.id()) {}
-
-        static void EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex);
-        static void EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player);
+        // Arguments are the vehicle and player human NetworkIDs.
+        static void EventVehiclePlayerEnter(uint64_t vehicleId, uint64_t playerId, int seatIndex);
+        static void EventVehiclePlayerLeave(uint64_t vehicleId, uint64_t playerId);
 
         static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global);
         static v8pp::class_<Vehicle> &GetClass(v8::Isolate *isolate);
 
         std::string ToString() const override;
+
+        std::string GetModelName();
 
         bool GetBeaconLightsOn();
         void SetBeaconLightsOn(bool on);
@@ -81,6 +78,17 @@ namespace MafiaMP::Scripting {
         void SetWindowTint(Framework::Scripting::Builtins::Color tint);
 
       private:
+        // Mutates the vehicle's replicated data, then lets the server have the last word over the
+        // owner: ForceState pushes the change to the owning client (no-op for unowned vehicles, which
+        // replicate the change to everyone through the DeltaSerializer instead).
+        template <typename Mutator>
+        void MutateData(Mutator &&mutate) {
+            if (auto *v = ResolveVehicle()) {
+                mutate(v->data);
+                v->ForceState();
+            }
+        }
+
         static std::unique_ptr<v8pp::class_<Vehicle>> _class;
     };
 } // namespace MafiaMP::Scripting

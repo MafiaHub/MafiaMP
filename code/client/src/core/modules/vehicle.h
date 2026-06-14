@@ -1,46 +1,53 @@
 #pragma once
 
-#include <flecs/distr/flecs.h>
+#include "shared/entities/vehicle_entity.h"
 
-#include "game/streaming/entity_factory.h"
-#include "sdk/c_game.h"
 #include "sdk/entities/c_car.h"
 
-#include "shared/modules/vehicle_sync.hpp"
+#include "game/streaming/entity_tracking_info.h"
+
+#include <mafianet/ReplicaManager3.h>
 
 #include <utils/interpolator.h>
 
-#include "core/application.h"
+#include <cstdint>
+
+namespace SDK::ue::game::vehicle {
+    class C_Vehicle;
+} // namespace SDK::ue::game::vehicle
 
 namespace MafiaMP::Core::Modules {
-    struct Vehicle {
-        struct Tracking {
-            SDK::C_Car *car                           = nullptr;
-            Game::Streaming::EntityTrackingInfo *info = nullptr;
-        };
+    // Client-side replicated vehicle: a VehicleEntity that owns and drives the local game car.
+    // The owner (the driving client) reads the car back into the replicated state each frame; other
+    // clients apply the replicated state to their car (interpolated).
+    class Vehicle final : public Shared::Entities::VehicleEntity {
+      public:
+        SDK::C_Car *car                           = nullptr;
+        Game::Streaming::EntityTrackingInfo *info = nullptr;
+        Framework::Utils::Interpolator interpolator {};
 
-        struct Interpolated {
-            Framework::Utils::Interpolator interpolator = {};
-        };
+        // --- Replica3 hooks ---
+        void OnConstructed() override;
+        void DeallocReplica(MafiaNet::Connection_RM3 *sourceConnection) override;
+        void SerializeFields(Framework::Networking::Replication::FieldSerializer &fields) override;
+        // The server overrode our owned vehicle's configuration; apply it to the game car, then we
+        // resume streaming it back from the corrected state.
+        void OnStateForced() override;
 
-        static flecs::query<Tracking> _findAllVehicles;
+        void Frame();
+        // Apply the full replicated snapshot to the game car (remote vehicles, and once the streamed
+        // car becomes ready).
+        void ApplyRemote();
 
-        Vehicle(flecs::world &world);
+        static void Install();
+        static void UpdateAll();
+        static Vehicle *GetByCar(SDK::C_Car *carPtr);
+        static Vehicle *GetByVehicle(SDK::ue::game::vehicle::C_Vehicle *vehiclePtr);
+        static Vehicle *GetByNetworkId(uint64_t networkId);
 
-        static void Create(flecs::entity e, std::string modelName);
-
-        static void Update(flecs::entity e);
-        static void SelfUpdate(flecs::entity e, MafiaMP::Shared::Modules::VehicleSync::UpdateData &);
-
-        static void Remove(flecs::entity e);
-
-        static void SetupMessages(Application *app);
-
-        static void InitRPCs(Application *app);
-
-        static void UpdateTransform(flecs::entity e);
-
-        static flecs::entity GetCarEntity(SDK::C_Car *carPtr);
-        static flecs::entity GetCarEntityByVehicle(SDK::ue::game::vehicle::C_Vehicle *vehiclePtr);
+      private:
+        // Apply the server-settable configuration (engine, colors, fuel, ...) to the game car.
+        void ApplyConfig();
+        void ReadLocal();
     };
 } // namespace MafiaMP::Core::Modules
