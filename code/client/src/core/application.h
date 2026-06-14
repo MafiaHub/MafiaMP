@@ -13,11 +13,17 @@
 
 #include "dev_features.h"
 
+#include "local_player_events.h"
+
 #include "game/helpers/game_input.h"
 
 #include <integrations/client/instance.h>
 #include <utils/command_processor.h>
 #include <utils/states/machine.h>
+
+namespace MafiaMP::Shared::Entities {
+    class HumanEntity;
+} // namespace MafiaMP::Shared::Entities
 
 namespace MafiaMP::Core {
     class Application: public Framework::Integrations::Client::Instance {
@@ -29,7 +35,8 @@ namespace MafiaMP::Core {
         std::shared_ptr<Framework::Utils::CommandProcessor> _commandProcessor;
         std::shared_ptr<MafiaMP::Game::GameInput> _input;
         std::shared_ptr<LuaVM> _luaVM;
-        flecs::entity _localPlayer;
+        Shared::Entities::HumanEntity *_localPlayer = nullptr;
+        LocalPlayerEvents _localPlayerEvents;
         DevFeatures _devFeatures;
 
         float _tickInterval = 0.01667f;
@@ -45,8 +52,8 @@ namespace MafiaMP::Core {
         void ProcessLockControls(bool lock);
 
       public:
-        bool PostInit() override;
-        bool PreShutdown() override;
+        void PostInit() override;
+        void PreShutdown() override;
         void PostUpdate() override;
         void PostRender() override;
 
@@ -103,12 +110,20 @@ namespace MafiaMP::Core {
             return _luaVM;
         }
 
-        flecs::entity GetLocalPlayer() const {
+        Shared::Entities::HumanEntity *GetLocalPlayer() const {
             return _localPlayer;
         }
 
+        void SetLocalPlayer(Shared::Entities::HumanEntity *player) {
+            _localPlayer = player;
+        }
+
+        LocalPlayerEvents &GetLocalPlayerEvents() {
+            return _localPlayerEvents;
+        }
+
         uint64_t GetLocalPlayerID();
-        uint64_t GetLocalPlayerOwnerID();
+        MafiaNet::PeerGuid GetLocalPlayerOwnerID();
 
         Game::Helpers::Districts GetLastDistrictID() const {
             return _lastDistrictID;

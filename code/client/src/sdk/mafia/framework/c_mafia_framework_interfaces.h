@@ -8,7 +8,7 @@
 #include "../../c_ticked_module.h"
 #include "ggd/c_global_game_data_manager.h"
 #include "../../entities/c_entity_list.h"
-#include "../../entities/player/c_player_model_manager.h"
+#include <sdk/c_player_model_manager.h>
 
 #include "../streaming/c_streaming_module.h"
 

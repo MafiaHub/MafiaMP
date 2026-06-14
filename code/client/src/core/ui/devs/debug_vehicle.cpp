@@ -3,10 +3,13 @@
 #include <logging/logger.h>
 
 #include "sdk/constants.h"
+#include <sdk/c_car_tuning_manager.h>
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
-#include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/ue/sys/math/c_vector.h"
+#include "sdk/ue/game/humanai/c_character_controller.h"
+#include "sdk/wrappers/c_human_2_car_wrapper.h"
 
 #include "game/helpers/controls.h"
 
@@ -17,7 +20,21 @@ namespace MafiaMP::Core::UI::Devs {
 
     void DebugVehicle::OnUpdate() {
         const auto pActivePlayer = Game::Helpers::Controls::GetLocalPlayer();
-        SDK::C_Car *currentCar   = pActivePlayer ? reinterpret_cast<SDK::C_Car *>(pActivePlayer->GetOwner()) : nullptr;
+
+        // Get current vehicle using the same pattern as the multiplayer hooks
+        SDK::C_Car *currentCar = nullptr;
+        if (pActivePlayer) {
+            auto charCtrl = pActivePlayer->GetCharacterController();
+            if (charCtrl) {
+                auto carHandler = charCtrl->GetCarHandler();
+                if (carHandler) {
+                    auto carWrapper = carHandler->GetHuman2CarWrapper();
+                    if (carWrapper) {
+                        currentCar = carWrapper->m_pUsedCar;
+                    }
+                }
+            }
+        }
 
         auto windowContent = [&]() {
             if (!currentCar) {
@@ -26,6 +43,9 @@ namespace MafiaMP::Core::UI::Devs {
             }
 
             auto currentVehicle = currentCar->GetVehicle();
+            if (!currentVehicle) {
+                return;
+            }
 
             if (ImGui::Button("Print Pointers")) {
                 Framework::Logging::GetLogger("debug")->info("Car Ptr: 0x{}, Vehicle Ptr: 0x{}", fmt::ptr(currentCar), fmt::ptr(currentVehicle));
@@ -120,14 +140,14 @@ namespace MafiaMP::Core::UI::Devs {
                 currentVehicle->SetEngineOn(isEngineOn, isEngineOn);
             }
 
-            bool isLeftIndicatorOn = currentVehicle->IsIndicatorLightOn(SDK::E_VehicleIndicator::INDICATOR_LEFT);
+            bool isLeftIndicatorOn = currentVehicle->IsIndicatorLightOn(SDK::ue::game::vehicle::E_VehicleIndicator::INDICATOR_LEFT);
             if (ImGui::Checkbox("Left Indicator", &isLeftIndicatorOn)) {
-                currentVehicle->SetIndicatorLightsOn(isLeftIndicatorOn, SDK::E_VehicleIndicator::INDICATOR_LEFT);
+                currentVehicle->SetIndicatorLightsOn(isLeftIndicatorOn, SDK::ue::game::vehicle::E_VehicleIndicator::INDICATOR_LEFT);
             }
 
-            bool isRightIndicatorOn = currentVehicle->IsIndicatorLightOn(SDK::E_VehicleIndicator::INDICATOR_RIGHT);
+            bool isRightIndicatorOn = currentVehicle->IsIndicatorLightOn(SDK::ue::game::vehicle::E_VehicleIndicator::INDICATOR_RIGHT);
             if (ImGui::Checkbox("Right Indicator", &isRightIndicatorOn)) {
-                currentVehicle->SetIndicatorLightsOn(isRightIndicatorOn, SDK::E_VehicleIndicator::INDICATOR_RIGHT);
+                currentVehicle->SetIndicatorLightsOn(isRightIndicatorOn, SDK::ue::game::vehicle::E_VehicleIndicator::INDICATOR_RIGHT);
             }
 
             SDK::ue::sys::math::C_Vector4 color1, color2;
@@ -181,6 +201,59 @@ namespace MafiaMP::Core::UI::Devs {
                 const uint32_t currentStation = currentVehicle->GetRadioStation();
                 currentVehicle->ChangeRadioStation(currentStation == 1 ? 0 : 1);
             }
+
+            // Tuning section
+            if (ImGui::CollapsingHeader("Tuning")) {
+                auto tuningMgr = currentCar->GetTuningManager();
+                if (tuningMgr) {
+                    ImGui::Text("Tuning Manager: 0x%p", tuningMgr);
+                    ImGui::Text("Slot Count: %zu", tuningMgr->GetSlotCount());
+                    ImGui::Text("Installed Items: %zu", tuningMgr->GetInstalledItemCount());
+
+                    ImGui::Separator();
+
+                    // Display installed tuning slots
+                    if (ImGui::TreeNode("Installed Slots")) {
+                        for (size_t i = 0; i < tuningMgr->GetSlotCount(); i++) {
+                            auto slot = tuningMgr->GetSlot(i);
+                            if (slot && slot->m_pCurrentItem) {
+                                ImGui::Text("Slot %02zu (ID %d): Item ID %d",
+                                    i,
+                                    slot->m_uSlotId,
+                                    slot->m_pCurrentItem->m_uItemId);
+                            }
+                            else if (slot) {
+                                ImGui::TextDisabled("Slot %02zu (ID %d): Empty", i, slot->m_uSlotId);
+                            }
+                        }
+                        ImGui::TreePop();
+                    }
+
+                    ImGui::Separator();
+
+                    // Input for setting tuning items
+                    static int tuningItemId = 0;
+                    ImGui::InputInt("Tuning Item ID", &tuningItemId);
+
+                    if (ImGui::Button("Apply Tuning Item")) {
+                        tuningMgr->SetItemToSlot(static_cast<uint16_t>(tuningItemId));
+                        currentCar->InstallTuningItems();
+                        Framework::Logging::GetLogger("debug")->info("Applied tuning item: {}", tuningItemId);
+                    }
+
+                    ImGui::SameLine();
+
+                    if (ImGui::Button("Reinstall All Tuning")) {
+                        currentCar->InstallTuningItems();
+                        Framework::Logging::GetLogger("debug")->info("Reinstalled all tuning items");
+                    }
+                }
+                else {
+                    ImGui::TextDisabled("Tuning manager not available");
+                }
+            }
+
+            ImGui::Separator();
 
             if (ImGui::Button("Restore")) {
                 currentCar->RestoreCar();

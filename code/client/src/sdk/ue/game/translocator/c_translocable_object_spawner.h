@@ -2,7 +2,7 @@
 
 #include "c_translocable_entity_cache.h"
 #include "s_translocable_object.h"
-#include "sdk/ue/c_time_budget.h"
+#include <sdk/ue/c_time_budget.h>
 
 namespace SDK {
     namespace ue::game::translocator {

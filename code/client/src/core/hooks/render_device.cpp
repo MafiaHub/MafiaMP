@@ -1,6 +1,7 @@
 #include <utils/safe_win32.h>
 
 #include "../application.h"
+#include "../application_module.h"
 #include <MinHook.h>
 #include <utils/hooking/hook_function.h>
 #include <utils/hooking/hooking.h>
@@ -11,21 +12,22 @@
 
 #include <d3d11.h>
 
-#include "../../game/module.h"
 
 #include "sdk/ue/c_application_win32.h"
 #include "sdk/ue/sys/render/device/c_d3d11_window_context_cache.h"
 #include "sdk/ue/sys/render/device/c_direct_3d11_render_device.h"
 #include "sdk/ue/sys/render/device/c_dynamic_vi_buffer_pool.h"
+#include "sdk/ue/sys/render/device/s_device_adapter_desc.h"
 #include "sdk/ue/sys/render/device/s_render_device_desc.h"
+#include "sdk/ue/sys/render/device/s_video_mode_desc.h"
 
-typedef bool(__fastcall *C_Direct3D11RenderDevice__Init_t)(SDK::ue::sys::render::device::C_Direct3D11RenderDevice *pThis, SDK::ue::sys::render::device::S_RenderDeviceDesc const &a2, SDK::ue::sys::render::device::C_DynamicVIBufferPool &a3, void *idk);
+typedef bool(__fastcall *C_Direct3D11RenderDevice__Init_t)(SDK::ue::sys::render::device::C_Direct3D11RenderDevice *, SDK::ue::sys::render::device::S_RenderDeviceDesc const &, SDK::ue::sys::render::device::C_DynamicVIBufferPool &, void *);
 C_Direct3D11RenderDevice__Init_t C_Direct3D11RenderDevice__Init_original = nullptr;
 
-typedef int64_t(__fastcall *C_WindowProcHandler__CreateMainWindow_t)(void *_this, SDK::ue::C_Application_Win32 *appWin32);
+typedef int64_t(__fastcall *C_WindowProcHandler__CreateMainWindow_t)(void *, SDK::ue::C_Application_Win32 *);
 C_WindowProcHandler__CreateMainWindow_t C_WindowProcHandler__CreateMainWindow_original = nullptr;
 
-typedef bool(__fastcall *C_D3D11WindowContextCache__InitSwapChainInternal_t)(void *_this, SDK::ue::sys::render::device::C_D3D11WindowContextCache::S_WndContextDesc &);
+typedef bool(__fastcall *C_D3D11WindowContextCache__InitSwapChainInternal_t)(SDK::ue::sys::render::device::C_D3D11WindowContextCache *, SDK::ue::sys::render::device::C_D3D11WindowContextCache::S_WndContextDesc &);
 C_D3D11WindowContextCache__InitSwapChainInternal_t C_D3D11WindowContextCache__InitSwapChainInternal_original = nullptr;
 
 typedef HRESULT(__fastcall *D3D11Present_original)(IDXGISwapChain *, UINT, UINT);
@@ -53,11 +55,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     if (app && app->IsInitialized()) {
         // Tick the input system from framework
         app->GetInput()->ProcessEvent(hWnd, msg, wParam, lParam);
-
-        // Push the input to ImGui
-        if (app->AreControlsLocked() && app->GetImGUI()->ProcessEvent(hWnd, msg, wParam, lParam) == Framework::External::ImGUI::InputState::BLOCK) {
-            return 0;
-        }
+        app->GetImGUI()->ProcessEvent(hWnd, msg, wParam, lParam);
     }
 
     switch (msg) {
@@ -99,36 +97,131 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     return g_pOriginalWndProcHandler(hWnd, msg, wParam, lParam);
 }
 
-bool C_Direct3D11RenderDevice__Init(SDK::ue::sys::render::device::C_Direct3D11RenderDevice *device, SDK::ue::sys::render::device::S_RenderDeviceDesc const &a2, SDK::ue::sys::render::device::C_DynamicVIBufferPool &a3, void *idk) {
-    auto result = C_Direct3D11RenderDevice__Init_original(device, a2, a3, idk);
+static const char *VendorClassName(uint32_t vendorClass) {
+    switch (vendorClass) {
+    case 0: return "NVIDIA";
+    case 1: return "AMD";
+    case 2: return "Other";
+    default: return "?";
+    }
+}
 
-    // Store the device for later init, since it's the first thing to initialize in the game
-    MafiaMP::Game::gGlobals.renderDevice = device;
+bool C_Direct3D11RenderDevice__Init(SDK::ue::sys::render::device::C_Direct3D11RenderDevice *device, SDK::ue::sys::render::device::S_RenderDeviceDesc const &desc, SDK::ue::sys::render::device::C_DynamicVIBufferPool &pool, void *outCtx) {
+    auto log = Framework::Logging::GetLogger("Hooks");
+
+    // Bit 17 (m_bFullscreen) is decoded; the other four still need names.
+    const uint32_t unknownFlagBits = (desc.m_bFlagBit01 ? 0x01 : 0)
+                                  | (desc.m_bFlagBit12 ? 0x02 : 0)
+                                  | (desc.m_bFlagBit15 ? 0x04 : 0)
+                                  | (desc.m_bFlagBit16 ? 0x08 : 0);
+
+    log->debug("[D3D11RenderDevice::Init] requested: backbuffer={}x{} adapter={} mode={} fullscreen={} swap-effect={} unknown-flags=0x{:02X}",
+               desc.m_nBackBufferWidth, desc.m_nBackBufferHeight,
+               desc.m_nAdapterIdx, desc.m_nVideoModeIdx,
+               desc.m_bFullscreen,
+               static_cast<uint32_t>(desc.m_eSwapEffect), unknownFlagBits);
+
+    auto result = C_Direct3D11RenderDevice__Init_original(device, desc, pool, outCtx);
+
+    log->debug("[D3D11RenderDevice::Init] result={}", result);
+    if (result && device) {
+        const uint32_t adapterCount = device->GetAdapterCount();
+        log->debug("[D3D11RenderDevice::Init] hardware={} force-warp={} feature-level=0x{:X} adapters={}",
+                   device->IsHardwareDevice(), device->m_bForceWARP,
+                   static_cast<uint32_t>(device->m_eFeatureLevel), adapterCount);
+        log->debug("[D3D11RenderDevice::Init] actual backbuffer={}x{} current-adapter={} current-mode={}",
+                   device->GetCurrentBackBufferWidth(), device->GetCurrentBackBufferHeight(),
+                   device->m_nCurrentAdapterIdx, device->m_nCurrentVideoModeIdx);
+
+        for (uint32_t i = 0; i < adapterCount; ++i) {
+            const auto *adapter = device->GetAdapter(i);
+            if (!adapter) continue;
+            const uint32_t modeCount = adapter->GetNumModes();
+            log->debug("[D3D11RenderDevice::Init]   adapter[{}] vendor=0x{:04X} device=0x{:04X} subsys=0x{:08X} rev=0x{:X} class={} modes={}",
+                       i, adapter->m_nVendorId, adapter->m_nDeviceId,
+                       adapter->m_nSubSysId, adapter->m_nRevision,
+                       VendorClassName(adapter->m_eVendorClass), modeCount);
+            if (adapter->m_pName) {
+                log->debug("[D3D11RenderDevice::Init]     fake-name='{}'", adapter->m_pName);
+            }
+            // Show first / last / current modes so the log stays compact even on adapters with hundreds of modes.
+            auto logMode = [&](const char *tag, uint32_t idx) {
+                if (idx >= modeCount) return;
+                const auto *m = adapter->GetMode(idx);
+                log->debug("[D3D11RenderDevice::Init]     {}[{}] {}x{} @ {}Hz aspect={:.3f} fmt={}",
+                           tag, idx, m->m_nWidth, m->m_nHeight, m->m_nFrequency,
+                           m->m_fAspectRatio, static_cast<uint32_t>(m->m_eFormat));
+            };
+            if (modeCount > 0) {
+                logMode("first", 0);
+                if (modeCount > 1) logMode("last", modeCount - 1);
+                if (i == device->m_nCurrentAdapterIdx) logMode("current", device->m_nCurrentVideoModeIdx);
+            }
+        }
+    }
+
+    MafiaMP::Core::gApplicationModuleContext.renderDevice = device;
+
     return result;
 }
 
 int64_t C_WindowProcHandler__CreateMainWindow(void *_this, SDK::ue::C_Application_Win32 *appWin32) {
     auto result = C_WindowProcHandler__CreateMainWindow_original(_this, appWin32);
+    auto log    = Framework::Logging::GetLogger("Hooks");
 
-    // Store the window pointer for later init
-    MafiaMP::Game::gGlobals.window = appWin32->m_pWindow;
+    const auto &setup = appWin32->m_windowSetup;
+    log->debug("[CreateMainWindow] hwnd=0x{:X} {}x{} pos=({},{}) display-mode={} vsync={} aa={} initialized={}",
+               reinterpret_cast<uintptr_t>(appWin32->m_hWindow),
+               setup.m_nWidth, setup.m_nHeight,
+               setup.m_nWindowX, setup.m_nWindowY,
+               setup.m_nDisplayMode, setup.m_nVSync,
+               setup.m_nAntiAliasing, setup.m_bInitialized);
+    // Dump the four "Lo/Hi" pair fields as raw hex: their existing names (RefreshRate/MonitorIndex)
+    // don't match observed data (the high half of one of them carries the video-mode index in 0x3E format),
+    // so we keep them visible but un-interpreted until they're reverse-engineered properly.
+    log->debug("[CreateMainWindow] raw pair fields: 0x{:08X}/0x{:08X} 0x{:08X}/0x{:08X}",
+               static_cast<uint32_t>(setup.m_nRefreshRateLo), static_cast<uint32_t>(setup.m_nRefreshRateHi),
+               static_cast<uint32_t>(setup.m_nMonitorIndexLo), static_cast<uint32_t>(setup.m_nMonitorIndexHi));
 
-    // Update the main window title asap
-    SetWindowTextA(MafiaMP::Game::gGlobals.window, "Mafia: Multiplayer");
+    MafiaMP::Core::gApplicationModuleContext.windowHandle = appWin32->m_hWindow;
 
-    // Patch the wind proc handler
-    g_pOriginalWndProcHandler = (WNDPROC)SetWindowLongPtrW(MafiaMP::Game::gGlobals.window, GWLP_WNDPROC, (LONG_PTR)WndProc);
+    SetWindowTextA(appWin32->m_hWindow, "Mafia: Multiplayer");
+    g_pOriginalWndProcHandler = (WNDPROC)SetWindowLongPtrW(appWin32->m_hWindow, GWLP_WNDPROC, (LONG_PTR)WndProc);
+
     return result;
 }
 
-bool C_D3D11WindowContextCache__InitSwapChainInternal(void *_this, SDK::ue::sys::render::device::C_D3D11WindowContextCache::S_WndContextDesc &desc) {
-    auto result = C_D3D11WindowContextCache__InitSwapChainInternal_original(_this, desc);
+bool C_D3D11WindowContextCache__InitSwapChainInternal(SDK::ue::sys::render::device::C_D3D11WindowContextCache *pThis, SDK::ue::sys::render::device::C_D3D11WindowContextCache::S_WndContextDesc &desc) {
+    auto log = Framework::Logging::GetLogger("Hooks");
 
-    // Store the swapchain pointer for later init
-    MafiaMP::Game::gGlobals.swapChain = desc.m_pSwapChain;
+    log->debug("[D3D11WindowContext::InitSwapChain] hwnd=0x{:X} {}x{} fullscreen={} default-backbuffer={}",
+               reinterpret_cast<uintptr_t>(desc.m_hWindow),
+               desc.m_nWidth, desc.m_nHeight,
+               desc.m_bFullscreen, desc.m_bCreateDefaultBackBuffer);
+
+    auto result = C_D3D11WindowContextCache__InitSwapChainInternal_original(pThis, desc);
+
+    log->debug("[D3D11WindowContext::InitSwapChain] result={} swap-chain=0x{:X}",
+               result, reinterpret_cast<uintptr_t>(desc.m_pSwapChain));
+
+    if (result && desc.m_pSwapChain) {
+        DXGI_SWAP_CHAIN_DESC sc{};
+        if (SUCCEEDED(desc.m_pSwapChain->GetDesc(&sc))) {
+            log->debug("[D3D11WindowContext::InitSwapChain] swap-chain: {}x{} fmt={} refresh={}/{} buffers={} windowed={} swap-effect={}",
+                       sc.BufferDesc.Width, sc.BufferDesc.Height,
+                       static_cast<uint32_t>(sc.BufferDesc.Format),
+                       sc.BufferDesc.RefreshRate.Numerator, sc.BufferDesc.RefreshRate.Denominator,
+                       sc.BufferCount, sc.Windowed != 0,
+                       static_cast<uint32_t>(sc.SwapEffect));
+        }
+    }
+
+    if (result) {
+        MafiaMP::Core::gApplicationModuleContext.swapChain = desc.m_pSwapChain;
+    }
 
     // Patch the swap chain present method to render our draw data (Enable hook is mandatory since it's happening dynamically, after static hooks initialize)
-    auto pSwapChainVtable = (DWORD_PTR *)MafiaMP::Game::gGlobals.swapChain;
+    auto pSwapChainVtable = (DWORD_PTR *)desc.m_pSwapChain;
     pSwapChainVtable      = (DWORD_PTR *)pSwapChainVtable[0];
 
     // TODO get rid of hook

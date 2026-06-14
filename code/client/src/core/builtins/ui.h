@@ -1,86 +1,31 @@
 #pragma once
 
-#include <sol/sol.hpp>
-
-#include <game/helpers/ui.h>
+#include <v8.h>
 
 namespace MafiaMP::Scripting {
+
+    /**
+     * UI builtins for MafiaMP client.
+     * Exposes game UI functions (banners, notifications, fader) to JavaScript.
+     */
     class UI final {
       public:
-          static void DisplayBannerMessage(const char* title, const char* message) {
-              if (!title || !message) {
-                return;
-              }
-              MafiaMP::Game::Helpers::UI::DisplayBannerMessage(title, message);
-          }
+        static void Register(v8::Isolate *isolate, v8::Local<v8::Context> context);
 
-          static void DisplayGenericMessage(const char *title, const char *message) {
-              if (!title || !message) {
-                  return;
-              }
-              MafiaMP::Game::Helpers::UI::DisplayGenericMessage(title, message);
-          }
-
-          static void DisplayTitleCard(const char *title, const char *message) {
-              if (!title || !message) {
-                  return;
-              }
-              MafiaMP::Game::Helpers::UI::DisplayTitleCard(title, message);
-          }
-
-          static void HideTitleCard() {
-              MafiaMP::Game::Helpers::UI::HideTitleCard();
-          }
-
-          static void DisplayNote(const char *title, const char *message) {
-              if (!title || !message) {
-                  return;
-              }
-              MafiaMP::Game::Helpers::UI::DisplayNote(title, message);
-          }
-
-          static void ToggleSaveLoadSpinner(bool toggle) {
-              MafiaMP::Game::Helpers::UI::ToggleLoadSpinner(toggle);
-          }
-
-          static void ShowNotification(const char *title, const char *message, int color) {
-              if (!title || !message) {
-                  return;
-              }
-              MafiaMP::Game::Helpers::UI::ShowNotification(title, message, color);
-          }
-
-          static void HideNotification() {
-              MafiaMP::Game::Helpers::UI::HideNotification();
-          }
-
-          static void DisplayMissionExit(const char *title, const char *message, int time) {
-              if (!title || !message) {
-                  return;
-              }
-              MafiaMP::Game::Helpers::UI::DisplayMissionExit(title, message, time);
-          }
-
-          static void StartCountdown(int time) {
-              MafiaMP::Game::Helpers::UI::StartCountdown(time);
-          }
-
-          static void Register(sol::state* luaEngine) {
-              if (!luaEngine) {
-                  return;
-              }
-
-              sol::usertype<UI> cls = luaEngine->new_usertype<UI>("UI");
-              cls["displayBannerMessage"] = &UI::DisplayBannerMessage;
-              cls["displayGenericMessage"] = &UI::DisplayGenericMessage;
-              cls["displayTitleCard"]      = &UI::DisplayTitleCard;
-              cls["hideTitleCard"]         = &UI::HideTitleCard;
-              cls["displayNote"]           = &UI::DisplayNote;
-              cls["toggleSaveLoadSpinner"] = &UI::ToggleSaveLoadSpinner;
-              cls["showNotification"]      = &UI::ShowNotification;
-              cls["hideNotification"]      = &UI::HideNotification;
-              cls["displayMissionExit"]    = &UI::DisplayMissionExit;
-              cls["startCountdown"]        = &UI::StartCountdown;
-          }
+      private:
+        static void DisplayBannerMessageCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
+        static void DisplayGenericMessageCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
+        static void DisplayTitleCardCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
+        static void HideTitleCardCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
+        static void DisplayNoteCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
+        static void ToggleSaveLoadSpinnerCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
+        static void ShowNotificationCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
+        static void HideNotificationCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
+        static void DisplayMissionExitCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
+        static void StartCountdownCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
+        static void FaderFadeInCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
+        static void FaderFadeOutCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
+        static void FaderResetCallback(const v8::FunctionCallbackInfo<v8::Value> &args);
     };
-}
+
+} // namespace MafiaMP::Scripting

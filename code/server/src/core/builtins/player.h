@@ -1,26 +1,34 @@
 #pragma once
 
-#include <sol/sol.hpp>
+#include <v8.h>
+#include <v8pp/class.hpp>
+#include <v8pp/convert.hpp>
 
 #include "human.h"
+
+#include <cstdint>
+#include <memory>
+#include <string>
 
 namespace MafiaMP::Scripting {
     class Player final: public MafiaMP::Scripting::Human {
       public:
-        Player(flecs::entity_t ent): Human(ent) {}
+        Player(uint64_t networkId): Human(networkId) {}
 
-        Player(flecs::entity ent): Human(ent.id()) {}
-
-        static void EventPlayerConnected(flecs::entity e);
-
-        static void EventPlayerDisconnected(flecs::entity e);
-
-        static void EventPlayerDied(flecs::entity e);
+        // The argument is the player's human NetworkID.
+        static void EventPlayerConnected(uint64_t networkId);
+        static void EventPlayerDisconnected(uint64_t networkId);
+        static void EventPlayerDied(uint64_t networkId);
 
         std::string ToString() const override;
 
         void Destroy();
+        void SendChat(std::string message);
 
-        static void Register(sol::state *luaEngine);
+        static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global);
+        static v8pp::class_<Player> &GetClass(v8::Isolate *isolate);
+
+      private:
+        static std::unique_ptr<v8pp::class_<Player>> _class;
     };
 } // namespace MafiaMP::Scripting

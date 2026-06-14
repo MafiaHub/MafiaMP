@@ -1,10 +1,9 @@
 #pragma once
 
-#include <sol/sol.hpp>
+#include <v8.h>
 
-#include "scripting/server_engine.h"
+#include <scripting/builtins/entity.h>
 
-#include "chat.h"
 #include "human.h"
 #include "player.h"
 #include "vehicle.h"
@@ -13,16 +12,20 @@
 namespace MafiaMP::Scripting {
     class Builtins final {
       public:
-        static void Register(sol::state *luaEngine) {
-            if (!luaEngine) {
+        static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global, v8::Local<v8::Object> frameworkObj) {
+            if (!isolate || global.IsEmpty() || frameworkObj.IsEmpty()) {
                 return;
             }
 
-            Scripting::Chat::Register(luaEngine);
-            Scripting::Human::Register(luaEngine);
-            Scripting::Player::Register(luaEngine);
-            Scripting::Vehicle::Register(luaEngine);
-            Scripting::World::Register(luaEngine);
+            // Register entity classes on Framework object
+            Framework::Scripting::Builtins::Entity::Register(isolate, frameworkObj);
+            Scripting::Human::Register(isolate, frameworkObj);
+            Scripting::Player::Register(isolate, frameworkObj);
+            Scripting::Vehicle::Register(isolate, frameworkObj);
+
+            // Register module singletons on global for direct access (World). The Chat API is
+            // registered by the framework.
+            Scripting::World::Register(isolate, global);
         }
     };
 } // namespace MafiaMP::Scripting

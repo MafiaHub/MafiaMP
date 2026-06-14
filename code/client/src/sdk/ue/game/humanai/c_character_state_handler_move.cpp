@@ -1,9 +1,8 @@
 #include "c_character_state_handler_move.h"
 
-#include "../../../entities/c_entity.h"
-#include "../../../entities/c_human_2.h"
-
-#include "../../../patterns.h"
+#include <sdk/patterns.h>
+#include <sdk/entities/c_entity.h>
+#include <sdk/entities/c_human_2.h>
 
 namespace SDK {
     namespace ue::game::humanai {

@@ -15,7 +15,7 @@ namespace MafiaMP::Game {
         }
     }
 
-    uint32_t GameInput::MapKey(uint32_t key) {
+    uint32_t GameInput::MapKey(uint32_t key) const {
         return key; // we map WndProc VK keys 1:1 to our input keys
     }
 
@@ -51,7 +51,7 @@ namespace MafiaMP::Game {
         }
     }
 
-    bool GameInput::IsInputLocked() {
+    bool GameInput::IsInputLocked() const {
         return Core::gApplication->AreControlsLocked();
     }
 
