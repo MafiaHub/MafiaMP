@@ -154,6 +154,10 @@ namespace MafiaMP::Core::Modules {
         data.tireColor       = {tireColor.r, tireColor.g, tireColor.b, tireColor.a};
         data.velocity        = {vehicleVelocity.x, vehicleVelocity.y, vehicleVelocity.z};
         data.windowTint      = {windowTint.r, windowTint.g, windowTint.b, windowTint.a};
+
+        const char *licensePlate = vehicle->GetSPZText();
+        std::strncpy(data.licensePlate.data(), licensePlate, data.licensePlate.size() - 1);
+        data.licensePlate[data.licensePlate.size() - 1] = '\0';
     }
 
     void Vehicle::ApplyConfig() {
