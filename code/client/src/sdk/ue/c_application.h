@@ -9,21 +9,21 @@ namespace SDK {
     namespace ue {
         class C_Application {
           public:
-            char pad[0x10];                              // 0000 - 0010
+            char pad[0x10];                              // 0000 - 0010 (vtables)
             C_CommandLine *m_pCommandLine;               // 0010 - 0018
-            uint32_t m_iUnknown1;                        // 0018 - 001C
-            uint32_t m_iUnknown2;                        // 001C - 0020
-            float m_fUnknown;                            // 0020 - 0024
-            uint32_t m_iUnknown3;                        // 0024 - 0028
+            uint32_t m_nMinFrameTimeMs;                  // 0018 - 001C (default 33ms, ~30 FPS)
+            uint32_t m_nMaxFrameTimeMs;                  // 001C - 0020 (default 33ms)
+            float m_fConstantFpsInterval;                // 0020 - 0024 (time between frames for constant FPS mode)
+            uint32_t m_nFrameWaitTimeMs;                 // 0024 - 0028 (default 49ms, ~20 FPS minimum)
             char pad0[0x4];                              // 0028 - 002C
             uint32_t m_iLastFrameTime;                   // 002C - 0030
-            uint32_t m_iState;                           // 0030 - 0034
+            uint32_t m_iState;                           // 0030 - 0034 (0=quit, 1=shutdown, 2=running)
             char pad1[0x4];                              // 0034 - 0038
-            void *m_pUnknown;                            // 0038 - 0040
+            void *m_pTimerList;                          // 0038 - 0040 (internal timing structure)
             char pad2[0x8];                              // 0040 - 0048
             uint32_t m_iDebugTickCounter;                // 0048 - 004C
-            uint32_t m_iUnknown4;                        // 004C - 0050
-            bool m_bUnknown;                             // 0050 - 0051
+            uint32_t m_nRefCount;                        // 004C - 0050
+            bool m_bInitialized;                         // 0050 - 0051
             char pad3[0x7];                              // 0051 - 0058
             C_GameTime *m_pGameTime;                     // 0058 - 0060
             ue::C_GameFSM *m_pGameFSM;                   // 0060 - 0068

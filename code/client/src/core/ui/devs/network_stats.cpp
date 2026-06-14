@@ -1,7 +1,7 @@
 #include "network_stats.h"
 
-#include <slikenet/peer.h>
-#include <slikenet/statistics.h>
+#include <mafianet/peer.h>
+#include <mafianet/statistics.h>
 
 #include "core/application.h"
 
@@ -22,7 +22,7 @@ namespace MafiaMP::Core::UI::Devs {
             const auto net   = gApplication->GetNetworkingEngine()->GetNetworkClient();
             const auto state = net->GetConnectionState();
 
-            if (state != Framework::Networking::CONNECTED) {
+            if (state != Framework::Networking::PeerState::CONNECTED) {
                 ImGui::Text("You are currently not connected to a server!");
                 return;
             }
@@ -33,7 +33,7 @@ namespace MafiaMP::Core::UI::Devs {
                 const auto peer  = net->GetPeer();
                 const auto stats = peer->GetStatistics(peer->GetSystemAddressFromIndex(0), nullptr);
                 ::memset(_stats, 0, sizeof(_stats));
-                SLNet::StatisticsToString(stats, _stats, 2);
+                MafiaNet::StatisticsToString(stats, _stats, 2);
             }
 
             ImGui::Text("%s", _stats);

@@ -7,7 +7,7 @@
 #include "sdk/c_game_gfx_env_eff_module.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
-#include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/mafia/database/c_ui_database.h"
 #include "sdk/mafia/framework/c_mafia_dbs.h"
 #include "sdk/mafia/ui/c_game_gui_2_module.h"

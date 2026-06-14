@@ -8,13 +8,17 @@ namespace SDK {
     class Patterns {
       public:
         // C_ActorsSlotWrapper
-        uint64_t C_ActorsSlotWrapper__C_ActorsSlotWrapper  = 0x0;
-        uint64_t C_ActorsSlotWrapper__Close                = 0x0;
-        uint64_t C_ActorsSlotWrapper__GetFreeActor         = 0x0;
-        uint64_t C_ActorsSlotWrapper__ReturnActor          = 0x0;
-        uint64_t C_ActorsSlotWrapper__UpdateToCreateActors = 0x0;
+        uint64_t C_ActorsSlotWrapper__C_ActorsSlotWrapper     = 0x0;
+        uint64_t C_ActorsSlotWrapper__Close                   = 0x0;
+        uint64_t C_ActorsSlotWrapper__CreateActor             = 0x0;
+        uint64_t C_ActorsSlotWrapper__GetFreeActor            = 0x0;
+        uint64_t C_ActorsSlotWrapper__ReturnActor             = 0x0;
+        uint64_t C_ActorsSlotWrapper__StartCaching            = 0x0;
+        uint64_t C_ActorsSlotWrapper__StartCachingVisitor     = 0x0;
+        uint64_t C_ActorsSlotWrapper__UpdateToCreateActors    = 0x0;
 
         // C_BehaviorCharacter
+        uint64_t C_BehaviorCharacter__GetWAnimVariable_float = 0x0;
         uint64_t C_BehaviorCharacter__SetWAnimVariable_float = 0x0;
 
         // C_Car
@@ -25,19 +29,28 @@ namespace SDK {
         uint64_t C_Car__GetDamage           = 0x0;
         uint64_t C_Car__GetFuelTankCapacity = 0x0;
         uint64_t C_Car__GetMotorDamage      = 0x0;
+        uint64_t C_Car__InitVisualTuning    = 0x0;
+        uint64_t C_Car__InstallTuningItems  = 0x0;
         uint64_t C_Car__Lock                = 0x0;
         uint64_t C_Car__LockEntryPoints     = 0x0;
         uint64_t C_Car__OpenHood            = 0x0;
         uint64_t C_Car__OpenTrunk           = 0x0;
         uint64_t C_Car__RestoreCar          = 0x0;
         uint64_t C_Car__SetActualFuel       = 0x0;
+        uint64_t C_Car__SetColor            = 0x0;
+        uint64_t C_Car__SetInteriorColorsSet = 0x0;
         uint64_t C_Car__SetMotorDamage      = 0x0;
+        uint64_t C_Car__SetPainting         = 0x0;
         uint64_t C_Car__SetSeatStatus       = 0x0;
         uint64_t C_Car__SetSpeed            = 0x0;
         uint64_t C_Car__SetTransparency     = 0x0;
         uint64_t C_Car__SetVehicleDirty     = 0x0;
+        uint64_t C_Car__SetWindowTint       = 0x0;
         uint64_t C_Car__Unlock              = 0x0;
         uint64_t C_Car__UnlockEntryPoints   = 0x0;
+
+        // C_CarTuningManager
+        uint64_t C_CarTuningManager__SetItemToSlot = 0x0;
 
         // C_CharacterController
         uint64_t C_CharacterController__ActivateHandler                   = 0x0;
@@ -45,8 +58,29 @@ namespace SDK {
         uint64_t C_CharacterController__TriggerActorActionById            = 0x0;
 
         // C_CharacterStateHandlerAim
-        uint64_t C_CharacterStateHandlerAim__SwappingWeapon     = 0x0;
-        uint64_t C_CharacterStateHandlerAim__UpdateAimAnimation = 0x0;
+        uint64_t C_CharacterStateHandlerAim__Activate                                 = 0x0;
+        uint64_t C_CharacterStateHandlerAim__Deactivate                               = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateRequest                            = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateAIFreq                             = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateHumanFreq                          = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateHumanFreqPostPhysics               = 0x0;
+        uint64_t C_CharacterStateHandlerAim__Start                                    = 0x0;
+        uint64_t C_CharacterStateHandlerAim__Finish                                   = 0x0;
+        uint64_t C_CharacterStateHandlerAim__AcceptMessage                            = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdatePlayerInput                        = 0x0;
+        uint64_t C_CharacterStateHandlerAim__OnCharacterControllerActivated           = 0x0;
+        uint64_t C_CharacterStateHandlerAim__OnCharacterControllerDeactivated         = 0x0;
+        uint64_t C_CharacterStateHandlerAim__OnStartBlindFire                         = 0x0;
+        uint64_t C_CharacterStateHandlerAim__SwappingWeapon                           = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateAimAnimation                       = 0x0;
+        uint64_t C_CharacterStateHandlerAim__IsAimAllowed                             = 0x0;
+        uint64_t C_CharacterStateHandlerAim__IsAimBlocked                             = 0x0;
+        uint64_t C_CharacterStateHandlerAim__IsReloadBlocked                          = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateAimDirection                       = 0x0;
+        uint64_t C_CharacterStateHandlerAim__CalculatePlayerAimYawPitch               = 0x0;
+        uint64_t C_CharacterStateHandlerAim__CalculatePlayerAimYawPitchFreeAndBlindFire = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdatePlayerAimBlocked                   = 0x0;
+        uint64_t C_CharacterStateHandlerAim__UpdateHumanFreqAI                        = 0x0;
 
         // C_CharacterStateHandlerBaseLocomotion
         uint64_t C_CharacterStateHandlerBaseLocomotion__AddRemoveSprintDescriptor = 0x0;
@@ -62,6 +96,11 @@ namespace SDK {
         uint64_t C_CommandLine__GetCommandParam        = 0x0;
         uint64_t C_CommandLine__GetCommandParamsCount  = 0x0;
         uint64_t C_CommandLine__ProcessCommandLine     = 0x0;
+
+        // ComponentUtils
+        uint64_t ComponentUtils__Attach              = 0x0;
+        uint64_t ComponentUtils__Detach              = 0x0;
+        uint64_t ComponentUtils__DuplicateSceneObject = 0x0;
 
         // C_Ctx
         uint64_t C_Ctx__BeginUpdate = 0x0;
@@ -85,11 +124,12 @@ namespace SDK {
         uint64_t C_Door__Unlock        = 0x0;
 
         // C_Entity
-        uint64_t C_Entity__Activate   = 0x0;
-        uint64_t C_Entity__Deactivate = 0x0;
-        uint64_t C_Entity__GameDone   = 0x0;
-        uint64_t C_Entity__GameInit   = 0x0;
-        uint64_t C_Entity__Release    = 0x0;
+        uint64_t C_Entity__Activate            = 0x0;
+        uint64_t C_Entity__Deactivate          = 0x0;
+        uint64_t C_Entity__GameDone            = 0x0;
+        uint64_t C_Entity__GameInit            = 0x0;
+        uint64_t C_Entity__Release             = 0x0;
+        uint64_t C_Entity__SetEntityDelSlotFlag = 0x0;
 
         // C_EntityFactory
         uint64_t C_EntityFactory__ComputeHash    = 0x0;
@@ -166,6 +206,7 @@ namespace SDK {
         // C_Human2CarWrapper
         uint64_t C_Human2CarWrapper__GetSeatID = 0x0;
         uint64_t C_Human2CarWrapper__IsEngineOn = 0x0;
+        uint64_t C_Human2CarWrapper__StartChangeSeat = 0x0;
 
         // C_HumanInventory
         uint64_t C_HumanInventory__AddItem                       = 0x0;
@@ -203,6 +244,10 @@ namespace SDK {
         uint64_t C_HumanScript__ScrAttack      = 0x0;
         uint64_t C_HumanScript__SetHealth      = 0x0;
         uint64_t C_HumanScript__SetStealthMove = 0x0;
+
+        // C_HumanHeadController
+        uint64_t C_HumanHeadController__ShutUp  = 0x0;
+        uint64_t C_HumanHeadController__Update  = 0x0;
 
         // C_HumanSpawner
         uint64_t C_HumanSpawner__C_HumanSpawnerVtbl          = 0x0;
@@ -308,6 +353,18 @@ namespace SDK {
 
         // C_SceneObject
         uint64_t C_SceneObject__SetTransform = 0x0;
+
+        // C_SceneObjectManager
+        uint64_t C_SceneObjectManager__GetSceneObject       = 0x0;
+        uint64_t C_SceneObjectManager__RegisterSceneObject  = 0x0;
+        uint64_t C_SceneObjectManager__UnregisterSceneObject = 0x0;
+
+        // C_SceneObjectRequestCache
+        uint64_t C_SceneObjectRequestCache__AddCache      = 0x0;
+        uint64_t C_SceneObjectRequestCache__TryGetObject  = 0x0;
+
+        // C_ScriptObjectDuplicator
+        uint64_t C_ScriptObjectDuplicator__DuplicateSceneObject = 0x0;
 
         // C_ShotManager
         uint64_t C_ShotManager__CreateExplosion = 0x0;
@@ -430,6 +487,14 @@ namespace SDK {
         uint64_t C_WeatherManager2__SetDefaultTimeFlowSpeedMult = 0x0;
         uint64_t C_WeatherManager2__SetUserTimeFlowSpeedMult    = 0x0;
         uint64_t C_WeatherManager2__SetWeatherSet               = 0x0;
+
+        // C_PrefabManager
+        uint64_t C_PrefabManager__GetInstance     = 0x0;
+        uint64_t C_PrefabManager__GetPrefab       = 0x0;
+        uint64_t C_PrefabManager__RemovePrefabs   = 0x0;
+        uint64_t C_PrefabManager__ReleaseAll      = 0x0;
+        uint64_t C_PrefabManager__SetPrefabWorker = 0x0;
+        uint64_t C_PrefabManager__Shutdown        = 0x0;
 
         // I_Core
         uint64_t I_Core__GetInstance = 0x0;

@@ -13,8 +13,6 @@
 #include "game/helpers/controls.h"
 
 #include "core/application.h"
-#include "shared/game_rpc/human/human_death.h"
-#include "world/client.h"
 
 #include "sdk/mafia/ui/c_game_gui_2_module.h"
 #include <sdk/c_entity_message_damage.h>
@@ -34,7 +32,7 @@ void __fastcall C_Human2__SetupDeath(SDK::C_Human2 *pThis, SDK::C_EntityMessageD
             pThis->GetCharacterController()->TriggerActorAction(someActor, SDK::E_AA_LEAVE_CAR, 0, true, false);
         }
 
-        FW_SEND_CLIENT_COMPONENT_GAME_RPC(MafiaMP::Shared::RPC::HumanDeath, MafiaMP::Core::gApplication->GetLocalPlayer());
+        MafiaMP::Core::gApplication->GetLocalPlayerEvents().Died();
         return;
     }
 

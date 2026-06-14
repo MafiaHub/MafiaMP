@@ -40,8 +40,6 @@ namespace SDK {
         E_TMEVENT_MAFIA_FIRST              = 31
     };
 
-    struct I_TickedModuleCallEventContext {};
-
     using TickedModuleCallback = void (C_TickedModule::*)(I_TickedModuleCallEventContext &);
     class C_TickedModuleManager {
       public:

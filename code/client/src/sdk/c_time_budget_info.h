@@ -5,28 +5,41 @@
 namespace SDK {
     class C_TimeBudgetInfo {
       public:
+        float _fAvailableBudget; // 0000 - 0004
+
+      public:
+        void SetAvailableBudget(float budget) {
+            _fAvailableBudget = budget;
+        }
+
+        float GetAvailableBudget() const {
+            return _fAvailableBudget;
+        }
+
         class C_Ctx {
-          private:
-            uint64_t m_Unk0;
-            uint32_t m_Unk8;
-            int m_Unk12;
-            uint32_t m_Unk16;
-            float m_Unk20;
-            C_TimeBudgetInfo *m_Unk24;
-            uint32_t m_Unk32;
-            uint32_t m_Unk36;
-            uint64_t m_Unk40;
-            uint8_t m_Pad48[32 /*?*/];
+          public:
+            float _fElapsedTime;         // 0000 - 0004
+            float _fRequestedBudget;     // 0004 - 0008
+            float _fRemainingBudget;     // 0008 - 000C
+            int32_t _eventType;          // 000C - 0010
+            uint32_t _unk10;             // 0010 - 0014
+            float _fMinBudget;           // 0014 - 0018
+            C_TimeBudgetInfo *_pBudget;  // 0018 - 0020
+            uint32_t _unk20;             // 0020 - 0024
+            uint32_t _unk24;             // 0024 - 0028
+            uint64_t _timestamp;         // 0028 - 0030
+            uint8_t _pad30[32];          // 0030 - 0050
 
           public:
-            C_Ctx(): m_Unk0(0), m_Unk8(0), m_Unk12(5), m_Unk20(0.0f), m_Unk24(nullptr), m_Unk32(0), m_Unk36(0), m_Unk40(0), m_Pad48 {0} {}
-
-            void ForceMinBudget(float a2) {
-                m_Unk20 = (((m_Unk20 - a2) < 0.0f) ? a2 : m_Unk20);
+            void ForceMinBudget(float minBudget) {
+                _fMinBudget = ((_fMinBudget - minBudget) < 0.0f) ? minBudget : _fMinBudget;
             }
 
             void BeginUpdate(C_TimeBudgetInfo *pTimeBudgetInfo = nullptr);
             void EndUpdate();
         };
     };
+
+    static_assert(sizeof(C_TimeBudgetInfo) == 0x04, "C_TimeBudgetInfo size mismatch");
+    static_assert(sizeof(C_TimeBudgetInfo::C_Ctx) == 0x50, "C_TimeBudgetInfo::C_Ctx size mismatch");
 } // namespace SDK

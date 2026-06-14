@@ -1,7 +1,11 @@
 #include "application.h"
 
+#include <cppfs/fs.h>
+#include "shared/version.h"
+#include <utils/version.h>
 #include <logging/logger.h>
 
+#include "states/game_setup.h"
 #include "states/initialize.h"
 #include "states/main_menu.h"
 #include "states/session_connected.h"
@@ -13,37 +17,53 @@
 
 #include "game/helpers/controls.h"
 #include "game/streaming/entity_factory.h"
-#include "sdk/entities/c_vehicle.h"
+#include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.h"
 
 #include "external/imgui/widgets/corner_text.h"
 
-#include "shared/version.h"
-#include <cppfs/fs.h>
-#include <utils/version.h>
-
-#include "shared/modules/human_sync.hpp"
-#include "shared/modules/mod.hpp"
-#include "shared/modules/vehicle_sync.hpp"
-
-#include "shared/rpc/chat_message.h"
-#include "shared/rpc/environment.h"
-#include "shared/rpc/spawn_car.h"
-
-#include "world/game_rpc/set_transform.h"
+#include "shared/entities/human_entity.h"
+#include "shared/rpc/ids.h"
 
 #include "builtins/builtins.h"
 #include "modules/human.h"
 #include "modules/vehicle.h"
 
-#include "game/module.h"
+#include "application_module.h"
+
+#include <networking/network_peer.h>
+#include <mafianet/BitStream.h>
+#include <mafianet/string.h>
+#include <utils/optional.h>
 
 namespace MafiaMP::Core {
-    std::unique_ptr<Application> gApplication = nullptr;
+    std::unique_ptr<Application> gApplication;
 
-    bool Application::PostInit() {
+    namespace {
+        // Wire: <optional weatherSet><optional dayTimeHours>
+        void OnSetEnvironment(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
+            Framework::Utils::Optional<MafiaNet::RakString> weatherSet;
+            Framework::Utils::Optional<float> dayTimeHours;
+            weatherSet.Serialize(bs, false);
+            dayTimeHours.Serialize(bs, false);
+
+            const auto gfx = SDK::ue::gfx::environmenteffects::C_GfxEnvironmentEffects::GetInstance();
+            if (!gfx) {
+                return;
+            }
+            if (weatherSet.HasValue()) {
+                gfx->GetWeatherManager()->SetWeatherSet(weatherSet().C_String(), 1.0f);
+            }
+            if (dayTimeHours.HasValue()) {
+                gfx->GetWeatherManager()->SetDayTimeHours(dayTimeHours());
+            }
+        }
+    } // namespace
+
+    void Application::PostInit() {
         // Create the state machine and initialize
         _stateMachine = std::make_shared<Framework::Utils::States::Machine>();
+        _stateMachine->RegisterState<States::GameSetupState>();
         _stateMachine->RegisterState<States::InitializeState>();
         _stateMachine->RegisterState<States::MainMenuState>();
         _stateMachine->RegisterState<States::SessionConnectionState>();
@@ -58,9 +78,6 @@ namespace MafiaMP::Core {
         // Register other things
         InitNetworkingMessages();
 
-        // This must always be the last call
-        _stateMachine->RequestNextState(States::StateIds::Initialize);
-
         _commandProcessor = std::make_shared<Framework::Utils::CommandProcessor>();
         _input            = std::make_shared<MafiaMP::Game::GameInput>();
         _console          = std::make_shared<UI::Console>(_commandProcessor);
@@ -68,39 +85,34 @@ namespace MafiaMP::Core {
 
         if (GetWebManager()) {
             Framework::GUI::ViewportConfiguration vhConfiguration;
-            {
-                RECT vhRect;
-                GetClientRect(Game::gGlobals.window, &vhRect);
-                vhConfiguration = {
-                    vhRect.right - vhRect.left,
-                    vhRect.bottom - vhRect.top,
-                };
-            }
-            if (!GetWebManager()->Init(gProjectPath, vhConfiguration, GetRenderer(), false)) {
+            RECT vhRect;
+            GetClientRect(gApplicationModuleContext.windowHandle, &vhRect);
+            vhConfiguration = {
+                vhRect.right - vhRect.left,
+                vhRect.bottom - vhRect.top,
+            };
+            if (GetWebManager()->Init(gProjectPath, vhConfiguration, GetRenderer(), false) != Framework::GUI::GUIError::GUI_NONE) {
                 Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
-                return false;
+                return;
             }
         }
 
         _chat->SetOnMessageSentCallback([this](const std::string &msg) {
-            const auto net = gApplication->GetNetworkingEngine()->GetNetworkClient();
+            SendChatMessage(msg);
+        });
 
-            MafiaMP::Shared::RPC::ChatMessage chatMessage {};
-            chatMessage.FromParameters(msg);
-            net->SendRPC(chatMessage, SLNet::UNASSIGNED_RAKNET_GUID);
+        // Display chat lines pushed by the server.
+        SetOnChatMessageReceivedCallback([this](const std::string &text) {
+            if (_chat) {
+                _chat->AddMessage(text);
+                Framework::Logging::GetLogger("chat")->trace(text);
+            }
         });
 
         // setup debug routines
         _devFeatures.Init();
 
-        // Register client modules (sync)
-        GetWorldEngine()->GetWorld()->import <Shared::Modules::Mod>();
-        GetWorldEngine()->GetWorld()->import <Shared::Modules::HumanSync>();
-        GetWorldEngine()->GetWorld()->import <Shared::Modules::VehicleSync>();
-
-        // Register client modules
-        GetWorldEngine()->GetWorld()->import <Modules::Human>();
-        GetWorldEngine()->GetWorld()->import <Modules::Vehicle>();
+        // Entity types and their RPC handlers are registered in InitNetworkingMessages (Install).
 
         // Setup Lua VM wrapper
         _luaVM = std::make_shared<LuaVM>();
@@ -109,17 +121,16 @@ namespace MafiaMP::Core {
         const auto vhConfiguration = GetWebManager()->GetViewportConfiguration();
         _mainMenuViewId            = GetWebManager()->CreateView("https://mafiamp.web.app", vhConfiguration.width, vhConfiguration.height);
 
-        return true;
+        // This must always be the last call
+        _stateMachine->RequestNextState(States::StateIds::Initialize);
     }
 
-    bool Application::PreShutdown() {
+    void Application::PreShutdown() {
         if (_entityFactory) {
             _entityFactory->ReturnAll();
         }
 
         _devFeatures.Shutdown();
-
-        return true;
     }
 
     void Application::PostUpdate() {
@@ -130,6 +141,10 @@ namespace MafiaMP::Core {
         if (_entityFactory) {
             _entityFactory->Update();
         }
+
+        // Drive replicated entities into the game each frame.
+        Core::Modules::Human::UpdateAll();
+        Core::Modules::Vehicle::UpdateAll();
 
         static bool isStyleInitialized = false;
         if (!isStyleInitialized) {
@@ -142,7 +157,7 @@ namespace MafiaMP::Core {
         /*if (GetWebManager() && !_console->IsOpen()) {
             Framework::GUI::View *mainMenuView = GetWebManager()->GetView(_mainMenuViewId);
 
-            if (!mainMenuView->GetInternalView()->HasFocus()) {
+            if (!mainMenuView->HasFocus()) {
                 LockControls(GetWebManager()->IsAnyGCViewFocused());
             }
         }*/
@@ -176,7 +191,7 @@ namespace MafiaMP::Core {
             const auto net = GetNetworkingEngine()->GetNetworkClient();
 
             // Bypass locked controls
-            if (AreControlsLocked() && net->GetConnectionState() != Framework::Networking::CONNECTING) {
+            if (AreControlsLocked() && net->GetConnectionState() != Framework::Networking::PeerState::CONNECTING) {
                 DrawCornerText(CORNER_RIGHT_TOP, fmt::format("Press F1 to {} controls locked", AreControlsLockedBypassed() ? "RESTORE" : "BYPASS "));
 
                 if (_input->IsKeyPressed(FW_KEY_F1)) {
@@ -195,7 +210,7 @@ namespace MafiaMP::Core {
             const auto ping              = networkClient->GetPing();
             const char *connStateNames[] = {"Connecting", "Online", "Offline"};
 
-            DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[connState]));
+            DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Connection: {}", connStateNames[static_cast<int>(connState)]));
             DrawCornerText(CORNER_LEFT_BOTTOM, fmt::format("Ping: {}", ping));
         });
 
@@ -207,16 +222,26 @@ namespace MafiaMP::Core {
     void Application::PostRender() {}
 
     void Application::ModuleRegister(Framework::Scripting::Engine *engine) {
-        MafiaMP::Scripting::Builtins::Register(GetScriptingModule()->GetEngine()->GetLuaEngine());
+        if (!engine || !engine->IsInitialized()) {
+            return;
+        }
+
+        v8::Isolate *isolate = engine->GetIsolate();
+        v8::Locker locker(isolate);
+        v8::Isolate::Scope isolateScope(isolate);
+        v8::HandleScope handleScope(isolate);
+        v8::Local<v8::Context> context = engine->GetContext();
+        v8::Context::Scope contextScope(context);
+
+        MafiaMP::Scripting::Builtins::Register(isolate, context);
     }
 
     void Application::InitNetworkingMessages() {
-        SetOnConnectionFinalizedCallback([this](flecs::entity newPlayer, float tickInterval) {
+        // The local player's avatar arrives via replication and binds itself (ClientHuman binds to
+        // the game's local player and calls SetLocalPlayer); the handshake only carries the tick rate.
+        SetOnConnectionFinalizedCallback([this](float tickInterval) {
             _tickInterval = tickInterval;
             _stateMachine->RequestNextState(States::StateIds::SessionConnected);
-            _localPlayer = newPlayer;
-            Core::Modules::Human::SetupLocalPlayer(this, newPlayer);
-
             Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Connection established!");
         });
 
@@ -227,8 +252,9 @@ namespace MafiaMP::Core {
 
         InitRPCs();
 
-        Modules::Human::SetupMessages(this);
-        Modules::Vehicle::SetupMessages(this);
+        // Register the client entity types (ClientHuman/ClientVehicle) and their RPC handlers.
+        Modules::Human::Install();
+        Modules::Vehicle::Install();
 
         Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Networking messages registered!");
     }
@@ -300,65 +326,47 @@ namespace MafiaMP::Core {
         if (!mainView || !mainView->HasFocus()) {
             return;
         }
-        ultralight::Cursor mainViewCursor = mainView->GetCursor();
-        ImGuiMouseCursor cursor;
-        switch (mainViewCursor) {
-        case ultralight::Cursor::kCursor_Pointer:
-            cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_Cross: cursor = ImGuiMouseCursor_TextInput; break;
-        case ultralight::Cursor::kCursor_Hand: cursor = ImGuiMouseCursor_Hand; break;
-        case ultralight::Cursor::kCursor_IBeam: cursor = ImGuiMouseCursor_TextInput; break;
-        case ultralight::Cursor::kCursor_Wait: cursor = ImGuiMouseCursor_NotAllowed; break;
-        case ultralight::Cursor::kCursor_Help: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_EastResize:
-        case ultralight::Cursor::kCursor_WestResize:
-        case ultralight::Cursor::kCursor_EastWestResize: cursor = ImGuiMouseCursor_ResizeEW; break;
 
-        case ultralight::Cursor::kCursor_NorthResize:
-        case ultralight::Cursor::kCursor_SouthResize:
-        case ultralight::Cursor::kCursor_NorthSouthResize: cursor = ImGuiMouseCursor_ResizeNS; break;
-
-        case ultralight::Cursor::kCursor_NorthEastResize:
-        case ultralight::Cursor::kCursor_SouthWestResize:
-        case ultralight::Cursor::kCursor_NorthEastSouthWestResize: cursor = ImGuiMouseCursor_ResizeNESW; break;
-
-        case ultralight::Cursor::kCursor_NorthWestResize:
-        case ultralight::Cursor::kCursor_SouthEastResize:
-        case ultralight::Cursor::kCursor_NorthWestSouthEastResize: cursor = ImGuiMouseCursor_ResizeNWSE; break;
-
-        // Column/Row resize could map to directional resize
-        case ultralight::Cursor::kCursor_ColumnResize: cursor = ImGuiMouseCursor_ResizeEW; break;
-        case ultralight::Cursor::kCursor_RowResize: cursor = ImGuiMouseCursor_ResizeNS; break;
-
-        // Panning cursors have no direct equivalent in ImGui
-        case ultralight::Cursor::kCursor_Move: cursor = ImGuiMouseCursor_ResizeAll; break;
-
-        // Other cursors - map to closest equivalents
-        case ultralight::Cursor::kCursor_VerticalText: cursor = ImGuiMouseCursor_TextInput; break;
-        case ultralight::Cursor::kCursor_Cell: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_ContextMenu: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_Alias: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_Progress: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_NoDrop: cursor = ImGuiMouseCursor_NotAllowed; break;
-        case ultralight::Cursor::kCursor_Copy: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_None: cursor = ImGuiMouseCursor_None; break;
-        case ultralight::Cursor::kCursor_NotAllowed: cursor = ImGuiMouseCursor_NotAllowed; break;
-        case ultralight::Cursor::kCursor_ZoomIn: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_ZoomOut: cursor = ImGuiMouseCursor_Arrow; break;
-        case ultralight::Cursor::kCursor_Grab: cursor = ImGuiMouseCursor_Hand; break;
-        case ultralight::Cursor::kCursor_Grabbing: cursor = ImGuiMouseCursor_Hand; break;
-        case ultralight::Cursor::kCursor_Custom: cursor = ImGuiMouseCursor_Arrow; break;
-
-        default: cursor = ImGuiMouseCursor_Arrow; break;
+        // Map CEF cursor type to ImGui cursor (software cursor rendered by ImGui)
+        switch (mainView->GetCursorType()) {
+        case CT_HAND:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+            break;
+        case CT_IBEAM:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
+            break;
+        case CT_EASTWESTRESIZE:
+        case CT_COLUMNRESIZE:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+            break;
+        case CT_NORTHSOUTHRESIZE:
+        case CT_ROWRESIZE:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+            break;
+        case CT_NORTHWESTSOUTHEASTRESIZE:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
+            break;
+        case CT_NORTHEASTSOUTHWESTRESIZE:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNESW);
+            break;
+        case CT_MOVE:
+        case CT_GRAB:
+        case CT_GRABBING:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+            break;
+        case CT_NOTALLOWED:
+        case CT_NODROP:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_NotAllowed);
+            break;
+        default:
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+            break;
         }
-
-        ImGui::SetMouseCursor(cursor);
     }
 
     void Application::ProcessLockControls(bool lock) {
         Game::Helpers::Controls::Lock(lock);
 
-        GetImGUI()->SetProcessEventEnabled(lock);
         GetImGUI()->ShowCursor(lock);
     }
 
@@ -393,54 +401,17 @@ namespace MafiaMP::Core {
     }
 
     uint64_t Application::GetLocalPlayerID() {
-        if (!_localPlayer)
-            return 0;
-
-        const auto sid = _localPlayer.get<Framework::World::Modules::Base::ServerID>();
-        return sid->id;
+        return _localPlayer ? _localPlayer->GetNetworkID() : 0;
     }
 
-    uint64_t Application::GetLocalPlayerOwnerID() {
-        if (!_localPlayer)
-            return 0;
-
-        const auto str = _localPlayer.get<Framework::World::Modules::Base::Streamable>();
-        return str->owner;
+    MafiaNet::PeerGuid Application::GetLocalPlayerOwnerID() {
+        return _localPlayer ? _localPlayer->ownerGUID : MafiaNet::PeerGuid {};
     }
 
     void Application::InitRPCs() {
-        const auto net = GetNetworkingEngine()->GetNetworkClient();
-
-        net->RegisterRPC<Shared::RPC::ChatMessage>([this](SLNet::RakNetGUID guid, Shared::RPC::ChatMessage *chatMessage) {
-            if (!chatMessage->Valid())
-                return;
-            _chat->AddMessage(chatMessage->GetText());
-
-            Framework::Logging::GetLogger("chat")->trace(chatMessage->GetText());
-        });
-        net->RegisterRPC<Shared::RPC::SetEnvironment>([this](SLNet::RakNetGUID guid, Shared::RPC::SetEnvironment *environmentMsg) {
-            if (!environmentMsg->Valid()) {
-                return;
-            }
-
-            const auto gfx = SDK::ue::gfx::environmenteffects::C_GfxEnvironmentEffects::GetInstance();
-
-            if (environmentMsg->GetWeatherSet().HasValue())
-                gfx->GetWeatherManager()->SetWeatherSet(environmentMsg->GetWeatherSet().Value().C_String(), 1.0f);
-            if (environmentMsg->GetDayTimeHours().HasValue())
-                gfx->GetWeatherManager()->SetDayTimeHours(environmentMsg->GetDayTimeHours().Value());
-        });
-        net->RegisterGameRPC<Framework::World::RPC::SetTransform>([this](SLNet::RakNetGUID guid, Framework::World::RPC::SetTransform *msg) {
-            if (!msg->Valid()) {
-                return;
-            }
-            const auto e = GetWorldEngine()->GetEntityByServerID(msg->GetServerID());
-            if (!e.is_alive()) {
-                return;
-            }
-
-            GetWorldEngine()->UpdateEntityTransform(e, msg->GetTransform());
-        });
+        auto *rpc = GetNetworkingEngine()->GetNetworkClient()->GetRPC();
+        // RPCs received from the server. (Chat is handled by the framework client instance.)
+        rpc->RegisterSlot(Shared::RPC::kSetEnvironment, &OnSetEnvironment, nullptr, 0);
     }
 
     std::string gProjectPath;

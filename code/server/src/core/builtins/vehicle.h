@@ -1,43 +1,45 @@
 #pragma once
 
-#include <sol/sol.hpp>
+#include <v8.h>
+#include <v8pp/class.hpp>
+#include <v8pp/convert.hpp>
 
-#include "core/modules/vehicle.h"
+#include "shared/entities/vehicle_entity.h"
 
-#include "integrations/server/scripting/builtins/entity.h"
+#include <scripting/builtins/color.h>
+#include <scripting/builtins/entity.h>
 
-#include "scripting/server_engine.h"
-#include "scripting/builtins/color_rgb.h"
-#include "scripting/builtins/color_rgba.h"
+#include <cstdint>
+#include <memory>
+#include <string>
 
 namespace MafiaMP::Scripting {
-    class Vehicle final: public Framework::Integrations::Scripting::Entity {
+    class Vehicle final: public Framework::Scripting::Builtins::Entity {
       public:
-        Vehicle(flecs::entity_t ent) : Entity(ent) {
-            const auto vehData = _ent.get<Shared::Modules::VehicleSync::UpdateData>();
+        Vehicle(uint64_t networkId);
 
-            if (!vehData) {
-                throw std::runtime_error(fmt::format("Entity handle '{}' is not a Vehicle!", ent));
-            }
-        }
-        
-        Vehicle(flecs::entity ent): Vehicle(ent.id()) {}
+        // Resolves the handle as a VehicleEntity, or nullptr if it is gone / not a vehicle.
+        Shared::Entities::VehicleEntity *ResolveVehicle() const;
 
-        static void EventVehiclePlayerEnter(flecs::entity vehicle, flecs::entity player, int seatIndex);
-        static void EventVehiclePlayerLeave(flecs::entity vehicle, flecs::entity player);
+        // Arguments are the vehicle and player human NetworkIDs.
+        static void EventVehiclePlayerEnter(uint64_t vehicleId, uint64_t playerId, int seatIndex);
+        static void EventVehiclePlayerLeave(uint64_t vehicleId, uint64_t playerId);
 
-        static void Register(sol::state *luaEngine);
+        static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global);
+        static v8pp::class_<Vehicle> &GetClass(v8::Isolate *isolate);
 
         std::string ToString() const override;
+
+        std::string GetModelName();
 
         bool GetBeaconLightsOn();
         void SetBeaconLightsOn(bool on);
 
-        Framework::Scripting::Builtins::ColorRGB GetColorPrimary();
-        void SetColorPrimary(Framework::Scripting::Builtins::ColorRGB rgb);
+        Framework::Scripting::Builtins::Color GetColorPrimary();
+        void SetColorPrimary(Framework::Scripting::Builtins::Color color);
 
-        Framework::Scripting::Builtins::ColorRGB GetColorSecondary();
-        void SetColorSecondary(Framework::Scripting::Builtins::ColorRGB rgb);
+        Framework::Scripting::Builtins::Color GetColorSecondary();
+        void SetColorSecondary(Framework::Scripting::Builtins::Color color);
 
         float GetDirt();
         void SetDirt(float dirt);
@@ -51,8 +53,8 @@ namespace MafiaMP::Scripting {
         std::string GetLicensePlate();
         void SetLicensePlate(std::string plate);
 
-        Shared::Modules::VehicleSync::LockState GetLockState();
-        void SetLockState(Shared::Modules::VehicleSync::LockState state);
+        int GetLockState();
+        void SetLockState(int state);
 
         bool GetRadioOn();
         void SetRadioOn(bool on);
@@ -60,8 +62,8 @@ namespace MafiaMP::Scripting {
         int GetRadioStationId();
         void SetRadioStationId(int id);
 
-        Framework::Scripting::Builtins::ColorRGB GetRimColor();
-        void SetRimColor(Framework::Scripting::Builtins::ColorRGB rgb);
+        Framework::Scripting::Builtins::Color GetRimColor();
+        void SetRimColor(Framework::Scripting::Builtins::Color color);
 
         float GetRust();
         void SetRust(float rust);
@@ -69,12 +71,24 @@ namespace MafiaMP::Scripting {
         bool GetSirenOn();
         void SetSirenOn(bool on);
 
-        Framework::Scripting::Builtins::ColorRGB GetTireColor();
-        void SetTireColor(Framework::Scripting::Builtins::ColorRGB rgb);
+        Framework::Scripting::Builtins::Color GetTireColor();
+        void SetTireColor(Framework::Scripting::Builtins::Color color);
 
-        Framework::Scripting::Builtins::ColorRGBA GetWindowTint();
-        void SetWindowTint(Framework::Scripting::Builtins::ColorRGBA tint);
+        Framework::Scripting::Builtins::Color GetWindowTint();
+        void SetWindowTint(Framework::Scripting::Builtins::Color tint);
 
+      private:
+        // Mutates the vehicle's replicated data, then lets the server have the last word over the
+        // owner: ForceState pushes the change to the owning client (no-op for unowned vehicles, which
+        // replicate the change to everyone through the DeltaSerializer instead).
+        template <typename Mutator>
+        void MutateData(Mutator &&mutate) {
+            if (auto *v = ResolveVehicle()) {
+                mutate(v->data);
+                v->ForceState();
+            }
+        }
 
+        static std::unique_ptr<v8pp::class_<Vehicle>> _class;
     };
 } // namespace MafiaMP::Scripting

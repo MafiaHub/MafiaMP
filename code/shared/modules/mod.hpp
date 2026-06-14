@@ -1,6 +1,6 @@
 #pragma once
 
-#include <flecs/flecs.h>
+#include <flecs/distr/flecs.h>
 
 namespace MafiaMP::Shared::Modules {
     struct Mod {
