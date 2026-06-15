@@ -225,7 +225,7 @@ namespace MafiaMP::Core::UI::Devs {
                             continue;
                     }
 
-                    auto sceneObjectName = fmt::format("{} {} {} ({})", i, sceneName, _filterIter->second, entity->GetType());
+                    auto sceneObjectName = fmt::format("{} {} {} ({})", i, sceneName, _filterIter->second, fmt::underlying(entity->GetType()));
                     if (ImGui::Selectable(sceneObjectName.c_str(), _selectedIndex == i)) {
                         _selectedIndex = i;
                     }
