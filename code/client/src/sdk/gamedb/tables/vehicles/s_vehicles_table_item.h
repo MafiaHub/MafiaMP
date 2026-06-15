@@ -14,19 +14,19 @@ namespace SDK {
           public:
 
             bool HasCommonFlags(const mafia::traffic::E_TrafficCommonFlags flags) const {
-                return BIT_HAS(m_CommonFlags, flags);
+                return Framework::Utils::BitHas(m_CommonFlags, flags);
             }
 
             bool HasVehicleFlags(const mafia::traffic::E_TrafficVehicleFlags flags) const {
-                return BIT_HAS(m_VehicleFlags, flags);
+                return Framework::Utils::BitHas(m_VehicleFlags, flags);
             }
 
             bool HasVehicleLookFlags(const mafia::traffic::E_TrafficVehicleLookFlags flags) const {
-                return BIT_HAS(m_VehicleLookFlags, flags);
+                return Framework::Utils::BitHas(m_VehicleLookFlags, flags);
             }
 
             bool HasVehicleFunctionFlags(const mafia::tables::vehicle::E_VehiclesTableFunctionFlags flags) const {
-                return BIT_HAS(m_VehicleFunctionFlags, flags);
+                return Framework::Utils::BitHas(m_VehicleFunctionFlags, flags);
             }
 
             // Accessors for all properties within the table item;

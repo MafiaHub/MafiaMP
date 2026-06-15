@@ -34,7 +34,8 @@
 #include <networking/network_peer.h>
 #include <mafianet/BitStream.h>
 #include <mafianet/string.h>
-#include <utils/optional.h>
+
+#include <optional>
 
 namespace MafiaMP::Core {
     std::unique_ptr<Application> gApplication;
@@ -42,20 +43,34 @@ namespace MafiaMP::Core {
     namespace {
         // Wire: <optional weatherSet><optional dayTimeHours>
         void OnSetEnvironment(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
-            Framework::Utils::Optional<MafiaNet::RakString> weatherSet;
-            Framework::Utils::Optional<float> dayTimeHours;
-            weatherSet.Serialize(bs, false);
-            dayTimeHours.Serialize(bs, false);
+            std::optional<MafiaNet::RakString> weatherSet;
+            std::optional<float> dayTimeHours;
+
+            bool hasWeather = false;
+            bs->Read(hasWeather);
+            if (hasWeather) {
+                MafiaNet::RakString value;
+                bs->Read(value);
+                weatherSet = value;
+            }
+
+            bool hasDayTime = false;
+            bs->Read(hasDayTime);
+            if (hasDayTime) {
+                float value = 0.0f;
+                bs->Read(value);
+                dayTimeHours = value;
+            }
 
             const auto gfx = SDK::ue::gfx::environmenteffects::C_GfxEnvironmentEffects::GetInstance();
             if (!gfx) {
                 return;
             }
-            if (weatherSet.HasValue()) {
-                gfx->GetWeatherManager()->SetWeatherSet(weatherSet().C_String(), 1.0f);
+            if (weatherSet.has_value()) {
+                gfx->GetWeatherManager()->SetWeatherSet(weatherSet->C_String(), 1.0f);
             }
-            if (dayTimeHours.HasValue()) {
-                gfx->GetWeatherManager()->SetDayTimeHours(dayTimeHours());
+            if (dayTimeHours.has_value()) {
+                gfx->GetWeatherManager()->SetDayTimeHours(*dayTimeHours);
             }
         }
     } // namespace

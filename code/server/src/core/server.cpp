@@ -19,11 +19,11 @@
 
 #include <mafianet/BitStream.h>
 #include <mafianet/string.h>
-#include <utils/optional.h>
 #include <v8pp/convert.hpp>
 
 #include <glm/glm.hpp>
 
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -199,10 +199,16 @@ namespace MafiaMP {
         }
         // Wire: <optional weatherSet><optional dayTimeHours>
         MafiaNet::BitStream bs;
-        Framework::Utils::Optional<MafiaNet::RakString> weather(MafiaNet::RakString(_environment.weatherSet.c_str()));
-        Framework::Utils::Optional<float> dayTime(_environment.dayTimeHours);
-        weather.Serialize(&bs, true);
-        dayTime.Serialize(&bs, true);
+        const std::optional<MafiaNet::RakString> weather(MafiaNet::RakString(_environment.weatherSet.c_str()));
+        const std::optional<float> dayTime(_environment.dayTimeHours);
+        bs.Write(weather.has_value());
+        if (weather) {
+            bs.Write(*weather);
+        }
+        bs.Write(dayTime.has_value());
+        if (dayTime) {
+            bs.Write(*dayTime);
+        }
         net->GetRPC()->Signal(Shared::RPC::kSetEnvironment, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, target, broadcast, false);
     }
 
