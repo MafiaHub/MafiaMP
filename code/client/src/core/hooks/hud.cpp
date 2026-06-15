@@ -12,7 +12,7 @@ typedef int64_t(__fastcall *C_MenuBase__OnScriptedMenuEvent_t)(void *pThis, int,
 C_MenuBase__OnScriptedMenuEvent_t C_MenuBase__OnScriptedMenuEvent_original = nullptr;
 int64_t C_MenuBase__OnScriptedMenuEvent(void *pThis, int unk, SDK::mafia::ui::menu::C_MenuBase::E_ScriptedMenuEvent menuEvent) {
     // TODO: broadcast over network
-    Framework::Logging::GetLogger("Hooks")->debug("C_MenuBase::OnScriptedMenuEvent: unk {} event {}", unk, menuEvent);
+    Framework::Logging::GetLogger("Hooks")->debug("C_MenuBase::OnScriptedMenuEvent: unk {} event {}", unk, static_cast<int>(menuEvent));
     return C_MenuBase__OnScriptedMenuEvent_original(pThis, unk, menuEvent);
 }
 

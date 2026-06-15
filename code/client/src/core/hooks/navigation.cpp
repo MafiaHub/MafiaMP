@@ -19,7 +19,7 @@ C_Navigation__OnDistrictChange_t C_Navigation__OnDistrictChange_original = nullp
 int64_t C_Navigation__OnDistrictChange(void *pThis, SDK::mafia::framework::director::I_GameDirector::C_DistrictDefinition const &def) {
     if (MafiaMP::Core::gApplication && MafiaMP::Core::gApplication->IsInitialized()) {
         const auto newDistrictID = static_cast<MafiaMP::Game::Helpers::Districts>(def.districtID);
-        Framework::Logging::GetLogger("Hooks")->trace("C_Navigation::OnDistrictChange: New district is {}", newDistrictID);
+        Framework::Logging::GetLogger("Hooks")->trace("C_Navigation::OnDistrictChange: New district is {}", static_cast<int>(newDistrictID));
         MafiaMP::Core::gApplication->SetLastDistrictID(newDistrictID);
     }
     return C_Navigation__OnDistrictChange_original(pThis, def);
