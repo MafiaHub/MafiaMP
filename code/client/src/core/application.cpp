@@ -91,22 +91,14 @@ namespace MafiaMP::Core {
                 vhRect.right - vhRect.left,
                 vhRect.bottom - vhRect.top,
             };
-            if (GetWebManager()->Init(gProjectPath, vhConfiguration, GetRenderer(), false) != Framework::GUI::GUIError::GUI_NONE) {
-                Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager");
+            if (const auto result = GetWebManager()->Init(gProjectPath, vhConfiguration, GetRenderer(), false); !result) {
+                Framework::Logging::GetLogger("Web")->error("Failed to initialize web manager: {}", result.GetError().message);
                 return;
             }
         }
 
         _chat->SetOnMessageSentCallback([this](const std::string &msg) {
             SendChatMessage(msg);
-        });
-
-        // Display chat lines pushed by the server.
-        SetOnChatMessageReceivedCallback([this](const std::string &text) {
-            if (_chat) {
-                _chat->AddMessage(text);
-                Framework::Logging::GetLogger("chat")->trace(text);
-            }
         });
 
         // setup debug routines
@@ -236,20 +228,27 @@ namespace MafiaMP::Core {
         MafiaMP::Scripting::Builtins::Register(isolate, context);
     }
 
+    // The local player's avatar arrives via replication and binds itself (ClientHuman binds to the
+    // game's local player and calls SetLocalPlayer); the handshake only carries the tick rate.
+    void Application::OnConnectionFinalized(float serverTickRate) {
+        _tickInterval = serverTickRate;
+        _stateMachine->RequestNextState(States::StateIds::SessionConnected);
+        Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Connection established!");
+    }
+
+    void Application::OnConnectionClosed() {
+        _stateMachine->RequestNextState(States::StateIds::SessionDisconnection);
+        Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Connection lost!");
+    }
+
+    void Application::OnChatMessageReceived(const std::string &text) {
+        if (_chat) {
+            _chat->AddMessage(text);
+            Framework::Logging::GetLogger("chat")->trace(text);
+        }
+    }
+
     void Application::InitNetworkingMessages() {
-        // The local player's avatar arrives via replication and binds itself (ClientHuman binds to
-        // the game's local player and calls SetLocalPlayer); the handshake only carries the tick rate.
-        SetOnConnectionFinalizedCallback([this](float tickInterval) {
-            _tickInterval = tickInterval;
-            _stateMachine->RequestNextState(States::StateIds::SessionConnected);
-            Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Connection established!");
-        });
-
-        SetOnConnectionClosedCallback([this]() {
-            _stateMachine->RequestNextState(States::StateIds::SessionDisconnection);
-            Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Connection lost!");
-        });
-
         InitRPCs();
 
         // Register the client entity types (ClientHuman/ClientVehicle) and their RPC handlers.

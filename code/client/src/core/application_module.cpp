@@ -50,7 +50,9 @@ namespace MafiaMP::Core {
 
             // opts.modVersion = MafiaMP::Version::rel;
 
-            Core::gApplication->Init(opts);
+            if (const auto result = Core::gApplication->Init(opts); !result) {
+                Framework::Logging::GetLogger(FRAMEWORK_INNER_CLIENT)->error("Failed to initialize client: {}", result.GetError().message);
+            }
         }
     }
 

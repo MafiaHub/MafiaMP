@@ -4,7 +4,9 @@
 
 #include <mafianet/types.h>
 
+#include <cstdint>
 #include <string>
+#include <vector>
 
 namespace MafiaMP {
     class Server: public Framework::Integrations::Server::Instance {
@@ -19,6 +21,11 @@ namespace MafiaMP {
         void PostUpdate() override;
         void PreShutdown() override;
         void ModuleRegister(Framework::Scripting::Engine *engine) override;
+
+        void OnPlayerConnect(const Framework::Integrations::Server::PlayerConnectionData &info) override;
+        void OnPlayerDisconnect(MafiaNet::PeerGuid guid) override;
+        void OnChatMessage(uint64_t senderId, const std::string &text) override;
+        void OnChatCommand(uint64_t senderId, const std::string &text, const std::string &command, const std::vector<std::string> &args) override;
 
         const Environment &GetEnvironment() const {
             return _environment;

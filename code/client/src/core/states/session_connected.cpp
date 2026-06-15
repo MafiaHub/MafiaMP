@@ -5,6 +5,8 @@
 
 #include <external/imgui/widgets/corner_text.h>
 
+#include <logging/logger.h>
+
 #include "core/application.h"
 
 namespace MafiaMP::Core::States {
@@ -43,7 +45,9 @@ namespace MafiaMP::Core::States {
         });
 
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_F9)) {
-            gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect();
+            if (const auto result = gApplication->GetNetworkingEngine()->GetNetworkClient()->Disconnect(); !result) {
+                Framework::Logging::GetInstance()->Get("SessionConnectedState")->error("Failed to disconnect: {}", result.GetError().message);
+            }
             return true;
         }
         return false;

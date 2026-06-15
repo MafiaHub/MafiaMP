@@ -59,6 +59,10 @@ namespace MafiaMP::Core {
 
         void ModuleRegister(Framework::Scripting::Engine *engine) override;
 
+        void OnConnectionFinalized(float serverTickRate) override;
+        void OnConnectionClosed() override;
+        void OnChatMessageReceived(const std::string &text) override;
+
         void InitNetworkingMessages();
         void InitRPCs();
 

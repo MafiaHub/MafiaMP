@@ -30,13 +30,10 @@ namespace MafiaMP::Shared::Entities {
         // of the replicated payload (seating is derived from each human's UpdateData.carPassenger).
         std::array<uint64_t, kMaxSeats> seats {};
 
-        void OnSerializeConstruction(MafiaNet::BitStream *bs, bool write) override {
-            if (write) {
-                bs->Write(MafiaNet::RakString(modelName.c_str()));
-            }
-            else {
-                MafiaNet::RakString name;
-                bs->Read(name);
+        void OnSerializeConstruction(Replication::FieldSerializer &fields) override {
+            MafiaNet::RakString name(modelName.c_str());
+            fields.Field(name);
+            if (!fields.Writing()) {
                 modelName = name.C_String();
             }
         }
@@ -47,14 +44,9 @@ namespace MafiaMP::Shared::Entities {
             });
         }
 
-        void SerializeForcedState(MafiaNet::BitStream *bs, bool write) override {
+        void SerializeForcedState(Replication::FieldSerializer &fields) override {
             ForEachConfigField([&](auto &field) {
-                if (write) {
-                    bs->Write(field);
-                }
-                else {
-                    bs->Read(field);
-                }
+                fields.Field(field);
             });
         }
 

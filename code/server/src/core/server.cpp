@@ -165,21 +165,22 @@ namespace MafiaMP {
         // Register the replicated entity types so the server can construct them.
         Shared::Entities::RegisterEntities();
 
-        // Bridge framework chat into the gamemode's scripting events (the framework receives, parses
-        // and resolves the sender; we surface it to JS with the mod's Player handle).
-        SetOnChatMessageCallback([](uint64_t senderId, const std::string &text) {
-            Scripting::Chat::EventChatMessage(senderId, text);
-        });
-        SetOnChatCommandCallback([](uint64_t senderId, const std::string &text, const std::string &command, const std::vector<std::string> &args) {
-            Scripting::Chat::EventChatCommand(senderId, text, command, args);
-        });
-
         InitNetworkingMessages();
     }
 
     void Server::PostUpdate() {}
 
     void Server::PreShutdown() {}
+
+    // Bridge framework chat into the gamemode's scripting events (the framework parses and resolves
+    // the sender; we surface it to JS with the mod's Player handle).
+    void Server::OnChatMessage(uint64_t senderId, const std::string &text) {
+        Scripting::Chat::EventChatMessage(senderId, text);
+    }
+
+    void Server::OnChatCommand(uint64_t senderId, const std::string &text, const std::string &command, const std::vector<std::string> &args) {
+        Scripting::Chat::EventChatCommand(senderId, text, command, args);
+    }
 
     void Server::SetWeatherSet(const std::string &weatherSet) {
         _environment.weatherSet = weatherSet;
@@ -206,38 +207,37 @@ namespace MafiaMP {
     }
 
     void Server::InitNetworkingMessages() {
-        const auto net = GetNetworkingEngine()->GetNetworkServer();
-
-        SetOnPlayerConnectCallback([this, net](const Framework::Integrations::Server::PlayerConnectionData &info) {
-            auto *engine = Replication();
-            auto *repl   = net->GetReplicationManager();
-            if (!engine || !repl) {
-                return;
-            }
-
-            // Create the player's avatar, own it, populate its spawn metadata, and make it this
-            // connection's viewer.
-            auto *human = dynamic_cast<Shared::Entities::HumanEntity *>(engine->CreateEntity(Shared::Entities::HumanTypeId()));
-            if (!human) {
-                return;
-            }
-            human->ownerGUID   = info.guid;
-            human->modelHash   = kDefaultSkin;
-            human->nickname    = info.nickname;
-            human->playerIndex = info.playerIndex;
-            repl->SetViewer(info.guid, human);
-
-            SendEnvironment(MafiaNet::ToGuid(info.guid), false);
-            Scripting::Player::EventPlayerConnected(human->GetNetworkID());
-        });
-
-        SetOnPlayerDisconnectCallback([this](MafiaNet::PeerGuid guid) {
-            if (auto *human = ViewerHuman(guid)) {
-                Scripting::Player::EventPlayerDisconnected(human->GetNetworkID());
-            }
-        });
-
         InitRPCs();
+    }
+
+    void Server::OnPlayerConnect(const Framework::Integrations::Server::PlayerConnectionData &info) {
+        auto *engine = Replication();
+        auto *net    = GetNetworkingEngine()->GetNetworkServer();
+        auto *repl   = net ? net->GetReplicationManager() : nullptr;
+        if (!engine || !repl) {
+            return;
+        }
+
+        // Create the player's avatar, own it, populate its spawn metadata, and make it this
+        // connection's viewer.
+        auto *human = dynamic_cast<Shared::Entities::HumanEntity *>(engine->CreateEntity(Shared::Entities::HumanTypeId()));
+        if (!human) {
+            return;
+        }
+        human->ownerGUID   = info.guid;
+        human->modelHash   = kDefaultSkin;
+        human->nickname    = info.nickname;
+        human->playerIndex = info.playerIndex;
+        repl->SetViewer(info.guid, human);
+
+        SendEnvironment(MafiaNet::ToGuid(info.guid), false);
+        Scripting::Player::EventPlayerConnected(human->GetNetworkID());
+    }
+
+    void Server::OnPlayerDisconnect(MafiaNet::PeerGuid guid) {
+        if (auto *human = ViewerHuman(guid)) {
+            Scripting::Player::EventPlayerDisconnected(human->GetNetworkID());
+        }
     }
 
     void Server::InitRPCs() {

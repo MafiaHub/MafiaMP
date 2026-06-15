@@ -2,6 +2,8 @@
 
 #include "shared/version.h"
 
+#include <logging/logger.h>
+
 int main(int argc, char **argv) {
     Framework::Integrations::Server::InstanceOptions opts;
     opts.bindHost      = "0.0.0.0";
@@ -24,7 +26,8 @@ int main(int argc, char **argv) {
     opts.argv = argv;
 
     MafiaMP::Server server;
-    if (server.Init(opts) != Framework::Integrations::Server::ServerError::SERVER_NONE) {
+    if (const auto result = server.Init(opts); !result) {
+        Framework::Logging::GetLogger(FRAMEWORK_INNER_SERVER)->error("Failed to start server: {}", result.GetError().message);
         return 1;
     }
     server.Run();
