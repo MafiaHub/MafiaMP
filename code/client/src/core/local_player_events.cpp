@@ -32,7 +32,7 @@ namespace MafiaMP::Core {
         if (auto *rpc = RPC()) {
             // No payload; the server resolves the dying player from the sender.
             MafiaNet::BitStream bs;
-            rpc->Signal(Shared::RPC::kHumanDeath, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
+            rpc->Signal(Shared::RPC::kHumanDeath, &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
         }
         // TODO: also raise a client scripting event (e.g. "localPlayerDied").
     }
@@ -50,7 +50,7 @@ namespace MafiaMP::Core {
         bs.Write(aimDir);
         bs.Write(unk0);
         bs.Write(unk1);
-        rpc->Signal(Shared::RPC::kHumanShoot, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
+        rpc->Signal(Shared::RPC::kHumanShoot, &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
     }
 
     void LocalPlayerEvents::Reloaded(int mode) {
@@ -63,7 +63,7 @@ namespace MafiaMP::Core {
         uint64_t id = LocalPlayerNetworkId();
         bs.Write(id);
         bs.Write(mode);
-        rpc->Signal(Shared::RPC::kHumanReload, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
+        rpc->Signal(Shared::RPC::kHumanReload, &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
     }
 
     void LocalPlayerEvents::EnteredVehicle(Modules::Vehicle *vehicle, int seatIndex) {
@@ -76,7 +76,7 @@ namespace MafiaMP::Core {
         uint64_t vehicleId = vehicle->GetNetworkID();
         bs.Write(vehicleId);
         bs.Write(seatIndex);
-        rpc->Signal(Shared::RPC::kVehiclePlayerEnter, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
+        rpc->Signal(Shared::RPC::kVehiclePlayerEnter, &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
     }
 
     void LocalPlayerEvents::LeftVehicle(Modules::Vehicle *vehicle) {
@@ -88,6 +88,6 @@ namespace MafiaMP::Core {
         MafiaNet::BitStream bs;
         uint64_t vehicleId = vehicle->GetNetworkID();
         bs.Write(vehicleId);
-        rpc->Signal(Shared::RPC::kVehiclePlayerLeave, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
+        rpc->Signal(Shared::RPC::kVehiclePlayerLeave, &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
     }
 } // namespace MafiaMP::Core

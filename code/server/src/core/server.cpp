@@ -209,7 +209,7 @@ namespace MafiaMP {
         if (dayTime) {
             bs.Write(*dayTime);
         }
-        net->GetRPC()->Signal(Shared::RPC::kSetEnvironment, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, target, broadcast, false);
+        net->GetRPC()->Signal(Shared::RPC::kSetEnvironment, &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, target, broadcast, false);
     }
 
     void Server::InitNetworkingMessages() {

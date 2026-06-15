@@ -52,7 +52,7 @@ void Human::AddWeapon(int weaponId, int ammo) {
     bs.Write(id);
     bs.Write(weaponId);
     bs.Write(ammo);
-    net->GetRPC()->Signal(Shared::RPC::kHumanAddWeapon, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
+    net->GetRPC()->Signal(Shared::RPC::kHumanAddWeapon, &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
 }
 
 Framework::Scripting::Builtins::Vector3 Human::GetAimDir() const {
