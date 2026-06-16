@@ -166,6 +166,9 @@ namespace SDK {
         uint64_t C_GameCamera__GetInstanceInternal = 0x0;
         uint64_t C_GameCamera__GetCamera           = 0x0;
 
+        // C_GameCameraMafia
+        uint64_t C_GameCameraMafia__LockTarget = 0x0; // LockTarget(posObj, targetObj, __int64, float blendTime)
+
         // C_GameDirector
         uint64_t C_GameDirector__GetDistrict = 0x0;
 
@@ -353,6 +356,10 @@ namespace SDK {
 
         // C_SceneObject
         uint64_t C_SceneObject__SetTransform = 0x0;
+        // Blank scene-object spawning (used to build a detached camera locator)
+        uint64_t ue__OperatorNew                = 0x0; // void *operator new(size_t)
+        uint64_t C_SceneObject__C_SceneObject   = 0x0; // ctor: C_SceneObject(this)
+        uint64_t C_SceneObject__AllocRefControl = 0x0; // alloc strong/weak refcount control for an object
 
         // C_SceneObjectManager
         uint64_t C_SceneObjectManager__GetSceneObject       = 0x0;
@@ -518,10 +525,6 @@ namespace SDK {
         uint64_t C_InitDone_MafiaFramework = 0x0;
         uint64_t LoadIntro                 = 0x0;
 
-        // TODO: rename me
-        uint64_t renameme__SpawnObject  = 0x0;
-        uint64_t renameme__SpawnObject2 = 0x0;
-        uint64_t renameme__SpawnObject3 = 0x0;
 
         // Script
         uint64_t Script__GetWeaponIdByName = 0x0;

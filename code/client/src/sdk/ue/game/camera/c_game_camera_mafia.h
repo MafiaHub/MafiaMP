@@ -5,6 +5,8 @@
 #include "c_camera.h"
 #include "s_generic_sync_object_data.h"
 
+#include "sdk/ue/sys/core/c_scene_object.h"
+
 namespace SDK {
     namespace ue::game::camera {
 
@@ -26,6 +28,12 @@ namespace SDK {
             S_GenericSyncObjectData *m_pSyncObjectData3;                    // 0338 - 0340
 
           public:
+            // Detaches the camera onto posObject (its forward axis becomes the view
+            // direction, or targetObject when given). blendTime <= 0 snaps. Pushes
+            // C_CM_ScriptFrame on LAYER_SCRIPT; undo with Unlock(). Objects must outlive the lock.
+            void LockTarget(ue::sys::core::C_SceneObject *posObject, ue::sys::core::C_SceneObject *targetObject = nullptr, float blendTime = 0.0f);
+            void Unlock();
+
             void ScriptForcedFOVStart(float fov, bool immediate);
             void ScriptLookAtDir(sys::math::C_Vector *dir, sys::math::C_Vector *offset, sys::math::C_Vector *targetOffset, float transitionTime, float holdTime, float returnTime, float fov, bool smooth, bool useOffset, bool lockRotation);
             void ScriptLookAtStop();

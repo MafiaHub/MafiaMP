@@ -48,6 +48,10 @@ namespace SDK {
             ue::sys::math::C_Matrix GetTransform();
             void SetTransform(const ue::sys::math::C_Matrix &transform, E_TransformChangeType changeType);
 
+            // Allocates a bare scene object (no scene, no components) usable as a movable
+            // camera locator. Caller owns it. Returns nullptr on allocation failure.
+            static C_SceneObject *CreateBlank();
+
           protected:
             C_Scene *m_pScene;                        // 0x58 - 0x60
             ue::sys::math::C_Matrix m_mTransform;     // 0x60 - 0x90

@@ -36,7 +36,9 @@ namespace SDK {
             CCM_UNK_18             = 18,
         };
 
-        enum class E_GameCameraLayer : unsigned int { LAYER_ACTOR = 1, LAYER_UNKNOWN = 2 };
+        // Gameplay modes (follow, FPV, cover) push on LAYER_ACTOR; scripted modes
+        // (C_CM_ScriptFrame, pushed by C_GameCameraMafia::LockTarget) push on LAYER_SCRIPT.
+        enum class E_GameCameraLayer : unsigned int { LAYER_ACTOR = 1, LAYER_SCRIPT = 2 };
 
         // Forward declarations
         class C_CameraMode;

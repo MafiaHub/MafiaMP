@@ -172,6 +172,9 @@ namespace SDK {
         gPatterns.C_GameCamera__GetInstanceInternal = hook::get_opcode_address("E8 ? ? ? ? 48 8B C8 4C 8D 4D 30");
         gPatterns.C_GameCamera__GetCamera           = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 41 ? 4C 8B 41 ? 49 3B C0 73"));
 
+        // C_GameCameraMafia
+        gPatterns.C_GameCameraMafia__LockTarget = reinterpret_cast<uint64_t>(hook::get_pattern("48 85 D2 0F 84 ? ? ? ? 48 8B C4 48 89 58 18"));
+
         // C_GameDirector
         gPatterns.C_GameDirector__GetDistrict = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 50 F2 0F 10 02"));
 
@@ -550,10 +553,10 @@ namespace SDK {
         gPatterns.C_InitDone_MafiaFramework = reinterpret_cast<uint64_t>(hook::get_pattern("40 55 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 0F 57 C0"));
         gPatterns.LoadIntro                 = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 55 56 57 48 83 EC ? 48 8B E9 B9 ? ? ? ?"));
 
-        // TODO: rename me
-        gPatterns.renameme__SpawnObject  = hook::get_opcode_address("E8 ? ? ? ? 33 F6 EB 9F");
-        gPatterns.renameme__SpawnObject2 = hook::get_opcode_address("E8 ? ? ? ? 49 8B 4C 3F ?");
-        gPatterns.renameme__SpawnObject3 = hook::get_opcode_address("E8 ? ? ? ? 4C 8B E8 49 8B CD");
+        // Blank scene-object spawning (camera locator): operator new, ctor, ref-control alloc.
+        gPatterns.ue__OperatorNew                = hook::get_opcode_address("E8 ? ? ? ? 33 F6 EB 9F");
+        gPatterns.C_SceneObject__AllocRefControl = hook::get_opcode_address("E8 ? ? ? ? 49 8B 4C 3F ?");
+        gPatterns.C_SceneObject__C_SceneObject   = hook::get_opcode_address("E8 ? ? ? ? 4C 8B E8 49 8B CD");
 
         // script
         gPatterns.Script__GetWeaponIdByName = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? 48 85 C9 0F 84 ? ? ? ? 80 39"));
