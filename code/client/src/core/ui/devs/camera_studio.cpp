@@ -71,6 +71,13 @@ namespace MafiaMP::Core::UI::Devs {
         _pitch = std::asin(std::clamp(dir.z, -1.0f, 1.0f));
     }
 
+    void CameraStudio::SetLocatorTransform(SDK::ue::sys::core::C_SceneObject *locator, const SDK::ue::sys::math::C_Vector &pos, float yaw, float pitch) {
+        auto transform = locator->GetTransform();
+        transform.SetPos(pos);
+        transform.SetDir3(ForwardFromYawPitch(yaw, pitch));
+        locator->SetTransform(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
+    }
+
     void CameraStudio::ApplyLocatorTransform() {
         if (!_locator) {
             return;
@@ -79,10 +86,49 @@ namespace MafiaMP::Core::UI::Devs {
         // Move the locator; the script-frame mode holds a weak pointer to it and reads its
         // transform every frame, so the camera follows. The game's own scripted cameras
         // drive the lock the same way: lock once, then move the bound object.
-        auto transform = _locator->GetTransform();
-        transform.SetPos(_position);
-        transform.SetDir3(ForwardFromYawPitch(_yaw, _pitch));
-        _locator->SetTransform(transform, SDK::ue::sys::core::E_TransformChangeType::DEFAULT);
+        SetLocatorTransform(_locator, _position, _yaw, _pitch);
+    }
+
+    void CameraStudio::PlayCinematic() {
+        if (!_haveA || !_haveB) {
+            return;
+        }
+
+        const auto camera = GetGameCamera();
+        if (!camera) {
+            return;
+        }
+
+        if (!_locator) {
+            _locator = SDK::ue::sys::core::C_SceneObject::CreateBlank();
+        }
+        if (!_locatorEnd) {
+            _locatorEnd = SDK::ue::sys::core::C_SceneObject::CreateBlank();
+        }
+        if (!_locator || !_locatorEnd) {
+            return;
+        }
+
+        // Lock the start keyframe instantly, then lock the end keyframe with a blend time.
+        // The engine pushes a second script-frame mode and natively blends from A to B over
+        // _cineDuration (mode-blend with easing) - we never interpolate by hand.
+        SetLocatorTransform(_locator, _cinePosA, _cineYawA, _cinePitchA);
+        camera->LockTarget(_locator, nullptr, 0.0f);
+        SetLocatorTransform(_locatorEnd, _cinePosB, _cineYawB, _cinePitchB);
+        camera->LockTarget(_locatorEnd, nullptr, _cineDuration);
+
+        if (!_freeCamEnabled) {
+            if (_lockControls) {
+                MafiaMP::Game::Helpers::Controls::Lock(true);
+            }
+            if (_streamAtCamera) {
+                SetStreamingAroundCamera(true);
+            }
+            _freeCamEnabled = true;
+        }
+
+        _cinePlaying = true;
+        _cineElapsed = 0.0f;
     }
 
     void CameraStudio::EnableFreeCam(bool enable) {
@@ -119,6 +165,7 @@ namespace MafiaMP::Core::UI::Devs {
             }
         }
         else {
+            _cinePlaying = false;
             camera->Unlock();
 
             if (_lockControls) {
@@ -239,6 +286,31 @@ namespace MafiaMP::Core::UI::Devs {
                 ImGui::Checkbox("Lock player controls", &_lockControls);
                 ImGui::SameLine();
                 ImGui::Checkbox("Stream around camera", &_streamAtCamera);
+
+                ImGui::Separator();
+                ImGui::TextDisabled("Cinematic (A -> B, native blend)");
+                if (ImGui::Button("Set A (start)")) {
+                    _cinePosA   = _position;
+                    _cineYawA   = _yaw;
+                    _cinePitchA = _pitch;
+                    _haveA      = true;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Set B (end)")) {
+                    _cinePosB   = _position;
+                    _cineYawB   = _yaw;
+                    _cinePitchB = _pitch;
+                    _haveB      = true;
+                }
+                ImGui::SameLine();
+                ImGui::Text("A:%s B:%s", _haveA ? "ok" : "-", _haveB ? "ok" : "-");
+                ImGui::SliderFloat("Duration", &_cineDuration, 0.5f, 30.0f, "%.1f s");
+                if (ImGui::Button("Play cinematic", ImVec2(-1.0f, 0.0f))) {
+                    PlayCinematic();
+                }
+                if (_cinePlaying) {
+                    ImGui::TextColored(ImVec4(0.3f, 1.0f, 0.3f, 1.0f), "Playing %.1f / %.1f s", _cineElapsed, _cineDuration);
+                }
             }
 
             ImGui::Separator();
@@ -261,7 +333,25 @@ namespace MafiaMP::Core::UI::Devs {
             if (dt <= 0.0f) {
                 dt = 1.0f / 60.0f;
             }
-            UpdateFreeCam(dt);
+
+            if (_cinePlaying) {
+                // The engine drives the A->B blend; wait it out, then resume control at B.
+                _cineElapsed += dt;
+                if (_cineElapsed >= _cineDuration) {
+                    _cinePlaying = false;
+                    _position    = _cinePosB;
+                    _yaw         = _cineYawB;
+                    _pitch       = _cinePitchB;
+                    if (const auto endCamera = GetGameCamera()) {
+                        SetLocatorTransform(_locator, _position, _yaw, _pitch);
+                        endCamera->LockTarget(_locator, nullptr, 0.0f);
+                    }
+                    GetCursorPos(&_lastMousePos);
+                }
+            }
+            else {
+                UpdateFreeCam(dt);
+            }
         }
     }
 } // namespace MafiaMP::Core::UI::Devs
