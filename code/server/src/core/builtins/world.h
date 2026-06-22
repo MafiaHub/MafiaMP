@@ -6,18 +6,22 @@
 
 #include "core/server.h"
 
+#include "shared/entities/human_entity.h"
 #include "shared/entities/register_entities.h"
 #include "shared/entities/vehicle_entity.h"
 
 #include <core_modules.h>
 #include <scripting/builtins/entity.h>
+#include <scripting/builtins/entity_collection.h>
 #include <networking/replication/replication_manager.h>
 
-#include "entity_collection.h"
 #include "player.h"
 #include "vehicle.h"
 
 namespace MafiaMP::Scripting {
+    using PlayerCollection  = Framework::Scripting::Builtins::EntityCollection<Player, Shared::Entities::HumanEntity, Framework::Scripting::Builtins::ViewersOnly>;
+    using VehicleCollection = Framework::Scripting::Builtins::EntityCollection<Vehicle, Shared::Entities::VehicleEntity>;
+
     class World final {
       public:
         static v8::Local<v8::Value> CreateVehicle(v8::Isolate *isolate, std::string modelName) {
@@ -110,8 +114,8 @@ namespace MafiaMP::Scripting {
                               World::SetWeatherSet(*weatherSet);
                           }).ToLocalChecked()).Check();
 
-            worldObj->Set(ctx, v8pp::to_v8(isolate, "players"), CreateCollectionObject<PlayerCollection>(isolate)).Check();
-            worldObj->Set(ctx, v8pp::to_v8(isolate, "vehicles"), CreateCollectionObject<VehicleCollection>(isolate)).Check();
+            worldObj->Set(ctx, v8pp::to_v8(isolate, "players"), Framework::Scripting::Builtins::CreateCollectionObject<PlayerCollection>(isolate)).Check();
+            worldObj->Set(ctx, v8pp::to_v8(isolate, "vehicles"), Framework::Scripting::Builtins::CreateCollectionObject<VehicleCollection>(isolate)).Check();
 
             global->Set(ctx, v8pp::to_v8(isolate, "World"), worldObj).Check();
         }
