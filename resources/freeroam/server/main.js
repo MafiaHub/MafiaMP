@@ -346,11 +346,11 @@ registerChatCommand("wai", (player, message, command, args) => {
     const rot = player.rotation;
 
     Chat.sendToPlayer(player,`[SERVER] Your position: ${pos.x}, ${pos.y}, ${pos.z}`);
-    Chat.sendToPlayer(player,`[SERVER] Your rotation: ${rot.x}, ${rot.y}, ${rot.z}`);
+    Chat.sendToPlayer(player,`[SERVER] Your rotation: ${rot.w}, ${rot.x}, ${rot.y}, ${rot.z}`);
 
     // Log in console for easy copy-paste
     console.log(`[FREEROAM] Player ${player.nickname} position: ${pos.x}, ${pos.y}, ${pos.z}`);
-    console.log(`[FREEROAM] Player ${player.nickname} rotation: ${rot.x}, ${rot.y}, ${rot.z}`);
+    console.log(`[FREEROAM] Player ${player.nickname} rotation: ${rot.w}, ${rot.x}, ${rot.y}, ${rot.z}`);
 });
 
 registerChatCommand("time", (player, message, command, args) => {
