@@ -12,16 +12,16 @@
 namespace MafiaMP::Scripting {
     class Builtins final {
       public:
-        static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global, v8::Local<v8::Object> frameworkObj) {
-            if (!isolate || global.IsEmpty() || frameworkObj.IsEmpty()) {
+        static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global) {
+            if (!isolate || global.IsEmpty()) {
                 return;
             }
 
-            // Register entity classes on Framework object
-            Framework::Scripting::Builtins::Entity::Register(isolate, frameworkObj);
-            Scripting::Human::Register(isolate, frameworkObj);
-            Scripting::Player::Register(isolate, frameworkObj);
-            Scripting::Vehicle::Register(isolate, frameworkObj);
+            // Register entity classes at the global root
+            Framework::Scripting::Builtins::Entity::Register(isolate, global);
+            Scripting::Human::Register(isolate, global);
+            Scripting::Player::Register(isolate, global);
+            Scripting::Vehicle::Register(isolate, global);
 
             // Register module singletons on global for direct access (World). The Chat API is
             // registered by the framework.

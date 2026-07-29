@@ -270,11 +270,6 @@ namespace MafiaMP {
         v8::Local<v8::Context> context = nodeEngine->GetContext();
         v8::Context::Scope contextScope(context);
 
-        v8::Local<v8::Object> global = context->Global();
-        v8::Local<v8::Value> frameworkVal;
-        if (global->Get(context, v8pp::to_v8(isolate, "Framework")).ToLocal(&frameworkVal) && frameworkVal->IsObject()) {
-            v8::Local<v8::Object> frameworkObj = frameworkVal.As<v8::Object>();
-            MafiaMP::Scripting::Builtins::Register(isolate, global, frameworkObj);
-        }
+        MafiaMP::Scripting::Builtins::Register(isolate, context->Global());
     }
 } // namespace MafiaMP
