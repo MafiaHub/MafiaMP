@@ -7,7 +7,6 @@
 
 #include <integrations/server/scripting/module.h>
 #include <logging/logger.h>
-#include <scripting/builtins/property.h>
 #include <scripting/node_engine.h>
 
 #include <algorithm>
@@ -225,28 +224,23 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
         _class->auto_wrap_objects(true);
         _class->inherit<Framework::Scripting::Builtins::Entity>()
             .ctor<uint64_t>()
-            .function("toString", &Vehicle::ToString);
-
-        auto protoTemplate = _class->class_function_template()->PrototypeTemplate();
-
-        using namespace Framework::Scripting::Builtins;
-
-        RegisterReadonlyProperty<Vehicle, &Vehicle::GetModelName>(isolate, protoTemplate, "modelName");
-        RegisterProperty<Vehicle, &Vehicle::GetBeaconLightsOn, &Vehicle::SetBeaconLightsOn>(isolate, protoTemplate, "beaconLightsOn");
-        RegisterObjectProperty<Vehicle, &Vehicle::GetColorPrimary, &Vehicle::SetColorPrimary>(isolate, protoTemplate, "colorPrimary");
-        RegisterObjectProperty<Vehicle, &Vehicle::GetColorSecondary, &Vehicle::SetColorSecondary>(isolate, protoTemplate, "colorSecondary");
-        RegisterProperty<Vehicle, &Vehicle::GetDirt, &Vehicle::SetDirt>(isolate, protoTemplate, "dirt");
-        RegisterProperty<Vehicle, &Vehicle::GetEngineOn, &Vehicle::SetEngineOn>(isolate, protoTemplate, "engineOn");
-        RegisterProperty<Vehicle, &Vehicle::GetFuel, &Vehicle::SetFuel>(isolate, protoTemplate, "fuel");
-        RegisterProperty<Vehicle, &Vehicle::GetLicensePlate, &Vehicle::SetLicensePlate>(isolate, protoTemplate, "licensePlate");
-        RegisterProperty<Vehicle, &Vehicle::GetLockState, &Vehicle::SetLockState>(isolate, protoTemplate, "lockState");
-        RegisterProperty<Vehicle, &Vehicle::GetRadioOn, &Vehicle::SetRadioOn>(isolate, protoTemplate, "radioOn");
-        RegisterProperty<Vehicle, &Vehicle::GetRadioStationId, &Vehicle::SetRadioStationId>(isolate, protoTemplate, "radioStationId");
-        RegisterObjectProperty<Vehicle, &Vehicle::GetRimColor, &Vehicle::SetRimColor>(isolate, protoTemplate, "rimColor");
-        RegisterProperty<Vehicle, &Vehicle::GetRust, &Vehicle::SetRust>(isolate, protoTemplate, "rust");
-        RegisterProperty<Vehicle, &Vehicle::GetSirenOn, &Vehicle::SetSirenOn>(isolate, protoTemplate, "sirenOn");
-        RegisterObjectProperty<Vehicle, &Vehicle::GetTireColor, &Vehicle::SetTireColor>(isolate, protoTemplate, "tireColor");
-        RegisterObjectProperty<Vehicle, &Vehicle::GetWindowTint, &Vehicle::SetWindowTint>(isolate, protoTemplate, "windowTint");
+            .function("toString", &Vehicle::ToString)
+            .property("modelName", &Vehicle::GetModelName)
+            .property("beaconLightsOn", &Vehicle::GetBeaconLightsOn, &Vehicle::SetBeaconLightsOn)
+            .property("colorPrimary", &Vehicle::GetColorPrimary, &Vehicle::SetColorPrimary)
+            .property("colorSecondary", &Vehicle::GetColorSecondary, &Vehicle::SetColorSecondary)
+            .property("dirt", &Vehicle::GetDirt, &Vehicle::SetDirt)
+            .property("engineOn", &Vehicle::GetEngineOn, &Vehicle::SetEngineOn)
+            .property("fuel", &Vehicle::GetFuel, &Vehicle::SetFuel)
+            .property("licensePlate", &Vehicle::GetLicensePlate, &Vehicle::SetLicensePlate)
+            .property("lockState", &Vehicle::GetLockState, &Vehicle::SetLockState)
+            .property("radioOn", &Vehicle::GetRadioOn, &Vehicle::SetRadioOn)
+            .property("radioStationId", &Vehicle::GetRadioStationId, &Vehicle::SetRadioStationId)
+            .property("rimColor", &Vehicle::GetRimColor, &Vehicle::SetRimColor)
+            .property("rust", &Vehicle::GetRust, &Vehicle::SetRust)
+            .property("sirenOn", &Vehicle::GetSirenOn, &Vehicle::SetSirenOn)
+            .property("tireColor", &Vehicle::GetTireColor, &Vehicle::SetTireColor)
+            .property("windowTint", &Vehicle::GetWindowTint, &Vehicle::SetWindowTint);
     }
     return *_class;
 }

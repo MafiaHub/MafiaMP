@@ -2,9 +2,11 @@
 
 #include "core/server.h"
 
+#include <core_modules.h>
 #include <integrations/server/scripting/module.h>
 #include <logging/logger.h>
-#include <scripting/builtins/chat.h>
+#include <networking/network_peer.h>
+#include <networking/rpc/chat_message.h>
 #include <scripting/node_engine.h>
 
 namespace MafiaMP::Scripting {
@@ -68,7 +70,16 @@ void Player::Destroy() {
 }
 
 void Player::SendChat(std::string message) {
-    Framework::Scripting::Builtins::Chat::SendToPlayer(this, message);
+    // Chat's own C++ send helper is private to the builtin now, so the line is addressed here: to
+    // the connection that owns this avatar, with no author, which the client renders as a notice.
+    auto *handle = GetHandle();
+    auto *net    = Framework::CoreModules::GetNetworkPeer();
+    if (!handle || !net) {
+        return;
+    }
+    Framework::Networking::RPC::ChatMessage payload;
+    payload.text = std::move(message);
+    net->SendRPC(payload, MafiaNet::ToGuid(handle->ownerGUID));
 }
 
 v8pp::class_<Player> &Player::GetClass(v8::Isolate *isolate) {

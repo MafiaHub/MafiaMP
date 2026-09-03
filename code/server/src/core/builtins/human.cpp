@@ -6,7 +6,6 @@
 
 #include <core_modules.h>
 #include <networking/network_peer.h>
-#include <scripting/builtins/property.h>
 #include <networking/replication/replication_manager.h>
 
 #include <mafianet/BitStream.h>
@@ -125,28 +124,24 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
             .auto_wrap_objects(true)
             .ctor<uint64_t>()
             .function("toString", &Human::ToString)
-            .function("addWeapon", &Human::AddWeapon);
-
-        auto protoTemplate = _class->class_function_template()->PrototypeTemplate();
-
-        using namespace Framework::Scripting::Builtins;
-
-        RegisterReadonlyProperty<Human, &Human::IsAiming>(isolate, protoTemplate, "aiming");
-        RegisterReadonlyProperty<Human, &Human::IsFiring>(isolate, protoTemplate, "firing");
-        RegisterReadonlyObjectProperty<Human, &Human::GetAimDir>(isolate, protoTemplate, "aimDir");
-        RegisterReadonlyObjectProperty<Human, &Human::GetAimPos>(isolate, protoTemplate, "aimPos");
-        RegisterProperty<Human, &Human::GetHealth, &Human::SetHealth>(isolate, protoTemplate, "health");
-        RegisterReadonlyProperty<Human, &Human::GetWeaponId>(isolate, protoTemplate, "weaponId");
-        RegisterReadonlyProperty<Human, &Human::GetNickname>(isolate, protoTemplate, "nickname");
-        RegisterReadonlyProperty<Human, &Human::GetVehicleSeatIndex>(isolate, protoTemplate, "vehicleSeatIndex");
+            .function("addWeapon", &Human::AddWeapon)
+            .property("aiming", &Human::IsAiming)
+            .property("firing", &Human::IsFiring)
+            .property("aimDir", &Human::GetAimDir)
+            .property("aimPos", &Human::GetAimPos)
+            .property("health", &Human::GetHealth, &Human::SetHealth)
+            .property("weaponId", &Human::GetWeaponId)
+            .property("nickname", &Human::GetNickname)
+            .property("vehicleSeatIndex", &Human::GetVehicleSeatIndex);
 
         // vehicle returns a wrapped Vehicle handle and needs the isolate, so it stays bespoke.
-        protoTemplate->SetNativeDataProperty(
-            v8pp::to_v8(isolate, "vehicle").As<v8::Name>(),
-            [](v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value> &info) {
-                auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
-                if (self) info.GetReturnValue().Set(self->GetVehicle(info.GetIsolate()));
-            });
+        auto vehicleGetter = v8::FunctionTemplate::New(isolate, [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+            auto *self = v8pp::class_<Human>::unwrap_object(info.GetIsolate(), info.This());
+            if (self) {
+                info.GetReturnValue().Set(self->GetVehicle(info.GetIsolate()));
+            }
+        });
+        _class->accessor_property("vehicle", vehicleGetter, v8::Local<v8::FunctionTemplate>(), {});
     }
     return *_class;
 }
