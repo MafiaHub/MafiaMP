@@ -20,6 +20,9 @@ namespace MafiaMP::Shared::Entities {
       public:
         static constexpr const char *kTypeName = "MafiaMP::Human";
 
+        // Interest radius. The framework's 100 m default is about two seconds of road in a car.
+        static constexpr float kStreamRange = 250.0f;
+
         uint64_t modelHash = 0;
         std::string nickname;
         uint16_t playerIndex = 0xFFFF;
@@ -44,6 +47,11 @@ namespace MafiaMP::Shared::Entities {
         void SerializeFields(Replication::FieldSerializer &fields) override {
             fields.Field(modelHash);
             fields.Field(data);
+        }
+
+        // A seated player is meaningless without the car under them.
+        Replication::NetworkEntity *GetInterestDependency() override {
+            return data.carPassenger.carId != 0 ? ResolveSibling(data.carPassenger.carId) : nullptr;
         }
     };
 } // namespace MafiaMP::Shared::Entities

@@ -23,6 +23,13 @@ namespace MafiaMP::Shared::Entities {
         static constexpr const char *kTypeName = "MafiaMP::Vehicle";
         static constexpr int kMaxSeats         = 4;
 
+        // Vehicles stream further than people: a car closes 350 m in under nine seconds on a straight
+        // road, which is the head start the model loader needs to have it on screen in time.
+        static constexpr float kStreamRange = 350.0f;
+        // Protective ceiling for a type a script can spawn without bound; untuned, and wants a
+        // measured client ceiling the way m2o's does.
+        static constexpr uint32_t kInterestBudget = 48;
+
         std::string modelName;
         Modules::VehicleSync::UpdateData data {};
 

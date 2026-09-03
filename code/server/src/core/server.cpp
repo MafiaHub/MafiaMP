@@ -154,7 +154,8 @@ namespace MafiaMP {
                 return;
             }
             if (auto *vehicle = dynamic_cast<Shared::Entities::VehicleEntity *>(engine->CreateEntity(Shared::Entities::VehicleTypeId()))) {
-                vehicle->modelName = modelName.C_String();
+                vehicle->modelName       = modelName.C_String();
+                vehicle->streaming.range = Shared::Entities::VehicleEntity::kStreamRange;
             }
         }
     } // namespace
@@ -164,6 +165,22 @@ namespace MafiaMP {
 
         // Register the replicated entity types so the server can construct them.
         Shared::Entities::RegisterEntities();
+
+        if (auto *repl = Framework::CoreModules::GetReplication()) {
+            // Mafia is Z-up (the nametag lifts a head position by adding to z), so relevance has to
+            // be measured on the XY ground plane; on the default XZ plane it compares altitudes
+            // instead of distances. The margin keeps a car pacing a player at the edge of its range
+            // from constructing and destroying once per tick, and the look-ahead leans interest down
+            // the road being driven so the model loader gets its head start.
+            repl->SetInterestGroundPlaneXY(true);
+            repl->SetInterestStreamOutMargin(50.0f);
+            repl->SetInterestLookaheadSeconds(1.0f);
+            repl->SetInterestRebuildInterval(100);
+
+            // Humans get no budget: the server caps at 10 players, so any cap that could bind would
+            // be hiding people. Vehicles are script-spawnable without bound, so they get the cap.
+            repl->SetInterestBudget(Shared::Entities::VehicleEntity::kTypeName, Shared::Entities::VehicleEntity::kInterestBudget);
+        }
 
         InitNetworkingMessages();
     }
@@ -230,10 +247,11 @@ namespace MafiaMP {
         if (!human) {
             return;
         }
-        human->ownerGUID   = info.guid;
-        human->modelHash   = kDefaultSkin;
-        human->nickname    = info.nickname;
-        human->playerIndex = info.playerIndex;
+        human->ownerGUID       = info.guid;
+        human->modelHash       = kDefaultSkin;
+        human->nickname        = info.nickname;
+        human->playerIndex     = info.playerIndex;
+        human->streaming.range = Shared::Entities::HumanEntity::kStreamRange;
         repl->SetViewer(info.guid, human);
 
         SendEnvironment(MafiaNet::ToGuid(info.guid), false);

@@ -33,7 +33,8 @@ namespace MafiaMP::Scripting {
             if (!entity) {
                 return v8::Undefined(isolate);
             }
-            entity->modelName = modelName;
+            entity->modelName       = modelName;
+            entity->streaming.range = Shared::Entities::VehicleEntity::kStreamRange;
             return v8pp::class_<Vehicle>::create_object(isolate, entity->GetNetworkID());
         }
 
