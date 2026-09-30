@@ -98,6 +98,10 @@ namespace MafiaMP::Core {
             return _input.get();
         }
 
+        bool IsLocalInputAvailable() const override {
+            return !AreControlsLocked() && Framework::Integrations::Client::Instance::IsLocalInputAvailable();
+        }
+
         std::shared_ptr<MafiaMP::Game::GameInput> GetInput() const {
             return _input;
         }
