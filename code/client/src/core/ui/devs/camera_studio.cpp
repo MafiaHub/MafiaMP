@@ -1,3 +1,6 @@
+#include <core_modules.h>
+#include <input/input.h>
+
 #include "camera_studio.h"
 
 #include <algorithm>
@@ -187,8 +190,9 @@ namespace MafiaMP::Core::UI::Devs {
         POINT mouse = {};
         GetCursorPos(&mouse);
 
-        if (!_frozen) {
-            if ((GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0) {
+        const auto *input = Framework::CoreModules::GetInput();
+        if (!_frozen && input) {
+            if (input->IsKeyDown(FW_KEY_RBUTTON)) {
                 _yaw += static_cast<float>(mouse.x - _lastMousePos.x) * _sensitivity;
                 _pitch -= static_cast<float>(mouse.y - _lastMousePos.y) * _sensitivity;
                 _pitch = std::clamp(_pitch, -kMaxPitch, kMaxPitch);
@@ -198,10 +202,10 @@ namespace MafiaMP::Core::UI::Devs {
             const SDK::ue::sys::math::C_Vector right = {std::cos(_yaw), -std::sin(_yaw), 0.0f};
 
             float speed = _moveSpeed;
-            if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
+            if (input->IsKeyDown(FW_KEY_SHIFT)) {
                 speed *= 3.0f;
             }
-            if (GetAsyncKeyState(VK_CONTROL) & 0x8000) {
+            if (input->IsKeyDown(FW_KEY_CONTROL)) {
                 speed *= 0.25f;
             }
             const float step = speed * deltaTime;
@@ -212,22 +216,22 @@ namespace MafiaMP::Core::UI::Devs {
                 _position.z += v.z * s;
             };
 
-            if (GetAsyncKeyState('W') & 0x8000) {
+            if (input->IsKeyDown('W')) {
                 move(forward, step);
             }
-            if (GetAsyncKeyState('S') & 0x8000) {
+            if (input->IsKeyDown('S')) {
                 move(forward, -step);
             }
-            if (GetAsyncKeyState('D') & 0x8000) {
+            if (input->IsKeyDown('D')) {
                 move(right, step);
             }
-            if (GetAsyncKeyState('A') & 0x8000) {
+            if (input->IsKeyDown('A')) {
                 move(right, -step);
             }
-            if (GetAsyncKeyState(VK_SPACE) & 0x8000) {
+            if (input->IsKeyDown(FW_KEY_SPACE)) {
                 _position.z += step;
             }
-            if (GetAsyncKeyState('C') & 0x8000) {
+            if (input->IsKeyDown('C')) {
                 _position.z -= step;
             }
         }
