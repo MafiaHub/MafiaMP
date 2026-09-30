@@ -1,3 +1,3 @@
-# Framework source required by this input adapter migration.
+# Framework source required by the unified IInput adapter migration.
 # Framework PR #292; replace with its merged commit before release.
-263476c3709aa66cc6680fdc029b01321a4b2984
+689c27139ba8e0123e33cfb54f869d27f15c7001
