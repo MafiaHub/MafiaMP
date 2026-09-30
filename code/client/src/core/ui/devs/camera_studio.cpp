@@ -1,4 +1,5 @@
-#include <input/physical_key_state.h>
+#include <core_modules.h>
+#include <input/input.h>
 
 #include "camera_studio.h"
 
@@ -189,8 +190,9 @@ namespace MafiaMP::Core::UI::Devs {
         POINT mouse = {};
         GetCursorPos(&mouse);
 
-        if (!_frozen) {
-            if (Framework::Input::PhysicalKeyState::IsDown(VK_RBUTTON)) {
+        const auto *input = Framework::CoreModules::GetInput();
+        if (!_frozen && input) {
+            if (input->IsKeyDown(FW_KEY_RBUTTON)) {
                 _yaw += static_cast<float>(mouse.x - _lastMousePos.x) * _sensitivity;
                 _pitch -= static_cast<float>(mouse.y - _lastMousePos.y) * _sensitivity;
                 _pitch = std::clamp(_pitch, -kMaxPitch, kMaxPitch);
@@ -200,10 +202,10 @@ namespace MafiaMP::Core::UI::Devs {
             const SDK::ue::sys::math::C_Vector right = {std::cos(_yaw), -std::sin(_yaw), 0.0f};
 
             float speed = _moveSpeed;
-            if (Framework::Input::PhysicalKeyState::IsDown(VK_SHIFT)) {
+            if (input->IsKeyDown(FW_KEY_SHIFT)) {
                 speed *= 3.0f;
             }
-            if (Framework::Input::PhysicalKeyState::IsDown(VK_CONTROL)) {
+            if (input->IsKeyDown(FW_KEY_CONTROL)) {
                 speed *= 0.25f;
             }
             const float step = speed * deltaTime;
@@ -214,22 +216,22 @@ namespace MafiaMP::Core::UI::Devs {
                 _position.z += v.z * s;
             };
 
-            if (Framework::Input::PhysicalKeyState::IsDown('W')) {
+            if (input->IsKeyDown('W')) {
                 move(forward, step);
             }
-            if (Framework::Input::PhysicalKeyState::IsDown('S')) {
+            if (input->IsKeyDown('S')) {
                 move(forward, -step);
             }
-            if (Framework::Input::PhysicalKeyState::IsDown('D')) {
+            if (input->IsKeyDown('D')) {
                 move(right, step);
             }
-            if (Framework::Input::PhysicalKeyState::IsDown('A')) {
+            if (input->IsKeyDown('A')) {
                 move(right, -step);
             }
-            if (Framework::Input::PhysicalKeyState::IsDown(VK_SPACE)) {
+            if (input->IsKeyDown(FW_KEY_SPACE)) {
                 _position.z += step;
             }
-            if (Framework::Input::PhysicalKeyState::IsDown('C')) {
+            if (input->IsKeyDown('C')) {
                 _position.z -= step;
             }
         }
