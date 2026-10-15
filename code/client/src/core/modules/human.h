@@ -7,7 +7,7 @@
 #include "game/overrides/character_controller.h"
 #include "game/streaming/entity_tracking_info.h"
 
-#include <mafianet/ReplicaManager3.h>
+#include <mafianet/replica_manager3.h>
 
 #include <utils/interpolator.h>
 

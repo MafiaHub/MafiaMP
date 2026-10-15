@@ -32,7 +32,7 @@
 #include "application_module.h"
 
 #include <networking/network_peer.h>
-#include <mafianet/BitStream.h>
+#include <mafianet/bit_stream.h>
 #include <mafianet/string.h>
 
 #include <optional>

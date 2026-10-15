@@ -17,7 +17,7 @@
 #include <scripting/node_engine.h>
 #include <scripting/resource/resource_manager.h>
 
-#include <mafianet/BitStream.h>
+#include <mafianet/bit_stream.h>
 #include <mafianet/string.h>
 #include <v8pp/convert.hpp>
 

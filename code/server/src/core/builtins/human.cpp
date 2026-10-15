@@ -8,7 +8,7 @@
 #include <networking/network_peer.h>
 #include <networking/replication/replication_manager.h>
 
-#include <mafianet/BitStream.h>
+#include <mafianet/bit_stream.h>
 
 namespace MafiaMP::Scripting {
 

@@ -34,7 +34,7 @@
 #include <networking/replication/entity_registry.h>
 #include <networking/replication/replication_manager.h>
 
-#include <mafianet/BitStream.h>
+#include <mafianet/bit_stream.h>
 
 namespace MafiaMP::Core::Modules {
     namespace {
