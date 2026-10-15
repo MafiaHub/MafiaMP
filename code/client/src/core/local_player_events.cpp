@@ -11,7 +11,7 @@
 
 #include <networking/network_peer.h>
 
-#include <mafianet/BitStream.h>
+#include <mafianet/bit_stream.h>
 
 #include <cstdint>
 

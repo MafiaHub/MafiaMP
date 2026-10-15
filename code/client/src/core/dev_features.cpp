@@ -22,7 +22,7 @@
 #include "shared/rpc/ids.h"
 
 #include <networking/network_peer.h>
-#include <mafianet/BitStream.h>
+#include <mafianet/bit_stream.h>
 #include <mafianet/string.h>
 
 namespace MafiaMP::Core {
