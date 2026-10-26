@@ -1,7 +1,7 @@
 #Warn  ; We keep this as it's still useful in v2
 SendMode "Input"
 
-BinaryFolder := A_ScriptDir "\..\..\..\..\builds\build-64\bin"
+BinaryFolder := FullPath(A_ScriptDir "\..\builds\build-64\bin")
 
 SetWorkingDir BinaryFolder
 
@@ -49,4 +49,11 @@ if !WinExist("mafiamp-game-1") or !WinExist("mafiamp-game-2") {
     WinKill "mafiamp-game-2"
     Sleep 2000
     Reload
+}
+
+; The repository's builds\build-64\bin as an absolute path, with the .. segments resolved.
+FullPath(path) {
+    pathBuffer := Buffer(32768 * 2)
+    length := DllCall("GetFullPathNameW", "Str", path, "UInt", 32768, "Ptr", pathBuffer, "Ptr", 0, "UInt")
+    return length ? StrGet(pathBuffer) : path
 }
