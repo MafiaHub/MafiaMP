@@ -48,6 +48,9 @@ namespace MafiaMP::Core {
             opts.gameVersion = "3168979183"; // TODO: get this crc32 checksum from the game executable
             opts.modSlug     = "mafiamp";
             opts.modVersion  = MafiaMP::Version::rel;
+#ifdef MAFIAMP_RPC_IDENTIFIER_SALT
+            opts.rpcIdentifierSalt = MAFIAMP_RPC_IDENTIFIER_SALT;
+#endif
 
             if (const auto result = Core::gApplication->Init(opts); !result) {
                 Framework::Logging::GetLogger(FRAMEWORK_INNER_CLIENT)->error("Failed to initialize client: {}", result.GetError().message);

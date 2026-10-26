@@ -16,6 +16,9 @@ int main(int argc, char **argv) {
     opts.gameName      = "Mafia: Definitive Edition";
     opts.gameVersion   = "3168979183";
     opts.modVersion    = MafiaMP::Version::rel;
+#ifdef MAFIAMP_RPC_IDENTIFIER_SALT
+    opts.rpcIdentifierSalt = MAFIAMP_RPC_IDENTIFIER_SALT;
+#endif
     opts.bindPassword  = "";
     opts.enableSignals = true;
     opts.bindSecretKey = "qskdnkjsqndq12312312qsdqsds";

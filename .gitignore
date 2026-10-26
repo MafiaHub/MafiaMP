@@ -36,3 +36,12 @@ _external
 **/obj
 
 IGNORE
+
+# Build trees, logs and the Framework SDK cache; only the build script is tracked.
+/builds/*
+!/builds/
+!/builds/build.bat
+
+# The Framework bootstrap and pin are tracked despite the *.cmake rule above.
+!/cmake/
+!/cmake/*.cmake

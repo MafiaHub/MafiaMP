@@ -226,7 +226,7 @@ namespace MafiaMP {
         if (dayTime) {
             bs.Write(*dayTime);
         }
-        net->GetRPC()->Signal(Shared::RPC::kSetEnvironment, &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, target, broadcast, false);
+        net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kSetEnvironment), &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, target, broadcast, false);
     }
 
     void Server::InitNetworkingMessages() {
@@ -265,14 +265,15 @@ namespace MafiaMP {
     }
 
     void Server::InitRPCs() {
-        auto *rpc = GetNetworkingEngine()->GetNetworkServer()->GetRPC();
+        auto *net = GetNetworkingEngine()->GetNetworkServer();
+        auto *rpc = net->GetRPC();
         // Gameplay RPCs received from clients.
-        rpc->RegisterSlot(Shared::RPC::kHumanShoot, &OnHumanShoot, nullptr, 0);
-        rpc->RegisterSlot(Shared::RPC::kHumanReload, &OnHumanReload, nullptr, 0);
-        rpc->RegisterSlot(Shared::RPC::kHumanDeath, &OnHumanDeath, nullptr, 0);
-        rpc->RegisterSlot(Shared::RPC::kVehiclePlayerEnter, &OnVehiclePlayerEnter, nullptr, 0);
-        rpc->RegisterSlot(Shared::RPC::kVehiclePlayerLeave, &OnVehiclePlayerLeave, nullptr, 0);
-        rpc->RegisterSlot(Shared::RPC::kSpawnCar, &OnSpawnCar, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanShoot), &OnHumanShoot, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanReload), &OnHumanReload, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanDeath), &OnHumanDeath, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kVehiclePlayerEnter), &OnVehiclePlayerEnter, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kVehiclePlayerLeave), &OnVehiclePlayerLeave, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kSpawnCar), &OnSpawnCar, nullptr, 0);
     }
 
     void Server::ModuleRegister(Framework::Scripting::Engine *engine) {

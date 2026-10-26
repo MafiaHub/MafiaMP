@@ -5,4 +5,4 @@ set(MAFIAMP_LAUNCHER_FILES
 
 add_executable(MafiaMPLauncher ${MAFIAMP_LAUNCHER_FILES})
 target_include_directories(MafiaMPLauncher PRIVATE .)
-target_link_libraries(MafiaMPLauncher PRIVATE Framework FrameworkLoader MafiaMPClient)
+target_link_libraries(MafiaMPLauncher PRIVATE Framework::Loader MafiaMPClient)

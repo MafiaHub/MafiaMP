@@ -13,7 +13,9 @@ set(MAFIAMP_SERVER_FILES
 
 add_executable(MafiaMPServer ${MAFIAMP_SERVER_FILES})
 target_include_directories(MafiaMPServer PRIVATE src)
-target_link_libraries(MafiaMPServer Framework FrameworkServer)
+target_link_libraries(MafiaMPServer Framework::Server)
+# libnode and the crash handler next to the binary, $ORIGIN on Linux
+fw_stage_runtime(MafiaMPServer SERVER)
 
 # Match FrameworkServer's compile definitions
 if(WIN32)

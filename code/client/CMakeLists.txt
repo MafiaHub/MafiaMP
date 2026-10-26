@@ -149,8 +149,10 @@ set(MAFIAMP_SDK_FILES
 
 add_library(MafiaMPClient SHARED ${MAFIAMP_CLIENT_FILES} ${MAFIAMP_SDK_FILES})
 target_include_directories(MafiaMPClient PRIVATE src)
-target_link_libraries(MafiaMPClient Framework FrameworkClient shlwapi lua54_static DirectXTK)
+target_link_libraries(MafiaMPClient Framework::Client shlwapi Microsoft::DirectXTK)
 target_link_options(MafiaMPClient PRIVATE /SAFESEH:NO /MANIFEST:NO)
+# CEF, libnode and the helper executables next to the DLL
+fw_stage_runtime(MafiaMPClient CLIENT)
 
 add_custom_command(TARGET MafiaMPClient POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/../../files" "${CMAKE_BINARY_DIR}/bin/files/"
