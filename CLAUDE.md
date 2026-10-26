@@ -10,18 +10,19 @@ MafiaMP is a multiplayer modification for Mafia: Definitive Edition built on top
 
 ### Building the Project
 
-**Note**: This project requires the MafiaHub Framework and cannot be built standalone.
+Build from this repository's root through the canonical Windows wrapper:
 
-The project uses CMake as the build system. From the Framework root directory:
-
-```bash
-# Configure and build the entire framework (including MafiaMP)
-cmake -B build
-cmake --build build
-
-# Run tests
-cmake --build build --target RunFrameworkTests
+```bat
+builds\build.bat MafiaMPClient 64
+builds\build.bat MafiaMPServer 64
+builds\build.bat MafiaMPLauncher 64
 ```
+
+All use `builds/build-64`. Do not invoke `cmake --build` directly or create a separate build tree.
+
+The Framework comes as the prebuilt SDK named by `cmake/FrameworkPin.cmake` (a version and the SHA-256 of each archive, pasted from the Framework release notes); `cmake/FrameworkBootstrap.cmake` downloads it into `builds/framework-sdk` on the first configure. Set `FW_SOURCE_DIR` to a Framework checkout before running the script to build the Framework from source alongside, or `FW_SDK_ROOT` to a locally installed SDK. The targets are `Framework::Client`, `Framework::Server` and `Framework::Loader` in every mode. Raise the pin in its own commit; a Framework MAJOR changes the build token, so client and server move together.
+
+RPC identifiers in `code/shared/rpc/ids.h` are declared with `FW_RPC_IDENTIFIER("MafiaMP::Name")` and resolved through `NetworkPeer::ResolveIdentifier` at each `Signal`/`RegisterSlot`. `-DFW_RPC_IDENTIFIER_SALT` becomes `MAFIAMP_RPC_IDENTIFIER_SALT` on the client and server, which hand it to `InstanceOptions::rpcIdentifierSalt`; without it both run on the Framework's public default salt.
 
 ### Project Structure
 
