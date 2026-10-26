@@ -2,7 +2,7 @@
 
 #include "ui_base.h"
 
-#include <fu2/function2.hpp>
+#include <function2/function2.hpp>
 #include <string>
 #include <vector>
 

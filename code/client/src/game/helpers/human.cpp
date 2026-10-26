@@ -1,5 +1,7 @@
 #include "human.h"
 
+#include <algorithm>
+
 #include <glm/glm.hpp>
 
 #include "game/overrides/character_controller.h"

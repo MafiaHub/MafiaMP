@@ -4,7 +4,7 @@
 
 #include <cppfs/FileHandle.h>
 #include <cppfs/fs.h>
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #include "application.h"
 

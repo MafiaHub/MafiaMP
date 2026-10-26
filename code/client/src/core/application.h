@@ -61,7 +61,7 @@ namespace MafiaMP::Core {
 
         void OnConnectionFinalized(float serverTickRate) override;
         void OnConnectionClosed() override;
-        void OnChatMessageReceived(const std::string &text) override;
+        void OnChatMessageReceived(const Framework::Networking::RPC::ChatMessage &msg) override;
 
         void InitNetworkingMessages();
         void InitRPCs();

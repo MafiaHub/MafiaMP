@@ -29,6 +29,9 @@ namespace MafiaMP::Game {
         };
         void SetInputLocked(bool locked) override;
         bool IsInputLocked() const override;
+        bool IsAvailable() const override {
+            return true;
+        }
 
         bool IsKeyDown(int key) const override {
             if (key < 0 || key > 255) {
@@ -80,7 +83,7 @@ namespace MafiaMP::Game {
             return _buttonsReleased[button];
         };
 
-        uint32_t MapKey(uint32_t key) const override;
+        uint32_t MapKey(uint32_t key) const;
 
         void ProcessEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

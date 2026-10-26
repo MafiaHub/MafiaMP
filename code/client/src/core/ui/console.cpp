@@ -1,8 +1,8 @@
 #include <utils/safe_win32.h>
 
-#include <cxxopts/cxxopts.hpp>
+#include <cxxopts.hpp>
 #include <fmt/core.h>
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <numeric>
 #include <regex>
 #include <sstream>

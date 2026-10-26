@@ -1,6 +1,6 @@
 #include "debug_prefab.h"
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #include <sdk/prefab/c_prefab_manager.h>
 

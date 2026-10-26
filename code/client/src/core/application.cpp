@@ -256,10 +256,10 @@ namespace MafiaMP::Core {
         Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Connection lost!");
     }
 
-    void Application::OnChatMessageReceived(const std::string &text) {
+    void Application::OnChatMessageReceived(const Framework::Networking::RPC::ChatMessage &msg) {
         if (_chat) {
-            _chat->AddMessage(text);
-            Framework::Logging::GetLogger("chat")->trace(text);
+            _chat->AddMessage(msg.text);
+            Framework::Logging::GetLogger("chat")->trace(msg.text);
         }
     }
 
@@ -423,9 +423,10 @@ namespace MafiaMP::Core {
     }
 
     void Application::InitRPCs() {
-        auto *rpc = GetNetworkingEngine()->GetNetworkClient()->GetRPC();
+        auto *net = GetNetworkingEngine()->GetNetworkClient();
+        auto *rpc = net->GetRPC();
         // RPCs received from the server. (Chat is handled by the framework client instance.)
-        rpc->RegisterSlot(Shared::RPC::kSetEnvironment, &OnSetEnvironment, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kSetEnvironment), &OnSetEnvironment, nullptr, 0);
     }
 
     std::string gProjectPath;

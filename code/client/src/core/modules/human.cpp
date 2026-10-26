@@ -6,7 +6,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #include <external/imgui/widgets/nametag.h>
 
@@ -436,7 +436,7 @@ namespace MafiaMP::Core::Modules {
                 camera->GetScreenPos(screenPos, headPos, onScreen, &unkFloat1, &unkFloat2, true);
                 if (onScreen) {
                     const auto playerName = fmt::format("{} ({})", self->nickname.empty() ? "Player" : self->nickname, self->playerIndex);
-                    Framework::External::ImGUI::Widgets::DrawNameTag({screenPos.x * displaySize.x, screenPos.y * displaySize.y}, playerName.c_str(), self->data._healthPercent);
+                    Framework::External::ImGUI::Widgets::DrawNameTag(ImGui::GetBackgroundDrawList(), {screenPos.x * displaySize.x, screenPos.y * displaySize.y}, playerName.c_str(), {}, 1.0f, self->data._healthPercent);
                 }
             }
         });
@@ -448,11 +448,12 @@ namespace MafiaMP::Core::Modules {
             return new Human();
         });
 
-        auto *rpc = Framework::CoreModules::GetNetworkPeer()->GetRPC();
+        auto *net = Framework::CoreModules::GetNetworkPeer();
+        auto *rpc = net->GetRPC();
         // Human action RPCs received from peers.
-        rpc->RegisterSlot(Shared::RPC::kHumanShoot, &OnHumanShoot, nullptr, 0);
-        rpc->RegisterSlot(Shared::RPC::kHumanReload, &OnHumanReload, nullptr, 0);
-        rpc->RegisterSlot(Shared::RPC::kHumanAddWeapon, &OnHumanAddWeapon, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanShoot), &OnHumanShoot, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanReload), &OnHumanReload, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanAddWeapon), &OnHumanAddWeapon, nullptr, 0);
     }
 
     void Human::UpdateAll() {

@@ -3,7 +3,7 @@
 #include "core/scene_object_registry.h"
 
 #include <fmt/format.h>
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <logging/logger.h>
 
 #include <algorithm>

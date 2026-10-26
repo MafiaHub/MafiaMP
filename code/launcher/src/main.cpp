@@ -7,8 +7,7 @@ int main(void) {
     config.destinationDllName = L"MafiaMPClient.dll";
     config.executableName     = L"mafiadefinitiveedition.exe";
     config.name               = "MafiaMP";
-    config.platform           = Framework::Launcher::ProjectPlatform::STEAM;
-    config.steamAppId         = 1030840;
+    config.platforms          = {std::make_shared<Framework::Launcher::Platforms::Steam>(Framework::Launcher::Platforms::Steam::Options {.appId = 1030840})};
     config.verifyGameIntegrity = true;
     config.supportedGameVersions = {3168979183};
 
