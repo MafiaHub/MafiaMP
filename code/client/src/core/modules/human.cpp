@@ -327,16 +327,21 @@ namespace MafiaMP::Core::Modules {
         } break;
 
         case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR: {
-            auto human2CarWrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
-            if (human2CarWrapper && charController->GetCarHandler()->GetCarState() == 2) /* entering */ {
-                auto *car         = (SDK::C_Car *)human->GetOwner();
-                auto *carEnt      = Vehicle::GetByCar(car);
-                if (carEnt) {
-                    data.carPassenger = {carEnt->GetNetworkID(), (int)human2CarWrapper->GetSeatID(human)};
-                }
-            }
-            else if (human2CarWrapper && charController->GetCarHandler()->GetCarState() == 8) /* leaving */ {
+            // Report the car and seat on every frame of the car handler, not only while entering:
+            // that single sample missed fast entries and never saw a seat switch, so the seat
+            // never reached the server and other players could not put us in the car.
+            using CarHandler      = SDK::ue::game::humanai::C_CharacterStateHandlerCar;
+            auto *carHandler      = charController->GetCarHandler();
+            auto human2CarWrapper = carHandler->GetHuman2CarWrapper();
+            const auto carState   = carHandler->GetCarState();
+            const bool leaving    = carState == CarHandler::E_CS_GETTING_OUT || carState == CarHandler::E_CS_FAST_EXIT || carState == CarHandler::E_CS_LEAVE_START || carState == CarHandler::E_CS_LEAVE;
+            if (leaving) {
                 data.carPassenger = {};
+            }
+            else if (human2CarWrapper && human2CarWrapper->GetActor()) {
+                if (auto *carEnt = Vehicle::GetByCar(human2CarWrapper->GetActor())) {
+                    data.carPassenger = {carEnt->GetNetworkID(), static_cast<int>(human2CarWrapper->GetSeatID(human))};
+                }
             }
         } break;
         }
