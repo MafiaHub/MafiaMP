@@ -13,7 +13,7 @@ const utils = {
     }
 };
 
-// Export via Framework.Exports for cross-resource access
-Framework.Exports.register("utils", utils);
+// Register through the global Exports object for cross-resource access
+Exports.register("utils", utils);
 
 module.exports = utils;
