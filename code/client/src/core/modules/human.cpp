@@ -215,7 +215,8 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::RequestPed() {
-        info = Core::gApplication->GetEntityFactory()->RequestHuman(modelHash);
+        appliedSkin = modelHash;
+        info        = Core::gApplication->GetEntityFactory()->RequestHuman(modelHash);
         interpolator.GetPosition()->SetCompensationFactor(1.5f);
 
         info->SetBeforeSpawnCallback([](Game::Streaming::EntityTrackingInfo *) {
@@ -242,11 +243,29 @@ namespace MafiaMP::Core::Modules {
     void Human::SerializeFields(Framework::Networking::Replication::FieldSerializer &fields) {
         HumanEntity::SerializeFields(fields);
         if (!fields.Writing() && !isLocalPlayer) {
+            if (info && modelHash != 0 && modelHash != appliedSkin) {
+                pendingReskin = true;
+            }
             ApplyRemote();
         }
     }
 
     void Human::Frame() {
+        // Swap a remote ped for one of its new spawn profile. Done here rather than while
+        // deserializing, so the entity factory is not re-entered from a replication callback.
+        if (!isLocalPlayer && pendingReskin) {
+            pendingReskin = false;
+            if (info) {
+                Core::gApplication->GetEntityFactory()->ReturnEntity(info);
+                info = nullptr;
+            }
+            human          = nullptr;
+            charController = nullptr;
+            enterState     = STATE_OUTSIDE;
+            enterForced    = false;
+            RequestPed();
+            return;
+        }
         if (isLocalPlayer) {
             ReadLocal();
         }
@@ -351,12 +370,6 @@ namespace MafiaMP::Core::Modules {
     void Human::ApplyRemote() {
         if (!human || !charController) {
             return;
-        }
-
-        // Apply a replicated skin change.
-        if (modelHash != appliedSkin) {
-            appliedSkin = modelHash;
-            // TODO: re-skin a remote ped (local player handled by the game directly).
         }
 
         // Keep remote peds from dying due to client-only factors; health comes from the owner.
