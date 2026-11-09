@@ -66,6 +66,9 @@ namespace SDK {
     void C_HumanScript::ScrAttack(C_Entity *ent) {
         hook::this_call(gPatterns.C_HumanScript__ScrAttack, this, ent);
     }
+    void C_HumanScript::ScrStopAllAnimations() {
+        hook::this_call(gPatterns.C_HumanScript__ScrStopAllAnimations, this);
+    }
     void C_HumanScript::SetStealthMove(bool move) {
         hook::this_call(gPatterns.C_HumanScript__SetStealthMove, this, move);
     }

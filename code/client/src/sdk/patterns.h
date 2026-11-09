@@ -55,6 +55,7 @@ namespace SDK {
         // C_CharacterController
         uint64_t C_CharacterController__ActivateHandler                   = 0x0;
         uint64_t C_CharacterController__DeactivateHandler_FromPlayerInput = 0x0;
+        uint64_t C_CharacterController__ProcessAILocomotionRequest        = 0x0;
         uint64_t C_CharacterController__TriggerActorActionById            = 0x0;
 
         // C_CharacterStateHandlerAim
@@ -248,6 +249,7 @@ namespace SDK {
         uint64_t C_HumanScript__ScrAim         = 0x0;
         uint64_t C_HumanScript__ScrAimAt       = 0x0;
         uint64_t C_HumanScript__ScrAttack      = 0x0;
+        uint64_t C_HumanScript__ScrStopAllAnimations = 0x0;
         uint64_t C_HumanScript__SetHealth      = 0x0;
         uint64_t C_HumanScript__SetStealthMove = 0x0;
 
@@ -481,6 +483,10 @@ namespace SDK {
         uint64_t C_VehicleRealLightManager__SetPlayerLights        = 0x0;
         uint64_t C_VehicleRealLightManager__SetReflectorLightsOn   = 0x0;
         uint64_t C_VehicleRealLightManager__SetVisible             = 0x0;
+
+        // S_HumanAIRequestPlayAnimation
+        uint64_t S_HumanAIRequestPlayAnimation__Constructor = 0x0;
+        uint64_t S_HumanAIRequestList__CollectWeakProxies   = 0x0;
 
         // C_WAnimPlaybackManager
         uint64_t C_WAnimPlaybackManager__PlayState = 0x0;
