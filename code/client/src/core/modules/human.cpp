@@ -60,22 +60,26 @@ namespace MafiaMP::Core::Modules {
 
         void PrunePendingWeapons() {
             const auto now = std::chrono::steady_clock::now();
-            std::erase_if(pendingWeapons, [now](const auto &entry) {
-                return entry.second.empty() || now - entry.second.back().receivedAt > kPendingWeaponLifetime;
+            for (auto &[id, grants] : pendingWeapons) {
+                std::erase_if(grants, [now](const PendingWeapon &grant) {
+                    return now - grant.receivedAt > kPendingWeaponLifetime;
+                });
+            }
+            std::erase_if(pendingWeapons, [](const auto &entry) {
+                return entry.second.empty();
             });
         }
 
         void ApplyPendingWeapons(Human *self) {
+            // Without a ped there is nothing to arm yet: keep the grants until they expire.
             const auto it = pendingWeapons.find(self->GetNetworkID());
-            if (it == pendingWeapons.end()) {
+            if (it == pendingWeapons.end() || !self->human) {
                 return;
             }
             const auto now = std::chrono::steady_clock::now();
-            if (self->human) {
-                for (const auto &grant : it->second) {
-                    if (now - grant.receivedAt <= kPendingWeaponLifetime) {
-                        self->human->GetInventoryWrapper()->AddWeapon(grant.weaponId, grant.ammo);
-                    }
+            for (const auto &grant : it->second) {
+                if (now - grant.receivedAt <= kPendingWeaponLifetime) {
+                    self->human->GetInventoryWrapper()->AddWeapon(grant.weaponId, grant.ammo);
                 }
             }
             pendingWeapons.erase(it);
