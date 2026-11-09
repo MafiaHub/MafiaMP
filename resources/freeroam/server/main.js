@@ -6,6 +6,7 @@
 console.log("[FREEROAM] === SCRIPT LOADING ===");
 
 const { SPAWN_POINT, VEHICLE_SPAWNS, WEATHER_SETS, TP_DESTINATIONS } = require("./config.js");
+const { SKINS } = require("./skins.js");
 console.log("[FREEROAM] Config loaded, VEHICLE_SPAWNS count:", VEHICLE_SPAWNS.length);
 
 // Get utils from shared-utils resource export
@@ -129,6 +130,28 @@ Events.on("chatCommand", (player, message, command, args) => {
 });
 
 // ========== CHAT COMMANDS ==========
+
+registerChatCommand("skin", (player, message, command, args) => {
+    if (!args[0]) {
+        Chat.sendToPlayer(player, `[SERVER] Current skin: ${player.skin}. Usage: /skin <name|path|hash> (see /skins)`);
+        return;
+    }
+
+    // A short name from skins.js, or anything Human.setSkin takes (profile path or hash).
+    if (!player.setSkin(SKINS[args[0]] || args[0])) {
+        Chat.sendToPlayer(player, `[SERVER] Invalid skin "${args[0]}".`);
+        return;
+    }
+    Chat.sendToPlayer(player, `[SERVER] Skin set to ${args[0]}.`);
+});
+
+registerChatCommand("skins", (player, message, command, args) => {
+    const filter = args[0];
+    const names = Object.keys(SKINS).filter((name) => !filter || name.includes(filter)).sort();
+    for (let i = 0; i < names.length; i += 6) {
+        Chat.sendToPlayer(player, names.slice(i, i + 6).join(", "));
+    }
+});
 
 registerChatCommand("veh", (player, message, command, args) => {
     const modelName = args[0] || "berkley_810";
