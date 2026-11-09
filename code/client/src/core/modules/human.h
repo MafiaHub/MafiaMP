@@ -50,6 +50,9 @@ namespace MafiaMP::Core::Modules {
         // Per-frame driver for this human.
         void Frame();
 
+        // Local player: switch the game's player model to modelHash when it changed.
+        void ApplyLocalSkin();
+
         // Teleport the local player's game ped to this entity's replicated transform.
         void TeleportLocalToReplicated();
 
