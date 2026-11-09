@@ -167,13 +167,29 @@ namespace MafiaMP::Core::Modules {
         Core::gApplication->SetLocalPlayer(this);
         // Adopt the server-assigned spawn that arrived with construction.
         TeleportLocalToReplicated();
+        // Wear the spawn profile the server assigned, if it differs from the current model.
+        appliedSkin = Game::Helpers::Controls::GetLocalPlayerSpawnProfile();
+        ApplyLocalSkin();
+    }
+
+    void Human::ApplyLocalSkin() {
+        if (modelHash == 0 || modelHash == appliedSkin) {
+            return;
+        }
+        appliedSkin = modelHash;
+        Game::Helpers::Controls::PlayerChangeSpawnProfile(modelHash);
     }
 
     void Human::OnStateForced() {
         // ReadForcedState applied the server's authoritative position/rotation; move the game ped to
         // match. We then resume streaming the ped's transform from the corrected state.
         if (isLocalPlayer) {
-            TeleportLocalToReplicated();
+            // A push made for another field echoes our own pose back; only warp when the server
+            // actually moved us.
+            if (WasPoseForced()) {
+                TeleportLocalToReplicated();
+            }
+            ApplyLocalSkin();
         }
     }
 
