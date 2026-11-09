@@ -2,6 +2,7 @@
 
 #include "core/builtins/builtins.h"
 #include "core/builtins/chat.h"
+#include "core/builtins/human.h"
 #include "core/builtins/player.h"
 #include "core/builtins/vehicle.h"
 
@@ -11,6 +12,7 @@
 #include "shared/rpc/ids.h"
 
 #include <core_modules.h>
+#include <integrations/server/scripting/module.h>
 #include <networking/network_server.h>
 #include <networking/replication/replication_manager.h>
 
@@ -274,6 +276,21 @@ namespace MafiaMP {
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kVehiclePlayerEnter), &OnVehiclePlayerEnter, nullptr, 0);
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kVehiclePlayerLeave), &OnVehiclePlayerLeave, nullptr, 0);
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kSpawnCar), &OnSpawnCar, nullptr, 0);
+    }
+
+    void Server::PostScriptInit() {
+        // Every resource runs in an isolate of its own: drop our class wrappers before the
+        // isolate goes away, or they leak and a reused isolate address resolves a stale one.
+        auto *scripting = GetScriptingModule();
+        auto *engine    = scripting ? scripting->GetEngine() : nullptr;
+        if (!engine) {
+            return;
+        }
+        engine->AddRuntimeDisposingListener([](v8::Isolate *isolate) {
+            Scripting::Vehicle::UnregisterIsolate(isolate);
+            Scripting::Player::UnregisterIsolate(isolate);
+            Scripting::Human::UnregisterIsolate(isolate);
+        });
     }
 
     void Server::ModuleRegister(Framework::Scripting::Engine *engine) {

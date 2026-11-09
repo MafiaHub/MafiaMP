@@ -18,6 +18,7 @@ namespace MafiaMP {
         };
 
         void PostInit() override;
+        void PostScriptInit() override;
         void PostUpdate() override;
         void PreShutdown() override;
         void ModuleRegister(Framework::Scripting::Engine *engine) override;
