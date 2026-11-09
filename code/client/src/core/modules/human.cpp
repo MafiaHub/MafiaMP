@@ -378,8 +378,13 @@ namespace MafiaMP::Core::Modules {
             if (!seated) {
                 enterState = STATE_OUTSIDE;
             }
-            else if (enterState == STATE_INSIDE && Game::Helpers::Human::RemoveFromCar(charController, (SDK::C_Car *)human->GetOwner(), false)) {
-                enterState = STATE_LEAVING;
+            else if (enterState == STATE_INSIDE) {
+                // The car the game seated the ped in; the ped's owner is not that car for a ped
+                // put in through an enter action, and the leave action then failed every time.
+                auto *wrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
+                if (wrapper && Game::Helpers::Human::RemoveFromCar(charController, wrapper->GetActor(), false)) {
+                    enterState = STATE_LEAVING;
+                }
             }
             if (enterState == STATE_LEAVING) {
                 charController->SetDesiredHandlerType(SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_NONE);
