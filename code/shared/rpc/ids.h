@@ -11,10 +11,12 @@ namespace MafiaMP::Shared::RPC {
     // on the replicated entity and syncs via the DeltaSerializer, not via RPC.
 
     // Human events (relayed from the acting client to others; the first field is the actor NetworkID)
-    inline constexpr auto kHumanShoot     = FW_RPC_IDENTIFIER("MafiaMP::HumanShoot");
-    inline constexpr auto kHumanReload    = FW_RPC_IDENTIFIER("MafiaMP::HumanReload");
-    inline constexpr auto kHumanDeath     = FW_RPC_IDENTIFIER("MafiaMP::HumanDeath");
-    inline constexpr auto kHumanAddWeapon = FW_RPC_IDENTIFIER("MafiaMP::HumanAddWeapon");
+    inline constexpr auto kHumanShoot          = FW_RPC_IDENTIFIER("MafiaMP::HumanShoot");
+    inline constexpr auto kHumanReload         = FW_RPC_IDENTIFIER("MafiaMP::HumanReload");
+    inline constexpr auto kHumanDeath          = FW_RPC_IDENTIFIER("MafiaMP::HumanDeath");
+    inline constexpr auto kHumanAddWeapon      = FW_RPC_IDENTIFIER("MafiaMP::HumanAddWeapon");
+    inline constexpr auto kHumanPlayAnimation  = FW_RPC_IDENTIFIER("MafiaMP::HumanPlayAnimation");
+    inline constexpr auto kHumanStopAnimations = FW_RPC_IDENTIFIER("MafiaMP::HumanStopAnimations");
 
     // Vehicle events (player resolved from the sender; carries the vehicle NetworkID)
     inline constexpr auto kVehiclePlayerEnter = FW_RPC_IDENTIFIER("MafiaMP::VehiclePlayerEnter");

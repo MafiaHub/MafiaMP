@@ -19,11 +19,12 @@
 #include "sdk/c_player_teleport_module.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
+#include "sdk/ue/game/ai/s_human_ai_request_play_animation.h"
 #include "sdk/ue/game/anim/e_wanim_behavior_var.h"
+#include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/ue/game/human/c_behavior_character.h"
 #include "sdk/ue/game/humanai/c_character_state_handler.h"
 #include "sdk/ue/game/vehicle/c_vehicle.h"
-#include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
 
 #include "shared/entities/register_entities.h"
@@ -35,6 +36,7 @@
 #include <networking/replication/replication_manager.h>
 
 #include <mafianet/bit_stream.h>
+#include <mafianet/string.h>
 
 namespace MafiaMP::Core::Modules {
     namespace {
@@ -147,6 +149,41 @@ namespace MafiaMP::Core::Modules {
             self->human->GetInventoryWrapper()->AddWeapon(weaponId, ammo);
         }
 
+        // Wire: <human NetworkID><animation name><loop>
+        void OnHumanPlayAnimation(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
+            uint64_t id = 0;
+            MafiaNet::RakString name;
+            bool loop = false;
+            if (!bs->Read(id) || !bs->Read(name) || !bs->Read(loop) || name.IsEmpty()) {
+                return;
+            }
+
+            // Animations are transient: a human that is not spawned here simply misses it.
+            auto *self = ResolveHuman(id);
+            if (!self || !self->human) {
+                return;
+            }
+            self->PlayAnimationRequest(name.C_String(), loop);
+            self->scriptedAnimation        = true;
+            self->scriptedAnimationStarted = false;
+            self->scriptedAnimationAt      = std::chrono::steady_clock::now();
+        }
+
+        // Wire: <human NetworkID>
+        void OnHumanStopAnimations(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
+            uint64_t id = 0;
+            if (!bs->Read(id)) {
+                return;
+            }
+            auto *self = ResolveHuman(id);
+            if (!self || !self->human) {
+                return;
+            }
+            self->human->GetHumanScript()->ScrStopAllAnimations();
+            self->scriptedAnimation = false;
+            self->ReleaseAnimationRequest();
+        }
+
     } // namespace
 
     void Human::OnConstructed() {
@@ -211,6 +248,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::DeallocReplica(MafiaNet::Connection_RM3 *) {
+        ReleaseAnimationRequest();
         if (isLocalPlayer) {
             if (Core::gApplication->GetLocalPlayer() == this) {
                 Core::gApplication->SetLocalPlayer(nullptr);
@@ -230,8 +268,62 @@ namespace MafiaMP::Core::Modules {
         }
     }
 
+    void Human::PlayAnimationRequest(char const *animationName, bool loop) {
+        if (!charController) {
+            return;
+        }
+        ReleaseAnimationRequest();
+
+        // Build the request the play-animation AI action would and hand it to the controller
+        // directly, for the local player and remote peds alike: a remote ped's AI never runs that
+        // action, and one path for both keeps their animations in step (the AI restarts a looped
+        // animation itself, the request loops it in the handler). The controller only keeps a weak
+        // pointer to the request: hold it until the animation is over.
+        animationRequest = SDK::ue::game::ai::S_HumanAIRequestPlayAnimation::Create(animationName, loop);
+        if (!animationRequest) {
+            return;
+        }
+        animationRequestProxy = animationRequest->CreateWeakProxy();
+
+        // A remote ped's controller switches to the desired handler on every frame and drops AI
+        // requests; let the game drive it while the animation plays.
+        if (!isLocalPlayer) {
+            charController->SetDesiredHandlerType(SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_NONE);
+            charController->SetGameDriven(true);
+        }
+        if (animationRequestProxy) {
+            static_cast<SDK::ue::game::humanai::C_CharacterController *>(charController)->ProcessAILocomotionRequest(&animationRequestProxy);
+        }
+    }
+
+    void Human::ReleaseAnimationRequest() {
+        if (charController && !isLocalPlayer) {
+            charController->SetGameDriven(false);
+        }
+        if (animationRequestProxy) {
+            animationRequestProxy->Release();
+            animationRequestProxy = nullptr;
+        }
+        if (animationRequest) {
+            animationRequest->Release();
+            animationRequest = nullptr;
+        }
+    }
+
     void Human::Frame() {
         if (isLocalPlayer) {
+            // Release the request once the animation is over (finished, or interrupted by moving),
+            // or if it never started.
+            if (scriptedAnimation && charController) {
+                const bool playing = charController->GetCurrentStateHandlerType() == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_PLAYANIM;
+                scriptedAnimationStarted |= playing;
+                const bool ended   = scriptedAnimationStarted && !playing;
+                const bool expired = !scriptedAnimationStarted && std::chrono::steady_clock::now() - scriptedAnimationAt > std::chrono::seconds(1);
+                if (ended || expired) {
+                    scriptedAnimation = false;
+                    ReleaseAnimationRequest();
+                }
+            }
             ReadLocal();
         }
         else if (human) {
@@ -374,6 +466,23 @@ namespace MafiaMP::Core::Modules {
         interpolator.GetPosition()->SetTargetValue({human->GetPos().x, human->GetPos().y, human->GetPos().z}, position, MafiaMP::Core::gApplication->GetTickInterval());
         interpolator.GetRotation()->SetTargetValue({human->GetRot().w, human->GetRot().x, human->GetRot().y, human->GetRot().z}, rotation, MafiaMP::Core::gApplication->GetTickInterval());
 
+        // Forcing the replicated handler or move state would cancel a scripted animation. Follow
+        // the owner instead: keep animating while its replicated handler is the play-animation
+        // one, and release the ped once the owner left it (finished, stopped or moved away) or
+        // never entered it.
+        if (scriptedAnimation) {
+            const bool ownerPlaying = desiredStateHandlerType == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_PLAYANIM;
+            scriptedAnimationStarted |= ownerPlaying;
+            const bool ended   = scriptedAnimationStarted && !ownerPlaying;
+            const bool expired = !scriptedAnimationStarted && std::chrono::steady_clock::now() - scriptedAnimationAt > std::chrono::milliseconds(1500);
+            if (!ended && !expired) {
+                return;
+            }
+            scriptedAnimation = false;
+            human->GetHumanScript()->ScrStopAllAnimations();
+            ReleaseAnimationRequest();
+        }
+
         charController->SetDesiredHandlerType(desiredStateHandlerType);
         charController->SetStalkMoveOverride(data._isStalking);
         const auto hmm = data._moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(data._moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
@@ -454,6 +563,8 @@ namespace MafiaMP::Core::Modules {
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanShoot), &OnHumanShoot, nullptr, 0);
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanReload), &OnHumanReload, nullptr, 0);
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanAddWeapon), &OnHumanAddWeapon, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanPlayAnimation), &OnHumanPlayAnimation, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanStopAnimations), &OnHumanStopAnimations, nullptr, 0);
     }
 
     void Human::UpdateAll() {

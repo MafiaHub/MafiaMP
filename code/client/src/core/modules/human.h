@@ -1,5 +1,7 @@
 #pragma once
 
+#include <chrono>
+
 #include "shared/entities/human_entity.h"
 
 #include "sdk/entities/c_player_2.h"
@@ -20,6 +22,11 @@ enum CarEnterStates {
     STATE_INSIDE
 };
 
+namespace SDK::ue::game::ai {
+    class S_HumanAIRequestPlayAnimation;
+    class S_HumanAIRequestWeakProxy;
+} // namespace SDK::ue::game::ai
+
 namespace MafiaMP::Core::Modules {
     // Client-side replicated human: a HumanEntity that also owns and drives the local game ped.
     // Remote humans apply the replicated state to their ped (interpolated); the local player reads
@@ -34,6 +41,19 @@ namespace MafiaMP::Core::Modules {
         // Local enter/leave-vehicle state machine.
         CarEnterStates enterState = STATE_OUTSIDE;
         bool enterForced          = false;
+
+        // Set while a scripted animation plays: a remote ped is not forced into its replicated state,
+        // which would cancel the animation, and the request is released once it ends.
+        bool scriptedAnimation        = false;
+        bool scriptedAnimationStarted = false;
+        std::chrono::steady_clock::time_point scriptedAnimationAt {};
+
+        // The play-animation request handed to the controller, held while it plays.
+        SDK::ue::game::ai::S_HumanAIRequestPlayAnimation *animationRequest  = nullptr;
+        SDK::ue::game::ai::S_HumanAIRequestWeakProxy *animationRequestProxy = nullptr;
+
+        void PlayAnimationRequest(char const *animationName, bool loop);
+        void ReleaseAnimationRequest();
 
         bool isLocalPlayer = false;
 
