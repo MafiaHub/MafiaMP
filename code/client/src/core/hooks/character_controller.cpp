@@ -88,7 +88,15 @@ typedef void(__fastcall *C_CharacterController__UpdateLocomotionHandlers_t)(SDK:
 C_CharacterController__UpdateLocomotionHandlers_t C_CharacterController__UpdateLocomotionHandlers_Original = nullptr;
 void __fastcall C_CharacterController__UpdateLocomotionHandlers(SDK::ue::game::humanai::C_CharacterController *pCharCtrler, float a2) {
     if (MafiaMP::Game::Overrides::CharacterController::IsInstanceOfClass(pCharCtrler)) {
-        ((MafiaMP::Game::Overrides::CharacterController *)pCharCtrler)->OnUpdateLocomotionHandlers(a2);
+        auto *controller = reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(pCharCtrler);
+        // A scripted animation activates the play-animation handler through an AI request, and
+        // only the game's own update runs it.
+        if (controller->IsGameDriven()) {
+            C_CharacterController__UpdateLocomotionHandlers_Original(pCharCtrler, a2);
+            return;
+        }
+
+        controller->OnUpdateLocomotionHandlers(a2);
 
         SDK::ue::game::humanai::C_CharacterStateHandler *pCurrentStateHandler = pCharCtrler->GetCurrentStateHandler();
         if (pCurrentStateHandler) {
@@ -122,7 +130,9 @@ void __fastcall C_CharacterController__UpdateAIFreq(SDK::ue::game::humanai::C_Ch
 typedef void(__fastcall *C_CharacterController__ProcessAILocomotionRequest_t)(SDK::ue::game::humanai::C_CharacterController *, void *);
 C_CharacterController__ProcessAILocomotionRequest_t C_CharacterController__ProcessAILocomotionRequest_Original = nullptr;
 void __fastcall C_CharacterController__ProcessAILocomotionRequest(SDK::ue::game::humanai::C_CharacterController *pCharCtrler, void *a2) {
-    if (MafiaMP::Game::Overrides::CharacterController::IsInstanceOfClass(pCharCtrler)) {
+    // Remote peds follow replication, not their AI; a scripted animation, though, is delivered as
+    // an AI request that switches them to the play-animation handler.
+    if (MafiaMP::Game::Overrides::CharacterController::IsInstanceOfClass(pCharCtrler) && !reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(pCharCtrler)->IsGameDriven()) {
         return;
     }
 
