@@ -285,6 +285,17 @@ namespace MafiaMP {
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kSpawnCar), &OnSpawnCar, nullptr, 0);
     }
 
+    v8::Local<v8::Value> Server::WrapScriptPlayer(v8::Isolate *isolate, uint64_t networkId) {
+        // Events.onClient handlers get our Player, like every other player event does.
+        try {
+            Scripting::Player::GetClass(isolate);
+            return v8pp::class_<Scripting::Player>::create_object(isolate, networkId);
+        }
+        catch (const std::exception &) {
+            return Instance::WrapScriptPlayer(isolate, networkId);
+        }
+    }
+
     void Server::PostScriptInit() {
         // Every resource runs in an isolate of its own: drop our class wrappers before the
         // isolate goes away, or they leak and a reused isolate address resolves a stale one.

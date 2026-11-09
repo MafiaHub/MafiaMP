@@ -27,6 +27,7 @@ namespace MafiaMP {
         void OnPlayerDisconnect(MafiaNet::PeerGuid guid) override;
         void OnChatMessage(uint64_t senderId, const std::string &text) override;
         void OnChatCommand(uint64_t senderId, const std::string &text, const std::string &command, const std::vector<std::string> &args) override;
+        v8::Local<v8::Value> WrapScriptPlayer(v8::Isolate *isolate, uint64_t networkId) override;
 
         const Environment &GetEnvironment() const {
             return _environment;
