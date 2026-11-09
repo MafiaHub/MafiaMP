@@ -369,10 +369,12 @@ namespace MafiaMP::Core::Modules {
 
         const auto desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(data._charStateHandlerType);
 
-        // Leave the car if we are no longer a passenger.
-        if (data.carPassenger.carId == 0 && enterState == STATE_INSIDE) {
-            enterState = STATE_LEAVING;
-            if (Game::Helpers::Human::RemoveFromCar(charController, (SDK::C_Car *)human->GetOwner(), false)) {
+        // Leave the car if we are no longer a passenger. A ped that never got seated cannot be
+        // removed: count it as outside, or it stays LEAVING and never enters a car again.
+        if (data.carPassenger.carId == 0 && (enterState == STATE_INSIDE || enterState == STATE_LEAVING)) {
+            enterState        = STATE_LEAVING;
+            const bool seated = charController->GetCurrentStateHandlerType() == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR;
+            if (!seated || Game::Helpers::Human::RemoveFromCar(charController, (SDK::C_Car *)human->GetOwner(), false)) {
                 enterState = STATE_OUTSIDE;
             }
         }
