@@ -154,6 +154,12 @@ namespace MafiaMP::Core::Modules {
             BindLocalPlayer();
         }
         else {
+            // A human streamed in while already seated has no enter to watch: warp it into its
+            // seat as soon as its ped exists.
+            if (data.carPassenger.carId != 0) {
+                enterState  = STATE_ENTERING;
+                enterForced = true;
+            }
             RequestPed();
         }
     }
