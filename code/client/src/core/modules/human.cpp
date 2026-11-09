@@ -241,10 +241,18 @@ namespace MafiaMP::Core::Modules {
                     auto *car = Vehicle::GetByNetworkId(data.carPassenger.carId);
                     if (car && car->car) {
                         if (Game::Helpers::Human::PutIntoCar(charController, car->car, data.carPassenger.seatId, enterForced)) {
-                            enterState  = STATE_INSIDE;
-                            enterForced = false;
+                            enterState    = STATE_INSIDE;
+                            enterForced   = false;
+                            enterIssuedAt = std::chrono::steady_clock::now();
                         }
                     }
+                }
+                // The enter action can be accepted and still never seat the ped, for instance when
+                // the car is already moving. Instead of leaving it to float beside the car, retry
+                // once the action had time to finish and warp it into the seat.
+                else if (enterState == STATE_INSIDE && data.carPassenger.carId != 0 && std::chrono::steady_clock::now() - enterIssuedAt > kEnterCarTimeout) {
+                    enterState  = STATE_ENTERING;
+                    enterForced = true;
                 }
                 else if (!SDK::ue::game::humanai::C_CharacterStateHandler::IsVehicleStateHandlerType(charController->GetCurrentStateHandlerType())) {
                     const auto humanPos = human->GetPos();
