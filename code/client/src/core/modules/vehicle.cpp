@@ -200,8 +200,8 @@ namespace MafiaMP::Core::Modules {
         // Set the interpolation target toward the replicated transform.
         const auto vehicleRot = car->GetRot();
         const auto vehiclePos = car->GetPos();
-        interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, rotation, MafiaMP::Core::gApplication->GetTickInterval());
-        interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, position, MafiaMP::Core::gApplication->GetTickInterval());
+        interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, rotation, MafiaMP::Core::gApplication->GetTickIntervalMs());
+        interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, position, MafiaMP::Core::gApplication->GetTickIntervalMs());
 
         ApplyConfig();
 

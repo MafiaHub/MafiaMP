@@ -379,8 +379,8 @@ namespace MafiaMP::Core::Modules {
         }
 
         // Set the interpolation target toward the replicated transform.
-        interpolator.GetPosition()->SetTargetValue({human->GetPos().x, human->GetPos().y, human->GetPos().z}, position, MafiaMP::Core::gApplication->GetTickInterval());
-        interpolator.GetRotation()->SetTargetValue({human->GetRot().w, human->GetRot().x, human->GetRot().y, human->GetRot().z}, rotation, MafiaMP::Core::gApplication->GetTickInterval());
+        interpolator.GetPosition()->SetTargetValue({human->GetPos().x, human->GetPos().y, human->GetPos().z}, position, MafiaMP::Core::gApplication->GetTickIntervalMs());
+        interpolator.GetRotation()->SetTargetValue({human->GetRot().w, human->GetRot().x, human->GetRot().y, human->GetRot().z}, rotation, MafiaMP::Core::gApplication->GetTickIntervalMs());
 
         charController->SetDesiredHandlerType(desiredStateHandlerType);
         charController->SetStalkMoveOverride(data._isStalking);
