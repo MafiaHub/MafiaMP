@@ -9,6 +9,7 @@
 #include <networking/replication/replication_manager.h>
 
 #include <mafianet/bit_stream.h>
+#include <mafianet/string.h>
 
 namespace MafiaMP::Scripting {
 
@@ -50,6 +51,32 @@ void Human::AddWeapon(int weaponId, int ammo) {
     bs.Write(weaponId);
     bs.Write(ammo);
     net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kHumanAddWeapon), &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
+}
+
+void Human::PlayAnimation(const std::string &name, bool loop) {
+    auto *net = Framework::CoreModules::GetNetworkPeer();
+    if (!net || name.empty()) {
+        return;
+    }
+    // Wire: <human NetworkID><animation name><loop>
+    MafiaNet::BitStream bs;
+    uint64_t id = _id;
+    bs.Write(id);
+    bs.Write(MafiaNet::RakString(name.c_str()));
+    bs.Write(loop);
+    net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kHumanPlayAnimation), &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
+}
+
+void Human::StopAnimations() {
+    auto *net = Framework::CoreModules::GetNetworkPeer();
+    if (!net) {
+        return;
+    }
+    // Wire: <human NetworkID>
+    MafiaNet::BitStream bs;
+    uint64_t id = _id;
+    bs.Write(id);
+    net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kHumanStopAnimations), &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, MafiaNet::UNASSIGNED_RAKNET_GUID, true, false);
 }
 
 Framework::Scripting::Builtins::Vector3 Human::GetAimDir() const {
@@ -122,6 +149,8 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
             .auto_wrap_objects(true)
             .ctor<uint64_t>()
             .function("toString", &Human::ToString)
+            .function("playAnimation", &Human::PlayAnimation)
+            .function("stopAnimations", &Human::StopAnimations)
             .function("addWeapon", &Human::AddWeapon)
             .property("aiming", &Human::IsAiming)
             .property("firing", &Human::IsFiring)
