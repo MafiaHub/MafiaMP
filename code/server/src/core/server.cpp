@@ -16,6 +16,7 @@
 #include <networking/network_server.h>
 #include <networking/replication/replication_manager.h>
 
+#include <scripting/builtins/builtins.h>
 #include <scripting/node_engine.h>
 #include <scripting/resource/resource_manager.h>
 
@@ -164,6 +165,12 @@ namespace MafiaMP {
 
     void Server::PostInit() {
         _serverRef = this;
+
+        // Handles crossing into a resource are rebuilt in its isolate; without these, ours
+        // arrive there as the Framework's Player and Entity. Bases before derived classes.
+        Framework::Scripting::Builtins::RegisterHandleTransfer<Scripting::Human>("MafiaMP::Human");
+        Framework::Scripting::Builtins::RegisterHandleTransfer<Scripting::Player>("MafiaMP::Player");
+        Framework::Scripting::Builtins::RegisterHandleTransfer<Scripting::Vehicle>("MafiaMP::Vehicle");
 
         // Register the replicated entity types so the server can construct them.
         Shared::Entities::RegisterEntities();
