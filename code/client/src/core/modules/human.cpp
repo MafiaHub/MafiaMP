@@ -369,13 +369,21 @@ namespace MafiaMP::Core::Modules {
 
         const auto desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(data._charStateHandlerType);
 
-        // Leave the car if we are no longer a passenger. A ped that never got seated cannot be
-        // removed: count it as outside, or it stays LEAVING and never enters a car again.
+        // Leave the car if we are no longer a passenger. The ped counts as outside only once it is
+        // out of the car handler (a ped that never got seated already is), and while it gets out
+        // no handler is forced on it: the controller switches to the desired handler every frame,
+        // which would pull the ped out of its exit animation.
         if (data.carPassenger.carId == 0 && (enterState == STATE_INSIDE || enterState == STATE_LEAVING)) {
-            enterState        = STATE_LEAVING;
             const bool seated = charController->GetCurrentStateHandlerType() == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR;
-            if (!seated || Game::Helpers::Human::RemoveFromCar(charController, (SDK::C_Car *)human->GetOwner(), false)) {
+            if (!seated) {
                 enterState = STATE_OUTSIDE;
+            }
+            else if (enterState == STATE_INSIDE && Game::Helpers::Human::RemoveFromCar(charController, (SDK::C_Car *)human->GetOwner(), false)) {
+                enterState = STATE_LEAVING;
+            }
+            if (enterState == STATE_LEAVING) {
+                charController->SetDesiredHandlerType(SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_NONE);
+                return;
             }
         }
 
