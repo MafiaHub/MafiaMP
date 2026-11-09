@@ -113,6 +113,10 @@ namespace SDK {
         E_AA_REVIVE                     = 0x44,
     };
 
+    namespace ue::game::ai {
+        class S_HumanAIRequestWeakProxy;
+    } // namespace ue::game::ai
+
     namespace ue::game::humanai {
         class I_CharacterController {
           public:
@@ -270,6 +274,7 @@ namespace SDK {
                 m_SprintMoveSpeed = sprintMoveSpeed;
             }
             bool TriggerActorAction(C_Actor *, E_ActorActions, int, bool, bool);
+            void ProcessAILocomotionRequest(ai::S_HumanAIRequestWeakProxy **request);
         };
         static_assert(sizeof(C_CharacterController) == 848, "Wrong size: ue::game::humanai::C_CharacterController");
     } // namespace ue::game::humanai
