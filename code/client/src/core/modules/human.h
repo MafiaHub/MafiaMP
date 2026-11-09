@@ -39,6 +39,8 @@ namespace MafiaMP::Core::Modules {
 
         // Last skin applied to the game ped, to detect replicated skin changes.
         uint64_t appliedSkin = 0;
+        // A remote ped cannot change spawn profile in place; Frame() re-requests it.
+        bool pendingReskin = false;
 
         // --- Replica3 hooks ---
         void OnConstructed() override;
