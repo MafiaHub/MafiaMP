@@ -207,6 +207,10 @@ namespace MafiaMP::Core::Modules {
     void Human::RequestPed() {
         info = Core::gApplication->GetEntityFactory()->RequestHuman(modelHash);
         interpolator.GetPosition()->SetCompensationFactor(1.5f);
+        // Snapshots arrive every tick: let each one correct the whole error before the next. The
+        // default range (100-400 ms) applies a quarter of it at our rate and the ped trails behind.
+        interpolator.GetPosition()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
+        interpolator.GetRotation()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
 
         info->SetBeforeSpawnCallback([](Game::Streaming::EntityTrackingInfo *) {
             CreateNetCharacterController = true;
