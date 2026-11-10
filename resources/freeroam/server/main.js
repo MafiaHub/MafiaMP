@@ -6,10 +6,11 @@
 console.log("[FREEROAM] === SCRIPT LOADING ===");
 
 const { SPAWN_POINT, VEHICLE_SPAWNS, WEATHER_SETS, TP_DESTINATIONS } = require("./config.js");
+const { SKINS } = require("./skins.js");
 console.log("[FREEROAM] Config loaded, VEHICLE_SPAWNS count:", VEHICLE_SPAWNS.length);
 
 // Get utils from shared-utils resource export
-const utils = Framework.Exports.get("shared-utils", "utils");
+const utils = Exports.get("shared-utils", "utils");
 
 // Load debug handlers
 require("./debug.js");
@@ -28,7 +29,7 @@ function registerChatCommand(name, handler) {
 
 // Resource lifecycle
 console.log("[FREEROAM] Registering resourceStart handler...");
-Core.Events.on('resourceStart', (resourceName) => {
+Events.on('resourceStart', (resourceName) => {
     console.log("[FREEROAM] resourceStart fired for:", resourceName);
     if (resourceName !== 'freeroam') return;
 
@@ -51,21 +52,21 @@ Core.Events.on('resourceStart', (resourceName) => {
     }
 });
 
-Core.Events.on('resourceStop', (resourceName) => {
+Events.on('resourceStop', (resourceName) => {
     if (resourceName !== 'freeroam') return;
 
     console.log("[FREEROAM] Resource stopping!");
 });
 
 // Vehicle events
-Core.Events.on("vehiclePlayerEnter", (vehicle, player, seatIndex) => {
+Events.on("vehiclePlayerEnter", (vehicle, player, seatIndex) => {
     console.log(
         `[FREEROAM] Player ${player.nickname} entered vehicle ${vehicle.modelName} (id: ${vehicle.id}) at seat ${seatIndex}.`
     );
     vehicle.engineOn = true;
 });
 
-Core.Events.on("vehiclePlayerLeave", (vehicle, player) => {
+Events.on("vehiclePlayerLeave", (vehicle, player) => {
     console.log(
         `[FREEROAM] Player ${player.nickname} exited vehicle ${vehicle.modelName} (id: ${vehicle.id}).`
     );
@@ -73,7 +74,7 @@ Core.Events.on("vehiclePlayerLeave", (vehicle, player) => {
 });
 
 // Player events
-Core.Events.on("playerConnect", (player) => {
+Events.on("playerConnect", (player) => {
     console.log(`[FREEROAM] Player ${player.nickname} connected!`);
     Chat.sendToAll(`[SERVER] ${player.nickname} has joined the session!`);
 
@@ -83,12 +84,12 @@ Core.Events.on("playerConnect", (player) => {
     Chat.sendToPlayer(player, `[SERVER] Welcome ${player.nickname}!`);
 });
 
-Core.Events.on("playerDisconnect", (player) => {
+Events.on("playerDisconnect", (player) => {
     console.log(`[FREEROAM] Player ${player.nickname} disconnected.`);
     Chat.sendToAll(`[SERVER] ${player.nickname} has left the session.`);
 });
 
-Core.Events.on("playerDied", (player) => {
+Events.on("playerDied", (player) => {
     console.log(`[FREEROAM] Player ${player.nickname} died.`);
     Chat.sendToAll(`[SERVER] ${player.nickname} died.`);
 
@@ -99,7 +100,7 @@ Core.Events.on("playerDied", (player) => {
 });
 
 // Chat events
-Core.Events.on("chatMessage", (player, message) => {
+Events.on("chatMessage", (player, message) => {
     console.log(`[FREEROAM] Player ${player.nickname} said: ${message}`);
     Chat.sendToAll(`<${player.nickname}>: ${message}`);
 });
@@ -109,13 +110,13 @@ Core.Events.on("chatMessage", (player, message) => {
  * @param {Player} player
  * @param {string} foo
  */
-Core.Events.on("myCustomEvent", (player, foo) => {
+Events.on("myCustomEvent", (player, foo) => {
     console.log(`[FREEROAM] ${player.nickname} triggered a custom event with foo: ${foo}`);
     Chat.sendToPlayer(player,`[SERVER] ${player.nickname} triggered a custom event with foo: ${foo}`);
 });
 
 // Chat command handler
-Core.Events.on("chatCommand", (player, message, command, args) => {
+Events.on("chatCommand", (player, message, command, args) => {
     console.log(`[FREEROAM] Player ${player.nickname} used command: "${command}". (${message}).`);
 
     const foundCommand = REGISTERED_CHAT_COMMANDS[command];
@@ -129,6 +130,28 @@ Core.Events.on("chatCommand", (player, message, command, args) => {
 });
 
 // ========== CHAT COMMANDS ==========
+
+registerChatCommand("skin", (player, message, command, args) => {
+    if (!args[0]) {
+        Chat.sendToPlayer(player, `[SERVER] Current skin: ${player.skin}. Usage: /skin <name|path|hash> (see /skins)`);
+        return;
+    }
+
+    // A short name from skins.js, or anything Human.setSkin takes (profile path or hash).
+    if (!player.setSkin(SKINS[args[0]] || args[0])) {
+        Chat.sendToPlayer(player, `[SERVER] Invalid skin "${args[0]}".`);
+        return;
+    }
+    Chat.sendToPlayer(player, `[SERVER] Skin set to ${args[0]}.`);
+});
+
+registerChatCommand("skins", (player, message, command, args) => {
+    const filter = args[0];
+    const names = Object.keys(SKINS).filter((name) => !filter || name.includes(filter)).sort();
+    for (let i = 0; i < names.length; i += 6) {
+        Chat.sendToPlayer(player, names.slice(i, i + 6).join(", "));
+    }
+});
 
 registerChatCommand("veh", (player, message, command, args) => {
     const modelName = args[0] || "berkley_810";
@@ -249,11 +272,11 @@ registerChatCommand("colors", (player, message, command, args) => {
 
     const getRandomColor = () => Math.floor(Math.random() * 256);
 
-    const colorPrimary = Core.Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
+    const colorPrimary = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.colorPrimary = colorPrimary;
     Chat.sendToPlayer(player,`[SERVER] Primary color is now ${colorPrimary.r}, ${colorPrimary.g}, ${colorPrimary.b}!`);
 
-    const colorSecondary = Core.Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
+    const colorSecondary = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.colorSecondary = colorSecondary;
     Chat.sendToPlayer(player,`[SERVER] Secondary color is now ${colorSecondary.r}, ${colorSecondary.g}, ${colorSecondary.b}!`);
 });
@@ -268,11 +291,11 @@ registerChatCommand("wheelcol", (player, message, command, args) => {
 
     const getRandomColor = () => Math.floor(Math.random() * 256);
 
-    const rimColor = Core.Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
+    const rimColor = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.rimColor = rimColor;
     Chat.sendToPlayer(player,`[SERVER] Rim color is now ${rimColor.r}, ${rimColor.g}, ${rimColor.b}!`);
 
-    const tireColor = Core.Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
+    const tireColor = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor());
     veh.tireColor = tireColor;
     Chat.sendToPlayer(player,`[SERVER] Tire color is now ${tireColor.r}, ${tireColor.g}, ${tireColor.b}!`);
 });
@@ -287,7 +310,7 @@ registerChatCommand("wintint", (player, message, command, args) => {
 
     const getRandomColor = () => Math.floor(Math.random() * 256);
 
-    const windowTint = Core.Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor());
+    const windowTint = Color.fromRGB(getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor());
     veh.windowTint = windowTint;
     Chat.sendToPlayer(player,`[SERVER] Window tint is now ${windowTint.r}, ${windowTint.g}, ${windowTint.b}, ${windowTint.a}!`);
 });
@@ -336,7 +359,7 @@ registerChatCommand("coords", (player, message, command, args) => {
         return;
     }
 
-    player.position = new Core.Vector3(x, y, z);
+    player.position = new Vector3(x, y, z);
     Chat.sendToPlayer(player,`[SERVER] Teleported to ${x}, ${y}, ${z}!`);
 });
 
@@ -382,7 +405,7 @@ registerChatCommand("weather", (player, message, command, args) => {
 });
 
 registerChatCommand("customevent", (player, message, command, args) => {
-    Core.Events.emit("myCustomEvent", player, "bar");
+    Events.emit("myCustomEvent", player, "bar");
 });
 
 // ========== COLLECTION TEST COMMANDS ==========

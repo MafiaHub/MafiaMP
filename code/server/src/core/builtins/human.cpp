@@ -12,8 +12,6 @@
 
 namespace MafiaMP::Scripting {
 
-std::unique_ptr<v8pp::class_<Human>> Human::_class;
-
 Human::Human(uint64_t networkId): Framework::Scripting::Builtins::Player(networkId) {
     if (!ResolveHuman()) {
         throw std::runtime_error("Entity handle is not a Human!");
@@ -85,6 +83,50 @@ uint16_t Human::GetWeaponId() const {
     return h ? h->data.weaponData.currentWeaponId : 0;
 }
 
+namespace {
+    // A hash written in decimal or with a 0x prefix, else the profile path hashed like the game's
+    // C_HashName (FNV-1, 64-bit). Zero means invalid.
+    uint64_t ParseSpawnProfile(const std::string &value) {
+        if (value.empty()) {
+            return 0;
+        }
+        const bool hex       = value.size() > 2 && value[0] == '0' && (value[1] == 'x' || value[1] == 'X');
+        const auto digits    = hex ? value.substr(2) : value;
+        const auto allowed   = hex ? "0123456789abcdefABCDEF" : "0123456789";
+        const bool isNumeric = !digits.empty() && digits.find_first_not_of(allowed) == std::string::npos;
+        if (isNumeric) {
+            try {
+                return std::stoull(digits, nullptr, hex ? 16 : 10);
+            }
+            catch (const std::exception &) {
+                return 0;
+            }
+        }
+        uint64_t hash = 0xcbf29ce484222325ULL;
+        for (const unsigned char c : value) {
+            hash = (hash * 0x100000001b3ULL) ^ c;
+        }
+        return hash;
+    }
+} // namespace
+
+bool Human::SetSkin(const std::string &skin) {
+    auto *h                = ResolveHuman();
+    const uint64_t profile = ParseSpawnProfile(skin);
+    if (!h || profile == 0) {
+        return false;
+    }
+    h->modelHash = profile;
+    // Remote clients get it through the deltas, the owner through the forced state.
+    h->ForceState();
+    return true;
+}
+
+std::string Human::GetSkin() const {
+    auto *h = ResolveHuman();
+    return h ? std::to_string(h->modelHash) : "0";
+}
+
 std::string Human::GetNickname() const {
     auto *h = ResolveHuman();
     return h ? h->nickname : "";
@@ -115,16 +157,18 @@ int Human::GetVehicleSeatIndex() const {
 }
 
 v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
-    if (!_class) {
+    return _classes.Get(isolate, [isolate]() {
         // v8pp inherit<Player> requires Player registered first.
         Framework::Scripting::Builtins::Player::GetClass(isolate);
 
-        _class = std::make_unique<v8pp::class_<Human>>(isolate);
-        _class->inherit<Framework::Scripting::Builtins::Player>()
+        auto cls = std::make_unique<v8pp::class_<Human>>(isolate);
+        cls->inherit<Framework::Scripting::Builtins::Player>()
             .auto_wrap_objects(true)
             .ctor<uint64_t>()
             .function("toString", &Human::ToString)
             .function("addWeapon", &Human::AddWeapon)
+            .function("setSkin", &Human::SetSkin)
+            .property("skin", &Human::GetSkin)
             .property("aiming", &Human::IsAiming)
             .property("firing", &Human::IsFiring)
             .property("aimDir", &Human::GetAimDir)
@@ -141,9 +185,13 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
                 info.GetReturnValue().Set(self->GetVehicle(info.GetIsolate()));
             }
         });
-        _class->accessor_property("vehicle", vehicleGetter, v8::Local<v8::FunctionTemplate>(), {});
-    }
-    return *_class;
+        cls->accessor_property("vehicle", vehicleGetter, v8::Local<v8::FunctionTemplate>(), {});
+        return cls;
+    });
+}
+
+void Human::UnregisterIsolate(v8::Isolate *isolate) {
+    _classes.Unregister(isolate);
 }
 
 void Human::Register(v8::Isolate *isolate, v8::Local<v8::Object> global) {

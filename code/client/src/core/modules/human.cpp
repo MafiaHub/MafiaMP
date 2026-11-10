@@ -167,13 +167,29 @@ namespace MafiaMP::Core::Modules {
         Core::gApplication->SetLocalPlayer(this);
         // Adopt the server-assigned spawn that arrived with construction.
         TeleportLocalToReplicated();
+        // Wear the spawn profile the server assigned, if it differs from the current model.
+        appliedSkin = Game::Helpers::Controls::GetLocalPlayerSpawnProfile();
+        ApplyLocalSkin();
+    }
+
+    void Human::ApplyLocalSkin() {
+        if (modelHash == 0 || modelHash == appliedSkin) {
+            return;
+        }
+        appliedSkin = modelHash;
+        Game::Helpers::Controls::PlayerChangeSpawnProfile(modelHash);
     }
 
     void Human::OnStateForced() {
         // ReadForcedState applied the server's authoritative position/rotation; move the game ped to
         // match. We then resume streaming the ped's transform from the corrected state.
         if (isLocalPlayer) {
-            TeleportLocalToReplicated();
+            // A push made for another field echoes our own pose back; only warp when the server
+            // actually moved us.
+            if (WasPoseForced()) {
+                TeleportLocalToReplicated();
+            }
+            ApplyLocalSkin();
         }
     }
 
@@ -199,7 +215,8 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::RequestPed() {
-        info = Core::gApplication->GetEntityFactory()->RequestHuman(modelHash);
+        appliedSkin = modelHash;
+        info        = Core::gApplication->GetEntityFactory()->RequestHuman(modelHash);
         interpolator.GetPosition()->SetCompensationFactor(1.5f);
 
         info->SetBeforeSpawnCallback([](Game::Streaming::EntityTrackingInfo *) {
@@ -226,11 +243,29 @@ namespace MafiaMP::Core::Modules {
     void Human::SerializeFields(Framework::Networking::Replication::FieldSerializer &fields) {
         HumanEntity::SerializeFields(fields);
         if (!fields.Writing() && !isLocalPlayer) {
+            if (info && modelHash != 0 && modelHash != appliedSkin) {
+                pendingReskin = true;
+            }
             ApplyRemote();
         }
     }
 
     void Human::Frame() {
+        // Swap a remote ped for one of its new spawn profile. Done here rather than while
+        // deserializing, so the entity factory is not re-entered from a replication callback.
+        if (!isLocalPlayer && pendingReskin) {
+            pendingReskin = false;
+            if (info) {
+                Core::gApplication->GetEntityFactory()->ReturnEntity(info);
+                info = nullptr;
+            }
+            human          = nullptr;
+            charController = nullptr;
+            enterState     = STATE_OUTSIDE;
+            enterForced    = false;
+            RequestPed();
+            return;
+        }
         if (isLocalPlayer) {
             ReadLocal();
         }
@@ -335,12 +370,6 @@ namespace MafiaMP::Core::Modules {
     void Human::ApplyRemote() {
         if (!human || !charController) {
             return;
-        }
-
-        // Apply a replicated skin change.
-        if (modelHash != appliedSkin) {
-            appliedSkin = modelHash;
-            // TODO: re-skin a remote ped (local player handled by the game directly).
         }
 
         // Keep remote peds from dying due to client-only factors; health comes from the owner.

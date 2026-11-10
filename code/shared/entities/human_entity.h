@@ -49,6 +49,13 @@ namespace MafiaMP::Shared::Entities {
             fields.Field(data);
         }
 
+        // The owner is authoritative over its human, so a server-side spawn profile change
+        // reaches it through ForceState rather than the per-tick deltas.
+        void SerializeForcedState(Replication::FieldSerializer &fields) override {
+            NetworkEntity::SerializeForcedState(fields);
+            fields.Field(modelHash);
+        }
+
         // A seated player is meaningless without the car under them.
         Replication::NetworkEntity *GetInterestDependency() override {
             return data.carPassenger.carId != 0 ? ResolveSibling(data.carPassenger.carId) : nullptr;

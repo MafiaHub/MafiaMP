@@ -1,5 +1,6 @@
 #pragma once
 
+#include <scripting/class_cache.h>
 #include <v8.h>
 #include <v8pp/class.hpp>
 #include <v8pp/convert.hpp>
@@ -27,8 +28,11 @@ namespace MafiaMP::Scripting {
 
         static void Register(v8::Isolate *isolate, v8::Local<v8::Object> global);
         static v8pp::class_<Player> &GetClass(v8::Isolate *isolate);
+        // Drops the isolate's class before the isolate is disposed.
+        static void UnregisterIsolate(v8::Isolate *isolate);
 
       private:
-        static std::unique_ptr<v8pp::class_<Player>> _class;
+        // One class per isolate: every resource runs in an isolate of its own.
+        inline static Framework::Scripting::ClassCache<Player> _classes;
     };
 } // namespace MafiaMP::Scripting

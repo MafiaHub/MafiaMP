@@ -14,8 +14,6 @@
 
 namespace MafiaMP::Scripting {
 
-std::unique_ptr<v8pp::class_<Vehicle>> Vehicle::_class;
-
 namespace {
     template <typename ArgsBuilder>
     void EmitVehicleEvent(const std::string &eventName, ArgsBuilder &&buildArgs) {
@@ -219,10 +217,10 @@ void Vehicle::SetWindowTint(Framework::Scripting::Builtins::Color color) {
 }
 
 v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
-    if (!_class) {
-        _class = std::make_unique<v8pp::class_<Vehicle>>(isolate);
-        _class->auto_wrap_objects(true);
-        _class->inherit<Framework::Scripting::Builtins::Entity>()
+    return _classes.Get(isolate, [isolate]() {
+        auto cls = std::make_unique<v8pp::class_<Vehicle>>(isolate);
+        cls->auto_wrap_objects(true);
+        cls->inherit<Framework::Scripting::Builtins::Entity>()
             .ctor<uint64_t>()
             .function("toString", &Vehicle::ToString)
             .property("modelName", &Vehicle::GetModelName)
@@ -241,8 +239,12 @@ v8pp::class_<Vehicle> &Vehicle::GetClass(v8::Isolate *isolate) {
             .property("sirenOn", &Vehicle::GetSirenOn, &Vehicle::SetSirenOn)
             .property("tireColor", &Vehicle::GetTireColor, &Vehicle::SetTireColor)
             .property("windowTint", &Vehicle::GetWindowTint, &Vehicle::SetWindowTint);
-    }
-    return *_class;
+        return cls;
+    });
+}
+
+void Vehicle::UnregisterIsolate(v8::Isolate *isolate) {
+    _classes.Unregister(isolate);
 }
 
 void Vehicle::Register(v8::Isolate *isolate, v8::Local<v8::Object> global) {

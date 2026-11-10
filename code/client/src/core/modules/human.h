@@ -39,6 +39,8 @@ namespace MafiaMP::Core::Modules {
 
         // Last skin applied to the game ped, to detect replicated skin changes.
         uint64_t appliedSkin = 0;
+        // A remote ped cannot change spawn profile in place; Frame() re-requests it.
+        bool pendingReskin = false;
 
         // --- Replica3 hooks ---
         void OnConstructed() override;
@@ -49,6 +51,9 @@ namespace MafiaMP::Core::Modules {
 
         // Per-frame driver for this human.
         void Frame();
+
+        // Local player: switch the game's player model to modelHash when it changed.
+        void ApplyLocalSkin();
 
         // Teleport the local player's game ped to this entity's replicated transform.
         void TeleportLocalToReplicated();
