@@ -34,6 +34,9 @@ namespace MafiaMP::Core::UI {
 
         virtual void OnUpdate() override;
 
+        // The chat holds one control lock exactly while it is focused.
+        void SetFocused(bool focused);
+
       public:
         Chat(): UIBase() {};
 
