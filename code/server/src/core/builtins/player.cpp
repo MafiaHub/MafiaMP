@@ -11,8 +11,6 @@
 
 namespace MafiaMP::Scripting {
 
-std::unique_ptr<v8pp::class_<Player>> Player::_class;
-
 namespace {
     void EmitPlayerEvent(uint64_t networkId, const std::string &eventName) {
         auto server = MafiaMP::Server::_serverRef;
@@ -83,16 +81,20 @@ void Player::SendChat(std::string message) {
 }
 
 v8pp::class_<Player> &Player::GetClass(v8::Isolate *isolate) {
-    if (!_class) {
-        _class = std::make_unique<v8pp::class_<Player>>(isolate);
-        _class->auto_wrap_objects(true);
-        _class->inherit<Human>()
+    return _classes.Get(isolate, [isolate]() {
+        auto cls = std::make_unique<v8pp::class_<Player>>(isolate);
+        cls->auto_wrap_objects(true);
+        cls->inherit<Human>()
             .ctor<uint64_t>()
             .function("toString", &Player::ToString)
             .function("destroy", &Player::Destroy)
             .function("sendChat", &Player::SendChat);
-    }
-    return *_class;
+        return cls;
+    });
+}
+
+void Player::UnregisterIsolate(v8::Isolate *isolate) {
+    _classes.Unregister(isolate);
 }
 
 void Player::Register(v8::Isolate *isolate, v8::Local<v8::Object> global) {

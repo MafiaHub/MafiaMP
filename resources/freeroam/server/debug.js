@@ -7,11 +7,11 @@ const { ENABLE_DEBUG } = require("./config.js");
 
 if (ENABLE_DEBUG) {
     // Debug: Log all vehicle streaming events
-    Core.Events.on("onStreamIn", (entity) => {
+    Events.on("onStreamIn", (entity) => {
         console.log(`[DEBUG] Entity streamed in: ${entity.id}`);
     });
 
-    Core.Events.on("onStreamOut", (entity) => {
+    Events.on("onStreamOut", (entity) => {
         console.log(`[DEBUG] Entity streamed out: ${entity.id}`);
     });
 }

@@ -12,8 +12,6 @@
 
 namespace MafiaMP::Scripting {
 
-std::unique_ptr<v8pp::class_<Human>> Human::_class;
-
 Human::Human(uint64_t networkId): Framework::Scripting::Builtins::Player(networkId) {
     if (!ResolveHuman()) {
         throw std::runtime_error("Entity handle is not a Human!");
@@ -115,12 +113,12 @@ int Human::GetVehicleSeatIndex() const {
 }
 
 v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
-    if (!_class) {
+    return _classes.Get(isolate, [isolate]() {
         // v8pp inherit<Player> requires Player registered first.
         Framework::Scripting::Builtins::Player::GetClass(isolate);
 
-        _class = std::make_unique<v8pp::class_<Human>>(isolate);
-        _class->inherit<Framework::Scripting::Builtins::Player>()
+        auto cls = std::make_unique<v8pp::class_<Human>>(isolate);
+        cls->inherit<Framework::Scripting::Builtins::Player>()
             .auto_wrap_objects(true)
             .ctor<uint64_t>()
             .function("toString", &Human::ToString)
@@ -141,9 +139,13 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
                 info.GetReturnValue().Set(self->GetVehicle(info.GetIsolate()));
             }
         });
-        _class->accessor_property("vehicle", vehicleGetter, v8::Local<v8::FunctionTemplate>(), {});
-    }
-    return *_class;
+        cls->accessor_property("vehicle", vehicleGetter, v8::Local<v8::FunctionTemplate>(), {});
+        return cls;
+    });
+}
+
+void Human::UnregisterIsolate(v8::Isolate *isolate) {
+    _classes.Unregister(isolate);
 }
 
 void Human::Register(v8::Isolate *isolate, v8::Local<v8::Object> global) {
