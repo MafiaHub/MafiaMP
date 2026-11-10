@@ -40,6 +40,9 @@ namespace MafiaMP {
         static inline Server *_serverRef = nullptr;
 
       private:
+        // Hands each vehicle to its driver's client, or back to the server when nobody drives.
+        void SyncVehicleDrivers();
+
         void InitNetworkingMessages();
         void InitRPCs();
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <chrono>
+
 #include "shared/entities/human_entity.h"
 
 #include "sdk/entities/c_player_2.h"
@@ -34,6 +36,10 @@ namespace MafiaMP::Core::Modules {
         // Local enter/leave-vehicle state machine.
         CarEnterStates enterState = STATE_OUTSIDE;
         bool enterForced          = false;
+        // When the last enter action was issued; a ped still not seated after kEnterCarTimeout is
+        // warped into its seat.
+        std::chrono::steady_clock::time_point enterIssuedAt {};
+        static constexpr auto kEnterCarTimeout = std::chrono::seconds(2);
 
         bool isLocalPlayer = false;
 

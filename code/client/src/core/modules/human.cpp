@@ -154,6 +154,12 @@ namespace MafiaMP::Core::Modules {
             BindLocalPlayer();
         }
         else {
+            // A human streamed in while already seated has no enter to watch: warp it into its
+            // seat as soon as its ped exists.
+            if (data.carPassenger.carId != 0) {
+                enterState  = STATE_ENTERING;
+                enterForced = true;
+            }
             RequestPed();
         }
     }
@@ -201,6 +207,10 @@ namespace MafiaMP::Core::Modules {
     void Human::RequestPed() {
         info = Core::gApplication->GetEntityFactory()->RequestHuman(modelHash);
         interpolator.GetPosition()->SetCompensationFactor(1.5f);
+        // Snapshots arrive every tick: let each one correct the whole error before the next. The
+        // default range (100-400 ms) applies a quarter of it at our rate and the ped trails behind.
+        interpolator.GetPosition()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
+        interpolator.GetRotation()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
 
         info->SetBeforeSpawnCallback([](Game::Streaming::EntityTrackingInfo *) {
             CreateNetCharacterController = true;
@@ -241,10 +251,18 @@ namespace MafiaMP::Core::Modules {
                     auto *car = Vehicle::GetByNetworkId(data.carPassenger.carId);
                     if (car && car->car) {
                         if (Game::Helpers::Human::PutIntoCar(charController, car->car, data.carPassenger.seatId, enterForced)) {
-                            enterState  = STATE_INSIDE;
-                            enterForced = false;
+                            enterState    = STATE_INSIDE;
+                            enterForced   = false;
+                            enterIssuedAt = std::chrono::steady_clock::now();
                         }
                     }
+                }
+                // The enter action can be accepted and still never seat the ped, for instance when
+                // the car is already moving. Instead of leaving it to float beside the car, retry
+                // once the action had time to finish and warp it into the seat.
+                else if (enterState == STATE_INSIDE && data.carPassenger.carId != 0 && std::chrono::steady_clock::now() - enterIssuedAt > kEnterCarTimeout) {
+                    enterState  = STATE_ENTERING;
+                    enterForced = true;
                 }
                 else if (!SDK::ue::game::humanai::C_CharacterStateHandler::IsVehicleStateHandlerType(charController->GetCurrentStateHandlerType())) {
                     const auto humanPos = human->GetPos();
@@ -313,16 +331,21 @@ namespace MafiaMP::Core::Modules {
         } break;
 
         case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR: {
-            auto human2CarWrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
-            if (human2CarWrapper && charController->GetCarHandler()->GetCarState() == 2) /* entering */ {
-                auto *car         = (SDK::C_Car *)human->GetOwner();
-                auto *carEnt      = Vehicle::GetByCar(car);
-                if (carEnt) {
-                    data.carPassenger = {carEnt->GetNetworkID(), (int)human2CarWrapper->GetSeatID(human)};
-                }
-            }
-            else if (human2CarWrapper && charController->GetCarHandler()->GetCarState() == 8) /* leaving */ {
+            // Report the car and seat on every frame of the car handler, not only while entering:
+            // that single sample missed fast entries and never saw a seat switch, so the seat
+            // never reached the server and other players could not put us in the car.
+            using CarHandler      = SDK::ue::game::humanai::C_CharacterStateHandlerCar;
+            auto *carHandler      = charController->GetCarHandler();
+            auto human2CarWrapper = carHandler->GetHuman2CarWrapper();
+            const auto carState   = carHandler->GetCarState();
+            const bool leaving    = carState == CarHandler::E_CS_GETTING_OUT || carState == CarHandler::E_CS_FAST_EXIT || carState == CarHandler::E_CS_LEAVE_START || carState == CarHandler::E_CS_LEAVE;
+            if (leaving) {
                 data.carPassenger = {};
+            }
+            else if (human2CarWrapper && human2CarWrapper->GetActor()) {
+                if (auto *carEnt = Vehicle::GetByCar(human2CarWrapper->GetActor())) {
+                    data.carPassenger = {carEnt->GetNetworkID(), static_cast<int>(human2CarWrapper->GetSeatID(human))};
+                }
             }
         } break;
         }
@@ -350,11 +373,26 @@ namespace MafiaMP::Core::Modules {
 
         const auto desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(data._charStateHandlerType);
 
-        // Leave the car if we are no longer a passenger.
-        if (data.carPassenger.carId == 0 && enterState == STATE_INSIDE) {
-            enterState = STATE_LEAVING;
-            if (Game::Helpers::Human::RemoveFromCar(charController, (SDK::C_Car *)human->GetOwner(), false)) {
+        // Leave the car if we are no longer a passenger. The ped counts as outside only once it is
+        // out of the car handler (a ped that never got seated already is), and while it gets out
+        // no handler is forced on it: the controller switches to the desired handler every frame,
+        // which would pull the ped out of its exit animation.
+        if (data.carPassenger.carId == 0 && (enterState == STATE_INSIDE || enterState == STATE_LEAVING)) {
+            const bool seated = charController->GetCurrentStateHandlerType() == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR;
+            if (!seated) {
                 enterState = STATE_OUTSIDE;
+            }
+            else if (enterState == STATE_INSIDE) {
+                // The car the game seated the ped in; the ped's owner is not that car for a ped
+                // put in through an enter action, and the leave action then failed every time.
+                auto *wrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
+                if (wrapper && Game::Helpers::Human::RemoveFromCar(charController, wrapper->GetActor(), false)) {
+                    enterState = STATE_LEAVING;
+                }
+            }
+            if (enterState == STATE_LEAVING) {
+                charController->SetDesiredHandlerType(SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_NONE);
+                return;
             }
         }
 
@@ -371,8 +409,8 @@ namespace MafiaMP::Core::Modules {
         }
 
         // Set the interpolation target toward the replicated transform.
-        interpolator.GetPosition()->SetTargetValue({human->GetPos().x, human->GetPos().y, human->GetPos().z}, position, MafiaMP::Core::gApplication->GetTickInterval());
-        interpolator.GetRotation()->SetTargetValue({human->GetRot().w, human->GetRot().x, human->GetRot().y, human->GetRot().z}, rotation, MafiaMP::Core::gApplication->GetTickInterval());
+        interpolator.GetPosition()->SetTargetValue({human->GetPos().x, human->GetPos().y, human->GetPos().z}, position, MafiaMP::Core::gApplication->GetTickIntervalMs());
+        interpolator.GetRotation()->SetTargetValue({human->GetRot().w, human->GetRot().x, human->GetRot().y, human->GetRot().z}, rotation, MafiaMP::Core::gApplication->GetTickIntervalMs());
 
         charController->SetDesiredHandlerType(desiredStateHandlerType);
         charController->SetStalkMoveOverride(data._isStalking);
