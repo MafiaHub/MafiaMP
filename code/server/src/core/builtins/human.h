@@ -6,6 +6,7 @@
 #include <v8pp/convert.hpp>
 
 #include "shared/entities/human_entity.h"
+#include "shared/outfits.h"
 
 #include <scripting/builtins/player.h>
 #include <scripting/builtins/vector3.h>
@@ -41,6 +42,9 @@ namespace MafiaMP::Scripting {
         // "visuals/hero/game_main_tommy_casual", hashed as the game does. False when the value is
         // invalid or the human is gone.
         bool SetSkin(const std::string &skin);
+        // Dresses the human in the given pieces, on the template's body; returns the outfit's
+        // spawn profile hash ("" if invalid).
+        std::string SetOutfit(const std::vector<Shared::Outfits::Piece> &pieces, const std::string &templateProfile);
         // Current spawn profile hash, as a decimal string: it does not fit a JS number.
         std::string GetSkin() const;
 

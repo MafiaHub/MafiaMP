@@ -2,6 +2,8 @@
 
 #include "vehicle.h"
 
+#include "core/server.h"
+#include "shared/outfits.h"
 #include "shared/rpc/ids.h"
 
 #include <core_modules.h>
@@ -122,6 +124,21 @@ bool Human::SetSkin(const std::string &skin) {
     return true;
 }
 
+std::string Human::SetOutfit(const std::vector<Shared::Outfits::Piece> &pieces, const std::string &templateProfile) {
+    // The default spawn profile is the template unless the script names one, e.g. a female body.
+    constexpr uint64_t kDefaultTemplate = 335218123840277515ULL;
+    auto *h                             = ResolveHuman();
+    auto *server                        = Server::_serverRef;
+    const uint64_t base                 = templateProfile.empty() ? kDefaultTemplate : ParseSpawnProfile(templateProfile);
+    const uint64_t profile              = (h && server && base) ? server->GetOutfits().Define(pieces, base) : 0;
+    if (profile == 0) {
+        return "";
+    }
+    h->modelHash = profile;
+    h->ForceState();
+    return std::to_string(profile);
+}
+
 std::string Human::GetSkin() const {
     auto *h = ResolveHuman();
     return h ? std::to_string(h->modelHash) : "0";
@@ -186,6 +203,41 @@ v8pp::class_<Human> &Human::GetClass(v8::Isolate *isolate) {
             }
         });
         cls->accessor_property("vehicle", vehicleGetter, v8::Local<v8::FunctionTemplate>(), {});
+
+        // setOutfit(pieces, template?): pieces as [piece, package] or {piece, package} ids, written
+        // in decimal or with 0x. Returns the outfit's spawn profile, as skin does, or "" if invalid.
+        cls->prototype_function("setOutfit", [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+            auto *isolate = info.GetIsolate();
+            auto ctx      = isolate->GetCurrentContext();
+            auto *self    = v8pp::class_<Human>::unwrap_object(isolate, info.This());
+            if (!self || info.Length() < 1 || !info[0]->IsArray()) {
+                isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "setOutfit requires an array of pieces")));
+                return;
+            }
+            auto id = [&](v8::Local<v8::Value> value) {
+                return value->IsString() ? ParseSpawnProfile(v8pp::from_v8<std::string>(isolate, value)) : 0;
+            };
+            auto list = info[0].As<v8::Array>();
+            std::vector<Shared::Outfits::Piece> pieces;
+            for (uint32_t i = 0; i < list->Length(); ++i) {
+                auto item = list->Get(ctx, i).ToLocalChecked();
+                Shared::Outfits::Piece piece;
+                if (item->IsArray() && item.As<v8::Array>()->Length() >= 2) {
+                    piece = {id(item.As<v8::Array>()->Get(ctx, 0).ToLocalChecked()), id(item.As<v8::Array>()->Get(ctx, 1).ToLocalChecked())};
+                }
+                else if (item->IsObject()) {
+                    auto object = item.As<v8::Object>();
+                    piece       = {id(object->Get(ctx, v8pp::to_v8(isolate, "piece")).ToLocalChecked()), id(object->Get(ctx, v8pp::to_v8(isolate, "package")).ToLocalChecked())};
+                }
+                if (piece.pieceId == 0 || piece.packageId == 0) {
+                    isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "setOutfit: a piece needs a piece and a package id")));
+                    return;
+                }
+                pieces.push_back(piece);
+            }
+            const std::string templateProfile = (info.Length() >= 2 && info[1]->IsString()) ? v8pp::from_v8<std::string>(isolate, info[1]) : "";
+            info.GetReturnValue().Set(v8pp::to_v8(isolate, self->SetOutfit(pieces, templateProfile)));
+        });
         return cls;
     });
 }
