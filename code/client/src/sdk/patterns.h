@@ -317,6 +317,7 @@ namespace SDK {
         // C_Navigation
         uint64_t C_Navigation__EnableGPSCustomPath       = 0x0;
         uint64_t C_Navigation__GetInstance               = 0x0;
+        uint64_t C_Navigation__RegisterHumanEntity       = 0x0;
         uint64_t C_Navigation__RegisterHumanPlayer       = 0x0;
         uint64_t C_Navigation__RegisterHumanPolice       = 0x0;
         uint64_t C_Navigation__RegisterVehicleCommon     = 0x0;

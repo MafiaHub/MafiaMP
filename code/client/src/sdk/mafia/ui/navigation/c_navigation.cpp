@@ -16,6 +16,10 @@ namespace SDK {
             hook::this_call(gPatterns.C_Navigation__SetUserMark, this, worldPos, distance);
         }
 
+        uint32_t C_Navigation::RegisterHumanEntity(C_Human2 *human, int type, int subtype, bool force) {
+            return hook::this_call<uint32_t>(gPatterns.C_Navigation__RegisterHumanEntity, this, human, type, subtype, force);
+        }
+
         int64_t C_Navigation::RegisterHumanPlayer(I_Human2 *human) {
             return hook::this_call<int64_t>(gPatterns.C_Navigation__RegisterHumanPlayer, this, human);
         }
@@ -28,8 +32,8 @@ namespace SDK {
             return hook::this_call<int64_t>(gPatterns.C_Navigation__RegisterVehicleCommon, this, ent);
         }
 
-        int64_t C_Navigation::RegisterVehicleEntity(void *ent, char const *name) {
-            return hook::this_call<int64_t>(gPatterns.C_Navigation__RegisterVehicleEntity, this, ent, name);
+        uint32_t C_Navigation::RegisterVehicleEntity(ue::sys::core::C_SceneObject *sceneObject, char const *icon) {
+            return hook::this_call<uint32_t>(gPatterns.C_Navigation__RegisterVehicleEntity, this, sceneObject, icon);
         }
 
         int64_t C_Navigation::RegisterVehiclePolice(C_Actor *actor) {
