@@ -247,7 +247,11 @@ namespace MafiaMP::Core::Modules {
     void Human::SerializeFields(Framework::Networking::Replication::FieldSerializer &fields) {
         HumanEntity::SerializeFields(fields);
         if (!fields.Writing() && !isLocalPlayer) {
-            ApplyRemote();
+            // Applied as its pose is shown, not as it arrives (see Frame).
+            pendingStates.push_back({data, MafiaNet::GetTime()});
+            if (pendingStates.size() > kMaxPendingStates) {
+                pendingStates.pop_front();
+            }
         }
     }
 
@@ -256,6 +260,16 @@ namespace MafiaMP::Core::Modules {
             ReadLocal();
         }
         else if (human) {
+            // States arrive along with their pose, which is shown a fixed delay later: apply each
+            // one then, or the ped starts to run or stops ahead of its movement.
+            const auto due = MafiaNet::GetTime() - static_cast<MafiaNet::Time>(PoseBufferConfig().interpDelayMs);
+            while (!pendingStates.empty() && pendingStates.front().second <= due) {
+                const auto latest = data;
+                data              = pendingStates.front().first;
+                pendingStates.pop_front();
+                ApplyRemote();
+                data = latest;
+            }
             // Drive the remote ped's vehicle entry, then its interpolated transform, then UI.
             if (charController && charController->GetCurrentStateHandlerType() != SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
                 if (enterState == STATE_ENTERING) {

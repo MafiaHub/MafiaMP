@@ -14,6 +14,8 @@
 #include <utils/snapshot_buffer.h>
 
 #include <cstdint>
+#include <deque>
+#include <utility>
 
 enum CarEnterStates {
     STATE_OUTSIDE,
@@ -37,6 +39,9 @@ namespace MafiaMP::Core::Modules {
         int64_t clockOffset          = 0;
         bool clockOffsetValid        = false;
         MafiaNet::Time clockOffsetAt = 0;
+        // Remote humans: replicated states waiting for their pose to be shown, with their arrival.
+        std::deque<std::pair<Shared::Modules::HumanSync::UpdateData, MafiaNet::Time>> pendingStates;
+        static constexpr size_t kMaxPendingStates = 64;
 
         // Local enter/leave-vehicle state machine.
         CarEnterStates enterState = STATE_OUTSIDE;
