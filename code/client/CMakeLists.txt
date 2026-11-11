@@ -58,6 +58,7 @@ set(MAFIAMP_CLIENT_FILES
     src/game/helpers/game_input.cpp
     src/game/helpers/camera.cpp
     src/game/helpers/human.cpp
+    src/game/helpers/outfits.cpp
     src/game/helpers/ui.cpp
     src/game/overrides/character_controller.cpp
     ${CMAKE_BINARY_DIR}/mafiamp_version.cpp
