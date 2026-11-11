@@ -472,3 +472,82 @@ registerChatCommand("allhealthy", (player, message, command, args) => {
     const allAlive = World.players.every(p => p.health > 0);
     Chat.sendToPlayer(player,`[SERVER] All players alive? ${allAlive ? "Yes" : "No"}`);
 });
+
+// ========== BLIPS ==========
+
+// Blips each player created, by player id.
+const PLAYER_BLIPS = new Map();
+
+function addPlayerBlip(player, blip) {
+    if (!PLAYER_BLIPS.has(player.id)) {
+        PLAYER_BLIPS.set(player.id, []);
+    }
+    PLAYER_BLIPS.get(player.id).push(blip);
+}
+
+// /blip [icon] - a blip at your position, seen by everyone.
+registerChatCommand("blip", (player, message, command, args) => {
+    const icon = args[0] || "generic";
+    let blip;
+    try {
+        blip = World.createBlip(player.position, icon);
+    } catch (e) {
+        Chat.sendToPlayer(player, `[SERVER] ${e.message}. Icons: generic, challenge, challenge_complete, weather, warning, crime, traps, car, police_car, taxi, enemy_car.`);
+        return;
+    }
+    addPlayerBlip(player, blip);
+    Chat.sendToPlayer(player, `[SERVER] Blip ${blip.id} (${blip.icon}) placed.`);
+});
+
+// /track <player id> - a blip that follows a player, seen by you.
+registerChatCommand("track", (player, message, command, args) => {
+    const targetId = parseInt(args[0]);
+    const target = World.players.find(p => p.id === targetId);
+    if (!target) {
+        Chat.sendToPlayer(player, "[SERVER] Usage: /track <player id> (see /players)");
+        return;
+    }
+    const blip = World.createBlip(target.position, "warning", player);
+    blip.attachTo(target);
+    addPlayerBlip(player, blip);
+    Chat.sendToPlayer(player, `[SERVER] Tracking ${target.nickname}.`);
+});
+
+// /trackveh [icon] - a blip that follows the vehicle you are in, seen by everyone.
+registerChatCommand("trackveh", (player, message, command, args) => {
+    const vehicle = player.vehicle;
+    if (!vehicle) {
+        Chat.sendToPlayer(player, "[SERVER] Get in a vehicle first.");
+        return;
+    }
+    const blip = World.createBlip(vehicle.position, args[0] || "car");
+    blip.attachTo(vehicle);
+    addPlayerBlip(player, blip);
+    Chat.sendToPlayer(player, `[SERVER] Tracking your ${vehicle.modelName}.`);
+});
+
+// /route [blip id] - your GPS route to a blip; without an id, the route goes away.
+registerChatCommand("route", (player, message, command, args) => {
+    const blipId = parseInt(args[0]);
+    const blips = [...PLAYER_BLIPS.values()].flat();
+    if (isNaN(blipId)) {
+        blips.forEach(blip => blip.hideRoute(player));
+        Chat.sendToPlayer(player, "[SERVER] Route cleared.");
+        return;
+    }
+    const blip = blips.find(b => b.id === blipId && b.exists);
+    if (!blip) {
+        Chat.sendToPlayer(player, `[SERVER] No blip ${blipId}.`);
+        return;
+    }
+    blip.showRoute(player);
+    Chat.sendToPlayer(player, `[SERVER] Route to blip ${blipId}.`);
+});
+
+// /blipclear - remove the blips you created.
+registerChatCommand("blipclear", (player, message, command, args) => {
+    const blips = PLAYER_BLIPS.get(player.id) || [];
+    blips.forEach(blip => blip.destroy());
+    PLAYER_BLIPS.delete(player.id);
+    Chat.sendToPlayer(player, `[SERVER] Removed ${blips.length} blip(s).`);
+});
