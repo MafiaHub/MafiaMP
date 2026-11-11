@@ -32,6 +32,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/application.cpp
     src/core/hooks/camera.cpp
     src/core/hooks/character_controller.cpp
+    src/core/hooks/doors.cpp
     src/core/hooks/hud.cpp
     src/core/hooks/human.cpp
     src/core/hooks/game_director.cpp

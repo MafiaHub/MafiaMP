@@ -11,3 +11,8 @@ namespace MafiaMP::Core::Locations {
     // The package the city stream loads in place of `sdsName`, or an empty string to keep it.
     std::string Redirect(const char *sdsName);
 } // namespace MafiaMP::Core::Locations
+
+namespace MafiaMP::Core::Doors {
+    // Unlock every door and enable it for the player as it activates.
+    void SetAllOpen(bool open);
+} // namespace MafiaMP::Core::Doors
