@@ -115,6 +115,45 @@ namespace MafiaMP::Scripting {
                               World::SetWeatherSet(*weatherSet);
                           }).ToLocalChecked()).Check();
 
+            // setLocationVariant(location, variant): the state layer a story location streams, e.g.
+            // ("hotel", "during") for its mission interior; an empty variant restores the default.
+            worldObj
+                ->Set(ctx, v8pp::to_v8(isolate, "setLocationVariant"),
+                    v8::Function::New(ctx,
+                        [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+                            auto isolate = info.GetIsolate();
+                            if (info.Length() < 2 || !info[0]->IsString() || !info[1]->IsString()) {
+                                isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "setLocationVariant requires a location and a variant")));
+                                return;
+                            }
+                            const auto location = v8pp::from_v8<std::string>(isolate, info[0]);
+                            const auto variant  = v8pp::from_v8<std::string>(isolate, info[1]);
+                            const auto valid    = [](const std::string &s) {
+                                return s.size() <= 64 && s.find_first_not_of("abcdefghijklmnopqrstuvwxyz0123456789_") == std::string::npos;
+                            };
+                            if (location.empty() || !valid(location) || !valid(variant)) {
+                                isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "setLocationVariant: invalid location or variant")));
+                                return;
+                            }
+                            if (auto *server = Server::_serverRef) {
+                                server->SetLocationVariant(location, variant);
+                            }
+                        })
+                        .ToLocalChecked())
+                .Check();
+
+            // setDoorsOpen(open): unlock every door and let players use it.
+            worldObj
+                ->Set(ctx, v8pp::to_v8(isolate, "setDoorsOpen"),
+                    v8::Function::New(ctx,
+                        [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+                            if (auto *server = Server::_serverRef) {
+                                server->SetAllDoorsOpen(info.Length() < 1 || info[0]->BooleanValue(info.GetIsolate()));
+                            }
+                        })
+                        .ToLocalChecked())
+                .Check();
+
             worldObj->Set(ctx, v8pp::to_v8(isolate, "players"), Framework::Scripting::Builtins::CreateCollectionObject<PlayerCollection>(isolate)).Check();
             worldObj->Set(ctx, v8pp::to_v8(isolate, "vehicles"), Framework::Scripting::Builtins::CreateCollectionObject<VehicleCollection>(isolate)).Check();
 
