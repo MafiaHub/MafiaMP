@@ -1,6 +1,7 @@
 set(MAFIAMP_SERVER_FILES
     src/main.cpp
     src/core/server.cpp
+    src/core/outfits.cpp
 
     src/core/builtins/human.cpp
     src/core/builtins/player.cpp

@@ -2,6 +2,8 @@
 
 #include <integrations/server/instance.h>
 
+#include "outfits.h"
+
 #include <mafianet/types.h>
 
 #include <cstdint>
@@ -37,6 +39,10 @@ namespace MafiaMP {
         // Send the current environment to one system (UNASSIGNED = broadcast to all).
         void SendEnvironment(MafiaNet::RakNetGUID target, bool broadcast) const;
 
+        Core::Outfits &GetOutfits() {
+            return _outfits;
+        }
+
         static inline Server *_serverRef = nullptr;
 
       private:
@@ -44,5 +50,6 @@ namespace MafiaMP {
         void InitRPCs();
 
         Environment _environment {};
+        Core::Outfits _outfits;
     };
 } // namespace MafiaMP

@@ -264,6 +264,7 @@ namespace MafiaMP {
         repl->SetViewer(info.guid, human);
 
         SendEnvironment(MafiaNet::ToGuid(info.guid), false);
+        _outfits.SendAll(MafiaNet::ToGuid(info.guid));
         Scripting::Player::EventPlayerConnected(human->GetNetworkID());
     }
 
