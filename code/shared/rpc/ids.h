@@ -23,4 +23,7 @@ namespace MafiaMP::Shared::RPC {
     // Commands
     inline constexpr auto kSetEnvironment = FW_RPC_IDENTIFIER("MafiaMP::SetEnvironment");
     inline constexpr auto kSpawnCar       = FW_RPC_IDENTIFIER("MafiaMP::SpawnCar");
+
+    // Outfits (server to client): the pieces of an outfit spawn profile, before a ped wears it
+    inline constexpr auto kDefineOutfit = FW_RPC_IDENTIFIER("MafiaMP::DefineOutfit");
 } // namespace MafiaMP::Shared::RPC
