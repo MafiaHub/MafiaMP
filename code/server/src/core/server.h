@@ -5,6 +5,7 @@
 #include <mafianet/types.h>
 
 #include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -37,6 +38,19 @@ namespace MafiaMP {
         // Send the current environment to one system (UNASSIGNED = broadcast to all).
         void SendEnvironment(MafiaNet::RakNetGUID target, bool broadcast) const;
 
+        // How the city streams for everyone: the state layer each story location loads (e.g.
+        // "hotel" -> "during", its mission interior), and whether every door opens.
+        struct WorldSettings {
+            bool allDoorsOpen = false;
+            std::map<std::string, std::string> locationVariants;
+        };
+        const WorldSettings &GetWorldSettings() const {
+            return _worldSettings;
+        }
+        void SetLocationVariant(const std::string &location, const std::string &variant);
+        void SetAllDoorsOpen(bool open);
+        void SendWorldSettings(MafiaNet::RakNetGUID target, bool broadcast) const;
+
         static inline Server *_serverRef = nullptr;
 
       private:
@@ -44,5 +58,6 @@ namespace MafiaMP {
         void InitRPCs();
 
         Environment _environment {};
+        WorldSettings _worldSettings {};
     };
 } // namespace MafiaMP

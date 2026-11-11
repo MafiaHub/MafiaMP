@@ -6,6 +6,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/local_player_events.cpp
     src/core/dev_features.cpp
     src/core/scene_object_registry.cpp
+    src/core/locations.cpp
     src/core/dev/local_replicator.cpp
     src/core/ui/ui_base.cpp
     src/core/ui/chat.cpp
@@ -31,6 +32,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/application.cpp
     src/core/hooks/camera.cpp
     src/core/hooks/character_controller.cpp
+    src/core/hooks/doors.cpp
     src/core/hooks/hud.cpp
     src/core/hooks/human.cpp
     src/core/hooks/game_director.cpp

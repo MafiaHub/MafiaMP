@@ -238,6 +238,37 @@ namespace MafiaMP {
         net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kSetEnvironment), &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, target, broadcast, false);
     }
 
+    void Server::SetLocationVariant(const std::string &location, const std::string &variant) {
+        if (variant.empty()) {
+            _worldSettings.locationVariants.erase(location);
+        }
+        else {
+            _worldSettings.locationVariants[location] = variant;
+        }
+        SendWorldSettings(MafiaNet::UNASSIGNED_RAKNET_GUID, true);
+    }
+
+    void Server::SetAllDoorsOpen(bool open) {
+        _worldSettings.allDoorsOpen = open;
+        SendWorldSettings(MafiaNet::UNASSIGNED_RAKNET_GUID, true);
+    }
+
+    void Server::SendWorldSettings(MafiaNet::RakNetGUID target, bool broadcast) const {
+        auto *net = GetNetworkingEngine()->GetNetworkServer();
+        if (!net) {
+            return;
+        }
+        // Wire: <all doors open><location count u16>(<location><variant>)*
+        MafiaNet::BitStream bs;
+        bs.Write(_worldSettings.allDoorsOpen);
+        bs.Write(static_cast<uint16_t>(_worldSettings.locationVariants.size()));
+        for (const auto &[location, variant] : _worldSettings.locationVariants) {
+            bs.Write(MafiaNet::RakString(location.c_str()));
+            bs.Write(MafiaNet::RakString(variant.c_str()));
+        }
+        net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kSetWorldSettings), &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, target, broadcast, false);
+    }
+
     void Server::InitNetworkingMessages() {
         InitRPCs();
     }
@@ -264,6 +295,7 @@ namespace MafiaMP {
         repl->SetViewer(info.guid, human);
 
         SendEnvironment(MafiaNet::ToGuid(info.guid), false);
+        SendWorldSettings(MafiaNet::ToGuid(info.guid), false);
         Scripting::Player::EventPlayerConnected(human->GetNetworkID());
     }
 

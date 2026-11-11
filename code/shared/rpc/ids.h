@@ -20,6 +20,9 @@ namespace MafiaMP::Shared::RPC {
     inline constexpr auto kVehiclePlayerEnter = FW_RPC_IDENTIFIER("MafiaMP::VehiclePlayerEnter");
     inline constexpr auto kVehiclePlayerLeave = FW_RPC_IDENTIFIER("MafiaMP::VehiclePlayerLeave");
 
+    // World settings (server to client): the story locations' state layers and the doors
+    inline constexpr auto kSetWorldSettings = FW_RPC_IDENTIFIER("MafiaMP::SetWorldSettings");
+
     // Commands
     inline constexpr auto kSetEnvironment = FW_RPC_IDENTIFIER("MafiaMP::SetEnvironment");
     inline constexpr auto kSpawnCar       = FW_RPC_IDENTIFIER("MafiaMP::SpawnCar");

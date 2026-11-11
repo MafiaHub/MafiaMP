@@ -19,6 +19,7 @@
 #include "game/streaming/entity_factory.h"
 #include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.h"
+#include "world_settings.h"
 
 #include "external/imgui/widgets/corner_text.h"
 
@@ -35,6 +36,7 @@
 #include <mafianet/bit_stream.h>
 #include <mafianet/string.h>
 
+#include <map>
 #include <optional>
 
 namespace MafiaMP::Core {
@@ -72,6 +74,27 @@ namespace MafiaMP::Core {
             if (dayTimeHours.has_value()) {
                 gfx->GetWeatherManager()->SetDayTimeHours(*dayTimeHours);
             }
+        }
+    } // namespace
+
+    namespace {
+        // Wire: <all doors open><location count u16>(<location><variant>)*
+        void OnSetWorldSettings(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
+            bool allDoorsOpen = false;
+            uint16_t count    = 0;
+            if (!bs->Read(allDoorsOpen) || !bs->Read(count)) {
+                return;
+            }
+            std::map<std::string, std::string> variants;
+            for (uint16_t i = 0; i < count; ++i) {
+                MafiaNet::RakString location, variant;
+                if (!bs->Read(location) || !bs->Read(variant)) {
+                    return;
+                }
+                variants[location.C_String()] = variant.C_String();
+            }
+            Locations::SetVariants(variants);
+            Doors::SetAllOpen(allDoorsOpen);
         }
     } // namespace
 
@@ -427,6 +450,7 @@ namespace MafiaMP::Core {
         auto *rpc = net->GetRPC();
         // RPCs received from the server. (Chat is handled by the framework client instance.)
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kSetEnvironment), &OnSetEnvironment, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kSetWorldSettings), &OnSetWorldSettings, nullptr, 0);
     }
 
     std::string gProjectPath;
