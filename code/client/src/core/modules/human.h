@@ -15,6 +15,7 @@
 
 #include <unordered_map>
 
+#include <array>
 #include <cstdint>
 #include <deque>
 #include <utility>
@@ -86,13 +87,18 @@ namespace MafiaMP::Core::Modules {
         // Remote humans out of a car keep the rotation replication gives them: the game would
         // turn them on its own, toward directions and with turn animations of its own.
         bool HoldsRotation() const;
-        // Puts the ped back on that rotation; runs right after the game updated its locomotion.
-        void HoldRotation();
+        // Runs right after the game updated a remote ped's locomotion, which overwrote what we gave
+        // it: puts back the owner's animation variables and the replicated rotation.
+        void OnLocomotionUpdated();
 
       private:
         SDK::ue::sys::math::C_Quat heldRotation {};
         bool holdsRotation = false;
+        // The owner's animation variables last applied, along with the pose shown.
+        std::array<float, Shared::Modules::WANIM_VAR_SYNC_COUNT> animVariables {};
 
+        void HoldRotation();
+        void ApplyAnimVariables();
         void BindLocalPlayer();
         void RequestPed();
         void ApplyRemote();

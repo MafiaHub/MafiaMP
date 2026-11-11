@@ -363,6 +363,27 @@ namespace MafiaMP::Core::Modules {
         }
     }
 
+    void Human::ApplyAnimVariables() {
+        auto *handler      = charController ? charController->GetCurrentStateHandler() : nullptr;
+        auto *behaviorChar = handler ? handler->GetBehaviorCharacter() : nullptr;
+        if (!behaviorChar) {
+            return;
+        }
+        for (size_t i = 0; i < Shared::Modules::WANIM_VAR_SYNC_COUNT; ++i) {
+            behaviorChar->SetWAnimVariable(static_cast<SDK::ue::game::anim::E_WAnimBehaviorVar>(i), animVariables[i]);
+        }
+    }
+
+    void Human::OnLocomotionUpdated() {
+        if (isLocalPlayer || !human) {
+            return;
+        }
+        // The handler has just written animation variables of its own, and the animation graph
+        // reads them after this: give it the owner's again.
+        ApplyAnimVariables();
+        HoldRotation();
+    }
+
     Human *Human::GetByAgent(const SDK::ue::game::human::C_Agent *agent) {
         const auto it = gRemoteAgents.find(agent);
         return it != gRemoteAgents.end() ? it->second : nullptr;
@@ -520,15 +541,8 @@ namespace MafiaMP::Core::Modules {
         const auto hmm = data._moveMode != (uint8_t)-1 ? static_cast<SDK::E_HumanMoveMode>(data._moveMode) : SDK::E_HumanMoveMode::E_HMM_NONE;
         charController->SetMoveStateOverride(hmm, data._isSprinting, data._sprintSpeed);
 
-        auto currentHandler = charController->GetCurrentStateHandler();
-        if (currentHandler) {
-            auto behaviorChar = currentHandler->GetBehaviorCharacter();
-            if (behaviorChar) {
-                for (size_t i = 0; i < Shared::Modules::WANIM_VAR_SYNC_COUNT; ++i) {
-                    behaviorChar->SetWAnimVariable(static_cast<SDK::ue::game::anim::E_WAnimBehaviorVar>(i), data._animVars[i]);
-                }
-            }
-        }
+        animVariables = data._animVars;
+        ApplyAnimVariables();
 
         const auto wepController = human->GetHumanWeaponController();
         if (wepController) {

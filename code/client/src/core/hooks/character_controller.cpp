@@ -100,10 +100,9 @@ void __fastcall C_CharacterController__UpdateLocomotionHandlers(SDK::ue::game::h
                     MafiaMP::Game::Overrides::ScopedEntityTypeFaker faker(pCharCtrler->GetCharacter(), SDK::E_EntityType::E_ENTITY_PLAYER);
                     pCurrentStateHandler->UpdateHumanFreq(a2);
                 }
-                // The handler turns the ped toward a direction of its own; replication decides it.
                 auto *ped = pCharCtrler->GetCharacter();
                 if (auto *human = ped ? MafiaMP::Core::Modules::Human::GetByAgent(ped->m_pAgent) : nullptr) {
-                    human->HoldRotation();
+                    human->OnLocomotionUpdated();
                 }
             }
             else {
