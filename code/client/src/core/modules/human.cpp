@@ -35,6 +35,7 @@
 #include <networking/replication/replication_manager.h>
 
 #include <mafianet/bit_stream.h>
+#include <mafianet/get_time.h>
 
 namespace MafiaMP::Core::Modules {
     namespace {
@@ -206,11 +207,6 @@ namespace MafiaMP::Core::Modules {
 
     void Human::RequestPed() {
         info = Core::gApplication->GetEntityFactory()->RequestHuman(modelHash);
-        interpolator.GetPosition()->SetCompensationFactor(1.5f);
-        // Snapshots arrive every tick: let each one correct the whole error before the next. The
-        // default range (100-400 ms) applies a quarter of it at our rate and the ped trails behind.
-        interpolator.GetPosition()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
-        interpolator.GetRotation()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
 
         info->SetBeforeSpawnCallback([](Game::Streaming::EntityTrackingInfo *) {
             CreateNetCharacterController = true;
@@ -265,16 +261,29 @@ namespace MafiaMP::Core::Modules {
                     enterForced = true;
                 }
                 else if (!SDK::ue::game::humanai::C_CharacterStateHandler::IsVehicleStateHandlerType(charController->GetCurrentStateHandlerType())) {
-                    const auto humanPos = human->GetPos();
-                    const auto humanRot = human->GetRot();
-                    const auto newPos   = interpolator.GetPosition()->UpdateTargetValue({humanPos.x, humanPos.y, humanPos.z});
-                    const auto newRot   = interpolator.GetRotation()->UpdateTargetValue({humanRot.w, humanRot.x, humanRot.y, humanRot.z});
-                    human->SetPos({newPos.x, newPos.y, newPos.z});
-                    human->SetRot({newRot.x, newRot.y, newRot.z, newRot.w});
+                    ApplyPose();
                 }
             }
             DrawNametag();
         }
+    }
+
+    void Human::OnDeserialized(bool transformUpdated) {
+        if (transformUpdated && !isLocalPlayer) {
+            poses.Push({position, velocity, rotation}, GetLastTransformTime());
+        }
+    }
+
+    void Human::ApplyPose() {
+        // Render a short delay behind the newest pose and blend the two around it: the ped moves at
+        // the rate it was sampled, whatever the network delivers, and a late or lost packet does not
+        // make it jump or overshoot.
+        Framework::Utils::TransformSnapshot pose;
+        if (!poses.Sample(poses.RenderTime(MafiaNet::GetTime()), pose)) {
+            return;
+        }
+        human->SetPos({pose.position.x, pose.position.y, pose.position.z});
+        human->SetRot({pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w});
     }
 
     void Human::ReadLocal() {
@@ -300,6 +309,17 @@ namespace MafiaMP::Core::Modules {
                 position                                  = {carPos.x, carPos.y, carPos.z};
             }
         }
+
+        // Send the velocity along with the pose: receivers extrapolate along it when a packet is
+        // late, and tell a teleport from fast movement by it. Smoothed over a few frames, as the
+        // frame time is not steady.
+        const MafiaNet::Time now = MafiaNet::GetTime();
+        if (lastLocalTime != 0 && now > lastLocalTime) {
+            const float dt = static_cast<float>(now - lastLocalTime) / 1000.0f;
+            velocity       = glm::mix(velocity, (position - lastLocalPosition) / dt, 0.3f);
+        }
+        lastLocalPosition          = position;
+        lastLocalTime              = now;
         data._isStalking           = charController->IsStalkMove();
         data._isSprinting          = charController->IsSprinting();
         data._sprintSpeed          = charController->GetSprintMoveSpeed();
@@ -407,10 +427,6 @@ namespace MafiaMP::Core::Modules {
             }
             return;
         }
-
-        // Set the interpolation target toward the replicated transform.
-        interpolator.GetPosition()->SetTargetValue({human->GetPos().x, human->GetPos().y, human->GetPos().z}, position, MafiaMP::Core::gApplication->GetTickIntervalMs());
-        interpolator.GetRotation()->SetTargetValue({human->GetRot().w, human->GetRot().x, human->GetRot().y, human->GetRot().z}, rotation, MafiaMP::Core::gApplication->GetTickIntervalMs());
 
         charController->SetDesiredHandlerType(desiredStateHandlerType);
         charController->SetStalkMoveOverride(data._isStalking);

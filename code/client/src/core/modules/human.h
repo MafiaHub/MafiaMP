@@ -11,7 +11,7 @@
 
 #include <mafianet/replica_manager3.h>
 
-#include <utils/interpolator.h>
+#include <utils/snapshot_buffer.h>
 
 #include <cstdint>
 
@@ -31,7 +31,8 @@ namespace MafiaMP::Core::Modules {
         SDK::C_Human2 *human                                 = nullptr;
         Game::Overrides::CharacterController *charController = nullptr;
         Game::Streaming::EntityTrackingInfo *info            = nullptr;
-        Framework::Utils::Interpolator interpolator {};
+        // Remote humans: the poses received, sampled a short delay behind the newest one.
+        Framework::Utils::TransformSnapshotBuffer poses {};
 
         // Local enter/leave-vehicle state machine.
         CarEnterStates enterState = STATE_OUTSIDE;
@@ -43,6 +44,10 @@ namespace MafiaMP::Core::Modules {
 
         bool isLocalPlayer = false;
 
+        // Local player: where it was last frame, to send its velocity along with its pose.
+        glm::vec3 lastLocalPosition {};
+        MafiaNet::Time lastLocalTime = 0;
+
         // Last skin applied to the game ped, to detect replicated skin changes.
         uint64_t appliedSkin = 0;
 
@@ -52,6 +57,8 @@ namespace MafiaMP::Core::Modules {
         void SerializeFields(Framework::Networking::Replication::FieldSerializer &fields) override;
         // Server overrode our state (teleport): move the game ped to the forced transform.
         void OnStateForced() override;
+        // Remote humans: keep each pose the transform channel brings.
+        void OnDeserialized(bool transformUpdated) override;
 
         // Per-frame driver for this human.
         void Frame();
@@ -69,6 +76,7 @@ namespace MafiaMP::Core::Modules {
         void RequestPed();
         void ApplyRemote();
         void ReadLocal();
+        void ApplyPose();
         void DrawNametag();
     };
 } // namespace MafiaMP::Core::Modules
