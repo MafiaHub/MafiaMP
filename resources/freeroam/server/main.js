@@ -7,6 +7,7 @@ console.log("[FREEROAM] === SCRIPT LOADING ===");
 
 const { SPAWN_POINT, VEHICLE_SPAWNS, WEATHER_SETS, TP_DESTINATIONS } = require("./config.js");
 const { SKINS } = require("./skins.js");
+const { OUTFIT_PIECES } = require("./outfits.js");
 console.log("[FREEROAM] Config loaded, VEHICLE_SPAWNS count:", VEHICLE_SPAWNS.length);
 
 // Get utils from shared-utils resource export
@@ -151,6 +152,83 @@ registerChatCommand("skins", (player, message, command, args) => {
     for (let i = 0; i < names.length; i += 6) {
         Chat.sendToPlayer(player, names.slice(i, i + 6).join(", "));
     }
+});
+
+// ========== OUTFITS ==========
+
+// The default player's pieces, the outfit every player starts from.
+const DEFAULT_OUTFIT = [
+    "ma_head_201_tommy_00",
+    "ma_basebody_arm-white_a_tommy",
+    "ma_hair_101_tommy_combed",
+    "ma_suitjacket_101_tommy_cab",
+    "ma_pants_101_tommy_vest_",
+    "ma_shoes_104_policeman:1",
+    "ma_cap_109:4",
+];
+const FEMALE_TEMPLATE = "characters/traffic/traffic_base_ambient_female";
+const HEADWEAR = ["cap", "fedora", "hat", "flatcap", "helmet", "baret"];
+
+// Outfit piece names by player id.
+const PLAYER_OUTFITS = new Map();
+
+// "ma_fedora_101_tommy" -> "ma_headwear"; pieces of one category replace each other.
+function outfitCategory(name) {
+    const match = name.match(/^(ma|fe)_([a-z]+)/);
+    if (!match) {
+        return name;
+    }
+    return HEADWEAR.includes(match[2]) ? `${match[1]}_headwear` : `${match[1]}_${match[2]}`;
+}
+
+function wearOutfit(player, names) {
+    const female = names.some((name) => name.startsWith("fe_"));
+    const profile = player.setOutfit(names.map((name) => OUTFIT_PIECES[name]), female ? FEMALE_TEMPLATE : undefined);
+    if (profile) {
+        PLAYER_OUTFITS.set(player.id, names);
+    }
+    return profile;
+}
+
+// /outfit - the pieces you wear.
+registerChatCommand("outfit", (player, message, command, args) => {
+    const names = PLAYER_OUTFITS.get(player.id) || DEFAULT_OUTFIT;
+    Chat.sendToPlayer(player, `[SERVER] Outfit: ${names.join(", ")}`);
+});
+
+// /wear <piece> - put a piece on, in place of the one of its category.
+registerChatCommand("wear", (player, message, command, args) => {
+    const name = args[0];
+    if (!name || !OUTFIT_PIECES[name]) {
+        Chat.sendToPlayer(player, "[SERVER] Usage: /wear <piece> (see /pieces <filter>)");
+        return;
+    }
+    const category = outfitCategory(name);
+    const names = (PLAYER_OUTFITS.get(player.id) || DEFAULT_OUTFIT).filter((other) => outfitCategory(other) !== category);
+    names.push(name);
+    Chat.sendToPlayer(player, wearOutfit(player, names) ? `[SERVER] Wearing ${name}.` : "[SERVER] Could not wear that.");
+});
+
+// /takeoff <category> - e.g. /takeoff ma_headwear.
+registerChatCommand("takeoff", (player, message, command, args) => {
+    const names = (PLAYER_OUTFITS.get(player.id) || DEFAULT_OUTFIT).filter((name) => outfitCategory(name) !== args[0]);
+    Chat.sendToPlayer(player, wearOutfit(player, names) ? `[SERVER] Took off ${args[0]}.` : "[SERVER] Could not take that off.");
+});
+
+// /pieces <filter> - pieces whose name contains the filter.
+registerChatCommand("pieces", (player, message, command, args) => {
+    const filter = args[0] || "";
+    const names = Object.keys(OUTFIT_PIECES).filter((name) => name.includes(filter));
+    for (let i = 0; i < Math.min(names.length, 60); i += 6) {
+        Chat.sendToPlayer(player, names.slice(i, i + 6).join(", "));
+    }
+    Chat.sendToPlayer(player, `[SERVER] ${names.length} piece(s).`);
+});
+
+// /outfitreset - back to the default outfit.
+registerChatCommand("outfitreset", (player, message, command, args) => {
+    wearOutfit(player, DEFAULT_OUTFIT);
+    Chat.sendToPlayer(player, "[SERVER] Outfit reset.");
 });
 
 registerChatCommand("veh", (player, message, command, args) => {
