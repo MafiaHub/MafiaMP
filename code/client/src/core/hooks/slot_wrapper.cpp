@@ -4,6 +4,7 @@
 
 #include <logging/logger.h>
 
+#include "core/world_settings.h"
 #include "sdk/ue/sys/core/c_frame.h"
 #include "sdk/ue/sys/core/c_scene.h"
 #include "sdk/ue/sys/math/c_vector.h"
@@ -26,6 +27,10 @@ C_SlotManagerWrapper__LoadData_t C_SlotManagerWrapper__LoadData_original = nullp
 
 int64_t C_SlotManagerWrapper__LoadData(void *pThis, char const *sdsName, SDK::ue::sys::core::C_Scene *scene, unsigned int unk, char const *dataName, bool *unk2, bool unk3) {
     // Framework::Logging::GetLogger("Hooks")->debug("[Wrapper] Loaded data = {} | {} | {}", sdsName, unk, dataName);
+    if (const auto target = MafiaMP::Core::Locations::Redirect(sdsName); !target.empty()) {
+        Framework::Logging::GetLogger("Hooks")->debug("[Wrapper] Loading {} in place of {}", target, sdsName);
+        return C_SlotManagerWrapper__LoadData_original(pThis, target.c_str(), scene, unk, dataName, unk2, unk3);
+    }
     return C_SlotManagerWrapper__LoadData_original(pThis, sdsName, scene, unk, dataName, unk2, unk3);
 }
 
@@ -34,6 +39,10 @@ C_Slot__LoadData_t C_Slot__LoadData_original = nullptr;
 
 int64_t C_Slot__LoadData(void *pThis, char const *sdsName, SDK::ue::sys::core::C_Scene *scene, unsigned int unk, void *unkPtr, char const *dataName, bool *unk2, bool unk3) {
     // Framework::Logging::GetLogger("Hooks")->debug("Loaded data = {} | {} | {}", sdsName, unk, dataName);
+    if (const auto target = MafiaMP::Core::Locations::Redirect(sdsName); !target.empty()) {
+        Framework::Logging::GetLogger("Hooks")->debug("Loading {} in place of {}", target, sdsName);
+        return C_Slot__LoadData_original(pThis, target.c_str(), scene, unk, unkPtr, dataName, unk2, unk3);
+    }
     return C_Slot__LoadData_original(pThis, sdsName, scene, unk, unkPtr, dataName, unk2, unk3);
 }
 
