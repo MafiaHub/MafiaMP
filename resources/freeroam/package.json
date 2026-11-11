@@ -12,6 +12,11 @@
         "version": ">=1.0.0"
       }
     ],
-    "priority": 10
+    "priority": 10,
+    "files": [
+      "client/main.js",
+      "client/ui/outfit.html",
+      "client/ui/pieces.js"
+    ]
   }
 }

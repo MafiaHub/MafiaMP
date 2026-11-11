@@ -225,6 +225,21 @@ registerChatCommand("pieces", (player, message, command, args) => {
     Chat.sendToPlayer(player, `[SERVER] ${names.length} piece(s).`);
 });
 
+// The character creator (/creator) sends the whole outfit on every change.
+Events.onClient("freeroam:outfit", (player, payload) => {
+    const names = ((payload && payload.names) || []).filter((name) => typeof name === "string" && OUTFIT_PIECES[name]).slice(0, 40);
+    if (names.length > 0) {
+        wearOutfit(player, names);
+    }
+});
+
+// /creator (or /perso) - open the character creator.
+function openCreator(player) {
+    player.emit("freeroam:openCreator", "{}");
+}
+registerChatCommand("creator", (player) => openCreator(player));
+registerChatCommand("perso", (player) => openCreator(player));
+
 // /outfitreset - back to the default outfit.
 registerChatCommand("outfitreset", (player, message, command, args) => {
     wearOutfit(player, DEFAULT_OUTFIT);
