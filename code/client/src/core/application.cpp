@@ -15,6 +15,7 @@
 #include "states/shutdown.h"
 #include "states/states.h"
 
+#include "game/helpers/blips.h"
 #include "game/helpers/controls.h"
 #include "game/streaming/entity_factory.h"
 #include "sdk/ue/game/vehicle/c_vehicle.h"
@@ -71,6 +72,34 @@ namespace MafiaMP::Core {
             }
             if (dayTimeHours.has_value()) {
                 gfx->GetWeatherManager()->SetDayTimeHours(*dayTimeHours);
+            }
+        }
+
+        // Wire: <id><icon><position><attached entity NetworkID>
+        void OnSetBlip(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
+            uint32_t id = 0;
+            MafiaNet::RakString icon;
+            glm::vec3 position {};
+            uint64_t attachedTo = 0;
+            if (!bs->Read(id) || !bs->Read(icon) || !bs->Read(position) || !bs->Read(attachedTo)) {
+                return;
+            }
+            Game::Helpers::Blips::Set(id, icon.C_String(), position, attachedTo);
+        }
+
+        // Wire: <id>, 0 for no route
+        void OnSetBlipRoute(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
+            uint32_t id = 0;
+            if (bs->Read(id)) {
+                Game::Helpers::Blips::SetRoute(id);
+            }
+        }
+
+        // Wire: <id>
+        void OnRemoveBlip(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
+            uint32_t id = 0;
+            if (bs->Read(id)) {
+                Game::Helpers::Blips::Remove(id);
             }
         }
     } // namespace
@@ -152,6 +181,7 @@ namespace MafiaMP::Core {
         // Drive replicated entities into the game each frame.
         Core::Modules::Human::UpdateAll();
         Core::Modules::Vehicle::UpdateAll();
+        Game::Helpers::Blips::Update();
 
         static bool isStyleInitialized = false;
         if (!isStyleInitialized) {
@@ -427,6 +457,9 @@ namespace MafiaMP::Core {
         auto *rpc = net->GetRPC();
         // RPCs received from the server. (Chat is handled by the framework client instance.)
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kSetEnvironment), &OnSetEnvironment, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kSetBlip), &OnSetBlip, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kRemoveBlip), &OnRemoveBlip, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kSetBlipRoute), &OnSetBlipRoute, nullptr, 0);
     }
 
     std::string gProjectPath;
