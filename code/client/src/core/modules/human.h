@@ -41,6 +41,8 @@ namespace MafiaMP::Core::Modules {
         uint64_t appliedSkin = 0;
         // A remote ped cannot change spawn profile in place; Frame() re-requests it.
         bool pendingReskin = false;
+        // Waiting for the definition of the outfit it wears before requesting its ped.
+        bool pendingSpawn = false;
 
         // --- Replica3 hooks ---
         void OnConstructed() override;

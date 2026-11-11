@@ -14,16 +14,17 @@
 
 #include "game/helpers/controls.h"
 #include "game/helpers/human.h"
+#include "game/helpers/outfits.h"
 #include "game/overrides/character_controller.h"
 #include "sdk/c_game.h"
 #include "sdk/c_player_teleport_module.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
 #include "sdk/ue/game/anim/e_wanim_behavior_var.h"
+#include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/ue/game/human/c_behavior_character.h"
 #include "sdk/ue/game/humanai/c_character_state_handler.h"
 #include "sdk/ue/game/vehicle/c_vehicle.h"
-#include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
 
 #include "shared/entities/register_entities.h"
@@ -173,7 +174,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::ApplyLocalSkin() {
-        if (modelHash == 0 || modelHash == appliedSkin) {
+        if (modelHash == 0 || modelHash == appliedSkin || !Game::Helpers::Outfits::Ensure(modelHash)) {
             return;
         }
         appliedSkin = modelHash;
@@ -215,6 +216,11 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::RequestPed() {
+        // An outfit is worn once the server's definition of it is in; Frame() asks again.
+        pendingSpawn = !Game::Helpers::Outfits::Ensure(modelHash);
+        if (pendingSpawn) {
+            return;
+        }
         appliedSkin = modelHash;
         info        = Core::gApplication->GetEntityFactory()->RequestHuman(modelHash);
         interpolator.GetPosition()->SetCompensationFactor(1.5f);
@@ -253,6 +259,14 @@ namespace MafiaMP::Core::Modules {
     void Human::Frame() {
         // Swap a remote ped for one of its new spawn profile. Done here rather than while
         // deserializing, so the entity factory is not re-entered from a replication callback.
+        if (!isLocalPlayer && pendingSpawn) {
+            RequestPed();
+            return;
+        }
+        // The local player puts an outfit on once its definition is in.
+        if (isLocalPlayer && modelHash != appliedSkin) {
+            ApplyLocalSkin();
+        }
         if (!isLocalPlayer && pendingReskin) {
             pendingReskin = false;
             if (info) {

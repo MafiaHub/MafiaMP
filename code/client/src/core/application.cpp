@@ -16,6 +16,7 @@
 #include "states/states.h"
 
 #include "game/helpers/controls.h"
+#include "game/helpers/outfits.h"
 #include "game/streaming/entity_factory.h"
 #include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/ue/gfx/environmenteffects/c_gfx_environment_effects.h"
@@ -71,6 +72,26 @@ namespace MafiaMP::Core {
             }
             if (dayTimeHours.has_value()) {
                 gfx->GetWeatherManager()->SetDayTimeHours(*dayTimeHours);
+            }
+        }
+    } // namespace
+
+    namespace {
+        // Wire: <profile><template profile><piece count u16>(<piece id><package id>)*
+        void OnDefineOutfit(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
+            uint64_t profile = 0, templateProfile = 0;
+            uint16_t count = 0;
+            if (!bs->Read(profile) || !bs->Read(templateProfile) || !bs->Read(count) || count > Shared::Outfits::kMaxPieces) {
+                return;
+            }
+            std::vector<Game::Helpers::Outfits::Piece> pieces(count);
+            for (auto &piece : pieces) {
+                if (!bs->Read(piece.pieceId) || !bs->Read(piece.packageId)) {
+                    return;
+                }
+            }
+            if (Shared::Outfits::HashOf(pieces) == profile) {
+                Game::Helpers::Outfits::Define(profile, templateProfile, std::move(pieces));
             }
         }
     } // namespace
@@ -427,6 +448,7 @@ namespace MafiaMP::Core {
         auto *rpc = net->GetRPC();
         // RPCs received from the server. (Chat is handled by the framework client instance.)
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kSetEnvironment), &OnSetEnvironment, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kDefineOutfit), &OnDefineOutfit, nullptr, 0);
     }
 
     std::string gProjectPath;
