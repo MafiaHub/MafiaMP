@@ -300,6 +300,21 @@ registerChatCommand("wep", (player, message, command, args) => {
     Chat.sendToPlayer(player,`[SERVER] Weapon ${weaponId} with ${ammo} ammo added!`);
 });
 
+registerChatCommand("anim", (player, message, command, args) => {
+    if (!args[0]) {
+        Chat.sendToPlayer(player, "[SERVER] Usage: /anim <name> [loop], e.g. /anim hero_gest_greeting_normal_b_v1");
+        return;
+    }
+
+    const loop = args[1] === "loop";
+    player.playAnimation(args[0], loop);
+    Chat.sendToPlayer(player, `[SERVER] Playing ${args[0]}${loop ? " (looped, /animstop to end)" : ""}.`);
+});
+
+registerChatCommand("animstop", (player, message, command, args) => {
+    player.stopAnimations();
+});
+
 registerChatCommand("heal", (player, message, command, args) => {
     player.health = 100.0;
     Chat.sendToPlayer(player,"[SERVER] You've been healed!");

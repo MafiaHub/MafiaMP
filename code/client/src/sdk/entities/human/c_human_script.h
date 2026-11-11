@@ -34,6 +34,8 @@ namespace SDK {
         void ScrAimAt(ue::C_CntPtr<uintptr_t> &, C_Entity *, ue::sys::math::C_Vector const &, bool);
         void ScrAttack(C_Entity *);
 
+        void ScrStopAllAnimations();
+
         void SetStealthMove(bool);
     };
 }

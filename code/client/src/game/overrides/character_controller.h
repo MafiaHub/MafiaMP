@@ -19,6 +19,9 @@ namespace MafiaMP::Game::Overrides {
         bool _isSprintingOverride                                                                 = false;
         float _sprintMoveSpeed                                                            = 0.0f;
         float _animMoveSpeed                                                              = 0.0f;
+        // While set, the game's own locomotion update drives this controller and AI requests reach
+        // it, for instance to run a scripted animation.
+        bool _gameDriven = false;
 
         CharacterController();
 
@@ -54,6 +57,13 @@ namespace MafiaMP::Game::Overrides {
         }
         void SetAnimMoveSpeed(float animMoveSpeed) {
             _animMoveSpeed = animMoveSpeed;
+        }
+
+        void SetGameDriven(bool gameDriven) {
+            _gameDriven = gameDriven;
+        }
+        bool IsGameDriven() const {
+            return _gameDriven;
         }
     };
 }
