@@ -15,7 +15,12 @@ namespace MafiaMP::Core::UI {
         bool _wasFocused = _isFocused;
 
         if (gApplication->GetWebManager()->IsAnyGCViewFocused()) {
-            _isFocused = false;
+            // A page took the input, e.g. one a chat command opened: give back the lock the chat
+            // took while typing, or the controls stay locked once the page closes.
+            if (_isFocused) {
+                _isFocused = false;
+                LockControls(false);
+            }
             return;
         }
 
