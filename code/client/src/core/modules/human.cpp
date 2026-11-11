@@ -39,6 +39,9 @@
 
 namespace MafiaMP::Core::Modules {
     namespace {
+        // Agents of the remote peds, to tell them apart in the game's own updates.
+        std::unordered_map<const SDK::ue::game::human::C_Agent *, Human *> gRemoteAgents;
+
         Human *ResolveHuman(uint64_t networkId) {
             auto *world = Framework::CoreModules::GetReplication();
             return world ? dynamic_cast<Human *>(world->GetEntityByNetworkID(networkId)) : nullptr;
@@ -72,6 +75,9 @@ namespace MafiaMP::Core::Modules {
 
             self->human          = human;
             self->charController = reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(human->GetCharacterController());
+            if (!self->isLocalPlayer && human->m_pAgent) {
+                gRemoteAgents[human->m_pAgent] = self;
+            }
             assert(MafiaMP::Game::Overrides::CharacterController::IsInstanceOfClass(self->charController));
 
             // Apply whatever state has arrived so far.
@@ -83,6 +89,9 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
             auto human = reinterpret_cast<SDK::C_Human2 *>(info->GetEntity());
+            if (human) {
+                gRemoteAgents.erase(human->m_pAgent);
+            }
             if (wasCreated && human) {
                 human->Deactivate();
                 human->GameDone();
@@ -335,7 +344,28 @@ namespace MafiaMP::Core::Modules {
             return;
         }
         human->SetPos({pose.position.x, pose.position.y, pose.position.z});
-        human->SetRot({pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w});
+        heldRotation = {pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w};
+        human->SetRot(heldRotation);
+        holdsRotation = true;
+    }
+
+    bool Human::HoldsRotation() const {
+        if (isLocalPlayer || !human || !holdsRotation || !charController) {
+            return false;
+        }
+        // Getting in and out of a car turns the ped toward its door: the game drives that.
+        return !SDK::ue::game::humanai::C_CharacterStateHandler::IsVehicleStateHandlerType(charController->GetCurrentStateHandlerType());
+    }
+
+    void Human::HoldRotation() {
+        if (HoldsRotation()) {
+            human->SetRot(heldRotation);
+        }
+    }
+
+    Human *Human::GetByAgent(const SDK::ue::game::human::C_Agent *agent) {
+        const auto it = gRemoteAgents.find(agent);
+        return it != gRemoteAgents.end() ? it->second : nullptr;
     }
 
     void Human::ReadLocal() {

@@ -13,6 +13,8 @@
 
 #include <utils/snapshot_buffer.h>
 
+#include <unordered_map>
+
 #include <cstdint>
 #include <deque>
 #include <utility>
@@ -79,8 +81,18 @@ namespace MafiaMP::Core::Modules {
         static void Install();
         static void UpdateAll();
         static Human *GetByPed(SDK::C_Human2 *ptr);
+        static Human *GetByAgent(const SDK::ue::game::human::C_Agent *agent);
+
+        // Remote humans out of a car keep the rotation replication gives them: the game would
+        // turn them on its own, toward directions and with turn animations of its own.
+        bool HoldsRotation() const;
+        // Puts the ped back on that rotation; runs right after the game updated its locomotion.
+        void HoldRotation();
 
       private:
+        SDK::ue::sys::math::C_Quat heldRotation {};
+        bool holdsRotation = false;
+
         void BindLocalPlayer();
         void RequestPed();
         void ApplyRemote();

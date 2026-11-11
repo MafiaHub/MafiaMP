@@ -1,3 +1,5 @@
+#include <utils/safe_win32.h>
+
 #include <MinHook.h>
 
 #include <logging/logger.h>
@@ -11,6 +13,7 @@
 
 #include "../../game/overrides/character_controller.h"
 #include "../../game/overrides/scoped_entity_type_faker.h"
+#include "core/modules/human.h"
 
 thread_local bool CreateNetCharacterController = false;
 
@@ -93,8 +96,15 @@ void __fastcall C_CharacterController__UpdateLocomotionHandlers(SDK::ue::game::h
         SDK::ue::game::humanai::C_CharacterStateHandler *pCurrentStateHandler = pCharCtrler->GetCurrentStateHandler();
         if (pCurrentStateHandler) {
             if (!SDK::ue::game::humanai::C_CharacterStateHandler::IsVehicleStateHandlerType(pCurrentStateHandler->GetStateHandlerType())) {
-                MafiaMP::Game::Overrides::ScopedEntityTypeFaker faker(pCharCtrler->GetCharacter(), SDK::E_EntityType::E_ENTITY_PLAYER);
-                pCurrentStateHandler->UpdateHumanFreq(a2);
+                {
+                    MafiaMP::Game::Overrides::ScopedEntityTypeFaker faker(pCharCtrler->GetCharacter(), SDK::E_EntityType::E_ENTITY_PLAYER);
+                    pCurrentStateHandler->UpdateHumanFreq(a2);
+                }
+                // The handler turns the ped toward a direction of its own; replication decides it.
+                auto *ped = pCharCtrler->GetCharacter();
+                if (auto *human = ped ? MafiaMP::Core::Modules::Human::GetByAgent(ped->m_pAgent) : nullptr) {
+                    human->HoldRotation();
+                }
             }
             else {
                 pCurrentStateHandler->UpdateHumanFreq(a2);
