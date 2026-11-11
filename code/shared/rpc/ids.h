@@ -23,4 +23,9 @@ namespace MafiaMP::Shared::RPC {
     // Commands
     inline constexpr auto kSetEnvironment = FW_RPC_IDENTIFIER("MafiaMP::SetEnvironment");
     inline constexpr auto kSpawnCar       = FW_RPC_IDENTIFIER("MafiaMP::SpawnCar");
+
+    // Map blips (server to client; the first field is the blip id)
+    inline constexpr auto kSetBlip      = FW_RPC_IDENTIFIER("MafiaMP::SetBlip");
+    inline constexpr auto kRemoveBlip   = FW_RPC_IDENTIFIER("MafiaMP::RemoveBlip");
+    inline constexpr auto kSetBlipRoute = FW_RPC_IDENTIFIER("MafiaMP::SetBlipRoute");
 } // namespace MafiaMP::Shared::RPC

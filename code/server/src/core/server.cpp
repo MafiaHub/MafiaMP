@@ -194,7 +194,9 @@ namespace MafiaMP {
         InitNetworkingMessages();
     }
 
-    void Server::PostUpdate() {}
+    void Server::PostUpdate() {
+        _blips.Update();
+    }
 
     void Server::PreShutdown() {}
 
@@ -264,12 +266,14 @@ namespace MafiaMP {
         repl->SetViewer(info.guid, human);
 
         SendEnvironment(MafiaNet::ToGuid(info.guid), false);
+        _blips.SendAll(MafiaNet::ToGuid(info.guid), human->GetNetworkID());
         Scripting::Player::EventPlayerConnected(human->GetNetworkID());
     }
 
     void Server::OnPlayerDisconnect(MafiaNet::PeerGuid guid) {
         if (auto *human = ViewerHuman(guid)) {
             Scripting::Player::EventPlayerDisconnected(human->GetNetworkID());
+            _blips.OnHumanRemoved(human->GetNetworkID());
         }
     }
 
