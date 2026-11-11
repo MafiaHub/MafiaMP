@@ -1,5 +1,6 @@
 #include "server.h"
 
+#include "core/builtins/blip.h"
 #include "core/builtins/builtins.h"
 #include "core/builtins/chat.h"
 #include "core/builtins/human.h"
@@ -309,6 +310,7 @@ namespace MafiaMP {
             return;
         }
         engine->AddRuntimeDisposingListener([](v8::Isolate *isolate) {
+            Scripting::Blip::UnregisterIsolate(isolate);
             Scripting::Vehicle::UnregisterIsolate(isolate);
             Scripting::Player::UnregisterIsolate(isolate);
             Scripting::Human::UnregisterIsolate(isolate);

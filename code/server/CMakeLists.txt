@@ -3,6 +3,7 @@ set(MAFIAMP_SERVER_FILES
     src/core/server.cpp
     src/core/blips.cpp
 
+    src/core/builtins/blip.cpp
     src/core/builtins/human.cpp
     src/core/builtins/player.cpp
     src/core/builtins/vehicle.cpp

@@ -15,6 +15,7 @@
 #include <scripting/builtins/entity_collection.h>
 #include <networking/replication/replication_manager.h>
 
+#include "blip.h"
 #include "player.h"
 #include "vehicle.h"
 
@@ -114,6 +115,43 @@ namespace MafiaMP::Scripting {
                               v8::String::Utf8Value weatherSet(isolate, info[0]);
                               World::SetWeatherSet(*weatherSet);
                           }).ToLocalChecked()).Check();
+
+            // createBlip(position, icon = "generic", player = null): a blip on the map and the radar,
+            // seen by everyone or by one player.
+            worldObj
+                ->Set(ctx, v8pp::to_v8(isolate, "createBlip"),
+                    v8::Function::New(ctx,
+                        [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+                            auto isolate   = info.GetIsolate();
+                            auto *position = info.Length() >= 1 ? v8pp::class_<Framework::Scripting::Builtins::Vector3>::unwrap_object(isolate, info[0]) : nullptr;
+                            auto *server   = Server::_serverRef;
+                            if (!position || !server) {
+                                isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "createBlip requires a Vector3 position")));
+                                return;
+                            }
+                            std::string icon = "generic";
+                            if (info.Length() >= 2 && !info[1]->IsNullOrUndefined()) {
+                                icon = v8pp::from_v8<std::string>(isolate, info[1], "");
+                            }
+                            const auto gameIcon = Blip::ResolveIcon(icon);
+                            if (gameIcon.empty()) {
+                                isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "createBlip: unknown icon")));
+                                return;
+                            }
+                            uint64_t visibleTo = 0;
+                            if (info.Length() >= 3 && !info[2]->IsNullOrUndefined()) {
+                                visibleTo = Blip::EntityId(isolate, info[2]);
+                                if (visibleTo == 0) {
+                                    isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "createBlip: expected a player (or null for everyone)")));
+                                    return;
+                                }
+                            }
+                            const uint32_t id = server->GetBlips().Create(position->vec(), gameIcon, visibleTo);
+                            Blip::GetClass(isolate);
+                            info.GetReturnValue().Set(v8pp::class_<Blip>::create_object(isolate, id));
+                        })
+                        .ToLocalChecked())
+                .Check();
 
             worldObj->Set(ctx, v8pp::to_v8(isolate, "players"), Framework::Scripting::Builtins::CreateCollectionObject<PlayerCollection>(isolate)).Check();
             worldObj->Set(ctx, v8pp::to_v8(isolate, "vehicles"), Framework::Scripting::Builtins::CreateCollectionObject<VehicleCollection>(isolate)).Check();
