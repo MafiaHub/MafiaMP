@@ -43,6 +43,12 @@ Events.on('resourceStart', (resourceName) => {
     }
     console.log("[FREEROAM] Done spawning vehicles");
 
+    // Story locations stream their mission interiors, and every door opens.
+    for (const location of ["alleys", "art_gallery", "church", "docks", "hotel", "paulies_apartment", "pepes_restaurant", "prison", "rooftops", "sarahs_apartment"]) {
+        World.setLocationVariant(location, "during");
+    }
+    World.setDoorsOpen(true);
+
     // Set random weather
     const weatherSet = utils.getRandomInArray(WEATHER_SETS);
     if (weatherSet) {
