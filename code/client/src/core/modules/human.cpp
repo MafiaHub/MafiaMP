@@ -205,6 +205,21 @@ namespace MafiaMP::Core::Modules {
         human->SetTransform(transform);
     }
 
+    namespace {
+        // A fixed delay of a few ticks. The adaptive one grows while a player stands still (an
+        // idle pose is only refreshed every half second), then takes a second or more to come
+        // back down once it moves, the player trailing behind meanwhile.
+        const Framework::Utils::SnapshotBufferConfig &PoseBufferConfig() {
+            static const Framework::Utils::SnapshotBufferConfig config = [] {
+                Framework::Utils::SnapshotBufferConfig c;
+                c.adaptiveDelay = false;
+                c.interpDelayMs = 75.0f;
+                return c;
+            }();
+            return config;
+        }
+    } // namespace
+
     void Human::RequestPed() {
         info = Core::gApplication->GetEntityFactory()->RequestHuman(modelHash);
 
@@ -269,9 +284,32 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::OnDeserialized(bool transformUpdated) {
-        if (transformUpdated && !isLocalPlayer) {
-            poses.Push({position, velocity, rotation}, GetLastTransformTime());
+        if (!transformUpdated || isLocalPlayer) {
+            return;
         }
+        if (poses.Empty()) {
+            poses = Framework::Utils::TransformSnapshotBuffer(&PoseBufferConfig());
+        }
+        if (poseTime == 0) {
+            poses.Push({position, velocity, rotation}, GetLastTransformTime());
+            return;
+        }
+        // Map the owner's clock onto ours by the quickest delivery seen: transit time varies, the
+        // pose was taken at a fixed point of the owner's clock. The offset drifts up 1 ms a
+        // second, so a clock that slowly diverges is followed.
+        const auto now       = MafiaNet::GetTime();
+        const int64_t sample = static_cast<int64_t>(now) - static_cast<int64_t>(poseTime);
+        if (!clockOffsetValid || sample < clockOffset) {
+            clockOffset      = sample;
+            clockOffsetValid = true;
+        }
+        else if (now - clockOffsetAt >= 1000) {
+            clockOffset += 1;
+        }
+        if (now - clockOffsetAt >= 1000) {
+            clockOffsetAt = now;
+        }
+        poses.Push({position, velocity, rotation}, static_cast<MafiaNet::Time>(static_cast<int64_t>(poseTime) + clockOffset));
     }
 
     void Human::ApplyPose() {
@@ -293,8 +331,10 @@ namespace MafiaMP::Core::Modules {
 
         const SDK::ue::sys::math::C_Vector pedPos = human->GetPos();
         const SDK::ue::sys::math::C_Quat pedRot   = human->GetRot();
-        position = {pedPos.x, pedPos.y, pedPos.z};
-        rotation = {pedRot.w, pedRot.x, pedRot.y, pedRot.z};
+        const glm::vec3 previousPosition          = position;
+        const glm::quat previousRotation          = rotation;
+        position                                  = {pedPos.x, pedPos.y, pedPos.z};
+        rotation                                  = {pedRot.w, pedRot.x, pedRot.y, pedRot.z};
 
         data._healthPercent        = MafiaMP::Game::Helpers::Human::GetHealthPercent(human);
         data._charStateHandlerType = charController->GetCurrentStateHandler()->GetStateHandlerType();
@@ -318,8 +358,11 @@ namespace MafiaMP::Core::Modules {
             const float dt = static_cast<float>(now - lastLocalTime) / 1000.0f;
             velocity       = glm::mix(velocity, (position - lastLocalPosition) / dt, 0.3f);
         }
-        lastLocalPosition          = position;
-        lastLocalTime              = now;
+        lastLocalPosition = position;
+        lastLocalTime     = now;
+        if (position != previousPosition || rotation != previousRotation) {
+            poseTime = now;
+        }
         data._isStalking           = charController->IsStalkMove();
         data._isSprinting          = charController->IsSprinting();
         data._sprintSpeed          = charController->GetSprintMoveSpeed();

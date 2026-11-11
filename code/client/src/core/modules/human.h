@@ -33,6 +33,10 @@ namespace MafiaMP::Core::Modules {
         Game::Streaming::EntityTrackingInfo *info            = nullptr;
         // Remote humans: the poses received, sampled a short delay behind the newest one.
         Framework::Utils::TransformSnapshotBuffer poses {};
+        // Remote humans: the owner's clock mapped onto ours.
+        int64_t clockOffset          = 0;
+        bool clockOffsetValid        = false;
+        MafiaNet::Time clockOffsetAt = 0;
 
         // Local enter/leave-vehicle state machine.
         CarEnterStates enterState = STATE_OUTSIDE;
