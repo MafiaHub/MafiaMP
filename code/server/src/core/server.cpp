@@ -198,6 +198,7 @@ namespace MafiaMP {
 
     void Server::PostUpdate() {
         SyncVehicleSeats();
+        _blips.Update();
     }
 
     void Server::SyncVehicleSeats() {
@@ -335,12 +336,14 @@ namespace MafiaMP {
         repl->SetViewer(info.guid, human);
 
         SendEnvironment(MafiaNet::ToGuid(info.guid), false);
+        _blips.SendAll(MafiaNet::ToGuid(info.guid), human->GetNetworkID());
         Scripting::Player::EventPlayerConnected(human->GetNetworkID());
     }
 
     void Server::OnPlayerDisconnect(MafiaNet::PeerGuid guid) {
         if (auto *human = ViewerHuman(guid)) {
             Scripting::Player::EventPlayerDisconnected(human->GetNetworkID());
+            _blips.OnHumanRemoved(human->GetNetworkID());
         }
     }
 
