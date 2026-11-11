@@ -28,6 +28,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/states/session_offline_debug.cpp
     src/core/states/shutdown.cpp
     src/core/hooks/actors_slot_wrapper.cpp
+    src/core/hooks/agent.cpp
     src/core/hooks/application.cpp
     src/core/hooks/camera.cpp
     src/core/hooks/character_controller.cpp
