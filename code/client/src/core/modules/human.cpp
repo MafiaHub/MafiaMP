@@ -36,11 +36,53 @@
 
 #include <mafianet/bit_stream.h>
 
+#include <chrono>
+#include <unordered_map>
+#include <vector>
+
 namespace MafiaMP::Core::Modules {
     namespace {
         Human *ResolveHuman(uint64_t networkId) {
             auto *world = Framework::CoreModules::GetReplication();
             return world ? dynamic_cast<Human *>(world->GetEntityByNetworkID(networkId)) : nullptr;
+        }
+
+        // A weapon grant can arrive before its human is constructed or its ped is spawned: the
+        // server's playerConnect grant reaches a joining client while it is still downloading the
+        // world. Hold such grants briefly and apply them once the ped exists.
+        struct PendingWeapon {
+            int weaponId = 0;
+            int ammo     = 0;
+            std::chrono::steady_clock::time_point receivedAt;
+        };
+        constexpr auto kPendingWeaponLifetime = std::chrono::seconds(30);
+        std::unordered_map<uint64_t, std::vector<PendingWeapon>> pendingWeapons;
+
+        void PrunePendingWeapons() {
+            const auto now = std::chrono::steady_clock::now();
+            for (auto &[id, grants] : pendingWeapons) {
+                std::erase_if(grants, [now](const PendingWeapon &grant) {
+                    return now - grant.receivedAt > kPendingWeaponLifetime;
+                });
+            }
+            std::erase_if(pendingWeapons, [](const auto &entry) {
+                return entry.second.empty();
+            });
+        }
+
+        void ApplyPendingWeapons(Human *self) {
+            // Without a ped there is nothing to arm yet: keep the grants until they expire.
+            const auto it = pendingWeapons.find(self->GetNetworkID());
+            if (it == pendingWeapons.end() || !self->human) {
+                return;
+            }
+            const auto now = std::chrono::steady_clock::now();
+            for (const auto &grant : it->second) {
+                if (now - grant.receivedAt <= kPendingWeaponLifetime) {
+                    self->human->GetInventoryWrapper()->AddWeapon(grant.weaponId, grant.ammo);
+                }
+            }
+            pendingWeapons.erase(it);
         }
 
         // Fires when the streamed game ped is ready; binds it to its ClientHuman.
@@ -72,6 +114,8 @@ namespace MafiaMP::Core::Modules {
             self->human          = human;
             self->charController = reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(human->GetCharacterController());
             assert(MafiaMP::Game::Overrides::CharacterController::IsInstanceOfClass(self->charController));
+
+            ApplyPendingWeapons(self);
 
             // Apply whatever state has arrived so far.
             self->Frame();
@@ -142,6 +186,8 @@ namespace MafiaMP::Core::Modules {
 
             auto *self = ResolveHuman(id);
             if (!self || !self->human) {
+                PrunePendingWeapons();
+                pendingWeapons[id].push_back({weaponId, ammo, std::chrono::steady_clock::now()});
                 return;
             }
             self->human->GetInventoryWrapper()->AddWeapon(weaponId, ammo);
@@ -165,6 +211,7 @@ namespace MafiaMP::Core::Modules {
             charController = reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(human->GetCharacterController());
         }
         Core::gApplication->SetLocalPlayer(this);
+        ApplyPendingWeapons(this);
         // Adopt the server-assigned spawn that arrived with construction.
         TeleportLocalToReplicated();
     }
