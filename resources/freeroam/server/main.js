@@ -137,8 +137,15 @@ registerChatCommand("skin", (player, message, command, args) => {
         return;
     }
 
-    // A short name from skins.js, or anything Human.setSkin takes (profile path or hash).
-    if (!player.setSkin(SKINS[args[0]] || args[0])) {
+    // A short name from skins.js, a profile path or a hash. Anything else is a mistyped name: the
+    // server cannot tell whether a hash names a profile, so it would be accepted and never load.
+    const name = args[0];
+    const isPathOrHash = name.includes("/") || /^(0x[0-9a-f]+|[0-9]+)$/i.test(name);
+    if (!Object.hasOwn(SKINS, name) && !isPathOrHash) {
+        Chat.sendToPlayer(player, `[SERVER] Unknown skin "${name}" (see /skins).`);
+        return;
+    }
+    if (!player.setSkin(Object.hasOwn(SKINS, name) ? SKINS[name] : name)) {
         Chat.sendToPlayer(player, `[SERVER] Invalid skin "${args[0]}".`);
         return;
     }
