@@ -37,6 +37,13 @@ namespace MafiaMP::Scripting {
 
         std::string GetNickname() const;
 
+        // Spawn profile (skin): a decimal or 0x-prefixed hash, or a profile path such as
+        // "visuals/hero/game_main_tommy_casual", hashed as the game does. False when the value is
+        // invalid or the human is gone.
+        bool SetSkin(const std::string &skin);
+        // Current spawn profile hash, as a decimal string: it does not fit a JS number.
+        std::string GetSkin() const;
+
         v8::Local<v8::Value> GetVehicle(v8::Isolate *isolate) const;
         uint64_t GetVehicleId() const;
         int GetVehicleSeatIndex() const;

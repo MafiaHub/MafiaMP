@@ -43,8 +43,13 @@ namespace MafiaMP::Core::Modules {
 
         bool isLocalPlayer = false;
 
-        // Last skin applied to the game ped, to detect replicated skin changes.
+        // Remote humans: the spawn profile `info` was requested for, or the last one that failed to
+        // spawn, so a failure is not retried every frame.
         uint64_t appliedSkin = 0;
+        // Remote humans: a ped cannot change spawn profile in place, so one of the new profile is
+        // requested beside the current one and replaces it once spawned.
+        Game::Streaming::EntityTrackingInfo *reskinInfo = nullptr;
+        uint64_t reskinSkin                             = 0;
 
         // --- Replica3 hooks ---
         void OnConstructed() override;
@@ -56,6 +61,13 @@ namespace MafiaMP::Core::Modules {
         // Per-frame driver for this human.
         void Frame();
 
+        // Local player: switch the game's player model to modelHash when it changed.
+        void ApplyLocalSkin();
+
+        // Remote humans: request a ped of modelHash when it changed. Not called from Frame(), which
+        // also runs from the entity factory's own request callback.
+        void UpdateRemoteSkin();
+
         // Teleport the local player's game ped to this entity's replicated transform.
         void TeleportLocalToReplicated();
 
@@ -66,7 +78,7 @@ namespace MafiaMP::Core::Modules {
 
       private:
         void BindLocalPlayer();
-        void RequestPed();
+        Game::Streaming::EntityTrackingInfo *RequestPed();
         void ApplyRemote();
         void ReadLocal();
         void DrawNametag();
