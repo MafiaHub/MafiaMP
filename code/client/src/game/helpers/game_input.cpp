@@ -23,8 +23,12 @@ namespace MafiaMP::Game {
         switch (msg) {
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
-            _keysDown[wParam]    = true;
-            _keysPressed[wParam] = true;
+            // Bit 30 is set on the repeats Windows sends while a key is held: a press is the first
+            // keydown only, or a held Enter reopens the chat it has just sent.
+            if ((lParam & (1 << 30)) == 0) {
+                _keysPressed[wParam] = true;
+            }
+            _keysDown[wParam] = true;
             break;
         case WM_KEYUP:
         case WM_SYSKEYUP:
