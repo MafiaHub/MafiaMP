@@ -73,13 +73,17 @@ namespace MafiaMP::Core::Modules {
 
             // The ped of a new spawn profile is ready: it takes the place of the current one. The old
             // ped belongs to another spawner than the one being updated, so returning it here is safe.
+            // The new ped starts on foot: one whose player sits in a car is warped into the seat, as
+            // for a human streamed in already seated.
             if (info == self->reskinInfo) {
                 Core::gApplication->GetEntityFactory()->ReturnEntity(self->info);
+                const bool seated = self->data.carPassenger.carId != 0;
                 self->info        = info;
                 self->appliedSkin = self->reskinSkin;
                 self->reskinInfo  = nullptr;
-                self->enterState  = STATE_OUTSIDE;
-                self->enterForced = false;
+                self->enterState  = seated ? STATE_ENTERING : STATE_OUTSIDE;
+                self->enterForced = seated;
+                self->leaveForced = false;
             }
 
             SDK::ue::sys::math::C_Vector newPos    = {self->position.x, self->position.y, self->position.z};
