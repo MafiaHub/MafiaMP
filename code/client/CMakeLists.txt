@@ -51,12 +51,12 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/scene_object_manager.cpp
     src/core/modules/vehicle.cpp
     src/core/modules/human.cpp
+    src/core/modules/blips.cpp
     src/core/builtins/ui.cpp
     src/game/entities/factory.cpp
     src/game/streaming/entity_factory.cpp
     src/game/helpers/controls.cpp
     src/game/helpers/game_input.cpp
-    src/game/helpers/blips.cpp
     src/game/helpers/camera.cpp
     src/game/helpers/human.cpp
     src/game/helpers/ui.cpp
