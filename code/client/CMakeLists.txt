@@ -74,6 +74,9 @@ set(MAFIAMP_SDK_FILES
     src/sdk/entities/c_entity_list.cpp
     srC/sdk/entities/c_human2.cpp
     src/sdk/entities/c_player_2.cpp
+    src/sdk/game/ai/c_human_ai_request_queue.cpp
+    src/sdk/game/ai/s_human_ai_request.cpp
+    src/sdk/game/ai/s_human_ai_request_play_anim_named.cpp
     src/sdk/ue/game/vehicle/c_vehicle.cpp
     src/sdk/c_inventory_wrapper.cpp
     src/sdk/prefab/c_prefab_manager.cpp

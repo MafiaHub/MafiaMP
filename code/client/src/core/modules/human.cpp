@@ -19,11 +19,12 @@
 #include "sdk/c_player_teleport_module.h"
 #include "sdk/entities/c_car.h"
 #include "sdk/entities/c_player_2.h"
+#include "sdk/game/ai/s_human_ai_request_play_anim_named.h"
 #include "sdk/ue/game/anim/e_wanim_behavior_var.h"
+#include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/ue/game/human/c_behavior_character.h"
 #include "sdk/ue/game/humanai/c_character_state_handler.h"
 #include "sdk/ue/game/vehicle/c_vehicle.h"
-#include "sdk/ue/game/camera/c_game_camera.h"
 #include "sdk/wrappers/c_human_2_car_wrapper.h"
 
 #include "shared/entities/register_entities.h"
@@ -35,6 +36,7 @@
 #include <networking/replication/replication_manager.h>
 
 #include <mafianet/bit_stream.h>
+#include <mafianet/string.h>
 
 namespace MafiaMP::Core::Modules {
     namespace {
@@ -76,6 +78,7 @@ namespace MafiaMP::Core::Modules {
             // The new ped starts on foot: one whose player sits in a car is warped into the seat, as
             // for a human streamed in already seated.
             if (info == self->reskinInfo) {
+                self->ReleaseAnimation();
                 Core::gApplication->GetEntityFactory()->ReturnEntity(self->info);
                 const bool seated = self->data.carPassenger.carId != 0;
                 self->info        = info;
@@ -170,6 +173,36 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
             self->human->GetInventoryWrapper()->AddWeapon(weaponId, ammo);
+        }
+
+        // Wire: <human NetworkID><animation name><loop>
+        void OnHumanPlayAnimation(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
+            uint64_t id = 0;
+            MafiaNet::RakString name;
+            bool loop = false;
+            if (!bs->Read(id) || !bs->Read(name) || !bs->Read(loop) || name.IsEmpty()) {
+                return;
+            }
+
+            // Animations are transient: a human that is not spawned here simply misses it.
+            auto *self = ResolveHuman(id);
+            if (!self || !self->human) {
+                return;
+            }
+            self->PlayAnimation(name.C_String(), loop);
+        }
+
+        // Wire: <human NetworkID>
+        void OnHumanStopAnimations(MafiaNet::BitStream *bs, MafiaNet::Packet *, void *) {
+            uint64_t id = 0;
+            if (!bs->Read(id)) {
+                return;
+            }
+            auto *self = ResolveHuman(id);
+            if (!self || !self->human) {
+                return;
+            }
+            self->StopAnimation();
         }
 
     } // namespace
@@ -291,6 +324,7 @@ namespace MafiaMP::Core::Modules {
     }
 
     void Human::DeallocReplica(MafiaNet::Connection_RM3 *) {
+        ReleaseAnimation();
         if (isLocalPlayer) {
             if (Core::gApplication->GetLocalPlayer() == this) {
                 Core::gApplication->SetLocalPlayer(nullptr);
@@ -316,11 +350,106 @@ namespace MafiaMP::Core::Modules {
         }
     }
 
+    void Human::PlayAnimation(char const *animationName, bool loop) {
+        // A seated ped plays nothing: its car handler would be cancelled under it.
+        if (!human || !charController || SDK::ue::game::humanai::C_CharacterStateHandler::IsVehicleStateHandlerType(charController->GetCurrentStateHandlerType())) {
+            return;
+        }
+        ReleaseAnimation();
+
+        // Build the request the play-animation AI action would and hand it to the controller
+        // directly, for the local player and remote peds alike: a remote ped's AI never runs that
+        // action, and one path for both keeps their animations in step (the AI restarts a looped
+        // animation itself, the request loops it in the handler).
+        animationRequest = SDK::game::ai::S_HumanAIRequestPlayAnimNamed::Create(animationName, loop);
+        if (!animationRequest) {
+            return;
+        }
+        SDK::ue::C_WeakPtr<SDK::game::ai::S_HumanAIRequest, SDK::ue::S_SingleThreadedPolicy, 0> request = animationRequest->GetWeakPtr();
+        if (!request.Get()) {
+            ReleaseAnimation();
+            return;
+        }
+        animationRequestedAt = std::chrono::steady_clock::now();
+        animationStarted     = false;
+
+        // A remote ped's controller switches to the desired handler on every frame and drops AI
+        // requests; let the game drive it while the animation plays.
+        if (!isLocalPlayer) {
+            charController->SetDesiredHandlerType(SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_NONE);
+            charController->SetGameDriven(true);
+        }
+        static_cast<SDK::ue::game::humanai::C_CharacterController *>(charController)->ProcessAILocomotionRequest(request);
+    }
+
+    void Human::StopAnimation() {
+        if (!animationRequest) {
+            return;
+        }
+        // Without its request the play-animation handler ends. A remote ped then goes back to its
+        // replicated state at once rather than on the next update.
+        ReleaseAnimation();
+        if (!isLocalPlayer) {
+            ApplyRemote();
+        }
+    }
+
+    void Human::ReleaseAnimation() {
+        if (!animationRequest) {
+            return;
+        }
+        if (charController && !isLocalPlayer) {
+            charController->SetGameDriven(false);
+        }
+        animationRequest->Release();
+        animationRequest = nullptr;
+    }
+
+    bool Human::FollowAnimation() {
+        if (!animationRequest) {
+            return false;
+        }
+        if (!charController) {
+            ReleaseAnimation();
+            return false;
+        }
+
+        // The local ped plays it until the game ends it (finished, or interrupted by moving). A remote
+        // ped follows its owner: it plays while the owner's replicated handler is the play-animation
+        // one, and stops as soon as the owner heads for a car.
+        bool playing = false;
+        if (isLocalPlayer) {
+            playing = charController->GetCurrentStateHandlerType() == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_PLAYANIM;
+        }
+        else {
+            const auto ownerHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(data._charStateHandlerType);
+            if (data.carPassenger.carId != 0 || enterState != STATE_OUTSIDE || SDK::ue::game::humanai::C_CharacterStateHandler::IsVehicleStateHandlerType(ownerHandlerType)) {
+                ReleaseAnimation();
+                return false;
+            }
+            playing = ownerHandlerType == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_PLAYANIM;
+        }
+
+        animationStarted |= playing;
+        const auto startTimeout = isLocalPlayer ? kLocalAnimationStartTimeout : kRemoteAnimationStartTimeout;
+        if (playing || (!animationStarted && std::chrono::steady_clock::now() - animationRequestedAt <= startTimeout)) {
+            return true;
+        }
+        ReleaseAnimation();
+        return false;
+    }
+
     void Human::Frame() {
         if (isLocalPlayer) {
+            FollowAnimation();
             ReadLocal();
         }
         else if (human) {
+            // An animation that ended between two updates hands the ped back to its replicated state.
+            if (animationRequest && !FollowAnimation()) {
+                ApplyRemote();
+            }
+
             // Drive the remote ped's vehicle entry, then its interpolated transform, then UI.
             if (charController && charController->GetCurrentStateHandlerType() != SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
                 if (enterState == STATE_ENTERING) {
@@ -506,6 +635,12 @@ namespace MafiaMP::Core::Modules {
         }
     }
 
+    void Human::ApplyRemoteTransform() {
+        // Set the interpolation target toward the replicated transform.
+        interpolator.GetPosition()->SetTargetValue({human->GetPos().x, human->GetPos().y, human->GetPos().z}, position, MafiaMP::Core::gApplication->GetTickIntervalMs());
+        interpolator.GetRotation()->SetTargetValue({human->GetRot().w, human->GetRot().x, human->GetRot().y, human->GetRot().z}, rotation, MafiaMP::Core::gApplication->GetTickIntervalMs());
+    }
+
     void Human::ApplyRemote() {
         if (!human || !charController) {
             return;
@@ -517,6 +652,13 @@ namespace MafiaMP::Core::Modules {
         MafiaMP::Game::Helpers::Human::SetHealthPercent(human, data._healthPercent);
 
         const auto desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(data._charStateHandlerType);
+
+        // Forcing the replicated handler or move state would cancel a scripted animation: while it
+        // plays, follow only the owner's transform. It ends first when the owner heads for a car.
+        if (FollowAnimation()) {
+            ApplyRemoteTransform();
+            return;
+        }
 
         // While the ped gets out no handler is desired: the controller switches to the desired
         // handler every frame, which would pull the ped out of its exit animation.
@@ -537,9 +679,7 @@ namespace MafiaMP::Core::Modules {
             return;
         }
 
-        // Set the interpolation target toward the replicated transform.
-        interpolator.GetPosition()->SetTargetValue({human->GetPos().x, human->GetPos().y, human->GetPos().z}, position, MafiaMP::Core::gApplication->GetTickIntervalMs());
-        interpolator.GetRotation()->SetTargetValue({human->GetRot().w, human->GetRot().x, human->GetRot().y, human->GetRot().z}, rotation, MafiaMP::Core::gApplication->GetTickIntervalMs());
+        ApplyRemoteTransform();
 
         charController->SetDesiredHandlerType(desiredStateHandlerType);
         charController->SetStalkMoveOverride(data._isStalking);
@@ -621,6 +761,8 @@ namespace MafiaMP::Core::Modules {
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanShoot), &OnHumanShoot, nullptr, 0);
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanReload), &OnHumanReload, nullptr, 0);
         rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanAddWeapon), &OnHumanAddWeapon, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanPlayAnimation), &OnHumanPlayAnimation, nullptr, 0);
+        rpc->RegisterSlot(net->ResolveIdentifier(Shared::RPC::kHumanStopAnimations), &OnHumanStopAnimations, nullptr, 0);
     }
 
     void Human::UpdateAll() {

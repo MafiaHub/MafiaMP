@@ -29,6 +29,10 @@ namespace MafiaMP::Scripting {
 
         void AddWeapon(int weaponId, int ammo);
 
+        // Plays a game animation by name on every client, looping until stopped when asked to.
+        void PlayAnimation(const std::string &name, bool loop);
+        void StopAnimations();
+
         Framework::Scripting::Builtins::Vector3 GetAimDir() const;
         Framework::Scripting::Builtins::Vector3 GetAimPos() const;
 

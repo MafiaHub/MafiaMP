@@ -5,6 +5,7 @@
 #include "shared/entities/human_entity.h"
 
 #include "sdk/entities/c_player_2.h"
+#include "sdk/game/ai/s_human_ai_request_play_anim_named.h"
 
 #include "game/overrides/character_controller.h"
 #include "game/streaming/entity_tracking_info.h"
@@ -42,6 +43,24 @@ namespace MafiaMP::Core::Modules {
         // after a leave has the leave retried, forced.
         std::chrono::steady_clock::time_point carActionIssuedAt {};
         static constexpr auto kCarActionTimeout = std::chrono::seconds(2);
+
+        // A scripted animation: the request handed to the character controller, which keeps only weak
+        // pointers to it, held until the animation ends. While it is held, a remote ped is not forced
+        // into its replicated state, which would cancel the animation.
+        SDK::game::ai::S_HumanAIRequestPlayAnimNamed *animationRequest = nullptr;
+        // When the request was handed over, and whether its animation has played since. One that has
+        // not started within the timeout never will (unknown name, or the ped could not play it); a
+        // remote ped waits longer, as it learns that its owner started from replication.
+        std::chrono::steady_clock::time_point animationRequestedAt {};
+        bool animationStarted                              = false;
+        static constexpr auto kLocalAnimationStartTimeout  = std::chrono::milliseconds(1000);
+        static constexpr auto kRemoteAnimationStartTimeout = std::chrono::milliseconds(1500);
+
+        // Play an animation by name, looping it until stopped when asked to.
+        void PlayAnimation(char const *animationName, bool loop);
+        void StopAnimation();
+        // Drop the request without reapplying the replicated state, for a ped about to go away.
+        void ReleaseAnimation();
 
         bool isLocalPlayer = false;
 
@@ -82,7 +101,9 @@ namespace MafiaMP::Core::Modules {
         void BindLocalPlayer();
         Game::Streaming::EntityTrackingInfo *RequestPed();
         void ApplyRemote();
+        void ApplyRemoteTransform();
         bool ApplyRemoteCarExit();
+        bool FollowAnimation();
         void ApplyRemoteSeatSwitch();
         void ReadLocal();
         void ReadLocalCarSeat();

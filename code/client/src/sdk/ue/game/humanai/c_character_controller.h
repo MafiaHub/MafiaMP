@@ -3,6 +3,8 @@
 #include <cstdint>
 
 #include "sdk/entities/c_actor.h"
+#include "sdk/game/ai/s_human_ai_request.h"
+#include "sdk/ue/c_weak_ptr.h"
 #include "c_character_state_handler.h"
 
 #include "c_character_state_handler_aim.h"
@@ -270,6 +272,7 @@ namespace SDK {
                 m_SprintMoveSpeed = sprintMoveSpeed;
             }
             bool TriggerActorAction(C_Actor *, E_ActorActions, int, bool, bool);
+            void ProcessAILocomotionRequest(ue::C_WeakPtr<SDK::game::ai::S_HumanAIRequest, ue::S_SingleThreadedPolicy, 0> request);
         };
         static_assert(sizeof(C_CharacterController) == 848, "Wrong size: ue::game::humanai::C_CharacterController");
     } // namespace ue::game::humanai
