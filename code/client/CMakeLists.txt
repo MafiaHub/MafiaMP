@@ -100,6 +100,7 @@ set(MAFIAMP_SDK_FILES
     src/sdk/ue/game/humanai/c_character_state_handler.cpp
     src/sdk/ue/game/humanai/c_character_state_handler_aim.cpp
     src/sdk/ue/game/humanai/c_character_state_handler_base_locomotion.cpp
+    src/sdk/ue/game/humanai/c_character_state_handler_car.cpp
     src/sdk/ue/game/humanai/c_character_state_handler_move.cpp
     src/sdk/ue/game/humanai/c_character_state_handler_weapon.cpp
     src/sdk/ue/game/human/c_behavior_character.cpp
