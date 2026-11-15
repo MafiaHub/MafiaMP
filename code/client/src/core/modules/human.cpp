@@ -343,6 +343,9 @@ namespace MafiaMP::Core::Modules {
                     human->SetRot({newRot.x, newRot.y, newRot.z, newRot.w});
                 }
             }
+            else if (charController) {
+                ApplyRemoteSeatSwitch();
+            }
             DrawNametag();
         }
     }
@@ -476,6 +479,25 @@ namespace MafiaMP::Core::Modules {
         }
 
         return enterState == STATE_LEAVING;
+    }
+
+    void Human::ApplyRemoteSeatSwitch() {
+        // A seated ped follows its player to the paired seat the way the game switches its own peds.
+        // Any other seat change goes through a leave and an enter, which the replicated seat clears
+        // and sets in between.
+        if (enterState != STATE_INSIDE || data.carPassenger.carId == 0) {
+            return;
+        }
+        auto *carHandler = charController->GetCarHandler();
+        auto *carWrapper = carHandler->GetHuman2CarWrapper();
+        auto *car        = Vehicle::GetByNetworkId(data.carPassenger.carId);
+        if (!carWrapper || !car || carWrapper->GetActor() != car->car) {
+            return;
+        }
+        const int32_t seat = data.carPassenger.seatId;
+        if (carHandler->IsSeated() && carHandler->GetCurrentSeatIndex() != seat && carHandler->CanSwitchToSeat(seat)) {
+            carHandler->SwitchSeat(seat);
+        }
     }
 
     void Human::ApplyRemote() {

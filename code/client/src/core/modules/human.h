@@ -83,6 +83,7 @@ namespace MafiaMP::Core::Modules {
         Game::Streaming::EntityTrackingInfo *RequestPed();
         void ApplyRemote();
         bool ApplyRemoteCarExit();
+        void ApplyRemoteSeatSwitch();
         void ReadLocal();
         void ReadLocalCarSeat();
         void DrawNametag();
