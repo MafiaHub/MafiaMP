@@ -321,16 +321,16 @@ namespace MafiaMP::Core::Modules {
                     auto *car = Vehicle::GetByNetworkId(data.carPassenger.carId);
                     if (car && car->car) {
                         if (Game::Helpers::Human::PutIntoCar(charController, car->car, data.carPassenger.seatId, enterForced)) {
-                            enterState    = STATE_INSIDE;
-                            enterForced   = false;
-                            enterIssuedAt = std::chrono::steady_clock::now();
+                            enterState        = STATE_INSIDE;
+                            enterForced       = false;
+                            carActionIssuedAt = std::chrono::steady_clock::now();
                         }
                     }
                 }
                 // The enter action can be accepted and still never seat the ped, for instance when
                 // the car is already moving. Instead of leaving it to float beside the car, retry
                 // once the action had time to finish and warp it into the seat.
-                else if (enterState == STATE_INSIDE && data.carPassenger.carId != 0 && std::chrono::steady_clock::now() - enterIssuedAt > kEnterCarTimeout) {
+                else if (enterState == STATE_INSIDE && data.carPassenger.carId != 0 && std::chrono::steady_clock::now() - carActionIssuedAt > kCarActionTimeout) {
                     enterState  = STATE_ENTERING;
                     enterForced = true;
                 }
@@ -440,6 +440,44 @@ namespace MafiaMP::Core::Modules {
         }
     }
 
+    bool Human::ApplyRemoteCarExit() {
+        const bool inCarHandler = charController->GetCurrentStateHandlerType() == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR;
+        const auto now          = std::chrono::steady_clock::now();
+
+        // A leave ends once the ped is out of the car handler, whatever the replicated seat says by
+        // then: a player who gets back in before the exit animation ends must find the ped outside,
+        // not leaving for good. A leave that has not got the ped out in time is retried, forced.
+        if (enterState == STATE_LEAVING) {
+            if (!inCarHandler) {
+                enterState  = STATE_OUTSIDE;
+                leaveForced = false;
+            }
+            else if (now - carActionIssuedAt > kCarActionTimeout) {
+                enterState  = STATE_INSIDE;
+                leaveForced = true;
+            }
+        }
+
+        // Leave the car once we are no longer a passenger. A ped that never got seated is outside
+        // already. The car is the one the game seated the ped in: the ped's owner is not that car
+        // for a ped put in through an enter action, and the leave action failed every time.
+        if (data.carPassenger.carId == 0 && enterState == STATE_INSIDE) {
+            if (!inCarHandler) {
+                enterState  = STATE_OUTSIDE;
+                leaveForced = false;
+            }
+            else {
+                auto *carWrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
+                if (carWrapper && Game::Helpers::Human::RemoveFromCar(charController, carWrapper->GetActor(), leaveForced)) {
+                    enterState        = STATE_LEAVING;
+                    carActionIssuedAt = now;
+                }
+            }
+        }
+
+        return enterState == STATE_LEAVING;
+    }
+
     void Human::ApplyRemote() {
         if (!human || !charController) {
             return;
@@ -452,27 +490,11 @@ namespace MafiaMP::Core::Modules {
 
         const auto desiredStateHandlerType = static_cast<SDK::ue::game::humanai::C_CharacterStateHandler::E_State_Handler_Type>(data._charStateHandlerType);
 
-        // Leave the car if we are no longer a passenger. The ped counts as outside only once it is
-        // out of the car handler (a ped that never got seated already is), and while it gets out
-        // no handler is forced on it: the controller switches to the desired handler every frame,
-        // which would pull the ped out of its exit animation.
-        if (data.carPassenger.carId == 0 && (enterState == STATE_INSIDE || enterState == STATE_LEAVING)) {
-            const bool seated = charController->GetCurrentStateHandlerType() == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR;
-            if (!seated) {
-                enterState = STATE_OUTSIDE;
-            }
-            else if (enterState == STATE_INSIDE) {
-                // The car the game seated the ped in; the ped's owner is not that car for a ped
-                // put in through an enter action, and the leave action then failed every time.
-                auto *wrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
-                if (wrapper && Game::Helpers::Human::RemoveFromCar(charController, wrapper->GetActor(), false)) {
-                    enterState = STATE_LEAVING;
-                }
-            }
-            if (enterState == STATE_LEAVING) {
-                charController->SetDesiredHandlerType(SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_NONE);
-                return;
-            }
+        // While the ped gets out no handler is desired: the controller switches to the desired
+        // handler every frame, which would pull the ped out of its exit animation.
+        if (ApplyRemoteCarExit()) {
+            charController->SetDesiredHandlerType(SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_NONE);
+            return;
         }
 
         if (SDK::ue::game::humanai::C_CharacterStateHandler::IsVehicleStateHandlerType(desiredStateHandlerType)) {
