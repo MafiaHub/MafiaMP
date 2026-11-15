@@ -343,11 +343,15 @@ namespace SDK {
         gPatterns.C_Motor__SetFuel = hook::get_opcode_address("E8 ? ? ? ? 33 C0 0F 28 74 24 ? 48 83 C4 ? 5B C3 ? ? ? 48 89 5C 24 ?");
 
         // C_Navigation
+        gPatterns.C_Navigation__ChangeIconTargetToPos     = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 6C 24 18 56 41 56 41 57 48 83 EC 20 4D 8B F0 45 33 FF"));
+        gPatterns.C_Navigation__ClearSelectedObjective    = reinterpret_cast<uint64_t>(hook::get_pattern("40 55 57 41 57 48 83 EC 40 80 B9 E8 01 00 00 00"));
         gPatterns.C_Navigation__EnableGPSCustomPath       = hook::get_opcode_address("E8 ? ? ? ? 4D 85 F6 0F 84 ? ? ? ? 4D 2B E6");
+        gPatterns.C_Navigation__GetEntityByGameEntity     = hook::get_opcode_address("E8 ? ? ? ? 48 85 C0 0F 85 ? ? ? ? 48 89 74 24 40 48 8B B7 D0 00 00 00");
+        gPatterns.C_Navigation__GetEntityById             = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 08 48 8B D9 89 54 24 10 48 B9 B3 01 00 00 00 01 00 00 44 0F B6 C2 48 B8 25 23 22 84 E4 9C F2 CB 44 8B CA 4C 33 C0 0F B6 44 24 11 48 8B 93 48 01 00 00"));
         gPatterns.C_Navigation__GetInstance               = hook::get_opcode_address("E8 ? ? ? ? 49 8B 5E 60");
-        gPatterns.C_Navigation__RegisterHumanEntity       = reinterpret_cast<uint64_t>(hook::get_pattern("40 55 56 57 41 56 41 57 48 83 EC 20 48"));
         gPatterns.C_Navigation__RegisterHumanPlayer       = hook::get_opcode_address("E8 ? ? ? ? 48 83 C6 10 49 3B F7");
         gPatterns.C_Navigation__RegisterHumanPolice       = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC 38 45 33 C9 C6 44 24 ? ?"));
+        gPatterns.C_Navigation__RegisterIconPos           = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 20 49 8B F1 4D 8B F0 48 8B E9"));
         gPatterns.C_Navigation__RegisterVehicleCommon     = hook::get_opcode_address("E8 ? ? ? ? 89 87 ? ? ? ? 48 8B CF E8 ? ? ? ?");
         gPatterns.C_Navigation__RegisterVehicleEntity     = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B C4 53 55 41 56 48 83 EC 70"));
         gPatterns.C_Navigation__RegisterVehicleMoto       = hook::get_opcode_address("E8 ? ? ? ? 48 8B 74 24 ? 48 8B 5C 24 ? 48 83 C4 20 5F C3 8B 48 04");
@@ -355,6 +359,7 @@ namespace SDK {
         gPatterns.C_Navigation__RegisterVehiclePoliceBoat = hook::get_opcode_address("E8 ? ? ? ? 48 B8 ? ? ? ? ? ? ? ? 48 09 87 ? ? ? ? 48 8B 5C 24 ?");
         gPatterns.C_Navigation__RegisterVehiclePoliceMoto = hook::get_opcode_address("E8 ? ? ? ? 89 86 ? ? ? ? C6 86 ? ? ? ? ? 48 8B 5C 24 ?");
         gPatterns.C_Navigation__RegisterVehicleTaxi       = hook::get_opcode_address("E8 ? ? ? ? 48 89 77 38 33 F6");
+        gPatterns.C_Navigation__SelectObjective           = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B C4 44 88 40 18 89 50 10 55"));
         gPatterns.C_Navigation__SetUserMark               = hook::get_opcode_address("E8 ? ? ? ? 48 83 C4 ? C3 ? ? ? ? ? ? ? 48 89 5C 24 ? 57 48 83 EC ? 41 8B D8");
         gPatterns.C_Navigation__UnregisterHuman           = hook::get_opcode_address("E8 ? ? ? ? 8B 05 ? ? ? ? 48 8B 7C 24 ?");
         gPatterns.C_Navigation__UnregisterId              = hook::get_opcode_address("E8 ? ? ? ? 39 BE ? ? ? ? 75 0A");

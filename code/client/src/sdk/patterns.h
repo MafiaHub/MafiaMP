@@ -325,11 +325,15 @@ namespace SDK {
         uint64_t C_Motor__SetFuel = 0x0;
 
         // C_Navigation
+        uint64_t C_Navigation__ChangeIconTargetToPos     = 0x0;
+        uint64_t C_Navigation__ClearSelectedObjective    = 0x0;
         uint64_t C_Navigation__EnableGPSCustomPath       = 0x0;
+        uint64_t C_Navigation__GetEntityByGameEntity     = 0x0;
+        uint64_t C_Navigation__GetEntityById             = 0x0;
         uint64_t C_Navigation__GetInstance               = 0x0;
-        uint64_t C_Navigation__RegisterHumanEntity       = 0x0;
         uint64_t C_Navigation__RegisterHumanPlayer       = 0x0;
         uint64_t C_Navigation__RegisterHumanPolice       = 0x0;
+        uint64_t C_Navigation__RegisterIconPos           = 0x0;
         uint64_t C_Navigation__RegisterVehicleCommon     = 0x0;
         uint64_t C_Navigation__RegisterVehicleEntity     = 0x0;
         uint64_t C_Navigation__RegisterVehicleMoto       = 0x0;
@@ -337,6 +341,7 @@ namespace SDK {
         uint64_t C_Navigation__RegisterVehiclePoliceBoat = 0x0;
         uint64_t C_Navigation__RegisterVehiclePoliceMoto = 0x0;
         uint64_t C_Navigation__RegisterVehicleTaxi       = 0x0;
+        uint64_t C_Navigation__SelectObjective           = 0x0;
         uint64_t C_Navigation__SetUserMark               = 0x0;
         uint64_t C_Navigation__UnregisterHuman           = 0x0;
         uint64_t C_Navigation__UnregisterId              = 0x0;
