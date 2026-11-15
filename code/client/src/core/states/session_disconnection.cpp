@@ -4,6 +4,7 @@
 #include <utils/states/machine.h>
 
 #include "core/application.h"
+#include "core/modules/blips.h"
 
 namespace MafiaMP::Core::States {
     SessionDisconnectionState::SessionDisconnectionState() {}
@@ -19,6 +20,8 @@ namespace MafiaMP::Core::States {
     }
 
     bool SessionDisconnectionState::OnEnter(Framework::Utils::States::Machine *machine) {
+        // The server's blips went with the session.
+        Modules::Blips::Clear();
         machine->RequestNextState(StateIds::MainMenu);
 
         return true;

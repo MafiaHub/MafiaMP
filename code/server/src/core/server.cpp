@@ -1,5 +1,6 @@
 #include "server.h"
 
+#include "core/builtins/blip.h"
 #include "core/builtins/builtins.h"
 #include "core/builtins/chat.h"
 #include "core/builtins/human.h"
@@ -198,6 +199,7 @@ namespace MafiaMP {
 
     void Server::PostUpdate() {
         SyncVehicleSeats();
+        _blips.Update();
     }
 
     void Server::SyncVehicleSeats() {
@@ -335,12 +337,14 @@ namespace MafiaMP {
         repl->SetViewer(info.guid, human);
 
         SendEnvironment(MafiaNet::ToGuid(info.guid), false);
+        _blips.SendAll(MafiaNet::ToGuid(info.guid), human->GetNetworkID());
         Scripting::Player::EventPlayerConnected(human->GetNetworkID());
     }
 
     void Server::OnPlayerDisconnect(MafiaNet::PeerGuid guid) {
         if (auto *human = ViewerHuman(guid)) {
             Scripting::Player::EventPlayerDisconnected(human->GetNetworkID());
+            _blips.OnHumanRemoved(human->GetNetworkID());
         }
     }
 
@@ -377,6 +381,7 @@ namespace MafiaMP {
             return;
         }
         engine->AddRuntimeDisposingListener([](v8::Isolate *isolate) {
+            Scripting::Blip::UnregisterIsolate(isolate);
             Scripting::Vehicle::UnregisterIsolate(isolate);
             Scripting::Player::UnregisterIsolate(isolate);
             Scripting::Human::UnregisterIsolate(isolate);

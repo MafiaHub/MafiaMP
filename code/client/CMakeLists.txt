@@ -51,6 +51,7 @@ set(MAFIAMP_CLIENT_FILES
     src/core/hooks/scene_object_manager.cpp
     src/core/modules/vehicle.cpp
     src/core/modules/human.cpp
+    src/core/modules/blips.cpp
     src/core/builtins/ui.cpp
     src/game/entities/factory.cpp
     src/game/streaming/entity_factory.cpp

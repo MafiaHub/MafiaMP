@@ -26,6 +26,7 @@
 #include "shared/rpc/ids.h"
 
 #include "builtins/builtins.h"
+#include "modules/blips.h"
 #include "modules/human.h"
 #include "modules/vehicle.h"
 
@@ -152,6 +153,7 @@ namespace MafiaMP::Core {
         // Drive replicated entities into the game each frame.
         Core::Modules::Human::UpdateAll();
         Core::Modules::Vehicle::UpdateAll();
+        Core::Modules::Blips::UpdateAll();
 
         static bool isStyleInitialized = false;
         if (!isStyleInitialized) {
@@ -269,6 +271,7 @@ namespace MafiaMP::Core {
         // Register the client entity types (ClientHuman/ClientVehicle) and their RPC handlers.
         Modules::Human::Install();
         Modules::Vehicle::Install();
+        Modules::Blips::Install();
 
         Framework::Logging::GetLogger(FRAMEWORK_INNER_NETWORKING)->info("Networking messages registered!");
     }

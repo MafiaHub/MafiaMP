@@ -3,6 +3,7 @@
 #include "vehicle.h"
 
 #include "core/application.h"
+#include "blips.h"
 
 #include "sdk/ue/game/vehicle/c_vehicle.h"
 #include "sdk/mafia/framework/c_mafia_framework.h"
@@ -62,6 +63,7 @@ namespace MafiaMP::Core::Modules {
                 return;
             }
             auto car = reinterpret_cast<SDK::C_Car *>(info->GetEntity());
+            Blips::OnCarRemoved(car);
             if (wasCreated && car) {
                 car->Deactivate();
                 car->GameDone();

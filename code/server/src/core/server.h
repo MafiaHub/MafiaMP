@@ -2,6 +2,8 @@
 
 #include <integrations/server/instance.h>
 
+#include "blips.h"
+
 #include <mafianet/types.h>
 
 #include "shared/entities/human_entity.h"
@@ -40,6 +42,10 @@ namespace MafiaMP {
         // Send the current environment to one system (UNASSIGNED = broadcast to all).
         void SendEnvironment(MafiaNet::RakNetGUID target, bool broadcast) const;
 
+        Core::Blips &GetBlips() {
+            return _blips;
+        }
+
         static inline Server *_serverRef = nullptr;
 
       private:
@@ -57,5 +63,6 @@ namespace MafiaMP {
         std::unordered_set<uint64_t> _seatedVehicles;
         // SyncVehicleSeats scratch, kept so its storage is reused from tick to tick.
         std::vector<Shared::Entities::HumanEntity *> _seatClaimants;
+        Core::Blips _blips;
     };
 } // namespace MafiaMP
