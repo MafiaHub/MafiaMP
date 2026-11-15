@@ -31,6 +31,11 @@ namespace SDK {
             E_DOOR_CLOSED  = 2
         };
 
+        // GetSeatID for an actor on no seat of the car, which it only occupies once GetIn ran.
+        enum E_Seat : uint32_t {
+            E_SEAT_NONE = 999,
+        };
+
       public:
         // Seat management
         unsigned int GetSeatID(C_Actor *pActor) const;

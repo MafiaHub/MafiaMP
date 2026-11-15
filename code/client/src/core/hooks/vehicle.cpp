@@ -70,7 +70,7 @@ void C_Human2CarWrapper__StartDrive(SDK::C_Human2CarWrapper *pThis, SDK::C_Actor
     }
 
     auto seatID = pThis->GetSeatID(pActor);
-    if (seatID != 999) {
+    if (seatID != SDK::C_Human2CarWrapper::E_SEAT_NONE) {
         // Set the seat status to occupied
         pThis->m_pUsedCar->SetSeatStatus(reinterpret_cast<SDK::I_Human2 *>(pActor), seatID, SDK::S_BaseSeat::E_BaseSeatStatus::OCCUPIED);
 
@@ -90,7 +90,7 @@ void C_Human2CarWrapper__EndDrive(SDK::C_Human2CarWrapper *pThis, SDK::C_Actor *
     pThis->m_pUsedCar->GetVehicle()->SetHandbrake(1.0, true);
 
     const auto seatID = pThis->GetSeatID(pActor);
-    if (seatID != 999) {
+    if (seatID != SDK::C_Human2CarWrapper::E_SEAT_NONE) {
         // Set the seat status to empty
         pThis->m_pUsedCar->SetSeatStatus(reinterpret_cast<SDK::I_Human2 *>(pActor), seatID, SDK::S_BaseSeat::E_BaseSeatStatus::EMPTY);
 
