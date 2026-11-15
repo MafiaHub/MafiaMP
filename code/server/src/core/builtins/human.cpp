@@ -116,7 +116,10 @@ bool Human::SetSkin(const std::string &skin) {
     if (!h || profile == 0) {
         return false;
     }
-    h->modelHash = profile;
+    if (h->GetSpawnProfile() == profile) {
+        return true;
+    }
+    h->SetSpawnProfile(profile);
     // Remote clients get it through the deltas, the owner through the forced state.
     h->ForceState();
     return true;
@@ -124,7 +127,7 @@ bool Human::SetSkin(const std::string &skin) {
 
 std::string Human::GetSkin() const {
     auto *h = ResolveHuman();
-    return h ? std::to_string(h->modelHash) : "0";
+    return h ? std::to_string(h->GetSpawnProfile()) : "0";
 }
 
 std::string Human::GetNickname() const {
