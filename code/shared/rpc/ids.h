@@ -28,6 +28,7 @@ namespace MafiaMP::Shared::RPC {
 
     // Map blips (server to client; the first field is the blip id)
     inline constexpr auto kSetBlip      = FW_RPC_IDENTIFIER("MafiaMP::SetBlip");
+    inline constexpr auto kMoveBlip     = FW_RPC_IDENTIFIER("MafiaMP::MoveBlip");
     inline constexpr auto kRemoveBlip   = FW_RPC_IDENTIFIER("MafiaMP::RemoveBlip");
     inline constexpr auto kSetBlipRoute = FW_RPC_IDENTIFIER("MafiaMP::SetBlipRoute");
 } // namespace MafiaMP::Shared::RPC

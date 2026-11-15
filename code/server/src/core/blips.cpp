@@ -4,11 +4,15 @@
 #include "shared/rpc/ids.h"
 
 #include <core_modules.h>
+#include <networking/channels.h>
 #include <networking/network_peer.h>
 #include <networking/replication/replication_manager.h>
 
 #include <mafianet/bit_stream.h>
 #include <mafianet/string.h>
+
+#include <algorithm>
+#include <vector>
 
 namespace MafiaMP::Core {
     namespace {
@@ -16,9 +20,17 @@ namespace MafiaMP::Core {
         constexpr auto kUpdateInterval = std::chrono::milliseconds(250);
         constexpr float kMoveThreshold = 2.0f;
 
+        // Blips name entities, so they travel on the construction channel and stay ordered after it.
+        constexpr char kChannel = Framework::Networking::ToOrderingChannel(Framework::Networking::Channel::Events);
+
         Framework::Networking::Replication::NetworkEntity *ResolveEntity(uint64_t networkId) {
             auto *repl = Framework::CoreModules::GetReplication();
             return repl ? repl->GetEntityByNetworkID(networkId) : nullptr;
+        }
+
+        Shared::Entities::HumanEntity *ResolveHuman(uint64_t networkId) {
+            auto *repl = Framework::CoreModules::GetReplication();
+            return repl ? repl->GetEntity<Shared::Entities::HumanEntity>(networkId) : nullptr;
         }
     } // namespace
 
@@ -83,7 +95,7 @@ namespace MafiaMP::Core {
     }
 
     void Blips::SetRoute(uint64_t humanId, uint32_t id) {
-        auto *human      = dynamic_cast<Shared::Entities::HumanEntity *>(ResolveEntity(humanId));
+        auto *human      = ResolveHuman(humanId);
         const auto *blip = Get(id);
         if (!human || (id != 0 && (!blip || (blip->visibleTo != 0 && blip->visibleTo != humanId)))) {
             return;
@@ -100,17 +112,6 @@ namespace MafiaMP::Core {
     uint32_t Blips::GetRoute(uint64_t humanId) const {
         const auto it = _routes.find(humanId);
         return it != _routes.end() ? it->second : 0;
-    }
-
-    void Blips::SendRoute(MafiaNet::RakNetGUID guid, uint32_t id) const {
-        auto *net = Framework::CoreModules::GetNetworkPeer();
-        if (!net) {
-            return;
-        }
-        // Wire: <id>, 0 for no route
-        MafiaNet::BitStream bs;
-        bs.Write(id);
-        net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kSetBlipRoute), &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, guid, false, false);
     }
 
     void Blips::Update() {
@@ -133,7 +134,7 @@ namespace MafiaMP::Core {
             }
             blip.position = entity->position;
             if (glm::distance(blip.position, blip.sentPosition) >= kMoveThreshold) {
-                Send(id, blip);
+                SendMove(id, blip, entity);
             }
         }
     }
@@ -163,7 +164,7 @@ namespace MafiaMP::Core {
             broadcast = true;
             return true;
         }
-        auto *human = dynamic_cast<Shared::Entities::HumanEntity *>(ResolveEntity(blip.visibleTo));
+        auto *human = ResolveHuman(blip.visibleTo);
         if (!human) {
             return false;
         }
@@ -192,7 +193,43 @@ namespace MafiaMP::Core {
         bs.Write(MafiaNet::RakString(blip.icon.c_str()));
         bs.Write(blip.position);
         bs.Write(blip.attachedTo);
-        net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kSetBlip), &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, guid, broadcast, false);
+        net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kSetBlip), &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, kChannel, guid, broadcast, false);
+    }
+
+    void Blips::SendMove(uint32_t id, Blip &blip, Framework::Networking::Replication::NetworkEntity *entity) const {
+        auto *net  = Framework::CoreModules::GetNetworkPeer();
+        auto *repl = Framework::CoreModules::GetReplication();
+        if (!net || !repl) {
+            return;
+        }
+        blip.sentPosition = blip.position;
+
+        // A client with the entity streamed in follows it itself. One it streams out of keeps the
+        // position it last drew, and gets the next move.
+        std::vector<MafiaNet::PeerGuid> following;
+        repl->ForEachStreamingPeer(entity, [&following](MafiaNet::PeerGuid guid) {
+            following.push_back(guid);
+        });
+        const auto send = [&](MafiaNet::PeerGuid guid) {
+            if (std::find(following.begin(), following.end(), guid) != following.end()) {
+                return;
+            }
+            // Wire: <id><position>. Sequenced: a newer move supersedes one still in flight, and none
+            // holds back the ordered blip messages.
+            MafiaNet::BitStream bs;
+            bs.Write(id);
+            bs.Write(blip.position);
+            net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kMoveBlip), &bs, MafiaNet::Priority::Medium, MafiaNet::Reliability::ReliableSequenced, kChannel, MafiaNet::ToGuid(guid), false, false);
+        };
+
+        if (blip.visibleTo == 0) {
+            repl->ForEachViewer([&send](MafiaNet::PeerGuid guid, Framework::Networking::Replication::NetworkEntity *) {
+                send(guid);
+            });
+        }
+        else if (auto *human = ResolveHuman(blip.visibleTo)) {
+            send(human->ownerGUID);
+        }
     }
 
     void Blips::SendRemove(uint32_t id, const Blip &blip) const {
@@ -205,6 +242,17 @@ namespace MafiaMP::Core {
         // Wire: <id>
         MafiaNet::BitStream bs;
         bs.Write(id);
-        net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kRemoveBlip), &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, 0, guid, broadcast, false);
+        net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kRemoveBlip), &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, kChannel, guid, broadcast, false);
+    }
+
+    void Blips::SendRoute(MafiaNet::RakNetGUID guid, uint32_t id) const {
+        auto *net = Framework::CoreModules::GetNetworkPeer();
+        if (!net) {
+            return;
+        }
+        // Wire: <id>, 0 for no route
+        MafiaNet::BitStream bs;
+        bs.Write(id);
+        net->GetRPC()->Signal(net->ResolveIdentifier(Shared::RPC::kSetBlipRoute), &bs, MafiaNet::Priority::High, MafiaNet::Reliability::ReliableOrdered, kChannel, guid, false, false);
     }
 } // namespace MafiaMP::Core

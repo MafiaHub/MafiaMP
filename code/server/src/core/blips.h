@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mafianet/types.h>
+#include <networking/replication/network_entity.h>
 
 #include <glm/glm.hpp>
 
@@ -16,11 +17,13 @@ namespace MafiaMP::Core {
       public:
         struct Blip {
             glm::vec3 position {};
+            // The game's icon name.
             std::string icon;
             // Entity the blip follows, by NetworkID; 0 for a blip that stays where it is put.
             uint64_t attachedTo = 0;
             // Human whose player alone sees the blip, by NetworkID; 0 for everyone.
             uint64_t visibleTo = 0;
+            // Where the clients were last sent the blip.
             glm::vec3 sentPosition {};
         };
 
@@ -36,17 +39,19 @@ namespace MafiaMP::Core {
         void SetRoute(uint64_t humanId, uint32_t id);
         uint32_t GetRoute(uint64_t humanId) const;
 
-        // Moves the blips that follow an entity, and drops those whose player left.
+        // Moves the blips that follow an entity, and detaches those whose entity is gone.
         void Update();
 
         // Sends a joining player every blip it sees.
         void SendAll(MafiaNet::RakNetGUID guid, uint64_t humanId) const;
 
+        // Drops the blips only this player saw, and its route.
         void OnHumanRemoved(uint64_t humanId);
 
       private:
         void Send(uint32_t id, Blip &blip) const;
         void SendTo(uint32_t id, const Blip &blip, MafiaNet::RakNetGUID guid, bool broadcast) const;
+        void SendMove(uint32_t id, Blip &blip, Framework::Networking::Replication::NetworkEntity *entity) const;
         void SendRemove(uint32_t id, const Blip &blip) const;
         void SendRoute(MafiaNet::RakNetGUID guid, uint32_t id) const;
         bool Target(const Blip &blip, MafiaNet::RakNetGUID &guid, bool &broadcast) const;
