@@ -226,6 +226,9 @@ namespace SDK {
         gPatterns.C_Human2CarWrapper__GetSeatID = hook::get_opcode_address("E8 ? ? ? ? 3D ? ? ? ? 75 0E");
         gPatterns.C_Human2CarWrapper__IsEngineOn = hook::get_opcode_address("E8 ? ? ? ? 84 C0 75 16 44 8B 87 ? ? ? ?");
 
+        // C_HumanAIRequestQueue
+        gPatterns.C_HumanAIRequestQueue__GetRequestQueue = reinterpret_cast<uint64_t>(hook::get_pattern("4C 89 44 24 18 53 57 41 54 41 55 48 83 EC 38 8B"));
+
         // C_HumanInventory
         gPatterns.C_HumanInventory__AddItem                       = hook::get_opcode_address("E8 ? ? ? ? E9 ? ? ? ? 41 8B D6");
         gPatterns.C_HumanInventory__AddItemByData                 = hook::get_opcode_address("E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? 48 8B 4B 18 45 33 C9");
@@ -514,6 +517,9 @@ namespace SDK {
         // S_HumanAIRequestPlayAnimation
         gPatterns.S_HumanAIRequestPlayAnimation__Constructor = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 20 48 8D 05 B1"));
         gPatterns.S_HumanAIRequestList__CollectWeakProxies   = reinterpret_cast<uint64_t>(hook::get_pattern("4C 89 44 24 18 53 57 41 54 41 55 48 83 EC 38 8B"));
+
+        // S_HumanAIRequestPlayAnimNamed
+        gPatterns.S_HumanAIRequestPlayAnimNamed__S_HumanAIRequestPlayAnimNamed = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 20 48 8D 05 ? ? ? ? 48 8B F9 4C 8B FA 33 D2 89 51 10 48 89 51 18"));
 
         // C_WAnimPlaybackManager
         gPatterns.C_WAnimPlaybackManager__PlayState = hook::get_opcode_address("E8 ? ? ? ? 4C 39 7F 50");

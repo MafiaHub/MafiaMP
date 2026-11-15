@@ -215,6 +215,9 @@ namespace SDK {
         uint64_t C_Human2CarWrapper__IsEngineOn = 0x0;
         uint64_t C_Human2CarWrapper__StartChangeSeat = 0x0;
 
+        // C_HumanAIRequestQueue
+        uint64_t C_HumanAIRequestQueue__GetRequestQueue = 0x0;
+
         // C_HumanInventory
         uint64_t C_HumanInventory__AddItem                       = 0x0;
         uint64_t C_HumanInventory__AddItemByData                 = 0x0;
@@ -487,6 +490,9 @@ namespace SDK {
         // S_HumanAIRequestPlayAnimation
         uint64_t S_HumanAIRequestPlayAnimation__Constructor = 0x0;
         uint64_t S_HumanAIRequestList__CollectWeakProxies   = 0x0;
+
+        // S_HumanAIRequestPlayAnimNamed
+        uint64_t S_HumanAIRequestPlayAnimNamed__S_HumanAIRequestPlayAnimNamed = 0x0;
 
         // C_WAnimPlaybackManager
         uint64_t C_WAnimPlaybackManager__PlayState = 0x0;
