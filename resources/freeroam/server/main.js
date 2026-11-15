@@ -332,7 +332,7 @@ registerChatCommand("wep", (player, message, command, args) => {
 
 registerChatCommand("anim", (player, message, command, args) => {
     if (!args[0]) {
-        Chat.sendToPlayer(player, "[SERVER] Usage: /anim <name> [loop], e.g. /anim hero_gest_greeting_normal_b_v1");
+        Chat.sendToPlayer(player, "[SERVER] Usage: /anim <name> [loop], e.g. /anim boxerhero_male_gest_threat_aggro_v2");
         return;
     }
 
