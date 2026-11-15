@@ -86,6 +86,9 @@ namespace SDK {
         uint64_t C_CharacterStateHandlerBaseLocomotion__AddRemoveSprintDescriptor = 0x0;
         uint64_t C_CharacterStateHandlerBaseLocomotion__Idle2MoveTransitionActive = 0x0;
 
+        // C_CharacterStateHandlerCar
+        uint64_t C_CharacterStateHandlerCar__GoToCarState = 0x0;
+
         // C_CharacterStateHandlerMove
         uint64_t C_CharacterStateHandlerMove__SharpTurnTransitionActive = 0x0;
 

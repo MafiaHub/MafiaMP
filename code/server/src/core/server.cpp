@@ -26,6 +26,7 @@
 
 #include <glm/glm.hpp>
 
+#include <iterator>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -50,6 +51,20 @@ namespace MafiaMP {
         T *ResolveEntity(uint64_t networkId) {
             auto *repl = Replication();
             return repl ? dynamic_cast<T *>(repl->GetEntityByNetworkID(networkId)) : nullptr;
+        }
+
+        // How far from a vehicle a player may be and still claim one of its seats. A seated player
+        // reports the car's position, one getting in stands at its door; the margin covers a parked
+        // car the server last saw before somebody's physics pushed it.
+        constexpr float kMaxSeatClaimDistance = 20.0f;
+
+        // Whether a player's human still reports this seat of this vehicle, from close enough to it.
+        bool ClaimsSeat(const Shared::Entities::HumanEntity *human, Shared::Entities::VehicleEntity *vehicle, int seat) {
+            if (!human || human->ownerGUID == MafiaNet::UNASSIGNED_PEER_GUID || seat < 0 || seat >= Shared::Entities::VehicleEntity::kMaxSeats) {
+                return false;
+            }
+            const auto &claim = human->data.carPassenger;
+            return claim.carId == vehicle->GetNetworkID() && claim.seatId == seat && glm::distance(human->position, vehicle->position) <= kMaxSeatClaimDistance;
         }
 
         // --- Raw RPC4 event handlers ---
@@ -114,13 +129,8 @@ namespace MafiaMP {
             if (!player || !vehicle) {
                 return;
             }
-            if (seatIndex >= 0 && seatIndex < Shared::Entities::VehicleEntity::kMaxSeats) {
-                vehicle->seats[seatIndex] = player->GetNetworkID();
-                if (seatIndex == 0) {
-                    // The driver's client becomes authoritative for the vehicle.
-                    vehicle->SetOwner(MafiaNet::ToPeerGuid(packet->guid));
-                }
-            }
+            // Seats come from the replicated carPassenger (Server::SyncVehicleSeats); this only
+            // raises the script event.
             Scripting::Vehicle::EventVehiclePlayerEnter(vehicleId, player->GetNetworkID(), seatIndex);
         }
 
@@ -134,16 +144,7 @@ namespace MafiaMP {
             if (!player || !vehicle) {
                 return;
             }
-            const uint64_t playerId = player->GetNetworkID();
-            for (int i = 0; i < Shared::Entities::VehicleEntity::kMaxSeats; ++i) {
-                if (vehicle->seats[i] == playerId) {
-                    vehicle->seats[i] = 0;
-                    if (i == 0) {
-                        vehicle->SetOwner(MafiaNet::UNASSIGNED_PEER_GUID); // back to the server
-                    }
-                }
-            }
-            Scripting::Vehicle::EventVehiclePlayerLeave(vehicleId, playerId);
+            Scripting::Vehicle::EventVehiclePlayerLeave(vehicleId, player->GetNetworkID());
         }
 
         // Wire: <modelName>.
@@ -194,7 +195,76 @@ namespace MafiaMP {
         InitNetworkingMessages();
     }
 
-    void Server::PostUpdate() {}
+    void Server::PostUpdate() {
+        SyncVehicleSeats();
+    }
+
+    void Server::SyncVehicleSeats() {
+        auto *repl = Replication();
+        if (!repl) {
+            return;
+        }
+
+        // The seat comes from each player's replicated carPassenger, not from the enter RPC: that
+        // one names the door the player used, so entering from the passenger side reports seat 1
+        // while the game seats the player behind the wheel. Only players report seats, so only
+        // their avatars are walked, and they are collected before any entity is resolved.
+        _seatClaimants.clear();
+        repl->ForEachViewer([this](MafiaNet::PeerGuid, Framework::Networking::Replication::NetworkEntity *entity) {
+            auto *human = dynamic_cast<Shared::Entities::HumanEntity *>(entity);
+            if (human && human->data.carPassenger.carId != 0) {
+                _seatClaimants.push_back(human);
+            }
+        });
+
+        // Free every seat its holder no longer claims: it left, switched seat, moved away or is gone.
+        for (const uint64_t vehicleId : _seatedVehicles) {
+            auto *vehicle = ResolveEntity<Shared::Entities::VehicleEntity>(vehicleId);
+            if (!vehicle) {
+                continue;
+            }
+            for (int seat = 0; seat < Shared::Entities::VehicleEntity::kMaxSeats; ++seat) {
+                const uint64_t holderId = vehicle->seats[seat];
+                if (holderId != 0 && !ClaimsSeat(ResolveEntity<Shared::Entities::HumanEntity>(holderId), vehicle, seat)) {
+                    vehicle->seats[seat] = 0;
+                }
+            }
+        }
+
+        // Seat each claimant in the seat it reports if that seat is free. A seat stays with the
+        // player holding it, so a client claiming an occupied driver seat cannot take the car over.
+        for (Shared::Entities::HumanEntity *human : _seatClaimants) {
+            const auto &claim = human->data.carPassenger;
+            auto *vehicle     = ResolveEntity<Shared::Entities::VehicleEntity>(claim.carId);
+            if (!vehicle || !ClaimsSeat(human, vehicle, claim.seatId) || vehicle->seats[claim.seatId] != 0) {
+                continue;
+            }
+            vehicle->seats[claim.seatId] = human->GetNetworkID();
+            _seatedVehicles.insert(claim.carId);
+        }
+
+        // The driver's client simulates the vehicle; without a driver it goes back to the server.
+        // Only vehicles this seated are touched, so whatever else assigns an owner is left alone.
+        for (auto it = _seatedVehicles.begin(); it != _seatedVehicles.end();) {
+            auto *vehicle = ResolveEntity<Shared::Entities::VehicleEntity>(*it);
+            if (!vehicle) {
+                it = _seatedVehicles.erase(it);
+                continue;
+            }
+
+            auto *driver          = vehicle->seats[0] != 0 ? ResolveEntity<Shared::Entities::HumanEntity>(vehicle->seats[0]) : nullptr;
+            const auto driverGuid = driver ? driver->ownerGUID : MafiaNet::UNASSIGNED_PEER_GUID;
+            if (vehicle->ownerGUID != driverGuid) {
+                vehicle->SetOwner(driverGuid);
+            }
+
+            bool occupied = false;
+            for (const uint64_t holderId : vehicle->seats) {
+                occupied = occupied || holderId != 0;
+            }
+            it = occupied ? std::next(it) : _seatedVehicles.erase(it);
+        }
+    }
 
     void Server::PreShutdown() {}
 

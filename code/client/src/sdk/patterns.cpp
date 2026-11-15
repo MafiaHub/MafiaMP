@@ -91,6 +91,9 @@ namespace SDK {
         gPatterns.C_CharacterStateHandlerBaseLocomotion__Idle2MoveTransitionActive = hook::get_opcode_address("E8 ? ? ? ? 48 89 75 E0 C7 45 ? ? ? ? ?");
         gPatterns.C_CharacterStateHandlerBaseLocomotion__AddRemoveSprintDescriptor = hook::get_opcode_address("E8 ? ? ? ? 48 8B 43 08 45 33 FF");
 
+        // C_CharacterStateHandlerCar
+        gPatterns.C_CharacterStateHandlerCar__GoToCarState = reinterpret_cast<uint64_t>(hook::get_pattern("40 55 56 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 8B F2 48 8B F9 45 84 C0 75 ? 3B 91 ? ? ? ?"));
+
         // C_CharacterStateHandlerMove
         gPatterns.C_CharacterStateHandlerMove__SharpTurnTransitionActive = hook::get_opcode_address("E8 ? ? ? ? 84 C0 74 60 40 84 FF");
 

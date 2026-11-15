@@ -2,13 +2,16 @@
 
 #include "c_character_state_handler_base_vehicle.h"
 
+#include "sdk/wrappers/c_human_2_car_wrapper.h"
+
+#include <cstddef>
+
 namespace SDK {
-    class C_Human2CarWrapper;
     namespace ue::game::humanai {
         // Size: ~624 bytes (0x270)
         class C_CharacterStateHandlerCar : public C_CharacterStateHandlerBaseVehicle {
           public:
-            enum E_CAR_STATE {
+            enum E_CAR_STATE : int32_t {
                 E_CS_NONE             = 0,
                 E_CS_GETTING_IN       = 1,
                 E_CS_ENTERING         = 2,
@@ -26,6 +29,12 @@ namespace SDK {
                 E_CS_SWITCH_SIDE      = 14,
                 E_CS_BAILOUT          = 15,
                 E_CS_THROW_OUT        = 16,
+            };
+
+            // m_nCurrentSeatIndex when the handler has no seat: set by the constructor and
+            // PerformLeaveCarStuff.
+            enum E_Seat : int32_t {
+                E_SEAT_NONE = -1,
             };
 
           protected:
@@ -80,8 +89,35 @@ namespace SDK {
                 return m_pCarWrapper;
             }
 
+            // The seat the handler seats the ped in. SetupEnterCar picks it as the entry starts (a
+            // player entering by a passenger door with the driver seat free gets the driver seat),
+            // SetupSwitchSeat moves it, PerformLeaveCarStuff resets it to E_SEAT_NONE. It is known
+            // before the ped sits, unlike C_Human2CarWrapper::GetSeatID.
             int32_t GetCurrentSeatIndex() const {
                 return m_nCurrentSeatIndex;
+            }
+
+            // GoToCarState sends the ped out of the car in each of these states: 13, 15 and 16 share
+            // one exit path, and AcceptMessage throws or bails the ped out through 15 and 16.
+            bool IsLeavingCar() const {
+                return m_CarState == E_CS_GETTING_OUT || m_CarState == E_CS_FAST_EXIT || m_CarState == E_CS_LEAVE_START || m_CarState == E_CS_LEAVE || m_CarState == E_CS_BAILOUT || m_CarState == E_CS_THROW_OUT;
+            }
+
+            // Seated and settled, neither getting in, out nor switching seats.
+            bool IsSeated() const {
+                return m_CarState == E_CS_DRIVING || m_CarState == E_CS_IDLE;
+            }
+
+            // AcceptMessage switches only to the seat paired with the current one: 0 and 1, 2 and 3.
+            bool CanSwitchToSeat(int32_t seat) const {
+                return m_nCurrentSeatIndex != E_SEAT_NONE && seat == (m_nCurrentSeatIndex ^ 1);
+            }
+
+            // What AcceptMessage does for a switch-seat request: name the target, then force the
+            // switch state, which hands it to SetupSwitchSeat.
+            void SwitchSeat(int32_t seat) {
+                m_nTargetSwitchSeat = seat;
+                GoToCarState(E_CS_SWITCH_SEAT, true);
             }
 
             bool CanSwitchWeapon() const {
@@ -101,6 +137,14 @@ namespace SDK {
             bool DrivingReverse() const;
             void UpdateDLAMMFinish();
             void SetupDelayedPlayerActivation();
+
+          private:
+            static void AssertLayout() {
+                static_assert(offsetof(C_CharacterStateHandlerCar, m_pCarWrapper) == 0x188, "C_CharacterStateHandlerCar::m_pCarWrapper offset mismatch");
+                static_assert(offsetof(C_CharacterStateHandlerCar, m_nCurrentSeatIndex) == 0x19C, "C_CharacterStateHandlerCar::m_nCurrentSeatIndex offset mismatch");
+                static_assert(offsetof(C_CharacterStateHandlerCar, m_CarState) == 0x1A4, "C_CharacterStateHandlerCar::m_CarState offset mismatch");
+                static_assert(offsetof(C_CharacterStateHandlerCar, m_nTargetSwitchSeat) == 0x22C, "C_CharacterStateHandlerCar::m_nTargetSwitchSeat offset mismatch");
+            }
         };
     } // namespace ue::game::humanai
 } // namespace SDK

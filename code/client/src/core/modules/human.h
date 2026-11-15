@@ -1,5 +1,7 @@
 #pragma once
 
+#include <chrono>
+
 #include "shared/entities/human_entity.h"
 
 #include "sdk/entities/c_player_2.h"
@@ -34,6 +36,12 @@ namespace MafiaMP::Core::Modules {
         // Local enter/leave-vehicle state machine.
         CarEnterStates enterState = STATE_OUTSIDE;
         bool enterForced          = false;
+        bool leaveForced          = false;
+        // When the last enter, leave or seat-switch action was issued. A ped still not seated
+        // kCarActionTimeout after an enter is warped into its seat; one still in its car that long
+        // after a leave has the leave retried, forced.
+        std::chrono::steady_clock::time_point carActionIssuedAt {};
+        static constexpr auto kCarActionTimeout = std::chrono::seconds(2);
 
         bool isLocalPlayer = false;
 
@@ -74,7 +82,10 @@ namespace MafiaMP::Core::Modules {
         void BindLocalPlayer();
         Game::Streaming::EntityTrackingInfo *RequestPed();
         void ApplyRemote();
+        bool ApplyRemoteCarExit();
+        void ApplyRemoteSeatSwitch();
         void ReadLocal();
+        void ReadLocalCarSeat();
         void DrawNametag();
     };
 } // namespace MafiaMP::Core::Modules

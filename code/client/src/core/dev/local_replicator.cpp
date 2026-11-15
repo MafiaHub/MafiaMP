@@ -76,8 +76,10 @@ namespace MafiaMP::Core::Dev {
                 Game::Helpers::Human::AddWeapon(_human, 3, 200);
                 Game::Helpers::Human::AddWeapon(_human, 13, 200);
 
-                // Setup interpolator
+                // Setup interpolator, as for a remote human
                 _interpolator.GetPosition()->SetCompensationFactor(1.5f);
+                _interpolator.GetPosition()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
+                _interpolator.GetRotation()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
 
                 Framework::Logging::GetLogger("LocalReplicator")->info("Local replication started");
             }
@@ -209,8 +211,8 @@ namespace MafiaMP::Core::Dev {
         // Set target position for interpolation
         const auto humanPos = _human->GetPos();
         const auto humanRot = _human->GetRot();
-        _interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, _targetPos, Core::gApplication->GetTickInterval());
-        _interpolator.GetRotation()->SetTargetValue({humanRot.w, humanRot.x, humanRot.y, humanRot.z}, _targetRot, Core::gApplication->GetTickInterval());
+        _interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, _targetPos, Core::gApplication->GetTickIntervalMs());
+        _interpolator.GetRotation()->SetTargetValue({humanRot.w, humanRot.x, humanRot.y, humanRot.z}, _targetRot, Core::gApplication->GetTickIntervalMs());
 
         // Update human based data
         _charController->SetDesiredHandlerType(desiredStateHandlerType);
