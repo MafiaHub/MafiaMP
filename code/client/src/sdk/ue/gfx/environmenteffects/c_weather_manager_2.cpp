@@ -53,7 +53,7 @@ namespace SDK {
          * @param transitionSpeed Speed ​​at which we move from one weather to another. 0 for immediately.
          */
         void C_WeatherManager2::SetWeatherSet(ue::C_String const &weatherSetName, float transitionSpeed) {
-            hook::this_call<void>(gPatterns.C_WeatherManager2__SetWeatherSet, this, weatherSetName, transitionSpeed);
+            hook::this_call<void>(gPatterns.C_WeatherManager2__SetWeatherSet, this, &weatherSetName, transitionSpeed);
         }
     } // namespace ue::gfx::environmenteffects
 } // namespace SDK
