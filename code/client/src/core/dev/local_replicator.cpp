@@ -76,8 +76,10 @@ namespace MafiaMP::Core::Dev {
                 Game::Helpers::Human::AddWeapon(_human, 3, 200);
                 Game::Helpers::Human::AddWeapon(_human, 13, 200);
 
-                // Setup interpolator
+                // Setup interpolator, as for a remote human
                 _interpolator.GetPosition()->SetCompensationFactor(1.5f);
+                _interpolator.GetPosition()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
+                _interpolator.GetRotation()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
 
                 Framework::Logging::GetLogger("LocalReplicator")->info("Local replication started");
             }

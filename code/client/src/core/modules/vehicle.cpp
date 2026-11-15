@@ -73,6 +73,7 @@ namespace MafiaMP::Core::Modules {
     void Vehicle::OnConstructed() {
         info = Core::gApplication->GetEntityFactory()->RequestVehicle(modelName);
         interpolator.GetPosition()->SetCompensationFactor(1.5f);
+        // Every snapshot corrects the whole error, as for humans (Human::RequestPed).
         interpolator.GetPosition()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
         interpolator.GetRotation()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
         info->SetRequestFinishCallback(&OnVehicleRequestFinish);

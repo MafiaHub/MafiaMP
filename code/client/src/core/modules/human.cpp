@@ -251,6 +251,8 @@ namespace MafiaMP::Core::Modules {
         interpolator.GetPosition()->SetCompensationFactor(1.5f);
         // Snapshots arrive every tick: let each one correct the whole error before the next. The
         // default range (100-400 ms) applies a quarter of it at our rate and the ped trails behind.
+        // Every SetTargetValue passes the tick interval, the top of this range, so the contribution
+        // is always the whole error.
         interpolator.GetPosition()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
         interpolator.GetRotation()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
 
