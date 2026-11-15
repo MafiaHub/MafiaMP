@@ -2,7 +2,7 @@
 
 #include "c_character_state_handler_base_locomotion.h"
 
-#include "sdk/entities/c_player_2.h"
+#include "sdk/entities/c_human_2.h"
 #include "sdk/patterns.h"
 
 namespace SDK {
@@ -51,24 +51,15 @@ namespace SDK {
         }
 
         bool C_CharacterController::AreControlsLocked() const {
-            if (m_pCharacter->GetType() == E_EntityType::E_ENTITY_PLAYER) {
-                return (*(uint32_t *)(m_pUnk456 + 64) >> 19) & 1;
-            }
-            return false;
+            return hook::this_call<bool>(gPatterns.C_CharacterController__AreControlsLocked, this);
         }
 
-        void C_CharacterController::LockControls(bool, bool, const char *) {
-            if (m_pCharacter->GetType() == E_EntityType::E_ENTITY_PLAYER) {
-                ((C_Player2 *)m_pCharacter)->LockControls(true);
-                ++m_LockControlsCount;
-            }
+        void C_CharacterController::LockControls(bool a2, bool a3, const char *a4) {
+            hook::this_call<void>(gPatterns.C_CharacterController__LockControls, this, a2, a3, a4);
         }
 
-        void C_CharacterController::UnlockControls(const char *) {
-            if (m_pCharacter->GetType() == E_EntityType::E_ENTITY_PLAYER && --m_LockControlsCount <= 0) {
-                ((C_Player2 *)m_pCharacter)->LockControls(false);
-                m_LockControlsCount = 0;
-            }
+        void C_CharacterController::UnlockControls(const char *a2) {
+            hook::this_call<void>(gPatterns.C_CharacterController__UnlockControls, this, a2);
         }
 
         void *C_CharacterController::ActivateHandler(ue::game::humanai::C_CharacterStateHandler *pStateHandler, bool unk) {
