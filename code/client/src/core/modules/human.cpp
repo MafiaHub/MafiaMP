@@ -168,15 +168,15 @@ namespace MafiaMP::Core::Modules {
         // Adopt the server-assigned spawn that arrived with construction.
         TeleportLocalToReplicated();
         // Wear the spawn profile the server assigned, if it differs from the current model.
-        appliedSkin = Game::Helpers::Controls::GetLocalPlayerSpawnProfile();
         ApplyLocalSkin();
     }
 
     void Human::ApplyLocalSkin() {
-        if (modelHash == 0 || modelHash == appliedSkin) {
+        // The game's player spawner takes the requested profile as soon as the switch starts, so it is
+        // what to compare against, whoever switched it last.
+        if (modelHash == 0 || modelHash == Game::Helpers::Controls::GetLocalPlayerSpawnProfile()) {
             return;
         }
-        appliedSkin = modelHash;
         Game::Helpers::Controls::PlayerChangeSpawnProfile(modelHash);
     }
 
