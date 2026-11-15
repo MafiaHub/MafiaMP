@@ -9,6 +9,8 @@
 #include "sdk/entities/c_human_2.h"
 #include "shared/modules/human_sync.hpp"
 
+#include <chrono>
+
 namespace MafiaMP::Core::Dev {
     /**
      * Local replication system for testing ped synchronization without networking.
@@ -77,5 +79,8 @@ namespace MafiaMP::Core::Dev {
         // Transform target from sync
         glm::vec3 _targetPos = {};
         glm::quat _targetRot = {};
+
+        // When the last snapshot was taken: one per tick, as the network delivers them.
+        std::chrono::steady_clock::time_point _lastSnapshotAt {};
     };
 } // namespace MafiaMP::Core::Dev
