@@ -9,19 +9,21 @@
 namespace MafiaMP::Core::UI {
     void Chat::OnOpen() {}
 
-    void Chat::OnClose() {}
+    void Chat::OnClose() {
+        SetFocused(false);
+    }
 
     void Chat::OnUpdate() {
         bool _wasFocused = _isFocused;
 
         if (gApplication->GetWebManager()->IsAnyGCViewFocused()) {
-            _isFocused = false;
+            // A page took the input, which ends the chat's focus and the lock that came with it.
+            SetFocused(false);
             return;
         }
 
         if (gApplication->GetInput()->IsKeyPressed(FW_KEY_RETURN) && !_isFocused) {
-            _isFocused = true;
-            LockControls(true);
+            SetFocused(true);
         }
 
         ImGui::SetNextWindowSize(ImVec2(400, 300));
@@ -63,7 +65,6 @@ namespace MafiaMP::Core::UI {
                     data->InsertChars(0, _history.at(_historyPos).c_str());
 
                     ImGui::SetKeyboardFocusHere(-1);
-                    _isFocused = true;
                 }
                 else if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory && data->EventKey == ImGuiKey_DownArrow) {
                     if (_historyPos > 0) {
@@ -79,7 +80,6 @@ namespace MafiaMP::Core::UI {
                     }
 
                     ImGui::SetKeyboardFocusHere(-1);
-                    _isFocused = true;
                 }
                 return 0;
             };
@@ -98,12 +98,20 @@ namespace MafiaMP::Core::UI {
                 }
 
                 _historyPos = -1;
-                _isFocused  = false;
-                LockControls(false);
+                SetFocused(false);
             }
         }
 
         ImGui::End();
+    }
+
+    void Chat::SetFocused(bool focused) {
+        if (_isFocused == focused) {
+            return;
+        }
+
+        _isFocused = focused;
+        LockControls(focused);
     }
 
     void Chat::Clear() {

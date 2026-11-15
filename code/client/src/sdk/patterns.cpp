@@ -57,9 +57,12 @@ namespace SDK {
 
         // C_CharacterController
         gPatterns.C_CharacterController__ActivateHandler                   = hook::get_opcode_address("E8 ? ? ? ? 48 8D 56 74");
+        gPatterns.C_CharacterController__AreControlsLocked                 = reinterpret_cast<uint64_t>(hook::get_pattern("48 8B 41 10 80 78 18 09 75 ? 48 8B 81 C8 01 00 00 8B 40 40 C1 E8 13 83 E0 01 C3"));
         gPatterns.C_CharacterController__DeactivateHandler_FromPlayerInput = hook::get_opcode_address("E8 ? ? ? ? EB 0F 48 8B 93 ? ? ? ?");
+        gPatterns.C_CharacterController__LockControls                      = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC 20 48 8B D9 48 8B 49 10 80 79 18 09 75 ? B2 01 E8 ? ? ? ? FF 83 D8 01 00 00"));
         gPatterns.C_CharacterController__ProcessAILocomotionRequest        = hook::get_opcode_address("E8 ? ? ? ? 49 8B 75 ? 41 83 CE ?");
         gPatterns.C_CharacterController__TriggerActorActionById            = hook::get_opcode_address("E8 ? ? ? ? 45 0F 2F 87 ? ? ? ?");
+        gPatterns.C_CharacterController__UnlockControls                    = reinterpret_cast<uint64_t>(hook::get_pattern("40 53 48 83 EC 20 48 8B D9 48 8B 49 10 80 79 18 09 75 ? FF 8B D8 01 00 00 83 BB D8 01 00 00 00 7F ? 33 D2 E8"));
 
         // C_CharacterStateHandlerAim
         // Virtual methods - using vtable addresses directly (0x144E934C8 + offset)

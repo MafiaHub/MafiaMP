@@ -54,9 +54,12 @@ namespace SDK {
 
         // C_CharacterController
         uint64_t C_CharacterController__ActivateHandler                   = 0x0;
+        uint64_t C_CharacterController__AreControlsLocked                 = 0x0;
         uint64_t C_CharacterController__DeactivateHandler_FromPlayerInput = 0x0;
+        uint64_t C_CharacterController__LockControls                      = 0x0;
         uint64_t C_CharacterController__ProcessAILocomotionRequest        = 0x0;
         uint64_t C_CharacterController__TriggerActorActionById            = 0x0;
+        uint64_t C_CharacterController__UnlockControls                    = 0x0;
 
         // C_CharacterStateHandlerAim
         uint64_t C_CharacterStateHandlerAim__Activate                                 = 0x0;
