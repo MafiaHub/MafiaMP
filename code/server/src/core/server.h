@@ -4,8 +4,11 @@
 
 #include <mafianet/types.h>
 
+#include "shared/entities/human_entity.h"
+
 #include <cstdint>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace MafiaMP {
@@ -40,12 +43,19 @@ namespace MafiaMP {
         static inline Server *_serverRef = nullptr;
 
       private:
-        // Hands each vehicle to its driver's client, or back to the server when nobody drives.
-        void SyncVehicleDrivers();
+        // Seats each player's human where its replicated carPassenger says, and hands each vehicle
+        // to its driver's client, or back to the server when nobody drives.
+        void SyncVehicleSeats();
 
         void InitNetworkingMessages();
         void InitRPCs();
 
         Environment _environment {};
+
+        // Vehicles with a seat taken, the only ones SyncVehicleSeats revisits to release their seats
+        // and owner once nobody claims them, rather than walking every entity each tick.
+        std::unordered_set<uint64_t> _seatedVehicles;
+        // SyncVehicleSeats scratch, kept so its storage is reused from tick to tick.
+        std::vector<Shared::Entities::HumanEntity *> _seatClaimants;
     };
 } // namespace MafiaMP
