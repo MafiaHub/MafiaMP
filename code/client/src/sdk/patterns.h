@@ -252,7 +252,6 @@ namespace SDK {
         uint64_t C_HumanScript__ScrAim         = 0x0;
         uint64_t C_HumanScript__ScrAimAt       = 0x0;
         uint64_t C_HumanScript__ScrAttack      = 0x0;
-        uint64_t C_HumanScript__ScrStopAllAnimations = 0x0;
         uint64_t C_HumanScript__SetHealth      = 0x0;
         uint64_t C_HumanScript__SetStealthMove = 0x0;
 
@@ -486,10 +485,6 @@ namespace SDK {
         uint64_t C_VehicleRealLightManager__SetPlayerLights        = 0x0;
         uint64_t C_VehicleRealLightManager__SetReflectorLightsOn   = 0x0;
         uint64_t C_VehicleRealLightManager__SetVisible             = 0x0;
-
-        // S_HumanAIRequestPlayAnimation
-        uint64_t S_HumanAIRequestPlayAnimation__Constructor = 0x0;
-        uint64_t S_HumanAIRequestList__CollectWeakProxies   = 0x0;
 
         // S_HumanAIRequestPlayAnimNamed
         uint64_t S_HumanAIRequestPlayAnimNamed__S_HumanAIRequestPlayAnimNamed = 0x0;

@@ -117,7 +117,7 @@ namespace SDK {
             return hook::this_call<bool>(gPatterns.C_CharacterController__TriggerActorActionById, this, pActor, actorAction, a4, a5, a6);
         }
 
-        void C_CharacterController::ProcessAILocomotionRequest(ai::S_HumanAIRequestWeakProxy **request) {
+        void C_CharacterController::ProcessAILocomotionRequest(ue::C_WeakPtr<SDK::game::ai::S_HumanAIRequest, ue::S_SingleThreadedPolicy, 0> request) {
             hook::this_call<void>(gPatterns.C_CharacterController__ProcessAILocomotionRequest, this, request);
         }
     } // namespace ue::game::humanai

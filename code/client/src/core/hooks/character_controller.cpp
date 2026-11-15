@@ -127,16 +127,18 @@ void __fastcall C_CharacterController__UpdateAIFreq(SDK::ue::game::humanai::C_Ch
     }
 }
 
-typedef void(__fastcall *C_CharacterController__ProcessAILocomotionRequest_t)(SDK::ue::game::humanai::C_CharacterController *, void *);
+// The request is passed by value and released by the callee: the detour owns the caller's reference
+// and drops it on return, and the original gets a copy of its own.
+typedef void(__fastcall *C_CharacterController__ProcessAILocomotionRequest_t)(SDK::ue::game::humanai::C_CharacterController *, SDK::ue::C_WeakPtr<SDK::game::ai::S_HumanAIRequest, SDK::ue::S_SingleThreadedPolicy, 0>);
 C_CharacterController__ProcessAILocomotionRequest_t C_CharacterController__ProcessAILocomotionRequest_Original = nullptr;
-void __fastcall C_CharacterController__ProcessAILocomotionRequest(SDK::ue::game::humanai::C_CharacterController *pCharCtrler, void *a2) {
+void __fastcall C_CharacterController__ProcessAILocomotionRequest(SDK::ue::game::humanai::C_CharacterController *pCharCtrler, SDK::ue::C_WeakPtr<SDK::game::ai::S_HumanAIRequest, SDK::ue::S_SingleThreadedPolicy, 0> request) {
     // Remote peds follow replication, not their AI; a scripted animation, though, is delivered as
     // an AI request that switches them to the play-animation handler.
     if (MafiaMP::Game::Overrides::CharacterController::IsInstanceOfClass(pCharCtrler) && !reinterpret_cast<MafiaMP::Game::Overrides::CharacterController *>(pCharCtrler)->IsGameDriven()) {
         return;
     }
 
-    C_CharacterController__ProcessAILocomotionRequest_Original(pCharCtrler, a2);
+    C_CharacterController__ProcessAILocomotionRequest_Original(pCharCtrler, request);
 }
 
 typedef bool(__fastcall *C_CharacterController__UpdateSprintMoveSpeed_t)(SDK::ue::game::humanai::C_CharacterController *, bool);

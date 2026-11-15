@@ -265,7 +265,6 @@ namespace SDK {
         gPatterns.C_HumanScript__ScrAim         = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 55 56 57 48 8B EC 48 83 EC 20 48 8B DA 48 8B F9 48 8B 0D ? ? ? ? 48 8D 55 20 41 0F B6 F0"));
         gPatterns.C_HumanScript__ScrAimAt       = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 48 89 74 24 ? 55 57 41 56 48 8B EC 48 83 EC 30 48 8B DA"));
         gPatterns.C_HumanScript__ScrAttack      = reinterpret_cast<uint64_t>(hook::get_pattern("48 85 D2 0F 84 ? ? ? ? 55 56 41 56"));
-        gPatterns.C_HumanScript__ScrStopAllAnimations = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 10 57 48 83 EC 40 48 8B D9 48 8B 09"));
         gPatterns.C_HumanScript__SetHealth      = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? 48 8B 09 0F 29 74 24 ?"));
         gPatterns.C_HumanScript__SetStealthMove = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC 60 48 8B F9 0F B6 DA"));
 
@@ -513,10 +512,6 @@ namespace SDK {
         gPatterns.C_VehicleRealLightManager__SetPlayerLights   = reinterpret_cast<uint64_t>(hook::get_pattern("4C 8B DC 55 56 41 57 48 83 EC"));
         gPatterns.C_VehicleRealLightManager__SetReflectorLightsOn = reinterpret_cast<uint64_t>(hook::get_pattern("48 83 EC ? 4C 8B C9 84 D2 74 ? 45 84 C0"));
         gPatterns.C_VehicleRealLightManager__SetVisible           = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 ? 57 48 83 EC ? 8B 41 ? 0F B6 FA D1 E8"));
-
-        // S_HumanAIRequestPlayAnimation
-        gPatterns.S_HumanAIRequestPlayAnimation__Constructor = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 20 48 8D 05 B1"));
-        gPatterns.S_HumanAIRequestList__CollectWeakProxies   = reinterpret_cast<uint64_t>(hook::get_pattern("4C 89 44 24 18 53 57 41 54 41 55 48 83 EC 38 8B"));
 
         // S_HumanAIRequestPlayAnimNamed
         gPatterns.S_HumanAIRequestPlayAnimNamed__S_HumanAIRequestPlayAnimNamed = reinterpret_cast<uint64_t>(hook::get_pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 20 48 8D 05 ? ? ? ? 48 8B F9 4C 8B FA 33 D2 89 51 10 48 89 51 18"));
