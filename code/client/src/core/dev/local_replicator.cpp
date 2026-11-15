@@ -121,13 +121,21 @@ namespace MafiaMP::Core::Dev {
             return;
         }
 
-        // Step 1: Collect local player state (same as UpdateLocalPlayer ECS system)
-        CollectLocalPlayerState();
+        // Steps 1 and 2 run once per tick, as a remote human receives snapshots. Setting a target
+        // every frame would restart the tick-long interpolation before it could advance, and the
+        // replicated human would trail behind at any frame rate above the tick rate.
+        const auto now = std::chrono::steady_clock::now();
+        if (now - _lastSnapshotAt >= std::chrono::duration<float, std::milli>(Core::gApplication->GetTickIntervalMs())) {
+            _lastSnapshotAt = now;
 
-        // Step 2: Apply state to our replicated human (same as Human::Update)
-        ApplyStateToHuman();
+            // Step 1: Collect local player state (same as UpdateLocalPlayer ECS system)
+            CollectLocalPlayerState();
 
-        // Step 3: Update interpolation (same as UpdateRemoteHuman ECS system)
+            // Step 2: Apply state to our replicated human (same as Human::Update)
+            ApplyStateToHuman();
+        }
+
+        // Step 3: Update interpolation every frame (same as UpdateRemoteHuman ECS system)
         UpdateInterpolation();
     }
 
