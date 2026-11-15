@@ -12,6 +12,7 @@
 #include "shared/rpc/ids.h"
 
 #include <core_modules.h>
+#include <logging/logger.h>
 #include <integrations/server/scripting/module.h>
 #include <networking/network_server.h>
 #include <networking/replication/replication_manager.h>
@@ -372,6 +373,7 @@ namespace MafiaMP {
         auto *scripting = GetScriptingModule();
         auto *engine    = scripting ? scripting->GetEngine() : nullptr;
         if (!engine) {
+            Framework::Logging::GetLogger(FRAMEWORK_INNER_SERVER)->warn("No scripting engine: script class wrappers will not be dropped with their isolates");
             return;
         }
         engine->AddRuntimeDisposingListener([](v8::Isolate *isolate) {
