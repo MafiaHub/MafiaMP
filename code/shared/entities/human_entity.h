@@ -44,9 +44,18 @@ namespace MafiaMP::Shared::Entities {
             }
         }
 
+        // The spawn profile is the server's to decide: the owner never sends it upstream, so it can
+        // neither choose its own nor echo back one the server has since changed.
         void SerializeFields(Replication::FieldSerializer &fields) override {
-            fields.Field(modelHash);
+            fields.ServerField(modelHash);
             fields.Field(data);
+        }
+
+        // The owner is authoritative over its human and does not apply the per-tick deltas, so a
+        // server-side spawn profile change reaches it through ForceState.
+        void SerializeForcedState(Replication::FieldSerializer &fields) override {
+            NetworkEntity::SerializeForcedState(fields);
+            fields.Field(modelHash);
         }
 
         // A seated player is meaningless without the car under them.

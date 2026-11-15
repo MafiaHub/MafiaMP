@@ -179,13 +179,15 @@ namespace MafiaMP::Game::Streaming {
                                     trackingInfo->_requestFinish(trackingInfo, true);
                             }
                             else if (spawnResult == EntitySpawnResult::Failed) {
-                                // Entity failed to spawn, return a null pointer
+                                // Entity failed to spawn: the request is dropped here, so its owner is
+                                // told which one, to forget it rather than return it later.
                                 requestFinished = true;
 
                                 ExtendedTrackingInfo &request = *requestIter;
                                 request._info->_entity        = nullptr;
                                 if (request._info->_requestFinish)
-                                    request._info->_requestFinish(nullptr, false);
+                                    request._info->_requestFinish(request._info.get(), false);
+                                _trackingInfos.erase(request._info.get());
                             }
                             else if (spawnResult == EntitySpawnResult::KeepLoading) {
                                 // If entity is still loading, flag the spawner as being loading

@@ -47,6 +47,16 @@ namespace MafiaMP::Core::Modules {
         void OnHumanRequestFinish(Game::Streaming::EntityTrackingInfo *info, bool success) {
             CreateNetCharacterController = false;
             if (!success) {
+                // The factory dropped the request: forget it, so it is never returned. A failed new
+                // spawn profile counts as settled, so it is not requested again every frame.
+                auto *self = static_cast<Human *>(info->GetNetworkEntity());
+                if (self && info == self->reskinInfo) {
+                    self->reskinInfo  = nullptr;
+                    self->appliedSkin = self->reskinSkin;
+                }
+                else if (self && info == self->info) {
+                    self->info = nullptr;
+                }
                 return;
             }
             auto human = reinterpret_cast<SDK::C_Human2 *>(info->GetEntity());
@@ -59,6 +69,17 @@ namespace MafiaMP::Core::Modules {
             auto *self = static_cast<Human *>(info->GetNetworkEntity());
             if (!self) {
                 return;
+            }
+
+            // The ped of a new spawn profile is ready: it takes the place of the current one. The old
+            // ped belongs to another spawner than the one being updated, so returning it here is safe.
+            if (info == self->reskinInfo) {
+                Core::gApplication->GetEntityFactory()->ReturnEntity(self->info);
+                self->info        = info;
+                self->appliedSkin = self->reskinSkin;
+                self->reskinInfo  = nullptr;
+                self->enterState  = STATE_OUTSIDE;
+                self->enterForced = false;
             }
 
             SDK::ue::sys::math::C_Vector newPos    = {self->position.x, self->position.y, self->position.z};
@@ -154,7 +175,8 @@ namespace MafiaMP::Core::Modules {
             BindLocalPlayer();
         }
         else {
-            RequestPed();
+            info        = RequestPed();
+            appliedSkin = modelHash;
         }
     }
 
@@ -167,13 +189,29 @@ namespace MafiaMP::Core::Modules {
         Core::gApplication->SetLocalPlayer(this);
         // Adopt the server-assigned spawn that arrived with construction.
         TeleportLocalToReplicated();
+        // Wear the spawn profile the server assigned, if it differs from the current model.
+        ApplyLocalSkin();
+    }
+
+    void Human::ApplyLocalSkin() {
+        // The game's player spawner takes the requested profile as soon as the switch starts, so it is
+        // what to compare against, whoever switched it last.
+        if (modelHash == 0 || modelHash == Game::Helpers::Controls::GetLocalPlayerSpawnProfile()) {
+            return;
+        }
+        Game::Helpers::Controls::PlayerChangeSpawnProfile(modelHash);
     }
 
     void Human::OnStateForced() {
         // ReadForcedState applied the server's authoritative position/rotation; move the game ped to
         // match. We then resume streaming the ped's transform from the corrected state.
         if (isLocalPlayer) {
-            TeleportLocalToReplicated();
+            // A push made for another field echoes our own pose back; only warp when the server
+            // actually moved us.
+            if (WasPoseForced()) {
+                TeleportLocalToReplicated();
+            }
+            ApplyLocalSkin();
         }
     }
 
@@ -198,16 +236,42 @@ namespace MafiaMP::Core::Modules {
         human->SetTransform(transform);
     }
 
-    void Human::RequestPed() {
-        info = Core::gApplication->GetEntityFactory()->RequestHuman(modelHash);
+    Game::Streaming::EntityTrackingInfo *Human::RequestPed() {
+        auto *request = Core::gApplication->GetEntityFactory()->RequestHuman(modelHash);
         interpolator.GetPosition()->SetCompensationFactor(1.5f);
 
-        info->SetBeforeSpawnCallback([](Game::Streaming::EntityTrackingInfo *) {
+        request->SetBeforeSpawnCallback([](Game::Streaming::EntityTrackingInfo *) {
             CreateNetCharacterController = true;
         });
-        info->SetRequestFinishCallback(&OnHumanRequestFinish);
-        info->SetReturnCallback(&OnHumanReturned);
-        info->SetNetworkEntity(this);
+        request->SetRequestFinishCallback(&OnHumanRequestFinish);
+        request->SetReturnCallback(&OnHumanReturned);
+        request->SetNetworkEntity(this);
+        return request;
+    }
+
+    void Human::UpdateRemoteSkin() {
+        if (isLocalPlayer || !info || modelHash == 0 || modelHash == (reskinInfo ? reskinSkin : appliedSkin)) {
+            return;
+        }
+        const auto factory = Core::gApplication->GetEntityFactory();
+        if (reskinInfo) {
+            factory->ReturnEntity(reskinInfo);
+            reskinInfo = nullptr;
+        }
+        if (modelHash == appliedSkin) {
+            return;
+        }
+        // No ped in the world yet: nothing to keep, so the request itself is replaced.
+        if (!human) {
+            factory->ReturnEntity(info);
+            info        = RequestPed();
+            appliedSkin = modelHash;
+            return;
+        }
+        // Keep the current ped until the new one has spawned (OnHumanRequestFinish swaps them): a
+        // profile that takes long to load, or never does, leaves the player as it was, not invisible.
+        reskinInfo = RequestPed();
+        reskinSkin = modelHash;
     }
 
     void Human::DeallocReplica(MafiaNet::Connection_RM3 *) {
@@ -216,9 +280,15 @@ namespace MafiaMP::Core::Modules {
                 Core::gApplication->SetLocalPlayer(nullptr);
             }
         }
-        else if (info) {
-            Core::gApplication->GetEntityFactory()->ReturnEntity(info);
-            info = nullptr;
+        else {
+            if (reskinInfo) {
+                Core::gApplication->GetEntityFactory()->ReturnEntity(reskinInfo);
+                reskinInfo = nullptr;
+            }
+            if (info) {
+                Core::gApplication->GetEntityFactory()->ReturnEntity(info);
+                info = nullptr;
+            }
         }
         delete this;
     }
@@ -335,12 +405,6 @@ namespace MafiaMP::Core::Modules {
     void Human::ApplyRemote() {
         if (!human || !charController) {
             return;
-        }
-
-        // Apply a replicated skin change.
-        if (modelHash != appliedSkin) {
-            appliedSkin = modelHash;
-            // TODO: re-skin a remote ped (local player handled by the game directly).
         }
 
         // Keep remote peds from dying due to client-only factors; health comes from the owner.
@@ -464,6 +528,7 @@ namespace MafiaMP::Core::Modules {
         }
         repl->ForEachEntity([](Framework::Networking::Replication::NetworkEntity *e) {
             if (auto *human = dynamic_cast<Human *>(e)) {
+                human->UpdateRemoteSkin();
                 human->Frame();
             }
         });
