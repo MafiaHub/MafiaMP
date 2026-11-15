@@ -29,6 +29,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace MafiaMP {
@@ -116,10 +117,6 @@ namespace MafiaMP {
             }
             if (seatIndex >= 0 && seatIndex < Shared::Entities::VehicleEntity::kMaxSeats) {
                 vehicle->seats[seatIndex] = player->GetNetworkID();
-                if (seatIndex == 0) {
-                    // The driver's client becomes authoritative for the vehicle.
-                    vehicle->SetOwner(MafiaNet::ToPeerGuid(packet->guid));
-                }
             }
             Scripting::Vehicle::EventVehiclePlayerEnter(vehicleId, player->GetNetworkID(), seatIndex);
         }
@@ -138,9 +135,6 @@ namespace MafiaMP {
             for (int i = 0; i < Shared::Entities::VehicleEntity::kMaxSeats; ++i) {
                 if (vehicle->seats[i] == playerId) {
                     vehicle->seats[i] = 0;
-                    if (i == 0) {
-                        vehicle->SetOwner(MafiaNet::UNASSIGNED_PEER_GUID); // back to the server
-                    }
                 }
             }
             Scripting::Vehicle::EventVehiclePlayerLeave(vehicleId, playerId);
@@ -194,7 +188,36 @@ namespace MafiaMP {
         InitNetworkingMessages();
     }
 
-    void Server::PostUpdate() {}
+    void Server::PostUpdate() {
+        SyncVehicleDrivers();
+    }
+
+    void Server::SyncVehicleDrivers() {
+        auto *repl = Replication();
+        if (!repl) {
+            return;
+        }
+
+        // The seat comes from each human's replicated carPassenger, not from the enter RPC: that
+        // one names the door the player used, so entering from the passenger side reports seat 1
+        // before the game slides the player behind the wheel.
+        std::unordered_map<uint64_t, MafiaNet::PeerGuid> drivers;
+        repl->ForEach<Shared::Entities::HumanEntity>([&drivers](Shared::Entities::HumanEntity *human) {
+            const auto &seat = human->data.carPassenger;
+            if (human->ownerGUID != MafiaNet::UNASSIGNED_PEER_GUID && seat.carId != 0 && seat.seatId == 0) {
+                drivers[seat.carId] = human->ownerGUID;
+            }
+        });
+
+        // The driver's client simulates the vehicle; without a driver it goes back to the server.
+        repl->ForEach<Shared::Entities::VehicleEntity>([&drivers](Shared::Entities::VehicleEntity *vehicle) {
+            const auto it         = drivers.find(vehicle->GetNetworkID());
+            const auto driverGuid = it != drivers.end() ? it->second : MafiaNet::UNASSIGNED_PEER_GUID;
+            if (vehicle->ownerGUID != driverGuid) {
+                vehicle->SetOwner(driverGuid);
+            }
+        });
+    }
 
     void Server::PreShutdown() {}
 

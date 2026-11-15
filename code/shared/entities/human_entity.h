@@ -28,6 +28,11 @@ namespace MafiaMP::Shared::Entities {
         uint16_t playerIndex = 0xFFFF;
         Modules::HumanSync::UpdateData data {};
 
+        // The owner's clock when it read the pose it sends, so receivers lay poses out by when
+        // they were taken rather than by when they arrived. Updated only when the pose changes,
+        // so a motionless human still stops sending.
+        uint64_t poseTime = 0;
+
         uint64_t GetSpawnProfile() const {
             return modelHash;
         }
@@ -42,6 +47,11 @@ namespace MafiaMP::Shared::Entities {
             if (!fields.Writing()) {
                 nickname = name.C_String();
             }
+        }
+
+        void SerializeTransform(Replication::FieldSerializer &fields) override {
+            NetworkEntity::SerializeTransform(fields);
+            fields.Field(poseTime);
         }
 
         void SerializeFields(Replication::FieldSerializer &fields) override {

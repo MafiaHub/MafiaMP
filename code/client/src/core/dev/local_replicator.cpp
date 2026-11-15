@@ -209,8 +209,8 @@ namespace MafiaMP::Core::Dev {
         // Set target position for interpolation
         const auto humanPos = _human->GetPos();
         const auto humanRot = _human->GetRot();
-        _interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, _targetPos, Core::gApplication->GetTickInterval());
-        _interpolator.GetRotation()->SetTargetValue({humanRot.w, humanRot.x, humanRot.y, humanRot.z}, _targetRot, Core::gApplication->GetTickInterval());
+        _interpolator.GetPosition()->SetTargetValue({humanPos.x, humanPos.y, humanPos.z}, _targetPos, Core::gApplication->GetTickIntervalMs());
+        _interpolator.GetRotation()->SetTargetValue({humanRot.w, humanRot.x, humanRot.y, humanRot.z}, _targetRot, Core::gApplication->GetTickIntervalMs());
 
         // Update human based data
         _charController->SetDesiredHandlerType(desiredStateHandlerType);

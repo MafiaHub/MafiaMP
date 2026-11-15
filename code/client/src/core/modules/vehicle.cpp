@@ -73,6 +73,8 @@ namespace MafiaMP::Core::Modules {
     void Vehicle::OnConstructed() {
         info = Core::gApplication->GetEntityFactory()->RequestVehicle(modelName);
         interpolator.GetPosition()->SetCompensationFactor(1.5f);
+        interpolator.GetPosition()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
+        interpolator.GetRotation()->SetErrorContributionDelayRange(0.0f, Core::gApplication->GetTickIntervalMs());
         info->SetRequestFinishCallback(&OnVehicleRequestFinish);
         info->SetReturnCallback(&OnVehicleReturned);
         info->SetNetworkEntity(this);
@@ -200,8 +202,8 @@ namespace MafiaMP::Core::Modules {
         // Set the interpolation target toward the replicated transform.
         const auto vehicleRot = car->GetRot();
         const auto vehiclePos = car->GetPos();
-        interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, rotation, MafiaMP::Core::gApplication->GetTickInterval());
-        interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, position, MafiaMP::Core::gApplication->GetTickInterval());
+        interpolator.GetRotation()->SetTargetValue({vehicleRot.w, vehicleRot.x, vehicleRot.y, vehicleRot.z}, rotation, MafiaMP::Core::gApplication->GetTickIntervalMs());
+        interpolator.GetPosition()->SetTargetValue({vehiclePos.x, vehiclePos.y, vehiclePos.z}, position, MafiaMP::Core::gApplication->GetTickIntervalMs());
 
         ApplyConfig();
 

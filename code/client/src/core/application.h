@@ -90,6 +90,11 @@ namespace MafiaMP::Core {
             return _tickInterval;
         }
 
+        // Interpolator delays are in milliseconds; the tick interval is in seconds.
+        float GetTickIntervalMs() const {
+            return _tickInterval * 1000.0f;
+        }
+
         std::shared_ptr<Framework::Utils::CommandProcessor> GetCommandProcessor() const {
             return _commandProcessor;
         }
