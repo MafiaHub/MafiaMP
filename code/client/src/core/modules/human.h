@@ -81,6 +81,7 @@ namespace MafiaMP::Core::Modules {
         Game::Streaming::EntityTrackingInfo *RequestPed();
         void ApplyRemote();
         void ReadLocal();
+        void ReadLocalCarSeat();
         void DrawNametag();
     };
 } // namespace MafiaMP::Core::Modules

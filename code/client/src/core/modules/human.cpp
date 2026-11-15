@@ -363,10 +363,12 @@ namespace MafiaMP::Core::Modules {
         // A seated ped stops updating its own transform, so GetPos() above is frozen at the point we
         // entered the car. This avatar is the connection's streaming viewer, so follow the car instead
         // — otherwise interest stays anchored at the entry point and the vehicle (and the player) get
-        // streamed out after driving one stream radius away.
+        // streamed out after driving one stream radius away. The car is the one the car handler
+        // drives, not the ped's owner, and the ped follows it only once it sits.
         if (data._charStateHandlerType == SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
-            if (auto *car = reinterpret_cast<SDK::C_Car *>(human->GetOwner())) {
-                const SDK::ue::sys::math::C_Vector carPos = car->GetPos();
+            auto *carWrapper = charController->GetCarHandler()->GetHuman2CarWrapper();
+            if (carWrapper && carWrapper->GetActor() && carWrapper->GetSeatID(human) != SDK::C_Human2CarWrapper::E_SEAT_NONE) {
+                const SDK::ue::sys::math::C_Vector carPos = carWrapper->GetActor()->GetPos();
                 position                                  = {carPos.x, carPos.y, carPos.z};
             }
         }
@@ -401,26 +403,39 @@ namespace MafiaMP::Core::Modules {
         } break;
 
         case SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR: {
-            // Report the car and seat on every frame of the car handler, not only while entering:
-            // that single sample missed fast entries and never saw a seat switch, so the seat
-            // never reached the server and other players could not put us in the car.
-            using CarHandler      = SDK::ue::game::humanai::C_CharacterStateHandlerCar;
-            auto *carHandler      = charController->GetCarHandler();
-            auto human2CarWrapper = carHandler->GetHuman2CarWrapper();
-            const auto carState   = carHandler->GetCarState();
-            const bool leaving    = carState == CarHandler::E_CS_GETTING_OUT || carState == CarHandler::E_CS_FAST_EXIT || carState == CarHandler::E_CS_LEAVE_START || carState == CarHandler::E_CS_LEAVE;
-            if (leaving) {
-                data.carPassenger = {};
-            }
-            else if (human2CarWrapper && human2CarWrapper->GetActor()) {
-                if (auto *carEnt = Vehicle::GetByCar(human2CarWrapper->GetActor())) {
-                    data.carPassenger = {carEnt->GetNetworkID(), static_cast<int>(human2CarWrapper->GetSeatID(human))};
-                }
-            }
+            ReadLocalCarSeat();
         } break;
         }
 
         if (data._charStateHandlerType != SDK::ue::game::humanai::C_CharacterStateHandler::E_SHT_CAR) {
+            data.carPassenger = {};
+        }
+    }
+
+    void Human::ReadLocalCarSeat() {
+        // Report the car and seat on every frame of the car handler, not only while entering: that
+        // single sample missed fast entries and never saw a seat switch. The seat is the handler's,
+        // known from the start of the entry and already the driver seat for a player who slides
+        // over from the passenger door; GetSeatID answers only once the ped sits.
+        auto *carHandler   = charController->GetCarHandler();
+        auto *carWrapper   = carHandler->GetHuman2CarWrapper();
+        SDK::C_Car *car    = carWrapper ? carWrapper->GetActor() : nullptr;
+        const int32_t seat = carHandler->GetCurrentSeatIndex();
+        if (!car || seat == SDK::ue::game::humanai::C_CharacterStateHandlerCar::E_SEAT_NONE || carHandler->IsLeavingCar()) {
+            data.carPassenger = {};
+            return;
+        }
+
+        // The car reported last frame is the usual answer; only a new one needs the walk over every
+        // entity GetByCar does.
+        auto *carEnt = Vehicle::GetByNetworkId(data.carPassenger.carId);
+        if (!carEnt || carEnt->car != car) {
+            carEnt = Vehicle::GetByCar(car);
+        }
+        if (carEnt) {
+            data.carPassenger = {carEnt->GetNetworkID(), seat};
+        }
+        else {
             data.carPassenger = {};
         }
     }
